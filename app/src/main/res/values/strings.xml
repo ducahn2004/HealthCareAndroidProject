@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">HealthCareProject</string>
+    <string name="senior_care_alert">Senior Care Alert</string>
 </resources>
