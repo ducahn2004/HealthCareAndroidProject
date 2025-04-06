@@ -1,4 +1,15 @@
 <resources>
     <string name="app_name">HealthCareProject</string>
     <string name="senior_care_alert">Senior Care Alert</string>
+    <string name="explore">Explore</string>
+    <string name="medicine">Medicine</string>
+    <string name="home">Home</string>
+    <string name="notification">Notification</string>
+    <string name="setting">Setting</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="hello_explore_fragment">\nHello Explore Fragment</string>
+    <string name="hello_home_fragment">Hello Home Fragment</string>
+    <string name="hello_medicine_fragment">Hello Medicine Fragment</string>
+    <string name="hello_notification_fragment">Hello Notification Fragment</string>
+    <string name="hello_setting_fragment">Hello Setting Fragment</string>
 </resources>
