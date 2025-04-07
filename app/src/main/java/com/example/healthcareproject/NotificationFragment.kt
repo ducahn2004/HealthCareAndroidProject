@@ -1,59 +1,77 @@
 package com.example.healthcareproject
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.healthcareproject.databinding.FragmentNotificationBinding
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [NotificationFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class NotificationFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    private var _binding: FragmentNotificationBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_notification, container, false)
+    ): View {
+        _binding = FragmentNotificationBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment NotificationFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            NotificationFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        // Dữ liệu giả lập (thay bằng dữ liệu thực tế từ API hoặc database)
+        val notifications = listOf(
+            Notification("HEART RATE ALERT", "Heart rate is too high. Need to Emergency!", "10:24pm", R.drawable.ic_heart_rate),
+            Notification("ECG ALERT", "ECG is not stable. Need to Emergency!", "10:24pm", R.drawable.ic_ecg),
+            Notification("OXYGEN LEVEL ALERT", "Oxygen Level is too high. Need to Emergency!", "10:24pm", R.drawable.ic_oxygen),
+            Notification("HEART RATE ALERT", "Heart rate is too high. Need to Emergency!", "10:24pm", R.drawable.ic_heart_rate),
+            Notification("UPDATE WEIGHT", "Weight is 65KG. Keep yourself!", "10:24pm", R.drawable.ic_weight),
+            Notification("HEART RATE ALERT", "Heart rate is too high. Need to Emergency!", "10:24pm", R.drawable.ic_heart_rate),
+            Notification("ECG ALERT", "ECG is not stable. Need to Emergency!", "10:24pm", R.drawable.ic_ecg),
+            Notification("OXYGEN LEVEL ALERT", "Oxygen Level is too high. Need to Emergency!", "10:24pm", R.drawable.ic_oxygen),
+            Notification("HEART RATE ALERT", "Heart rate is too high. Need to Emergency!", "10:24pm", R.drawable.ic_heart_rate),
+            Notification("HEART RATE ALERT", "Heart rate is too high. Need to Emergency!", "10:24pm", R.drawable.ic_heart_rate),
+            Notification("ECG ALERT", "ECG is not stable. Need to Emergency!", "10:24pm", R.drawable.ic_ecg),
+            Notification("OXYGEN LEVEL ALERT", "Oxygen Level is too high. Need to Emergency!", "10:24pm", R.drawable.ic_oxygen),
+            Notification("HEART RATE ALERT", "Heart rate is too high. Need to Emergency!", "10:24pm", R.drawable.ic_heart_rate),
+            Notification("HEART RATE ALERT", "Heart rate is too high. Need to Emergency!", "10:24pm", R.drawable.ic_heart_rate),
+            Notification("ECG ALERT", "ECG is not stable. Need to Emergency!", "10:24pm", R.drawable.ic_ecg),
+            Notification("OXYGEN LEVEL ALERT", "Oxygen Level is too high. Need to Emergency!", "10:24pm", R.drawable.ic_oxygen),
+            Notification("HEART RATE ALERT", "Heart rate is too high. Need to Emergency!", "10:24pm", R.drawable.ic_heart_rate),
+            Notification("HEART RATE ALERT", "Heart rate is too high. Need to Emergency!", "10:24pm", R.drawable.ic_heart_rate),
+            Notification("ECG ALERT", "ECG is not stable. Need to Emergency!", "10:24pm", R.drawable.ic_ecg),
+            Notification("OXYGEN LEVEL ALERT", "Oxygen Level is too high. Need to Emergency!", "10:24pm", R.drawable.ic_oxygen),
+            Notification("HEART RATE ALERT", "Heart rate is too high. Need to Emergency!", "10:24pm", R.drawable.ic_heart_rate)
+
+        )
+
+        // Thiết lập RecyclerView
+        if (notifications.isNotEmpty()) {
+            binding.rvNotifications.visibility = View.VISIBLE
+            binding.emptyStateLayout.visibility = View.GONE
+
+            binding.rvNotifications.layoutManager = LinearLayoutManager(requireContext())
+            binding.rvNotifications.adapter = NotificationAdapter(notifications)
+
+            // Thêm divider tùy chỉnh
+            val dividerItemDecoration = DividerItemDecoration(requireContext(), LinearLayoutManager.VERTICAL)
+            dividerItemDecoration.setDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.divider)!!)
+            binding.rvNotifications.addItemDecoration(dividerItemDecoration)
+        } else {
+            binding.rvNotifications.visibility = View.GONE
+            binding.emptyStateLayout.visibility = View.VISIBLE
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

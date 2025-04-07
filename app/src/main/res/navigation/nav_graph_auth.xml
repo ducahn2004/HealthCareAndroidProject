@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph_auth"
+    app:startDestination="@id/loginMethodFragment">
+
+    <!-- Login Method Fragment -->
+    <fragment
+        android:id="@+id/loginMethodFragment"
+        android:name="com.example.healthcareproject.ui.auth.LoginMethodFragment"
+        android:label="Login Method"
+        tools:layout="@layout/fragment_login_method">
+        <action
+            android:id="@+id/action_loginMethodFragment_to_loginFragment"
+            app:destination="@id/loginFragment" />
+        <action
+            android:id="@+id/action_loginMethodFragment_to_registerFragment"
+            app:destination="@id/registerFragment" />
+        <action
+            android:id="@+id/action_loginMethodFragment_to_googleLoginFragment"
+            app:destination="@id/googleLoginFragment" />
+    </fragment>
+
+    <!-- Login Fragment -->
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.example.healthcareproject.ui.auth.LoginFragment"
+        android:label="Login"
+        tools:layout="@layout/fragment_login">
+        <action
+            android:id="@+id/action_loginFragment_to_forgotPasswordFragment"
+            app:destination="@id/forgotPasswordFragment" />
+        <action
+            android:id="@+id/action_loginFragment_to_googleLoginFragment"
+            app:destination="@id/googleLoginFragment"/>
+    </fragment>
+
+    <!-- Register Fragment -->
+    <fragment
+        android:id="@+id/registerFragment"
+        android:name="com.example.healthcareproject.ui.auth.RegisterFragment"
+        android:label="Register"
+        tools:layout="@layout/fragment_register">
+        <action
+            android:id="@+id/action_registerFragment_to_verifyCodeFragment"
+            app:destination="@id/verifyCodeFragment" />
+    </fragment>
+
+    <!-- Verify Code Fragment -->
+    <fragment
+        android:id="@+id/verifyCodeFragment"
+        android:name="com.example.healthcareproject.ui.auth.VerifyCodeFragment"
+        android:label="Verify Code"
+        tools:layout="@layout/fragment_verify_code">
+        <action
+            android:id="@+id/action_verifyCodeFragment_to_createNewPasswordFragment"
+            app:destination="@id/createNewPasswordFragment" />
+    </fragment>
+
+    <!-- Google Login Fragment -->
+    <fragment
+        android:id="@+id/googleLoginFragment"
+        android:name="com.example.healthcareproject.ui.auth.GoogleLoginFragment"
+        android:label="Google Login"
+        tools:layout="@layout/fragment_google_login" />
+
+    <!-- Forgot Password Fragment -->
+    <fragment
+        android:id="@+id/forgotPasswordFragment"
+        android:name="com.example.healthcareproject.ui.auth.ForgotPasswordFragment"
+        android:label="Forgot Password"
+        tools:layout="@layout/fragment_forgot_password">
+        <action
+            android:id="@+id/action_forgotPasswordFragment_to_verifyCodeFragment"
+            app:destination="@id/verifyCodeFragment" />
+    </fragment>
+
+    <!-- Create New Password Fragment -->
+    <fragment
+        android:id="@+id/createNewPasswordFragment"
+        android:name="com.example.healthcareproject.ui.auth.CreateNewPasswordFragment"
+        android:label="Create New Password"
+        tools:layout="@layout/fragment_create_new_password" />
+</navigation>

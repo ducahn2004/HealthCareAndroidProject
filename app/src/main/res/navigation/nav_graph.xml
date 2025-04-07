@@ -2,14 +2,48 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/nav_graph.xml">
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/homeFragment">
+
     <!-- Home Fragment -->
     <fragment
         android:id="@+id/homeFragment"
         android:name="com.example.healthcareproject.HomeFragment"
         android:label="Home"
-        tools:layout="@layout/fragment_home" />
+        tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/action_homeFragment_to_heartRateFragment"
+            app:destination="@id/heartRateFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_oxygenFragment"
+            app:destination="@id/oxygenFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_ecgFragment"
+            app:destination="@id/ecgFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_weightFragment"
+            app:destination="@id/weightFragment" />
+    </fragment>
 
+    <fragment
+        android:id="@+id/heartRateFragment"
+        android:name="com.example.healthcareproject.home.HeartRateFragment"
+        android:label="Heart Rate" />
+
+    <fragment
+        android:id="@+id/oxygenFragment"
+        android:name="com.example.healthcareproject.home.OxygenFragment"
+        android:label="Oxygen Level" />
+
+    <fragment
+        android:id="@+id/ecgFragment"
+        android:name="com.example.healthcareproject.home.ECGFragment"
+        android:label="ECG" />
+
+    <fragment
+        android:id="@+id/weightFragment"
+        android:name="com.example.healthcareproject.home.WeightFragment"
+        android:label="Weight" />
     <!-- Explore Fragment -->
     <fragment
         android:id="@+id/exploreFragment"

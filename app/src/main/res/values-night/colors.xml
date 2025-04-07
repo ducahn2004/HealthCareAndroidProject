@@ -1,0 +1,16 @@
+<resources>
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="background">@color/background_dark</color>
+    <color name="background_dark">#FF121212</color>
+    <color name="surface">@color/surface_dark</color>
+    <color name="surface_dark">#FF1E1E1E</color>
+    <color name="surface_alternate">@color/surface_alternate_dark</color>
+    <color name="surface_alternate_dark">#FF2A2A2A</color>
+    <color name="button_text_color">@android:color/white</color>
+    <color name="button_background_color">@android:color/black</color>
+    <color name="light_gray">#A9A9A9</color> <!-- Darker shade for night mode -->
+</resources>
