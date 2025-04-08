@@ -10,10 +10,9 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@android:color/white"
+        android:background="@color/background"
         app:layout_constraintTop_toTopOf="parent"
-        app:title="NOTIFICATION"
-        app:titleTextColor="@android:color/black" />
+        app:title="NOTIFICATION" />
 
     <!-- RecyclerView for notifications -->
     <androidx.recyclerview.widget.RecyclerView

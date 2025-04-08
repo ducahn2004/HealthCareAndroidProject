@@ -16,9 +16,11 @@
         <item name="android:windowLightStatusBar" tools:targetApi="23">true</item>
 
         <item name="materialButtonStyle">@style/CustomMaterialButton</item>
+
     </style>
     <style name="CustomMaterialButton" parent="Widget.MaterialComponents.Button">
         <item name="backgroundTint">@null</item> <!-- Disable default tint -->
         <item name="android:background">@null</item> <!-- Let the custom drawable take over -->
     </style>
+
 </resources>

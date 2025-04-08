@@ -6,12 +6,27 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.navigation.NavController
+import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.healthcareproject.setting.SettingItem
 import com.example.healthcareproject.ui.auth.AuthActivity
+import android.app.AlertDialog
+import android.content.Context
 
 class SettingsFragment : Fragment() {
+    private val SETTINGS = listOf(
+        SettingItem(1, "Change Theme", R.drawable.ic_theme),
+        SettingItem(2, "Account Settings", R.drawable.ic_account),
+        SettingItem(3, "Notifications", R.drawable.ic_notification),
+        SettingItem(4, "Privacy", R.drawable.ic_privacy),
+        SettingItem(5, "Logout", R.drawable.ic_logout)
+    )
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         return inflater.inflate(R.layout.fragment_settings, container, false)
@@ -20,17 +35,52 @@ class SettingsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Nút "Logout"
-        view.findViewById<View>(R.id.btn_logout).setOnClickListener {
-            // Đặt lại trạng thái đăng nhập
-            val sharedPreferences = requireContext().getSharedPreferences("user_prefs", 0)
-            val editor = sharedPreferences.edit()
-            editor.putBoolean("is_logged_in", false)
-            editor.apply()
-
-            // Chuyển về AuthActivity
-            startActivity(Intent(requireContext(), AuthActivity::class.java))
-            requireActivity().finish() // Kết thúc MainActivity
+        val rvSettings = view.findViewById<RecyclerView>(R.id.rv_settings)
+        rvSettings.layoutManager = LinearLayoutManager(context)
+        rvSettings.adapter = SettingsAdapter(SETTINGS) { item ->
+            when (item.id) {
+                1 -> {
+                    // Sử dụng Navigation Component thay vì FragmentTransaction
+                    findNavController().navigate(R.id.action_settingsFragment_to_themeFragment)
+                }
+                2 -> {
+                    // Xử lý Account Settings
+                    // Có thể thêm navigation đến AccountSettingsFragment
+                }
+                3 -> {
+                    // Xử lý Notifications
+                    // Có thể thêm navigation đến NotificationSettingsFragment
+                }
+                4 -> {
+                    // Xử lý Privacy
+                    // Có thể thêm navigation đến PrivacyFragment
+                }
+                5 -> {
+                    showLogoutConfirmationDialog()
+                }
+            }
         }
+    }
+    private fun showLogoutConfirmationDialog() {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Confirm Logout")
+            .setMessage("Are you sure you want to logout?")
+            .setPositiveButton("Yes") { _, _ ->
+                performLogout()
+            }
+            .setNegativeButton("No") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .setCancelable(true)
+            .show()
+    }
+
+    private fun performLogout() {
+        // Clear shared preferences
+        requireActivity().getSharedPreferences("prefs", Context.MODE_PRIVATE)
+            .edit()
+            .clear()
+            .apply()
+        findNavController().navigate(R.id.action_settingsFragment_to_loginMethodFragment)
     }
 }

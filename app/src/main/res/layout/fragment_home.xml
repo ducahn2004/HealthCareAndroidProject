@@ -17,7 +17,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:text="@string/dashboard"
-        android:textColor="@android:color/black"
         android:textSize="24sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
@@ -57,7 +56,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/heart_rate"
-                android:textColor="@android:color/black"
                 android:textSize="12sp" />
 
             <TextView
@@ -65,7 +63,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/default_heart_rate"
-                android:textColor="@android:color/black"
                 android:textSize="14sp"
                 android:textStyle="bold" />
         </LinearLayout>
@@ -90,7 +87,6 @@
                 android:layout_height="wrap_content"
                 android:text="@string/oxygen_level"
                 android:textAlignment="center"
-                android:textColor="@android:color/black"
                 android:textSize="12sp" />
 
             <TextView
@@ -98,7 +94,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/default_oxygen_level"
-                android:textColor="@android:color/black"
                 android:textSize="14sp"
                 android:textStyle="bold" />
         </LinearLayout>
@@ -122,7 +117,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/ecg"
-                android:textColor="@android:color/black"
                 android:textSize="12sp" />
 
             <TextView
@@ -130,7 +124,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/default_ecg"
-                android:textColor="@android:color/black"
                 android:textSize="14sp"
                 android:textStyle="bold" />
         </LinearLayout>
@@ -154,7 +147,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/weight"
-                android:textColor="@android:color/black"
+
                 android:textSize="12sp" />
 
             <TextView
@@ -162,7 +155,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/default_weight"
-                android:textColor="@android:color/black"
                 android:textSize="14sp"
                 android:textStyle="bold" />
         </LinearLayout>
@@ -199,7 +191,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="@string/check_oxygen_level"
-                android:textColor="@android:color/black"
+
                 android:textSize="16sp" />
 
             <TextView
@@ -207,7 +199,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/default_oxygen_level_current"
-                android:textColor="@android:color/darker_gray"
                 android:textSize="14sp" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
@@ -243,7 +234,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="@string/enter_weight"
-                android:textColor="@android:color/black"
                 android:textSize="16sp" />
 
             <TextView
@@ -251,7 +241,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/default_weight_current"
-                android:textColor="@android:color/darker_gray"
                 android:textSize="14sp" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
@@ -287,7 +276,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="@string/check_heart_rate"
-                android:textColor="@android:color/black"
                 android:textSize="16sp" />
 
             <TextView
@@ -295,7 +283,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/default_heart_rate_current"
-                android:textColor="@android:color/darker_gray"
                 android:textSize="14sp" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
@@ -331,7 +318,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="@string/check_ecg"
-                android:textColor="@android:color/black"
                 android:textSize="16sp" />
 
             <TextView
@@ -339,7 +325,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/default_ecg_current"
-                android:textColor="@android:color/darker_gray"
                 android:textSize="14sp" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
@@ -350,7 +335,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:text="@string/good_morning"
-        android:textColor="@android:color/black"
         android:textSize="18sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_dashboard_title" />

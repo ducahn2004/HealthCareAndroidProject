@@ -64,4 +64,5 @@
     <string name="default_ecg_current">Current GOOD</string>
     <string name="default_weight_current">Current 65 kg</string>
     <string name="hello_weight_fragment">HELLO WEIGHT FRAGMENT\n</string>
+    <string name="select_theme">Select Theme</string>
 </resources>
