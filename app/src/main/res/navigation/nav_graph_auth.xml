@@ -90,6 +90,11 @@
         <action
             android:id="@+id/action_forgotPasswordFragment_to_verifyCodeFragment"
             app:destination="@id/verifyCodeFragment" />
+        <action
+            android:id="@+id/action_forgotPasswordFragment_to_loginMethodFragment"
+            app:destination="@id/loginMethodFragment"
+            app:popUpTo="@id/loginMethodFragment"
+            app:popUpToInclusive="false" />
     </fragment>
 
     <!-- Create New Password Fragment -->

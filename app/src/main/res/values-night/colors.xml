@@ -11,6 +11,7 @@
     <color name="surface_alternate">@color/surface_alternate_dark</color>
     <color name="surface_alternate_dark">#FF2A2A2A</color>
     <color name="button_text_color">@android:color/white</color>
+    <color name="button_google_color">@android:color/white</color>
     <color name="button_background_color">@android:color/black</color>
     <color name="light_gray">#A9A9A9</color> <!-- Darker shade for night mode -->
 </resources>

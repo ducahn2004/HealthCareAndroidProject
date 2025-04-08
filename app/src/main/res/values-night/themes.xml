@@ -13,5 +13,10 @@
         <item name="android:textColorSecondary">@color/light_gray</item>
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <item name="android:windowLightStatusBar" tools:targetApi="23">false</item>
+        <item name="materialButtonStyle">@style/CustomMaterialButton</item>
+    </style>
+    <style name="CustomMaterialButton" parent="Widget.MaterialComponents.Button">
+        <item name="backgroundTint">@null</item> <!-- Disable default tint -->
+        <item name="android:background">@null</item> <!-- Let the custom drawable take over -->
     </style>
 </resources>

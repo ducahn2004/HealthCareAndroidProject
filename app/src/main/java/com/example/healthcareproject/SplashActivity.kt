@@ -9,28 +9,28 @@ import com.example.healthcareproject.ui.auth.AuthActivity
 class SplashActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
+        super.onCreate(savedInstanceState)
 
         val savedTheme = loadThemePreference()
         AppCompatDelegate.setDefaultNightMode(savedTheme)
-
-        super.onCreate(savedInstanceState)
-
 
         val sharedPreferences = getSharedPreferences("user_prefs", 0)
         val isLoggedIn = sharedPreferences.getBoolean("is_logged_in", false)
 
         if (isLoggedIn) {
-
             startActivity(Intent(this, MainActivity::class.java))
         } else {
-
             startActivity(Intent(this, AuthActivity::class.java))
         }
-        finish() // Kết thúc SplashActivity
+        finish()
     }
+
     private fun loadThemePreference(): Int {
         val sharedPreferences = getSharedPreferences("theme_prefs", 0)
-        return sharedPreferences.getInt("theme_mode", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+        // Lấy theme_mode kiểu int, mặc định là MODE_NIGHT_FOLLOW_SYSTEM
+        return sharedPreferences.getInt(
+            "theme_mode",
+            AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+        )
     }
 }

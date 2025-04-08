@@ -30,26 +30,28 @@ class ThemeFragment : Fragment() {
         val rbDark = view.findViewById<RadioButton>(R.id.rb_dark)
         val btnBack = view.findViewById<ImageButton>(R.id.btn_back)
 
+        // Thiết lập trạng thái ban đầu của radio buttons dựa trên theme hiện tại
         when (AppCompatDelegate.getDefaultNightMode()) {
             AppCompatDelegate.MODE_NIGHT_YES -> rbDark.isChecked = true
             AppCompatDelegate.MODE_NIGHT_NO -> rbLight.isChecked = true
-            else -> { // Trường hợp hệ thống tự động hoặc chưa thiết lập
+            else -> {
                 val prefs = requireActivity().getSharedPreferences("theme_prefs", 0)
-                val isDark = prefs.getBoolean("is_dark_theme", false)
-                if (isDark) rbDark.isChecked = true else rbLight.isChecked = true
+                val savedTheme = prefs.getInt("theme_mode", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+                if (savedTheme == AppCompatDelegate.MODE_NIGHT_YES) rbDark.isChecked = true
+                else if (savedTheme == AppCompatDelegate.MODE_NIGHT_NO) rbLight.isChecked = true
             }
         }
 
-
+        // Xử lý khi người dùng chọn theme
         radioGroup.setOnCheckedChangeListener { _, checkedId ->
             when (checkedId) {
                 R.id.rb_light -> {
                     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                    saveThemePreference(false)
+                    saveThemePreference(AppCompatDelegate.MODE_NIGHT_NO)
                 }
                 R.id.rb_dark -> {
                     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                    saveThemePreference(true)
+                    saveThemePreference(AppCompatDelegate.MODE_NIGHT_YES)
                 }
             }
         }
@@ -59,9 +61,9 @@ class ThemeFragment : Fragment() {
         }
     }
 
-    private fun saveThemePreference(isDark: Boolean) {
+    private fun saveThemePreference(themeMode: Int) {
         val prefs = requireActivity().getSharedPreferences("theme_prefs", 0)
-        prefs.edit().putBoolean("is_dark_theme", isDark).apply()
+        prefs.edit().putInt("theme_mode", themeMode).apply()
     }
 
     companion object {

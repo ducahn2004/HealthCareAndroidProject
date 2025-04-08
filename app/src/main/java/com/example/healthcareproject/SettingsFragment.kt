@@ -74,14 +74,14 @@ class SettingsFragment : Fragment() {
 
     private fun performLogout() {
         // Xóa SharedPreferences
-        requireActivity().getSharedPreferences("prefs", Context.MODE_PRIVATE)
+        requireActivity().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
             .edit()
             .clear()
             .apply()
 
-        // Khởi động AuthActivity và chuyển đến LoginFragment
+
         val intent = Intent(requireContext(), AuthActivity::class.java).apply {
-            putExtra("destination", "loginMethodFragment") // Chỉ định đích là LoginFragment
+            putExtra("destination", "loginMethodFragment")
         }
         startActivity(intent)
         requireActivity().finish() // Kết thúc MainActivity
