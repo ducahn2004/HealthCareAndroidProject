@@ -1,5 +1,6 @@
 package com.example.healthcareproject.ui.auth
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -26,6 +27,7 @@ class LoginFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_login, container, false)
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -44,7 +46,7 @@ class LoginFragment : Fragment() {
             viewModel.password = etPassword.text.toString()
 
             // Giả sử kiểm tra đăng nhập (thay bằng logic thực tế, ví dụ: gọi API)
-            if (viewModel.email == "johndoe@gmail.com" && viewModel.password == "password123") {
+            if (viewModel.email == "admin" && viewModel.password == "password123") {
                 viewModel.isLoginSuccessful = true
                 saveLoginState(true)
                 // Chuyển sang MainActivity
