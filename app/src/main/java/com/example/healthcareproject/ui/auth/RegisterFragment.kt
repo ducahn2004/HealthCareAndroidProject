@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import android.widget.ImageButton
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
@@ -30,6 +31,11 @@ class RegisterFragment : Fragment() {
         val etEmail = view.findViewById<EditText>(R.id.et_email)
         val etPassword = view.findViewById<EditText>(R.id.et_password)
         val etConfirmPassword = view.findViewById<EditText>(R.id.et_confirm_password)
+        val btnBack = view.findViewById<ImageButton>(R.id.btn_back_register_to_login_method)
+
+        btnBack.setOnClickListener {
+            findNavController().navigate(R.id.action_registerFragment_to_loginMethodFragment)
+        }
 
         view.findViewById<View>(R.id.btn_create_account).setOnClickListener {
             viewModel.firstName = etFirstName.text.toString()
@@ -41,7 +47,7 @@ class RegisterFragment : Fragment() {
             if (etPassword.text.toString() == etConfirmPassword.text.toString()) {
                 findNavController().navigate(R.id.action_registerFragment_to_verifyCodeFragment)
             } else {
-                // Hiển thị lỗi nếu confirm password không khớp
+                etConfirmPassword.error = "Passwords do not match"
             }
         }
     }

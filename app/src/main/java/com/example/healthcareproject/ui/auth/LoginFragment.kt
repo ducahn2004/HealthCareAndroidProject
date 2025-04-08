@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -32,6 +33,11 @@ class LoginFragment : Fragment() {
         val etPassword = view.findViewById<EditText>(R.id.et_password)
         val tvError = view.findViewById<TextView>(R.id.tv_error)
 
+        val btnBack = view.findViewById<ImageButton>(R.id.btn_back_login_to_login_method)
+
+        btnBack.setOnClickListener {
+            findNavController().navigate(R.id.action_loginFragment_to_loginMethodFragment)
+        }
         // Nút "Login"
         view.findViewById<View>(R.id.btn_login).setOnClickListener {
             viewModel.email = etEmail.text.toString()

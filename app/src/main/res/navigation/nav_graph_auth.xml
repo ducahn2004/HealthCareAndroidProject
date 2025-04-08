@@ -34,6 +34,11 @@
         <action
             android:id="@+id/action_loginFragment_to_googleLoginFragment"
             app:destination="@id/googleLoginFragment"/>
+        <action
+            android:id="@+id/action_loginFragment_to_loginMethodFragment"
+            app:destination="@id/loginMethodFragment"
+            app:popUpTo="@id/loginMethodFragment"
+            app:popUpToInclusive="false" />
     </fragment>
 
     <!-- Register Fragment -->
@@ -45,6 +50,11 @@
         <action
             android:id="@+id/action_registerFragment_to_verifyCodeFragment"
             app:destination="@id/verifyCodeFragment" />
+        <action
+            android:id="@+id/action_registerFragment_to_loginMethodFragment"
+            app:destination="@id/loginMethodFragment"
+            app:popUpTo="@id/loginMethodFragment"
+            app:popUpToInclusive="false" />
     </fragment>
 
     <!-- Verify Code Fragment -->
@@ -63,7 +73,13 @@
         android:id="@+id/googleLoginFragment"
         android:name="com.example.healthcareproject.ui.auth.GoogleLoginFragment"
         android:label="Google Login"
-        tools:layout="@layout/fragment_google_login" />
+        tools:layout="@layout/fragment_google_login">
+        <action
+            android:id="@+id/action_googleLoginFragment_to_loginMethodFragment"
+            app:destination="@id/loginMethodFragment"
+            app:popUpTo="@id/loginMethodFragment"
+            app:popUpToInclusive="false" />
+    </fragment>
 
     <!-- Forgot Password Fragment -->
     <fragment

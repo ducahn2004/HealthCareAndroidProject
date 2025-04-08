@@ -6,6 +6,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp">
+    <ImageButton
+        android:id="@+id/btn_back_login_to_login_method"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_back"
+        android:background="@null"
+        app:tint="@color/light_gray"
+        android:contentDescription="@string/back"
+        android:padding="16dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
 
     <TextView
         android:id="@+id/tv_error"
@@ -115,7 +126,7 @@
     <Button
         android:id="@+id/btn_login"
         android:layout_width="315dp"
-        android:layout_height="47dp"
+        android:layout_height="48dp"
         android:layout_marginTop="12dp"
         android:backgroundTint="#6200EE"
         android:text="@string/login"
