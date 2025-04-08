@@ -44,6 +44,7 @@
         android:id="@+id/weightFragment"
         android:name="com.example.healthcareproject.home.WeightFragment"
         android:label="Weight" />
+
     <!-- Explore Fragment -->
     <fragment
         android:id="@+id/exploreFragment"
@@ -74,11 +75,6 @@
         <action
             android:id="@+id/action_settingsFragment_to_themeFragment"
             app:destination="@id/themeFragment" />
-        <action
-            android:id="@+id/action_settingsFragment_to_loginMethodFragment"
-            app:destination="@id/loginMethodFragment"
-            app:popUpTo="@id/homeFragment"
-            app:popUpToInclusive="true" />
     </fragment>
 
     <!-- Theme Fragment -->
@@ -93,11 +89,4 @@
             app:popUpTo="@id/settingsFragment"
             app:popUpToInclusive="false" />
     </fragment>
-
-    <!-- Login Method Fragment  -->
-    <fragment
-        android:id="@+id/loginMethodFragment"
-        android:name="com.example.healthcareproject.ui.auth.LoginMethodFragment"
-        android:label="Login Method"
-        tools:layout="@layout/fragment_login_method"/>
 </navigation>

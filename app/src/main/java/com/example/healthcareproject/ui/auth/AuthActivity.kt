@@ -18,6 +18,13 @@ class AuthActivity : AppCompatActivity() {
         val navHostFragment = supportFragmentManager
             .findFragmentById(R.id.fragment_container) as NavHostFragment
         navController = navHostFragment.navController
+
+        // Kiểm tra Intent để điều hướng đến LoginFragment
+        intent.getStringExtra("destination")?.let { destination ->
+            if (destination == "loginMethodFragment") {
+                navController.navigate(R.id.loginMethodFragment)
+            }
+        }
     }
 
     override fun onSupportNavigateUp(): Boolean {

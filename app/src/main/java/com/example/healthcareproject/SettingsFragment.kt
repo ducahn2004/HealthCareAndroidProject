@@ -1,19 +1,18 @@
 package com.example.healthcareproject
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.healthcareproject.setting.SettingItem
 import com.example.healthcareproject.ui.auth.AuthActivity
 import android.app.AlertDialog
-import android.content.Context
 
 class SettingsFragment : Fragment() {
     private val SETTINGS = listOf(
@@ -40,20 +39,17 @@ class SettingsFragment : Fragment() {
         rvSettings.adapter = SettingsAdapter(SETTINGS) { item ->
             when (item.id) {
                 1 -> {
-                    // Sử dụng Navigation Component thay vì FragmentTransaction
+                    // Điều hướng đến ThemeFragment
                     findNavController().navigate(R.id.action_settingsFragment_to_themeFragment)
                 }
                 2 -> {
-                    // Xử lý Account Settings
-                    // Có thể thêm navigation đến AccountSettingsFragment
+                    // Xử lý Account Settings (có thể thêm navigation sau)
                 }
                 3 -> {
-                    // Xử lý Notifications
-                    // Có thể thêm navigation đến NotificationSettingsFragment
+                    // Xử lý Notifications (có thể thêm navigation sau)
                 }
                 4 -> {
-                    // Xử lý Privacy
-                    // Có thể thêm navigation đến PrivacyFragment
+                    // Xử lý Privacy (có thể thêm navigation sau)
                 }
                 5 -> {
                     showLogoutConfirmationDialog()
@@ -61,6 +57,7 @@ class SettingsFragment : Fragment() {
             }
         }
     }
+
     private fun showLogoutConfirmationDialog() {
         AlertDialog.Builder(requireContext())
             .setTitle("Confirm Logout")
@@ -76,11 +73,17 @@ class SettingsFragment : Fragment() {
     }
 
     private fun performLogout() {
-        // Clear shared preferences
+        // Xóa SharedPreferences
         requireActivity().getSharedPreferences("prefs", Context.MODE_PRIVATE)
             .edit()
             .clear()
             .apply()
-        findNavController().navigate(R.id.action_settingsFragment_to_loginMethodFragment)
+
+        // Khởi động AuthActivity và chuyển đến LoginFragment
+        val intent = Intent(requireContext(), AuthActivity::class.java).apply {
+            putExtra("destination", "loginMethodFragment") // Chỉ định đích là LoginFragment
+        }
+        startActivity(intent)
+        requireActivity().finish() // Kết thúc MainActivity
     }
 }
