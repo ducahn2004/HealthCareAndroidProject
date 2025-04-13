@@ -28,12 +28,21 @@
     <fragment
         android:id="@+id/heartRateFragment"
         android:name="com.example.healthcareproject.home.HeartRateFragment"
-        android:label="Heart Rate" />
+        android:label="Heart Rate"
+        android:layout="@layout/fragment_heart_rate">
+    <action
+        android:id="@+id/action_back_heart_rate_to_home"
+        app:destination="@id/homeFragment"/>
+    </fragment>
 
     <fragment
         android:id="@+id/oxygenFragment"
         android:name="com.example.healthcareproject.home.OxygenFragment"
-        android:label="Oxygen Level" />
+        android:label="Oxygen Level">
+        <action
+            android:id="@+id/action_back_spo2_to_home"
+            app:destination="@id/homeFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/ecgFragment"

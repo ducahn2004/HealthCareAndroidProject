@@ -65,4 +65,13 @@
     <string name="default_weight_current">Current 65 kg</string>
     <string name="hello_weight_fragment">HELLO WEIGHT FRAGMENT\n</string>
     <string name="select_theme">Select Theme</string>
+    <string name="hour">HOUR</string>
+    <string name="_99">99</string>
+    <string name="_92">92</string>
+    <string name="spo2_icon">SPO2 ICON\n</string>
+    <string name="percent">Percent</string>
+    <string name="_98">98</string>
+    <string name="spo2">SpO2\n</string>
+    <string name="average_97_percent">Average 97 Percent</string>
+    <string name="max_spo2">max spo2\n</string>
 </resources>

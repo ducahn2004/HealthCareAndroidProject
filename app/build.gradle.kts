@@ -58,6 +58,8 @@ dependencies {
     implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.google.play.services.auth)
     implementation(libs.androidx.cardview)
+    implementation(libs.mpandroidchart)
+    implementation(libs.material)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
