@@ -13,5 +13,17 @@
     <color name="button_text_color">@android:color/white</color>
     <color name="button_google_color">@android:color/white</color>
     <color name="button_background_color">@android:color/black</color>
-    <color name="light_gray">#A9A9A9</color> <!-- Darker shade for night mode -->
+    <color name="light_gray">#A9A9A9</color>
+    <color name="tab_text_selected">#FFBB86FC</color>
+    <color name="tab_text_unselected">#A9A9A9</color>
+    <color name="tab_background">#FF1E1E1E</color>
+    <color name="chart_value_text_color">@android:color/white</color>
+    <color name="chart_line_color">#42A5F5</color>
+    <color name="chart_gradient_top">#90CAF9</color>
+    <color name="alert_background">#FF4040</color>
+    <color name="chart_value_text_blue">#2196F3</color>
+    <color name="primary_text_color">#FFBB86FC</color>
+    <color name="alert_text_color">#EF5350</color>
+    <color name="heart_icon_color">#F24822</color>
+    <color name="chart_gradient_alert_top">#EF5350</color>
 </resources>

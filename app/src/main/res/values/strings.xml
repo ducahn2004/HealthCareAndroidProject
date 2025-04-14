@@ -68,4 +68,23 @@
     <string name="dark_theme">Dark Theme</string>
     <string name="select_theme">Select Theme</string>
     <string name="back">BACK</string>
+    <string name="day">DAY</string>
+    <string name="week">WEEK</string>
+    <string name="_29_march">29 March</string>
+    <string name="_84">84</string>
+    <string name="bpm">BPM</string>
+    <string name="_42">42</string>
+    <string name="_131">131</string>
+    <string name="average_69_bpm">Average 69 BPM</string>
+    <string name="minute">MINUTE</string>
+    <string name="hour">HOUR</string>
+    <string name="_99">99</string>
+    <string name="min_spo2">Min Sp02\n</string>
+    <string name="_92">92</string>
+    <string name="spo2_icon">SPO2 ICON\n</string>
+    <string name="percent">Percent</string>
+    <string name="_98">98</string>
+    <string name="spo2">SpO2\n</string>
+    <string name="average_97_percent">Average 97 Percent</string>
+    <string name="max_spo2">max spo2\n</string>
 </resources>

@@ -1,14 +1,215 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center">
+    android:padding="16dp"
+    android:background="@color/background">
 
+    <!-- Back Arrow -->
+    <ImageView
+        android:id="@+id/ic_back_heart_rate_to_home"
+        android:layout_width="34dp"
+        android:layout_height="32dp"
+        android:contentDescription="@string/back"
+        android:src="@drawable/ic_back"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Title: Heart Rate -->
     <TextView
+        android:id="@+id/tv_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:fontFamily="@font/roboto_slab_medium"
         android:text="@string/heart_rate"
-        android:textSize="24sp" />
+        android:textColor="@color/primary_text_color"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toEndOf="@id/ic_back_heart_rate_to_home"
+        app:layout_constraintTop_toTopOf="parent" />
 
-</LinearLayout>
+    <!-- Date -->
+
+    <!-- Heart Rate Value -->
+
+    <!-- BPM Label -->
+    <TextView
+        android:id="@+id/tv_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="12dp"
+        android:fontFamily="sans-serif-black"
+        android:text="@string/_29_march"
+        android:textColor="@color/primary_text_color"
+        android:textSize="34sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_title" />
+
+    <TextView
+        android:id="@+id/tv_heart_rate_value"
+        android:layout_width="152dp"
+        android:layout_height="147dp"
+        android:layout_marginStart="20dp"
+        android:fontFamily="@font/roboto_slab_medium"
+        android:text="@string/_84"
+        android:textColor="@color/primary_text_color"
+        android:textSize="120sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_date" />
+
+    <TextView
+        android:id="@+id/tv_bpm_label"
+        android:layout_width="90dp"
+        android:layout_height="44dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="4dp"
+        android:fontFamily="@font/roboto_slab_medium"
+        android:text="@string/bpm"
+        android:textColor="@color/primary_text_color"
+        android:textSize="34sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_heart_rate_value" />
+
+    <!-- Heart Icon -->
+
+    <!-- Min and Max Values -->
+
+    <!-- Average Value -->
+
+    <!-- Tabs: Minute, Hour, Day, Week -->
+
+    <!-- Chart -->
+
+    <ImageView
+        android:id="@+id/iv_heart_icon"
+        android:layout_width="138dp"
+        android:layout_height="140dp"
+        android:layout_marginEnd="35dp"
+        android:contentDescription="@string/heart_rate_icon"
+        android:src="@drawable/ic_heart_rate"
+        app:layout_constraintBottom_toBottomOf="@id/tv_heart_rate_value"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toEndOf="@+id/tv_heart_rate_value"
+        app:layout_constraintTop_toTopOf="@id/tv_heart_rate_value"
+        app:layout_constraintVertical_bias="0.0"
+        app:tint="@color/heart_icon_color" />
+
+    <TextView
+        android:id="@+id/tv_average_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="8dp"
+        android:fontFamily="@font/roboto_slab_medium"
+        android:text="@string/average_69_bpm"
+        android:textColor="@color/primary_text_color"
+        android:textSize="24sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ic_max_heart_rate_value" />
+
+    <TextView
+        android:id="@+id/tv_max_value"
+        android:layout_width="36dp"
+        android:layout_height="33dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:fontFamily="@font/roboto_slab_medium"
+        android:text="@string/_131"
+        android:textColor="@color/primary_text_color"
+        android:textSize="24sp"
+        app:layout_constraintStart_toEndOf="@+id/ic_max_heart_rate_value"
+        app:layout_constraintTop_toBottomOf="@+id/tv_bpm_label" />
+
+    <ImageView
+        android:id="@+id/ic_min_heart_rate_value"
+        android:layout_width="33dp"
+        android:layout_height="33dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="8dp"
+        android:contentDescription="@string/back"
+        android:src="@drawable/ic_min_value"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_bpm_label" />
+
+    <TextView
+        android:id="@+id/tv_min_value"
+        android:layout_width="31dp"
+        android:layout_height="33dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:fontFamily="@font/roboto_slab_medium"
+        android:text="@string/_42"
+        android:textColor="@color/primary_text_color"
+        android:textSize="24sp"
+        app:layout_constraintStart_toEndOf="@+id/ic_min_heart_rate_value"
+        app:layout_constraintTop_toBottomOf="@+id/tv_bpm_label" />
+
+    <ImageView
+        android:id="@+id/ic_max_heart_rate_value"
+        android:layout_width="33dp"
+        android:layout_height="33dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:contentDescription="@string/back"
+        android:src="@drawable/ic_max_value"
+        app:layout_constraintStart_toEndOf="@+id/tv_min_value"
+        app:layout_constraintTop_toBottomOf="@+id/tv_bpm_label" />
+
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tab_layout"
+        android:layout_width="366dp"
+        android:layout_height="43dp"
+        android:layout_marginTop="8dp"
+        android:background="@color/tab_background"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.461"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_average_label"
+        app:tabIndicatorColor="@color/tab_text_selected"
+        app:tabSelectedTextColor="@color/tab_text_selected"
+        app:tabTextColor="@color/tab_text_unselected">
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/roboto_slab_bold"
+            android:text="@string/minute" />
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/roboto_slab_bold"
+            android:text="@string/hour" />
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/roboto_slab_bold"
+            android:text="@string/day" />
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/roboto_slab_bold"
+            android:text="@string/week" />
+
+    </com.google.android.material.tabs.TabLayout>
+
+    <com.github.mikephil.charting.charts.LineChart
+        android:id="@+id/chart_heart_rate"
+        android:layout_width="367dp"
+        android:layout_height="325dp"
+        android:layout_marginTop="12dp"
+        android:background="@android:color/transparent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.272"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tab_layout" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
