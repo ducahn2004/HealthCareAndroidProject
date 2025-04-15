@@ -56,17 +56,49 @@
 
     <!-- Explore Fragment -->
     <fragment
-        android:id="@+id/exploreFragment"
-        android:name="com.example.healthcareproject.ExploreFragment"
+        android:id="@+id/pillFragment"
+        android:name="com.example.healthcareproject.PillFragment"
         android:label="Explore"
-        tools:layout="@layout/fragment_explore" />
+        tools:layout="@layout/fragment_pill" />
 
     <!-- Medicine Fragment -->
     <fragment
         android:id="@+id/medicineFragment"
         android:name="com.example.healthcareproject.MedicineFragment"
-        android:label="Medicine"
-        tools:layout="@layout/fragment_medicine" />
+        android:label="Medicine">
+        <action
+            android:id="@+id/action_medicineFragment_to_medicalHistoryDetailFragment"
+            app:destination="@id/medicalHistoryDetailFragment"
+            app:popUpTo="@id/medicineFragment"
+            app:popUpToInclusive="false" />
+        <action
+            android:id="@+id/action_medicineFragment_to_addAppointmentFragment"
+            app:destination="@id/addAppointmentFragment"
+            app:popUpTo="@id/medicineFragment"
+            app:popUpToInclusive="false" />
+    </fragment>
+
+    <!-- Add Appointment Fragment -->
+    <fragment
+        android:id="@+id/addAppointmentFragment"
+        android:name="com.example.healthcareproject.AddAppointmentFragment"
+        android:label="Add Appointment"
+        tools:layout="@layout/fragment_add_appointment">
+        <action
+            android:id="@+id/action_addAppointmentFragment_to_medicineFragment"
+            app:destination="@id/medicineFragment"
+            app:popUpTo="@id/medicineFragment"
+            app:popUpToInclusive="false" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/medicalHistoryDetailFragment"
+        android:name="com.example.healthcareproject.medicine.MedicalHistoryDetailFragment"
+        android:label="Medical History Detail">
+        <argument
+            android:name="medicalVisit"
+            app:argType="com.example.healthcareproject.medicine.MedicalVisit" />
+    </fragment>
 
     <!-- Notification Fragment -->
     <fragment
@@ -84,6 +116,9 @@
         <action
             android:id="@+id/action_settingsFragment_to_themeFragment"
             app:destination="@id/themeFragment" />
+        <action
+            android:id="@+id/action_settingsFragment_to_emergencyFragment"
+            app:destination="@id/emergencyFragment" />
     </fragment>
 
     <!-- Theme Fragment -->
@@ -94,6 +129,19 @@
         tools:layout="@layout/fragment_theme">
         <action
             android:id="@+id/action_themeFragment_to_settingsFragment"
+            app:destination="@id/settingsFragment"
+            app:popUpTo="@id/settingsFragment"
+            app:popUpToInclusive="false" />
+    </fragment>
+
+    <!-- Emergency Fragment -->
+    <fragment
+        android:id="@+id/emergencyFragment"
+        android:name="com.example.healthcareproject.setting.EmergencyFragment"
+        android:label="Emergency Contacts"
+        tools:layout="@layout/fragment_emergency">
+        <action
+            android:id="@+id/action_emergencyFragment_to_settingsFragment"
             app:destination="@id/settingsFragment"
             app:popUpTo="@id/settingsFragment"
             app:popUpToInclusive="false" />

@@ -14,6 +14,7 @@ navigationUiKtx = "2.8.9"
 google-play-services-auth = "21.3.0"
 cardview = "1.0.0"
 mpandroidchart = "3.1.0"
+gson = "2.10.1"
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -28,6 +29,7 @@ androidx-navigation-ui-ktx = { group = "androidx.navigation", name = "navigation
 google-play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "google-play-services-auth" }
 androidx-cardview = { group = "androidx.cardview", name = "cardview", version.ref = "cardview" }
 mpandroidchart = { group = "com.github.PhilJay", name = "MPAndroidChart", version.ref = "mpandroidchart" }
+gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

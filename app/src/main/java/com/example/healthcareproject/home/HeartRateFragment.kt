@@ -168,7 +168,6 @@ class HeartRateFragment : Fragment() {
         // Tạo nhãn cho trục X dựa trên khoảng thời gian
         val labels = when (timeFrame) {
             "MINUTE" -> {
-                // Nhãn hiển thị giây trong chu kỳ 60 giây
                 Array(heartRateData.size) { index ->
                     val timestamp = timeStamps[index]
                     val seconds = (timestamp / 1000) % 60 // Lấy giây trong chu kỳ 60 giây
@@ -176,7 +175,6 @@ class HeartRateFragment : Fragment() {
                 }
             }
             "HOUR" -> {
-                // Nhãn hiển thị phút trong chu kỳ 60 phút
                 Array(heartRateData.size) { index ->
                     val timestamp = timeStamps[index]
                     val minutes = (timestamp / 1000 / 60) % 60 // Lấy phút trong chu kỳ 60 phút
@@ -184,7 +182,6 @@ class HeartRateFragment : Fragment() {
                 }
             }
             "DAY" -> {
-                // Nhãn hiển thị giờ trong chu kỳ 24 giờ
                 Array(heartRateData.size) { index ->
                     val timestamp = timeStamps[index]
                     val hours = (timestamp / 1000 / 3600) % 24 // Lấy giờ trong chu kỳ 24 giờ
@@ -192,7 +189,6 @@ class HeartRateFragment : Fragment() {
                 }
             }
             "WEEK" -> {
-                // Nhãn hiển thị ngày trong chu kỳ 7 ngày
                 Array(heartRateData.size) { index ->
                     val timestamp = timeStamps[index]
                     val day = (timestamp / 1000 / 86400).toInt() % 7 // Lấy ngày trong chu kỳ 7 ngày
@@ -221,7 +217,7 @@ class HeartRateFragment : Fragment() {
         val minValue = heartRateData.minOrNull() ?: 0f
         val maxValue = heartRateData.maxOrNull() ?: 0f
         val averageValue = heartRateData.average().toFloat()
-        tvHeartRateValue.text = "${heartRateData.last().toInt()}" // Giá trị nhịp tim hiện tại (giá trị cuối cùng)
+        tvHeartRateValue.text = "${heartRateData.last().toInt()}"
         tvMinValue.text = "${minValue.toInt()}"
         tvMaxValue.text = "${maxValue.toInt()}"
         tvAverageLabel.text = "Average ${(averageValue.toInt())} BPM"
@@ -230,7 +226,20 @@ class HeartRateFragment : Fragment() {
         val alertThreshold = 120f
         val isAlert = heartRateData.any { it > alertThreshold }
 
-        // Đổi màu chữ của các TextView
+        // Chọn màu gradient dựa trên trạng thái cảnh báo
+        val gradientColors = if (isAlert) {
+            intArrayOf(
+                resources.getColor(R.color.chart_gradient_alert_top, null),
+                resources.getColor(R.color.chart_gradient_alert_bottom, null)
+            )
+        } else {
+            intArrayOf(
+                resources.getColor(R.color.chart_gradient_normal_top, null),
+                resources.getColor(R.color.chart_gradient_normal_bottom, null)
+            )
+        }
+
+        // Đổi màu chữ của các TextView và icon
         val textColor = if (isAlert) R.color.alert_text_color else R.color.primary_text_color
         tvTitle.setTextColor(ContextCompat.getColor(requireContext(), textColor))
         tvDate.setTextColor(ContextCompat.getColor(requireContext(), textColor))
@@ -239,15 +248,10 @@ class HeartRateFragment : Fragment() {
         tvMinValue.setTextColor(ContextCompat.getColor(requireContext(), textColor))
         tvMaxValue.setTextColor(ContextCompat.getColor(requireContext(), textColor))
         tvAverageLabel.setTextColor(ContextCompat.getColor(requireContext(), textColor))
-
-        // Đổi màu của icon tim để khớp với màu chữ
         ivHeartIcon.setColorFilter(ContextCompat.getColor(requireContext(), textColor))
 
         // Đổi màu chữ của giá trị trên biểu đồ
-        val chartValueColor = if (isAlert) R.color.alert_text_color else R.color.chart_value_text_blue
-
-        // Đổi màu gradient fill của biểu đồ
-        val gradientTopColor = if (isAlert) R.color.chart_gradient_alert_top else R.color.chart_gradient_top
+        val chartValueColor = if (isAlert) R.color.alert_text_color else R.color.chart_value_text_normal
 
         // Tạo dataset cho biểu đồ
         val dataSet = LineDataSet(entries, "Heart Rate (BPM)").apply {
@@ -266,10 +270,7 @@ class HeartRateFragment : Fragment() {
             setDrawFilled(true)
             val gradientDrawable = GradientDrawable(
                 GradientDrawable.Orientation.TOP_BOTTOM,
-                intArrayOf(
-                    resources.getColor(gradientTopColor, null),
-                    Color.parseColor("#FFFFFF")
-                )
+                gradientColors
             )
             fillDrawable = gradientDrawable
         }

@@ -119,6 +119,8 @@ class OxygenFragment : Fragment() {
                 timeFrame = when (tab?.position) {
                     0 -> "MINUTE"
                     1 -> "HOUR"
+                    2 -> "DAY"
+                    3 -> "WEEK"
                     else -> "MINUTE"
                 }
                 updateChartData() // Cập nhật biểu đồ khi chuyển tab
@@ -141,7 +143,7 @@ class OxygenFragment : Fragment() {
                 setDrawGridLines(false)
                 setDrawLabels(true) // Bật nhãn trục X
                 position = XAxis.XAxisPosition.BOTTOM
-                textColor = Color.BLACK
+                textColor = resources.getColor(R.color.chart_axis_text_color, null)
                 textSize = 10f
                 labelRotationAngle = 45f // Xoay nhãn 45 độ để tránh chồng lấn
             }
@@ -166,7 +168,6 @@ class OxygenFragment : Fragment() {
         // Tạo nhãn cho trục X dựa trên khoảng thời gian
         val labels = when (timeFrame) {
             "MINUTE" -> {
-                // Nhãn hiển thị giây trong chu kỳ 60 giây
                 Array(spo2Data.size) { index ->
                     val timestamp = timeStamps[index]
                     val seconds = (timestamp / 1000) % 60 // Lấy giây trong chu kỳ 60 giây
@@ -174,11 +175,33 @@ class OxygenFragment : Fragment() {
                 }
             }
             "HOUR" -> {
-                // Nhãn hiển thị phút trong chu kỳ 60 phút
                 Array(spo2Data.size) { index ->
                     val timestamp = timeStamps[index]
                     val minutes = (timestamp / 1000 / 60) % 60 // Lấy phút trong chu kỳ 60 phút
                     "${minutes}m"
+                }
+            }
+            "DAY" -> {
+                Array(spo2Data.size) { index ->
+                    val timestamp = timeStamps[index]
+                    val hours = (timestamp / 1000 / 3600) % 24 // Lấy giờ trong chu kỳ 24 giờ
+                    "${hours}h"
+                }
+            }
+            "WEEK" -> {
+                Array(spo2Data.size) { index ->
+                    val timestamp = timeStamps[index]
+                    val day = (timestamp / 1000 / 86400).toInt() % 7 // Lấy ngày trong chu kỳ 7 ngày
+                    when (day) {
+                        0 -> "Mon"
+                        1 -> "Tue"
+                        2 -> "Wed"
+                        3 -> "Thu"
+                        4 -> "Fri"
+                        5 -> "Sat"
+                        6 -> "Sun"
+                        else -> "Mon"
+                    }
                 }
             }
             else -> {
@@ -194,7 +217,7 @@ class OxygenFragment : Fragment() {
         val minValue = spo2Data.minOrNull() ?: 0f
         val maxValue = spo2Data.maxOrNull() ?: 0f
         val averageValue = spo2Data.average().toFloat()
-        tvSpO2Value.text = "${spo2Data.last().toInt()}" // Giá trị SpO2 hiện tại (giá trị cuối cùng)
+        tvSpO2Value.text = "${spo2Data.last().toInt()}"
         tvMinValue.text = "${minValue.toInt()}"
         tvMaxValue.text = "${maxValue.toInt()}"
         tvAverageLabel.text = "Average ${(averageValue.toInt())}%"
@@ -203,7 +226,20 @@ class OxygenFragment : Fragment() {
         val alertThreshold = 95f
         val isAlert = spo2Data.any { it < alertThreshold }
 
-        // Đổi màu chữ của các TextView
+        // Chọn màu gradient dựa trên trạng thái cảnh báo
+        val gradientColors = if (isAlert) {
+            intArrayOf(
+                resources.getColor(R.color.chart_gradient_alert_top, null),
+                resources.getColor(R.color.chart_gradient_alert_bottom, null)
+            )
+        } else {
+            intArrayOf(
+                resources.getColor(R.color.chart_gradient_normal_top, null),
+                resources.getColor(R.color.chart_gradient_normal_bottom, null)
+            )
+        }
+
+        // Đổi màu chữ của các TextView và icon
         val textColor = if (isAlert) R.color.alert_text_color else R.color.primary_text_color
         tvTitle.setTextColor(ContextCompat.getColor(requireContext(), textColor))
         tvDate.setTextColor(ContextCompat.getColor(requireContext(), textColor))
@@ -212,20 +248,22 @@ class OxygenFragment : Fragment() {
         tvMinValue.setTextColor(ContextCompat.getColor(requireContext(), textColor))
         tvMaxValue.setTextColor(ContextCompat.getColor(requireContext(), textColor))
         tvAverageLabel.setTextColor(ContextCompat.getColor(requireContext(), textColor))
-
-        // Đổi màu của icon SpO2 để khớp với màu chữ
         ivSpO2Icon.setColorFilter(ContextCompat.getColor(requireContext(), textColor))
 
         // Đổi màu chữ của giá trị trên biểu đồ
-        val chartValueColor = if (isAlert) R.color.alert_text_color else R.color.chart_value_text_blue
+        val chartValueColor = if (isAlert) R.color.alert_text_color else R.color.chart_value_text_normal
 
-        // Đổi màu gradient fill của biểu đồ
-        val gradientTopColor = if (isAlert) R.color.chart_gradient_alert_top else R.color.chart_gradient_top
+        // Chọn màu cho vòng tròn trên biểu đồ
+        val circleColor = if (isAlert) {
+            resources.getColor(R.color.alert_text_color, null)
+        } else {
+            resources.getColor(R.color.chart_line_color, null)
+        }
 
         // Tạo dataset cho biểu đồ
         val dataSet = LineDataSet(entries, "SpO2 (%)").apply {
             color = resources.getColor(R.color.chart_line_color, null)
-            setCircleColor(Color.BLACK)
+            setCircleColor(circleColor)
             lineWidth = 2f
             circleRadius = 4f
             setDrawCircleHole(false)
@@ -239,10 +277,7 @@ class OxygenFragment : Fragment() {
             setDrawFilled(true)
             val gradientDrawable = GradientDrawable(
                 GradientDrawable.Orientation.TOP_BOTTOM,
-                intArrayOf(
-                    resources.getColor(gradientTopColor, null),
-                    Color.parseColor("#FFFFFF")
-                )
+                gradientColors
             )
             fillDrawable = gradientDrawable
         }
