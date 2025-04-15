@@ -87,4 +87,12 @@
     <string name="spo2">SpO2\n</string>
     <string name="average_97_percent">Average 97 Percent</string>
     <string name="max_spo2">max spo2\n</string>
+    <string name="Drug">Drug\n</string>
+    <string name="floatingactionbutton">FloatingActionButton</string>
+    <string name="delete">Delete</string>
+    <string name="edit">Edit</string>
+    <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="name">Name</string>
 </resources>

@@ -46,32 +46,32 @@
         android:fontFamily="sans-serif-black"
         android:text="@string/_29_march"
         android:textColor="@color/primary_text_color"
-        android:textSize="34sp"
+        android:textSize="24sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_title" />
 
     <TextView
         android:id="@+id/tv_heart_rate_value"
-        android:layout_width="152dp"
-        android:layout_height="147dp"
+        android:layout_width="128dp"
+        android:layout_height="119dp"
         android:layout_marginStart="20dp"
         android:fontFamily="@font/roboto_slab_medium"
         android:text="@string/_84"
         android:textColor="@color/primary_text_color"
-        android:textSize="120sp"
+        android:textSize="110sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_date" />
 
     <TextView
         android:id="@+id/tv_bpm_label"
-        android:layout_width="90dp"
-        android:layout_height="44dp"
+        android:layout_width="83dp"
+        android:layout_height="28dp"
         android:layout_marginStart="20dp"
         android:layout_marginTop="4dp"
         android:fontFamily="@font/roboto_slab_medium"
         android:text="@string/bpm"
         android:textColor="@color/primary_text_color"
-        android:textSize="34sp"
+        android:textSize="24sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tv_heart_rate_value" />
 
@@ -203,8 +203,8 @@
 
     <com.github.mikephil.charting.charts.LineChart
         android:id="@+id/chart_heart_rate"
-        android:layout_width="367dp"
-        android:layout_height="325dp"
+        android:layout_width="357dp"
+        android:layout_height="426dp"
         android:layout_marginTop="12dp"
         android:background="@android:color/transparent"
         app:layout_constraintEnd_toEndOf="parent"

@@ -60,6 +60,7 @@ dependencies {
     implementation(libs.androidx.cardview)
     implementation(libs.mpandroidchart)
     implementation(libs.material)
+    implementation(libs.gson)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

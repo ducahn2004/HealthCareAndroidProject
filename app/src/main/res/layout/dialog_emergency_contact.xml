@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/surface"
+    android:padding="16dp">
+
+    <!-- Name Input -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/til_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:hintTextColor="@color/primary_text_color"
+        app:boxStrokeColor="@color/primary_text_color"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/et_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/name"
+            android:textColor="@color/primary_text_color"
+            android:textColorHint="@color/primary_text_color"
+            android:inputType="textPersonName" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Phone Number Input -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/til_phone_number"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:hintTextColor="@color/primary_text_color"
+        app:boxStrokeColor="@color/primary_text_color"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/til_name">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/et_phone_number"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/phone_number"
+            android:textColor="@color/primary_text_color"
+            android:textColorHint="@color/primary_text_color"
+            android:inputType="phone" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Relationship Spinner -->
+    <Spinner
+        android:id="@+id/sp_relationship"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:backgroundTint="@color/primary_text_color"
+        android:spinnerMode="dropdown"
+        android:minHeight="48dp"
+        android:padding="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/til_phone_number" />
+
+    <!-- Priority Spinner -->
+    <Spinner
+        android:id="@+id/sp_priority"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:backgroundTint="@color/primary_text_color"
+        android:spinnerMode="dropdown"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/sp_relationship" />
+
+    <!-- Buttons -->
+    <Button
+        android:id="@+id/btn_save"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/save"
+        android:textColor="@color/button_accent_color"
+        android:backgroundTint="@color/surface"
+        android:background="?attr/selectableItemBackground"
+        app:layout_constraintEnd_toStartOf="@id/btn_cancel"
+        app:layout_constraintTop_toBottomOf="@id/sp_priority" />
+
+    <Button
+        android:id="@+id/btn_cancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/cancel"
+        android:textColor="@color/primary_text_color"
+        android:backgroundTint="@color/surface"
+        android:background="?attr/selectableItemBackground"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/sp_priority" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

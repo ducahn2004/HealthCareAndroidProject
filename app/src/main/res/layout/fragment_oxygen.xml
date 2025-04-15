@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
-    android:background="@android:color/black">
+    android:background="@color/background">
 
     <!-- Back Arrow -->
     <ImageView
@@ -15,7 +15,6 @@
         android:layout_height="32dp"
         android:contentDescription="@string/back"
         android:src="@drawable/ic_back"
-        app:tint="@android:color/white"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -27,7 +26,7 @@
         android:layout_marginStart="8dp"
         android:fontFamily="@font/roboto_slab_medium"
         android:text="@string/oxygen_level"
-        android:textColor="@android:color/white"
+        android:textColor="@color/primary_text_color"
         android:textSize="24sp"
         android:textStyle="bold"
         app:layout_constraintStart_toEndOf="@id/ic_back_spo2_to_home"
@@ -42,35 +41,35 @@
         android:layout_marginTop="12dp"
         android:fontFamily="sans-serif-black"
         android:text="@string/_29_march"
-        android:textColor="@android:color/white"
-        android:textSize="34sp"
+        android:textColor="@color/primary_text_color"
+        android:textSize="24sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_title" />
 
     <!-- SpO2 Value -->
     <TextView
         android:id="@+id/tv_spo2_value"
-        android:layout_width="152dp"
-        android:layout_height="147dp"
+        android:layout_width="127dp"
+        android:layout_height="127dp"
         android:layout_marginStart="20dp"
         android:fontFamily="@font/roboto_slab_medium"
         android:text="@string/_98"
-        android:textColor="@android:color/white"
-        android:textSize="120sp"
+        android:textColor="@color/primary_text_color"
+        android:textSize="110sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_date" />
 
     <!-- Percent Label -->
     <TextView
         android:id="@+id/tv_percent_label"
-        android:layout_width="90dp"
-        android:layout_height="44dp"
+        android:layout_width="111dp"
+        android:layout_height="32dp"
         android:layout_marginStart="20dp"
         android:layout_marginTop="4dp"
         android:fontFamily="@font/roboto_slab_medium"
         android:text="@string/percent"
-        android:textColor="@android:color/white"
-        android:textSize="34sp"
+        android:textColor="@color/primary_text_color"
+        android:textSize="24sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tv_spo2_value" />
 
@@ -88,22 +87,9 @@
         app:layout_constraintStart_toEndOf="@+id/tv_spo2_value"
         app:layout_constraintTop_toTopOf="@id/tv_spo2_value"
         app:layout_constraintVertical_bias="0.0"
-        app:tint="@android:color/white" />
+        app:tint="@color/heart_icon_color" />
 
     <!-- Min and Max Values -->
-    <TextView
-        android:id="@+id/tv_min_value"
-        android:layout_width="31dp"
-        android:layout_height="33dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:fontFamily="@font/roboto_slab_medium"
-        android:text="@string/_92"
-        android:textColor="@android:color/white"
-        android:textSize="24sp"
-        app:layout_constraintStart_toEndOf="@+id/ic_min_spo2_value"
-        app:layout_constraintTop_toBottomOf="@+id/tv_percent_label" />
-
     <ImageView
         android:id="@+id/ic_min_spo2_value"
         android:layout_width="33dp"
@@ -112,8 +98,31 @@
         android:layout_marginTop="8dp"
         android:contentDescription="@string/min_spo2"
         android:src="@drawable/ic_min_value"
-        app:tint="@android:color/white"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_percent_label" />
+
+    <TextView
+        android:id="@+id/tv_min_value"
+        android:layout_width="31dp"
+        android:layout_height="33dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:fontFamily="@font/roboto_slab_medium"
+        android:text="@string/_92"
+        android:textColor="@color/primary_text_color"
+        android:textSize="24sp"
+        app:layout_constraintStart_toEndOf="@+id/ic_min_spo2_value"
+        app:layout_constraintTop_toBottomOf="@+id/tv_percent_label" />
+
+    <ImageView
+        android:id="@+id/ic_max_spo2_value"
+        android:layout_width="33dp"
+        android:layout_height="33dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:contentDescription="@string/max_spo2"
+        android:src="@drawable/ic_max_value"
+        app:layout_constraintStart_toEndOf="@+id/tv_min_value"
         app:layout_constraintTop_toBottomOf="@+id/tv_percent_label" />
 
     <TextView
@@ -124,21 +133,9 @@
         android:layout_marginTop="8dp"
         android:fontFamily="@font/roboto_slab_medium"
         android:text="@string/_99"
-        android:textColor="@android:color/white"
+        android:textColor="@color/primary_text_color"
         android:textSize="24sp"
         app:layout_constraintStart_toEndOf="@+id/ic_max_spo2_value"
-        app:layout_constraintTop_toTopOf="@+id/ic_min_spo2_value" />
-
-    <ImageView
-        android:id="@+id/ic_max_spo2_value"
-        android:layout_width="33dp"
-        android:layout_height="33dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:contentDescription="@string/max_spo2"
-        android:src="@drawable/ic_max_value"
-        app:tint="@android:color/white"
-        app:layout_constraintStart_toEndOf="@+id/tv_min_value"
         app:layout_constraintTop_toBottomOf="@+id/tv_percent_label" />
 
     <!-- Average Value -->
@@ -150,25 +147,25 @@
         android:layout_marginTop="8dp"
         android:fontFamily="@font/roboto_slab_medium"
         android:text="@string/average_97_percent"
-        android:textColor="@android:color/white"
+        android:textColor="@color/primary_text_color"
         android:textSize="24sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/ic_max_spo2_value" />
 
-    <!-- Tabs: Minute, Hour -->
+    <!-- Tabs: Minute, Hour, Day, Week -->
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tab_layout"
         android:layout_width="366dp"
         android:layout_height="43dp"
         android:layout_marginTop="8dp"
-        android:background="@android:color/black"
+        android:background="@color/tab_background"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.461"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_average_label"
-        app:tabIndicatorColor="@android:color/white"
-        app:tabSelectedTextColor="@android:color/white"
-        app:tabTextColor="@android:color/darker_gray">
+        app:tabIndicatorColor="@color/tab_text_selected"
+        app:tabSelectedTextColor="@color/tab_text_selected"
+        app:tabTextColor="@color/tab_text_unselected">
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
@@ -182,13 +179,25 @@
             android:fontFamily="@font/roboto_slab_bold"
             android:text="@string/hour" />
 
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/roboto_slab_bold"
+            android:text="@string/day" />
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/roboto_slab_bold"
+            android:text="@string/week" />
+
     </com.google.android.material.tabs.TabLayout>
 
     <!-- Chart -->
     <com.github.mikephil.charting.charts.LineChart
         android:id="@+id/chart_spo2"
-        android:layout_width="367dp"
-        android:layout_height="325dp"
+        android:layout_width="363dp"
+        android:layout_height="423dp"
         android:layout_marginTop="12dp"
         android:background="@android:color/transparent"
         app:layout_constraintEnd_toEndOf="parent"

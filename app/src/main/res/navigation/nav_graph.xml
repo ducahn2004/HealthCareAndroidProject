@@ -56,10 +56,10 @@
 
     <!-- Explore Fragment -->
     <fragment
-        android:id="@+id/exploreFragment"
-        android:name="com.example.healthcareproject.ExploreFragment"
+        android:id="@+id/pillFragment"
+        android:name="com.example.healthcareproject.PillFragment"
         android:label="Explore"
-        tools:layout="@layout/fragment_explore" />
+        tools:layout="@layout/fragment_pill" />
 
     <!-- Medicine Fragment -->
     <fragment
@@ -84,6 +84,9 @@
         <action
             android:id="@+id/action_settingsFragment_to_themeFragment"
             app:destination="@id/themeFragment" />
+        <action
+            android:id="@+id/action_settingsFragment_to_emergencyFragment"
+            app:destination="@id/emergencyFragment" />
     </fragment>
 
     <!-- Theme Fragment -->
@@ -94,6 +97,19 @@
         tools:layout="@layout/fragment_theme">
         <action
             android:id="@+id/action_themeFragment_to_settingsFragment"
+            app:destination="@id/settingsFragment"
+            app:popUpTo="@id/settingsFragment"
+            app:popUpToInclusive="false" />
+    </fragment>
+
+    <!-- Emergency Fragment -->
+    <fragment
+        android:id="@+id/emergencyFragment"
+        android:name="com.example.healthcareproject.setting.EmergencyFragment"
+        android:label="Emergency Contacts"
+        tools:layout="@layout/fragment_emergency">
+        <action
+            android:id="@+id/action_emergencyFragment_to_settingsFragment"
             app:destination="@id/settingsFragment"
             app:popUpTo="@id/settingsFragment"
             app:popUpToInclusive="false" />

@@ -20,7 +20,8 @@ class SettingsFragment : Fragment() {
         SettingItem(2, "Account Settings", R.drawable.ic_account),
         SettingItem(3, "Notifications", R.drawable.ic_notification),
         SettingItem(4, "Privacy", R.drawable.ic_privacy),
-        SettingItem(5, "Logout", R.drawable.ic_logout)
+        SettingItem(5, "Emergency Contacts", R.drawable.ic_emergency),
+        SettingItem(6, "Logout", R.drawable.ic_logout)
     )
 
     override fun onCreateView(
@@ -38,22 +39,12 @@ class SettingsFragment : Fragment() {
         rvSettings.layoutManager = LinearLayoutManager(context)
         rvSettings.adapter = SettingsAdapter(SETTINGS) { item ->
             when (item.id) {
-                1 -> {
-                    // Điều hướng đến ThemeFragment
-                    findNavController().navigate(R.id.action_settingsFragment_to_themeFragment)
-                }
-                2 -> {
-                    // Xử lý Account Settings (có thể thêm navigation sau)
-                }
-                3 -> {
-                    // Xử lý Notifications (có thể thêm navigation sau)
-                }
-                4 -> {
-                    // Xử lý Privacy (có thể thêm navigation sau)
-                }
-                5 -> {
-                    showLogoutConfirmationDialog()
-                }
+                1 -> findNavController().navigate(R.id.action_settingsFragment_to_themeFragment)
+                2 -> { /* Xử lý Account Settings */ }
+                3 -> { /* Xử lý Notifications */ }
+                4 -> { /* Xử lý Privacy */ }
+                5 -> findNavController().navigate(R.id.action_settingsFragment_to_emergencyFragment)
+                6 -> showLogoutConfirmationDialog()
             }
         }
     }
@@ -73,17 +64,15 @@ class SettingsFragment : Fragment() {
     }
 
     private fun performLogout() {
-        // Xóa SharedPreferences
         requireActivity().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
             .edit()
             .clear()
             .apply()
 
-
         val intent = Intent(requireContext(), AuthActivity::class.java).apply {
             putExtra("destination", "loginMethodFragment")
         }
         startActivity(intent)
-        requireActivity().finish() // Kết thúc MainActivity
+        requireActivity().finish()
     }
 }

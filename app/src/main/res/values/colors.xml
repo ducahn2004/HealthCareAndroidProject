@@ -6,13 +6,13 @@
     <color name="teal_700">#FF018786</color>
     <color name="background">@color/background_light</color>
     <color name="background_light">#FFFFFFFF</color>
-    <color name="background_dark">#FFFFFFFF</color>
+    <color name="background_dark">#FF121212</color>
     <color name="surface">@color/surface_light</color>
     <color name="surface_light">#FFFFFFFF</color>
-    <color name="surface_dark">#FFFFFFFF</color>
+    <color name="surface_dark">#FF1C2526</color>
     <color name="surface_alternate">@color/surface_alternate_light</color>
     <color name="surface_alternate_light">#F5F5F5</color>
-    <color name="surface_alternate_dark">#F5F5F5</color>
+    <color name="surface_alternate_dark">#FF1C2526</color>
     <color name="button_text_color">@android:color/black</color>
     <color name="button_google_color">@android:color/black</color>
     <color name="button_background_color">@android:color/white</color>
@@ -29,4 +29,13 @@
     <color name="alert_text_color">#D32F2F</color>
     <color name="heart_icon_color">#F24822</color>
     <color name="chart_gradient_alert_top">#EF9A9A</color>
+    <color name="chart_gradient_normal_top">#64B5F6</color>
+    <color name="chart_gradient_normal_bottom">#FFFFFF</color>
+    <color name="chart_gradient_alert_bottom">#FFFFFF</color>
+    <color name="chart_value_text_normal">#000000</color>
+    <color name="chart_axis_text_color">#3F51B5</color>
+    <color name="fab_background">#FF6200EE</color>
+    <color name="fab_icon_color">@android:color/white</color>
+    <color name="button_accent_color">#FFBB86FC</color>
+
 </resources>
