@@ -80,4 +80,14 @@
     <string name="save">Save</string>
     <string name="phone_number">Phone Number</string>
     <string name="name">Name</string>
+    <string name="bs_tuana_satoth">BS. Tuana Satoth</string>
+    <string name="_10_04_2025_08_00">10/04/2025 - 08:00</string>
+    <string name="start_date_26_05_2025">Start Date: 26/05/2025</string>
+    <string name="time_of_day_breakfast_dinner">Time of Day: Breakfast, Dinner</string>
+    <string name="frequency_2_day">Frequency: 2/day</string>
+    <string name="dosage_1_pill">Dosage: 1 pill</string>
+    <string name="paracetamol_500mg">Paracetamol 500mg</string>
+    <string name="appointments">APPOINTMENTS</string>
+    <string name="history">HISTORY</string>
+    <string name="add_information">Add Information</string>
 </resources>
