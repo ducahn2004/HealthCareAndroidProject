@@ -86,7 +86,16 @@ class HeartRateFragment : Fragment() {
         // Thiết lập nút back
         val btnBack = view.findViewById<ImageView>(R.id.ic_back_heart_rate_to_home)
         btnBack.setOnClickListener {
-            findNavController().navigate(R.id.action_back_heart_rate_to_home)
+            // Kiểm tra nguồn gốc điều hướng
+            val previousDestinationId = findNavController().previousBackStackEntry?.destination?.id
+            when (previousDestinationId) {
+                R.id.notificationFragment -> {
+                    findNavController().navigate(R.id.action_back_heart_rate_to_notification)
+                }
+                else -> {
+                    findNavController().navigate(R.id.action_back_heart_rate_to_home)
+                }
+            }
         }
 
         // Khởi tạo dữ liệu ban đầu
@@ -138,7 +147,7 @@ class HeartRateFragment : Fragment() {
             isDragEnabled = true
             setScaleEnabled(true)
             setPinchZoom(true)
-
+            legend.isEnabled = false
             xAxis.apply {
                 setDrawGridLines(false)
                 setDrawLabels(true) // Bật nhãn trục X

@@ -38,7 +38,7 @@ class OxygenFragment : Fragment() {
     private lateinit var ivSpO2Icon: ImageView
 
     private val spo2Data = mutableListOf<Float>() // Danh sách động để lưu 20 giá trị mới nhất
-    private val maxDataPoints = 20 // Số lượng giá trị tối đa trên biểu đồ
+    private val maxDataPoints = 15 // Số lượng giá trị tối đa trên biểu đồ
     private val handler = Handler(Looper.getMainLooper())
     private val updateInterval = 1000L // Cập nhật mỗi 1 giây
     private lateinit var timeFrame: String // Lưu khoảng thời gian hiện tại
@@ -86,7 +86,16 @@ class OxygenFragment : Fragment() {
         // Thiết lập nút back
         val btnBack = view.findViewById<ImageView>(R.id.ic_back_spo2_to_home)
         btnBack.setOnClickListener {
-            findNavController().navigate(R.id.action_back_spo2_to_home)
+            // Kiểm tra nguồn gốc điều hướng
+            val previousDestinationId = findNavController().previousBackStackEntry?.destination?.id
+            when (previousDestinationId) {
+                R.id.notificationFragment -> {
+                    findNavController().navigate(R.id.action_back_oxygen_to_notification)
+                }
+                else -> {
+                    findNavController().navigate(R.id.action_back_oxygen_to_home)
+                }
+            }
         }
 
         // Khởi tạo dữ liệu ban đầu
@@ -138,7 +147,7 @@ class OxygenFragment : Fragment() {
             isDragEnabled = true
             setScaleEnabled(true)
             setPinchZoom(true)
-
+            legend.isEnabled = false
             xAxis.apply {
                 setDrawGridLines(false)
                 setDrawLabels(true) // Bật nhãn trục X

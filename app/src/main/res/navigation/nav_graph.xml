@@ -33,6 +33,9 @@
     <action
         android:id="@+id/action_back_heart_rate_to_home"
         app:destination="@id/homeFragment"/>
+        <action
+            android:id="@+id/action_back_heart_rate_to_notification"
+            app:destination="@id/notificationFragment" />
     </fragment>
 
     <fragment
@@ -40,8 +43,11 @@
         android:name="com.example.healthcareproject.home.OxygenFragment"
         android:label="Oxygen Level">
         <action
-            android:id="@+id/action_back_spo2_to_home"
+            android:id="@+id/action_back_oxygen_to_home"
             app:destination="@id/homeFragment" />
+        <action
+            android:id="@+id/action_back_oxygen_to_notification"
+            app:destination="@id/notificationFragment" />
     </fragment>
 
     <fragment
@@ -105,7 +111,20 @@
         android:id="@+id/notificationFragment"
         android:name="com.example.healthcareproject.NotificationFragment"
         android:label="Notification"
-        tools:layout="@layout/fragment_notification" />
+        tools:layout="@layout/fragment_notification">
+        <action
+            android:id="@+id/action_notificationFragment_to_heartRateFragment"
+            app:destination="@id/heartRateFragment" />
+        <action
+            android:id="@+id/action_notificationFragment_to_oxygenFragment"
+            app:destination="@id/oxygenFragment" />
+        <action
+            android:id="@+id/action_notificationFragment_to_ecgFragment"
+            app:destination="@id/ecgFragment" />
+        <action
+            android:id="@+id/action_notificationFragment_to_weightFragment"
+            app:destination="@id/weightFragment" />
+    </fragment>
 
     <!-- Settings Fragment -->
     <fragment

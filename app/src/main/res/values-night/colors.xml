@@ -29,7 +29,7 @@
     <color name="chart_gradient_alert_top">#EF5350</color>
     <color name="chart_gradient_normal_bottom">#FF121212</color>
     <color name="chart_gradient_alert_bottom">#FF121212</color>
-    <color name="chart_value_text_normal">#FFFFFF</color>
+    <color name="chart_value_text_normal">#FFBB86FC</color>
     <color name="chart_axis_text_color">#FFFFFF</color>
     <color name="button_accent_color">#FFBB86FC</color>
     <color name="fab_background">#FF6200EE</color>
