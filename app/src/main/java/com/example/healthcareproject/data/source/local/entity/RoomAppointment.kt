@@ -16,7 +16,7 @@ import java.time.LocalDateTime
             onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
-            entity = MedicalVisit::class,
+            entity = RoomMedicalVisit::class,
             parentColumns = ["visitId"],
             childColumns = ["visitId"],
             onDelete = ForeignKey.SET_NULL
@@ -24,7 +24,7 @@ import java.time.LocalDateTime
     ],
     indices = [Index("userId"), Index("visitId")]
 )
-data class Appointment(
+data class RoomAppointment(
     @PrimaryKey val appointmentId: String,
     val userId: String,
     val visitId: String?,

@@ -19,7 +19,7 @@ import java.time.LocalDateTime
     ],
     indices = [Index("userId")]
 )
-data class MedicalVisit(
+data class RoomMedicalVisit(
     @PrimaryKey val visitId: String,
     val userId: String,
     val visitDate: LocalDate,

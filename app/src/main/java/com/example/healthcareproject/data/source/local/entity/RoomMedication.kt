@@ -16,7 +16,7 @@ import java.time.LocalDate
             onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
-            entity = MedicalVisit::class,
+            entity = RoomMedicalVisit::class,
             parentColumns = ["visitId"],
             childColumns = ["visitId"],
             onDelete = ForeignKey.SET_NULL

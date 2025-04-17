@@ -31,7 +31,7 @@ import java.time.LocalDateTime
     ],
     indices = [Index("userId"), Index("measurementId"), Index("emergencyId")]
 )
-data class Sos(
+data class RoomSos(
     @PrimaryKey val sosId: String,
     val userId: String,
     val measurementId: String?,
