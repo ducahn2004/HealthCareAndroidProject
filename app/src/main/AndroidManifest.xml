@@ -15,7 +15,7 @@
 
         <!-- SplashActivity: Launcher activity -->
         <activity
-            android:name=".SplashActivity"
+            android:name=".present.SplashActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -25,12 +25,12 @@
 
         <!-- MainActivity -->
         <activity
-            android:name=".MainActivity"
+            android:name=".present.MainActivity"
             android:exported="false" />
 
         <!-- AuthActivity -->
         <activity
-            android:name=".AuthActivity"
+            android:name=".present.AuthActivity"
             android:exported="false" />
 
         <meta-data

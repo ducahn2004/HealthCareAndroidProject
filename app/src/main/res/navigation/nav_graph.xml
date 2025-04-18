@@ -8,7 +8,7 @@
     <!-- Home Fragment -->
     <fragment
         android:id="@+id/homeFragment"
-        android:name="com.example.healthcareproject.home.HomeFragment"
+        android:name="com.example.healthcareproject.present.home.HomeFragment"
         android:label="Home"
         tools:layout="@layout/fragment_home">
         <action
@@ -27,7 +27,7 @@
 
     <fragment
         android:id="@+id/heartRateFragment"
-        android:name="com.example.healthcareproject.home.HeartRateFragment"
+        android:name="com.example.healthcareproject.present.home.HeartRateFragment"
         android:label="Heart Rate"
         android:layout="@layout/fragment_heart_rate">
     <action
@@ -40,7 +40,7 @@
 
     <fragment
         android:id="@+id/oxygenFragment"
-        android:name="com.example.healthcareproject.home.OxygenFragment"
+        android:name="com.example.healthcareproject.present.home.OxygenFragment"
         android:label="Oxygen Level">
         <action
             android:id="@+id/action_back_oxygen_to_home"
@@ -52,12 +52,12 @@
 
     <fragment
         android:id="@+id/ecgFragment"
-        android:name="com.example.healthcareproject.home.ECGFragment"
+        android:name="com.example.healthcareproject.present.home.ECGFragment"
         android:label="ECG" />
 
     <fragment
         android:id="@+id/weightFragment"
-        android:name="com.example.healthcareproject.home.WeightFragment"
+        android:name="com.example.healthcareproject.present.home.WeightFragment"
         android:label="Weight" />
 
     <!-- Explore Fragment -->
@@ -70,7 +70,7 @@
     <!-- Medicine Fragment -->
     <fragment
         android:id="@+id/medicineFragment"
-        android:name="com.example.healthcareproject.medicine.MedicineFragment"
+        android:name="com.example.healthcareproject.present.medicine.MedicineFragment"
         android:label="Medicine">
         <action
             android:id="@+id/action_medicineFragment_to_medicalHistoryDetailFragment"
@@ -99,17 +99,17 @@
 
     <fragment
         android:id="@+id/medicalHistoryDetailFragment"
-        android:name="com.example.healthcareproject.medicine.MedicalHistoryDetailFragment"
+        android:name="com.example.healthcareproject.present.medicine.MedicalHistoryDetailFragment"
         android:label="Medical History Detail">
         <argument
             android:name="medicalVisit"
-            app:argType="com.example.healthcareproject.medicine.MedicalVisit" />
+            app:argType="com.example.healthcareproject.present.medicine.MedicalVisit" />
     </fragment>
 
     <!-- Notification Fragment -->
     <fragment
         android:id="@+id/notificationFragment"
-        android:name="com.example.healthcareproject.notification.NotificationFragment"
+        android:name="com.example.healthcareproject.present.notification.NotificationFragment"
         android:label="Notification"
         tools:layout="@layout/fragment_notification">
         <action
@@ -129,7 +129,7 @@
     <!-- Settings Fragment -->
     <fragment
         android:id="@+id/settingsFragment"
-        android:name="com.example.healthcareproject.setting.SettingsFragment"
+        android:name="com.example.healthcareproject.present.setting.SettingsFragment"
         android:label="Settings"
         tools:layout="@layout/fragment_settings">
         <action
@@ -146,7 +146,7 @@
     <!-- Theme Fragment -->
     <fragment
         android:id="@+id/themeFragment"
-        android:name="com.example.healthcareproject.setting.ThemeFragment"
+        android:name="com.example.healthcareproject.present.setting.ThemeFragment"
         android:label="Theme Settings"
         tools:layout="@layout/fragment_theme">
         <action
@@ -174,7 +174,7 @@
     <!-- Emergency Fragment -->
     <fragment
         android:id="@+id/emergencyFragment"
-        android:name="com.example.healthcareproject.setting.EmergencyFragment"
+        android:name="com.example.healthcareproject.present.setting.EmergencyFragment"
         android:label="Emergency Contacts"
         tools:layout="@layout/fragment_emergency">
         <action
