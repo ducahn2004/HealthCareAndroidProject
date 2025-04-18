@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.healthcareproject.R
 import com.example.healthcareproject.SettingsAdapter
-import com.example.healthcareproject.auth.AuthActivity
+import com.example.healthcareproject.AuthActivity
 
 class SettingsFragment : Fragment() {
     private val SETTINGS = listOf(

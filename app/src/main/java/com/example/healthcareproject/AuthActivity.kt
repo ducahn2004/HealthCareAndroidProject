@@ -1,10 +1,9 @@
-package com.example.healthcareproject.auth
+package com.example.healthcareproject
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
-import com.example.healthcareproject.R
 
 class AuthActivity : AppCompatActivity() {
 

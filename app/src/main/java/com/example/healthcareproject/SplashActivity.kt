@@ -4,7 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import com.example.healthcareproject.ui.auth.AuthActivity
+import com.example.healthcareproject.AuthActivity
 
 class SplashActivity : AppCompatActivity() {
 

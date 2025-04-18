@@ -30,7 +30,7 @@
 
         <!-- AuthActivity -->
         <activity
-            android:name=".ui.auth.AuthActivity"
+            android:name=".AuthActivity"
             android:exported="false" />
 
         <meta-data
