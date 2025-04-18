@@ -138,6 +138,9 @@
         <action
             android:id="@+id/action_settingsFragment_to_emergencyFragment"
             app:destination="@id/emergencyFragment" />
+        <action
+            android:id="@+id/action_settingsFragment_to_informationFragment"
+            app:destination="@id/informationFragment" />
     </fragment>
 
     <!-- Theme Fragment -->
@@ -152,6 +155,21 @@
             app:popUpTo="@id/settingsFragment"
             app:popUpToInclusive="false" />
     </fragment>
+
+
+    <!-- Information Fragment -->
+    <fragment
+        android:id="@+id/informationFragment"
+        android:name="com.example.healthcareproject.InformationFragment"
+        android:label="Information"
+        tools:layout="@layout/fragment_information">
+        <action
+            android:id="@+id/action_informationFragment_to_settingsFragment"
+            app:destination="@id/settingsFragment"
+            app:popUpTo="@id/settingsFragment"
+            app:popUpToInclusive="false" />
+    </fragment>
+
 
     <!-- Emergency Fragment -->
     <fragment

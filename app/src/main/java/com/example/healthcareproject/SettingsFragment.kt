@@ -17,7 +17,7 @@ import android.app.AlertDialog
 class SettingsFragment : Fragment() {
     private val SETTINGS = listOf(
         SettingItem(1, "Change Theme", R.drawable.ic_theme),
-        SettingItem(2, "Account Settings", R.drawable.ic_account),
+        SettingItem(2, "Information", R.drawable.ic_account),
         SettingItem(3, "Notifications", R.drawable.ic_notification),
         SettingItem(4, "Privacy", R.drawable.ic_privacy),
         SettingItem(5, "Emergency Contacts", R.drawable.ic_emergency),
@@ -40,7 +40,7 @@ class SettingsFragment : Fragment() {
         rvSettings.adapter = SettingsAdapter(SETTINGS) { item ->
             when (item.id) {
                 1 -> findNavController().navigate(R.id.action_settingsFragment_to_themeFragment)
-                2 -> { /* Xử lý Account Settings */ }
+                2 -> findNavController().navigate(R.id.action_settingsFragment_to_informationFragment)
                 3 -> { /* Xử lý Notifications */ }
                 4 -> { /* Xử lý Privacy */ }
                 5 -> findNavController().navigate(R.id.action_settingsFragment_to_emergencyFragment)
