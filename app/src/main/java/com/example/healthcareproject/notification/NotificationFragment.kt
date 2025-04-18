@@ -1,4 +1,4 @@
-package com.example.healthcareproject
+package com.example.healthcareproject.notification
 
 import android.graphics.Canvas
 import android.graphics.drawable.ColorDrawable
@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.healthcareproject.R
 import com.example.healthcareproject.databinding.FragmentNotificationBinding
 
 class NotificationFragment : Fragment() {

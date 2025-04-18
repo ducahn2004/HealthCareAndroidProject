@@ -1,4 +1,4 @@
-package com.example.healthcareproject.ui.auth
+package com.example.healthcareproject.auth
 
 import android.os.Bundle
 import android.view.LayoutInflater

@@ -1,4 +1,4 @@
-package com.example.healthcareproject.ui.auth
+package com.example.healthcareproject.auth
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -14,7 +14,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.example.healthcareproject.MainActivity
 import com.example.healthcareproject.R
-import com.example.healthcareproject.ui.auth.AuthViewModel
 
 class LoginFragment : Fragment() {
 

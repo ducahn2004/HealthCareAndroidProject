@@ -1,4 +1,4 @@
-package com.example.healthcareproject.ui.auth
+package com.example.healthcareproject.auth
 
 import androidx.lifecycle.ViewModel
 

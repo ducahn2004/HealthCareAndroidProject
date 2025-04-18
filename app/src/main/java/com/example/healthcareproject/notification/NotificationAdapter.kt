@@ -1,4 +1,4 @@
-package com.example.healthcareproject
+package com.example.healthcareproject.notification
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -6,6 +6,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.example.healthcareproject.R
 import com.example.healthcareproject.databinding.ItemNotificationBinding
 
 class NotificationAdapter(

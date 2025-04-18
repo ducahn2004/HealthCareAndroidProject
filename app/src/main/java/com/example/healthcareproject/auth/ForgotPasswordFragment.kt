@@ -1,4 +1,4 @@
-package com.example.healthcareproject.ui.auth
+package com.example.healthcareproject.auth
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -10,7 +10,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.example.healthcareproject.R
-import com.example.healthcareproject.ui.auth.AuthViewModel
 
 class ForgotPasswordFragment : Fragment() {
 

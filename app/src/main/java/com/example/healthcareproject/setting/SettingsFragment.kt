@@ -1,5 +1,6 @@
-package com.example.healthcareproject
+package com.example.healthcareproject.setting
 
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -10,9 +11,9 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.healthcareproject.setting.SettingItem
-import com.example.healthcareproject.ui.auth.AuthActivity
-import android.app.AlertDialog
+import com.example.healthcareproject.R
+import com.example.healthcareproject.SettingsAdapter
+import com.example.healthcareproject.auth.AuthActivity
 
 class SettingsFragment : Fragment() {
     private val SETTINGS = listOf(
@@ -41,8 +42,12 @@ class SettingsFragment : Fragment() {
             when (item.id) {
                 1 -> findNavController().navigate(R.id.action_settingsFragment_to_themeFragment)
                 2 -> findNavController().navigate(R.id.action_settingsFragment_to_informationFragment)
-                3 -> { /* Xử lý Notifications */ }
-                4 -> { /* Xử lý Privacy */ }
+                3 -> { /* Xử lý Notifications */
+                }
+
+                4 -> { /* Xử lý Privacy */
+                }
+
                 5 -> findNavController().navigate(R.id.action_settingsFragment_to_emergencyFragment)
                 6 -> showLogoutConfirmationDialog()
             }

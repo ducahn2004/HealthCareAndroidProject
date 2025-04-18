@@ -1,4 +1,4 @@
-package com.example.healthcareproject
+package com.example.healthcareproject.notification
 
 data class Notification(
     val id: Long = System.currentTimeMillis(),

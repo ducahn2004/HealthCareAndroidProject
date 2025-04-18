@@ -1,6 +1,8 @@
-package com.example.healthcareproject
+package com.example.healthcareproject.medicine
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,11 +12,11 @@ import androidx.fragment.app.setFragmentResultListener
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.healthcareproject.medicine.MedicalVisit
-import com.example.healthcareproject.medicine.MedicalVisitAdapter
+import com.example.healthcareproject.R
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 
 class MedicineFragment : Fragment() {
 
@@ -152,10 +154,10 @@ class MedicineFragment : Fragment() {
 
     private fun setupSearch() {
         val etSearch: EditText = requireView().findViewById(R.id.et_search)
-        etSearch.addTextChangedListener(object : android.text.TextWatcher {
+        etSearch.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: android.text.Editable?) {
+            override fun afterTextChanged(s: Editable?) {
                 val query = s.toString().trim().lowercase()
                 if (query.isEmpty()) {
                     filterVisitsByDate()
@@ -166,7 +168,11 @@ class MedicineFragment : Fragment() {
                                 visit.facility.lowercase().contains(query)
                     }.filter { visit ->
                         val visitDate = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).parse(visit.date)
-                        visitDate != null && visitDate.before(SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).parse("15/04/2025"))
+                        visitDate != null && visitDate.before(
+                            SimpleDateFormat(
+                                "dd/MM/yyyy",
+                                Locale.getDefault()
+                            ).parse("15/04/2025"))
                     }
                     val filteredAfter = medicalVisits.filter { visit ->
                         visit.condition.lowercase().contains(query) ||
@@ -174,7 +180,14 @@ class MedicineFragment : Fragment() {
                                 visit.facility.lowercase().contains(query)
                     }.filter { visit ->
                         val visitDate = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).parse(visit.date)
-                        visitDate != null && (visitDate.after(SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).parse("15/04/2025")) || visitDate == SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).parse("15/04/2025"))
+                        visitDate != null && (visitDate.after(
+                            SimpleDateFormat(
+                                "dd/MM/yyyy",
+                                Locale.getDefault()
+                            ).parse("15/04/2025")) || visitDate == SimpleDateFormat(
+                            "dd/MM/yyyy",
+                            Locale.getDefault()
+                        ).parse("15/04/2025"))
                     }
                     adapterBefore.submitList(filteredBefore.toMutableList())
                     adapterAfter.submitList(filteredAfter.toMutableList())
