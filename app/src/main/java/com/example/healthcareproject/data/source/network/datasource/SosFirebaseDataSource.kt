@@ -1,43 +1,32 @@
 package com.example.healthcareproject.data.source.network.datasource
 
-import com.example.healthcareproject.data.source.local.entity.Sos
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
+import com.example.healthcareproject.data.source.network.firebase.FirebaseService
+import com.example.healthcareproject.data.source.network.model.FirebaseSos
+import kotlinx.coroutines.tasks.await
 
 class SosFirebaseDataSource : SosDataSource {
 
-    override fun observeAll(): Flow<List<Sos>> = flowOf(emptyList())
+    private val sosRef = FirebaseService.getReference("sos")
 
-    override fun observeById(sosId: String): Flow<Sos?> = flowOf(null)
-
-    override fun observeByUserId(userId: String): Flow<List<Sos>> = flowOf(emptyList())
-
-    override suspend fun getAll(): List<Sos> = emptyList()
-
-    override suspend fun getById(sosId: String): Sos? = null
-
-    override suspend fun getByUserId(userId: String): List<Sos> = emptyList()
-
-    override suspend fun upsert(sos: Sos) {
-        // Add or update the SOS record in Firebase
+    override suspend fun writeSos(sos: FirebaseSos) {
+        sosRef.child(sos.sosId).setValue(sos).await()
     }
 
-    override suspend fun upsertAll(sosList: List<Sos>) {
-        // Add or update multiple SOS records in Firebase
+    override suspend fun readSos(sosId: String): FirebaseSos? {
+        val snapshot = sosRef.child(sosId).get().await()
+        return snapshot.getValue(FirebaseSos::class.java)
     }
 
-    override suspend fun deleteById(sosId: String): Int {
-        // Delete the SOS record by ID in Firebase
-        return 0
+    override suspend fun deleteSos(sosId: String) {
+        sosRef.child(sosId).removeValue().await()
     }
 
-    override suspend fun deleteByUserId(userId: String): Int {
-        // Delete SOS records by user ID in Firebase
-        return 0
+    override suspend fun updateSos(sosId: String, sos: FirebaseSos) {
+        sosRef.child(sosId).setValue(sos).await()
     }
 
-    override suspend fun deleteAll(): Int {
-        // Delete all SOS records in Firebase
-        return 0
+    override suspend fun readAllSosByUserId(userId: String): List<FirebaseSos> {
+        val snapshot = sosRef.orderByChild("userId").equalTo(userId).get().await()
+        return snapshot.children.mapNotNull { it.getValue(FirebaseSos::class.java) }
     }
 }

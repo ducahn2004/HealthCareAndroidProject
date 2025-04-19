@@ -3,35 +3,35 @@ package com.example.healthcareproject.data.source.local.dao
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Upsert
-import com.example.healthcareproject.data.source.local.entity.MedicalVisit
+import com.example.healthcareproject.data.source.local.entity.RoomMedicalVisit
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface MedicalVisitDao {
 
     @Query("SELECT * FROM medical_visits")
-    fun observeAll(): Flow<List<MedicalVisit>>
+    fun observeAll(): Flow<List<RoomMedicalVisit>>
 
     @Query("SELECT * FROM medical_visits WHERE visitId = :visitId")
-    fun observeById(visitId: String): Flow<MedicalVisit>
+    fun observeById(visitId: String): Flow<RoomMedicalVisit>
 
     @Query("SELECT * FROM medical_visits WHERE userId = :userId")
-    fun observeByUserId(userId: String): Flow<List<MedicalVisit>>
+    fun observeByUserId(userId: String): Flow<List<RoomMedicalVisit>>
 
     @Query("SELECT * FROM medical_visits")
-    suspend fun getAll(): List<MedicalVisit>
+    suspend fun getAll(): List<RoomMedicalVisit>
 
     @Query("SELECT * FROM medical_visits WHERE visitId = :visitId")
-    suspend fun getById(visitId: String): MedicalVisit?
+    suspend fun getById(visitId: String): RoomMedicalVisit?
 
     @Query("SELECT * FROM medical_visits WHERE userId = :userId")
-    suspend fun getByUserId(userId: String): List<MedicalVisit>
+    suspend fun getByUserId(userId: String): List<RoomMedicalVisit>
 
     @Upsert
-    suspend fun upsert(medicalVisit: MedicalVisit)
+    suspend fun upsert(medicalVisit: RoomMedicalVisit)
 
     @Upsert
-    suspend fun upsertAll(medicalVisits: List<MedicalVisit>)
+    suspend fun upsertAll(medicalVisits: List<RoomMedicalVisit>)
 
     @Query("DELETE FROM medical_visits WHERE visitId = :visitId")
     suspend fun deleteById(visitId: String): Int

@@ -1,22 +1,16 @@
 package com.example.healthcareproject.data.source.network.datasource
 
-import com.example.healthcareproject.data.source.local.entity.MedicalVisit
-import kotlinx.coroutines.flow.Flow
+import com.example.healthcareproject.data.source.network.model.FirebaseMedicalVisit
 
 interface MedicalVisitDataSource {
-    fun observeAll(): Flow<List<MedicalVisit>>
 
-    fun observeById(medicalVisitId: String): Flow<MedicalVisit?>
+    suspend fun writeMedicalVisit(medicalVisit: FirebaseMedicalVisit)
 
-    suspend fun getAll(): List<MedicalVisit>
+    suspend fun readMedicalVisit(medicalVisitId: String): FirebaseMedicalVisit?
 
-    suspend fun getById(medicalVisitId: String): MedicalVisit?
+    suspend fun deleteMedicalVisit(medicalVisitId: String)
 
-    suspend fun upsert(medicalVisit: MedicalVisit)
+    suspend fun updateMedicalVisit(medicalVisitId: String, medicalVisit: FirebaseMedicalVisit)
 
-    suspend fun upsertAll(medicalVisits: List<MedicalVisit>)
-
-    suspend fun deleteById(medicalVisitId: String): Int
-
-    suspend fun deleteAll(): Int
+    suspend fun getAllMedicalVisitsByUserId(userId: String): List<FirebaseMedicalVisit>
 }

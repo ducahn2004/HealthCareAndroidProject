@@ -1,22 +1,16 @@
 package com.example.healthcareproject.data.source.network.datasource
 
-import com.example.healthcareproject.data.source.local.entity.User
+import com.example.healthcareproject.data.source.network.model.FirebaseUser
 import kotlinx.coroutines.flow.Flow
 
 interface UserDataSource {
-    fun observeAll(): Flow<List<User>>
+    suspend fun writeUser(user: FirebaseUser)
 
-    fun observeById(userId: String): Flow<User?>
+    suspend fun readUser(userId: String): FirebaseUser?
 
-    suspend fun getAll(): List<User>
+    suspend fun deleteUser(userId: String)
 
-    suspend fun getById(userId: String): User?
+    suspend fun updateUser(userId: String, user: FirebaseUser)
 
-    suspend fun upsert(user: User)
-
-    suspend fun upsertAll(users: List<User>)
-
-    suspend fun deleteById(userId: String): Int
-
-    suspend fun deleteAll(): Int
+    fun getUserRealtime(userId: String): Flow<FirebaseUser>
 }
