@@ -1,22 +1,15 @@
 package com.example.healthcareproject.data.source.network.datasource
 
-import com.example.healthcareproject.data.source.local.entity.Alert
-import kotlinx.coroutines.flow.Flow
+import com.example.healthcareproject.data.source.network.model.FirebaseAlert
 
 interface AlertDataSource {
-    fun observeAll(): Flow<List<Alert>>
+    suspend fun writeAlert(alert: FirebaseAlert)
 
-    fun observeById(alertId: String): Flow<Alert?>
+    suspend fun readAlert(alertId: String): FirebaseAlert?
 
-    suspend fun getAll(): List<Alert>
+    suspend fun deleteAlert(alertId: String)
 
-    suspend fun getById(alertId: String): Alert?
+    suspend fun updateAlert(alertId: String, alert: FirebaseAlert)
 
-    suspend fun upsert(alert: Alert)
-
-    suspend fun upsertAll(alerts: List<Alert>)
-
-    suspend fun deleteById(alertId: String): Int
-
-    suspend fun deleteAll(): Int
+    suspend fun readAllAlertsByUserId(userId: String): List<FirebaseAlert>?
 }

@@ -3,41 +3,41 @@ package com.example.healthcareproject.data.source.local.dao
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Upsert
-import com.example.healthcareproject.data.source.local.entity.Medication
+import com.example.healthcareproject.data.source.local.entity.RoomMedication
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface MedicationDao {
 
     @Query("SELECT * FROM medications")
-    fun observeAll(): Flow<List<Medication>>
+    fun observeAll(): Flow<List<RoomMedication>>
 
     @Query("SELECT * FROM medications WHERE medicationId = :medicationId")
-    fun observeById(medicationId: String): Flow<Medication>
+    fun observeById(medicationId: String): Flow<RoomMedication>
 
     @Query("SELECT * FROM medications WHERE userId = :userId")
-    fun observeByUserId(userId: String): Flow<List<Medication>>
+    fun observeByUserId(userId: String): Flow<List<RoomMedication>>
 
     @Query("SELECT * FROM medications WHERE visitId = :visitId")
-    fun observeByVisitId(visitId: String): Flow<List<Medication>>
+    fun observeByVisitId(visitId: String): Flow<List<RoomMedication>>
 
     @Query("SELECT * FROM medications")
-    suspend fun getAll(): List<Medication>
+    suspend fun getAll(): List<RoomMedication>
 
     @Query("SELECT * FROM medications WHERE medicationId = :medicationId")
-    suspend fun getById(medicationId: String): Medication?
+    suspend fun getById(medicationId: String): RoomMedication?
 
     @Query("SELECT * FROM medications WHERE userId = :userId")
-    suspend fun getByUserId(userId: String): List<Medication>
+    suspend fun getByUserId(userId: String): List<RoomMedication>
 
     @Query("SELECT * FROM medications WHERE visitId = :visitId")
-    suspend fun getByVisitId(visitId: String): List<Medication>
+    suspend fun getByVisitId(visitId: String): List<RoomMedication>
 
     @Upsert
-    suspend fun upsert(medication: Medication)
+    suspend fun upsert(medication: RoomMedication)
 
     @Upsert
-    suspend fun upsertAll(medications: List<Medication>)
+    suspend fun upsertAll(medications: List<RoomMedication>)
 
     @Query("DELETE FROM medications WHERE medicationId = :medicationId")
     suspend fun deleteById(medicationId: String): Int

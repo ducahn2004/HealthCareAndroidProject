@@ -4,14 +4,17 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import java.time.LocalDate
+import androidx.room.TypeConverters
+import com.example.healthcareproject.data.source.local.Converters
+import com.example.healthcareproject.domain.model.RepeatPattern
 import java.time.LocalDateTime
+import java.time.LocalTime
 
 @Entity(
-    tableName = "medical_visits",
+    tableName = "alerts",
     foreignKeys = [
         ForeignKey(
-            entity = User::class,
+            entity = RoomUser::class,
             parentColumns = ["userId"],
             childColumns = ["userId"],
             onDelete = ForeignKey.CASCADE
@@ -19,13 +22,15 @@ import java.time.LocalDateTime
     ],
     indices = [Index("userId")]
 )
-data class MedicalVisit(
-    @PrimaryKey val visitId: String,
+@TypeConverters(Converters::class)
+data class RoomAlert(
+    @PrimaryKey val alertId: String,
     val userId: String,
-    val visitDate: LocalDate,
-    val clinicName: String,
-    val doctorName: String,
-    val diagnosis: String,
-    val treatment: String,
+    val title: String,
+    val message: String,
+    val alertTime: LocalTime,
+    val repeatPattern: RepeatPattern,
+    val status: Boolean,
     val createdAt: LocalDateTime
 )
+

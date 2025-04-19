@@ -4,19 +4,21 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import androidx.room.TypeConverters
+import com.example.healthcareproject.data.source.local.Converters
 import java.time.LocalDateTime
 
 @Entity(
     tableName = "appointments",
     foreignKeys = [
         ForeignKey(
-            entity = User::class,
+            entity = RoomUser::class,
             parentColumns = ["userId"],
             childColumns = ["userId"],
             onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
-            entity = MedicalVisit::class,
+            entity = RoomMedicalVisit::class,
             parentColumns = ["visitId"],
             childColumns = ["visitId"],
             onDelete = ForeignKey.SET_NULL
@@ -24,7 +26,8 @@ import java.time.LocalDateTime
     ],
     indices = [Index("userId"), Index("visitId")]
 )
-data class Appointment(
+@TypeConverters(Converters::class)
+data class RoomAppointment(
     @PrimaryKey val appointmentId: String,
     val userId: String,
     val visitId: String?,
