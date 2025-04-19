@@ -2,24 +2,26 @@ package com.example.healthcareproject.data.source.local
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import com.example.healthcareproject.data.source.local.dao.*
 import com.example.healthcareproject.data.source.local.entity.*
 
 @Database(
     entities = [
-        Alert::class,
-        Appointment::class,
-        EmergencyInfo::class,
-        Measurement::class,
-        MedicalVisit::class,
-        Medication::class,
-        Notification::class,
-        Sos::class,
-        User::class
+        RoomAlert::class,
+        RoomAppointment::class,
+        RoomEmergencyInfo::class,
+        RoomMeasurement::class,
+        RoomMedicalVisit::class,
+        RoomMedication::class,
+        RoomNotification::class,
+        RoomSos::class,
+        RoomUser::class
     ],
     version = 1,
     exportSchema = false
 )
+@TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun alertDao(): AlertDao

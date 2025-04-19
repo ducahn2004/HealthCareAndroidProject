@@ -4,6 +4,9 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import androidx.room.TypeConverters
+import com.example.healthcareproject.data.source.local.Converters
+import com.example.healthcareproject.domain.model.RepeatPattern
 import java.time.LocalDateTime
 import java.time.LocalTime
 
@@ -11,7 +14,7 @@ import java.time.LocalTime
     tableName = "alerts",
     foreignKeys = [
         ForeignKey(
-            entity = User::class,
+            entity = RoomUser::class,
             parentColumns = ["userId"],
             childColumns = ["userId"],
             onDelete = ForeignKey.CASCADE
@@ -19,7 +22,8 @@ import java.time.LocalTime
     ],
     indices = [Index("userId")]
 )
-data class Alert(
+@TypeConverters(Converters::class)
+data class RoomAlert(
     @PrimaryKey val alertId: String,
     val userId: String,
     val title: String,
@@ -30,9 +34,3 @@ data class Alert(
     val createdAt: LocalDateTime
 )
 
-enum class RepeatPattern {
-    Daily,
-    Weekly,
-    Monthly,
-    Yearly
-}

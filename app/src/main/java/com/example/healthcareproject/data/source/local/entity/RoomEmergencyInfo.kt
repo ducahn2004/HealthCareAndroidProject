@@ -4,13 +4,16 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import androidx.room.TypeConverters
+import com.example.healthcareproject.data.source.local.Converters
+import com.example.healthcareproject.domain.model.Relationship
 
 
 @Entity(
-    tableName = "emergency_info",
+    tableName = "emergency_infos",
     foreignKeys = [
         ForeignKey(
-            entity = User::class,
+            entity = RoomUser::class,
             parentColumns = ["userId"],
             childColumns = ["userId"],
             onDelete = ForeignKey.CASCADE
@@ -18,7 +21,8 @@ import androidx.room.PrimaryKey
     ],
     indices = [Index("userId")]
 )
-data class EmergencyInfo(
+@TypeConverters(Converters::class)
+data class RoomEmergencyInfo(
     @PrimaryKey val emergencyId: String,
     val userId: String,
     val emergencyName: String,
@@ -26,12 +30,3 @@ data class EmergencyInfo(
     val relationship: Relationship,
     val priority: Int
 )
-
-enum class Relationship {
-    Parent,
-    Sibling,
-    Spouse,
-    Child,
-    Friend,
-    Other
-}

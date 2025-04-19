@@ -4,13 +4,16 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import androidx.room.TypeConverters
+import com.example.healthcareproject.data.source.local.Converters
+import com.example.healthcareproject.domain.model.MealRelation
 import java.time.LocalDate
 
 @Entity(
     tableName = "medications",
     foreignKeys = [
         ForeignKey(
-            entity = User::class,
+            entity = RoomUser::class,
             parentColumns = ["userId"],
             childColumns = ["userId"],
             onDelete = ForeignKey.CASCADE
@@ -24,7 +27,8 @@ import java.time.LocalDate
     ],
     indices = [Index("userId"), Index("visitId")]
 )
-data class Medication(
+@TypeConverters(Converters::class)
+data class RoomMedication(
     @PrimaryKey val medicationId: String,
     val userId: String,
     val visitId: String?,
@@ -39,8 +43,3 @@ data class Medication(
     val notes: String
 )
 
-enum class MealRelation {
-    BeforeMeal,
-    AfterMeal,
-    WithMeal
-}
