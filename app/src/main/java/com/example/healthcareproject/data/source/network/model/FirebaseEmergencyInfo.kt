@@ -1,9 +1,10 @@
 package com.example.healthcareproject.data.source.network.model
 
 data class FirebaseEmergencyInfo(
-    var id: String = "",
+    var emergencyId: String = "",
     var userId: String = "",
-    var name: String = "",
-    var phone: String = "",
-    var relationship: String = ""
+    var emergencyName: String = "",
+    var emergencyPhone: String = "",
+    var relationship: String = "",
+    var priority: Int
 )

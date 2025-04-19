@@ -1,24 +1,32 @@
 package com.example.healthcareproject.data.source.network.datasource
 
-import com.example.healthcareproject.data.source.local.entity.Alert
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
+import com.example.healthcareproject.data.source.network.firebase.FirebaseService
+import com.example.healthcareproject.data.source.network.model.FirebaseAlert
+import kotlinx.coroutines.tasks.await
 
 class AlertFirebaseDataSource : AlertDataSource {
 
-    override fun observeAll(): Flow<List<Alert>> = flowOf(emptyList())
+    private val alertsRef = FirebaseService.getReference("alerts")
 
-    override fun observeById(alertId: String): Flow<Alert?> = flowOf(null)
+    override suspend fun writeAlert(alert: FirebaseAlert) {
+        alertsRef.child(alert.alertId).setValue(alert).await()
+    }
 
-    override suspend fun getAll(): List<Alert> = emptyList()
+    override suspend fun readAlert(alertId: String): FirebaseAlert? {
+        val snapshot = alertsRef.child(alertId).get().await()
+        return snapshot.getValue(FirebaseAlert::class.java)
+    }
 
-    override suspend fun getById(alertId: String): Alert? = null
+    override suspend fun deleteAlert(alertId: String) {
+        alertsRef.child(alertId).removeValue().await()
+    }
 
-    override suspend fun upsert(alert: Alert) {}
+    override suspend fun updateAlert(alertId: String, alert: FirebaseAlert) {
+        alertsRef.child(alertId).setValue(alert).await()
+    }
 
-    override suspend fun upsertAll(alerts: List<Alert>) {}
-
-    override suspend fun deleteById(alertId: String): Int = 0
-
-    override suspend fun deleteAll(): Int = 0
+    override suspend fun readAllAlertsByUserId(userId: String): List<FirebaseAlert> {
+        val snapshot = alertsRef.orderByChild("userId").equalTo(userId).get().await()
+        return snapshot.children.mapNotNull { it.getValue(FirebaseAlert::class.java) }
+    }
 }

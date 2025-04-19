@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
         <item
-            android:id="@+id/exploreFragment"
-            android:icon="@drawable/ic_explore"
-            android:title="@string/explore" />
+            android:id="@+id/pillFragment"
+            android:icon="@drawable/ic_pill"
+            android:title="@string/Drug" />
         <item
             android:id="@+id/medicineFragment"
             android:icon="@drawable/ic_medicine"

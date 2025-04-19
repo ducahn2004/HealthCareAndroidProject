@@ -1,24 +1,35 @@
 package com.example.healthcareproject.data.source.network.datasource
 
-import com.example.healthcareproject.data.source.local.entity.MedicalVisit
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
+import com.example.healthcareproject.data.source.network.firebase.FirebaseService
+import com.example.healthcareproject.data.source.network.model.FirebaseMedicalVisit
+import kotlinx.coroutines.tasks.await
 
 class MedicalVisitFirebaseDataSource : MedicalVisitDataSource {
 
-    override fun observeAll(): Flow<List<MedicalVisit>> = flowOf(emptyList())
+    private val medicalVisitRef = FirebaseService.getReference("medical_visits")
 
-    override fun observeById(medicalVisitId: String): Flow<MedicalVisit?> = flowOf(null)
+    override suspend fun writeMedicalVisit(medicalVisit: FirebaseMedicalVisit) {
+        medicalVisitRef.child(medicalVisit.medicalVisitId).setValue(medicalVisit).await()
+    }
 
-    override suspend fun getAll(): List<MedicalVisit> = emptyList()
+    override suspend fun readMedicalVisit(medicalVisitId: String): FirebaseMedicalVisit? {
+        val snapshot = medicalVisitRef.child(medicalVisitId).get().await()
+        return snapshot.getValue(FirebaseMedicalVisit::class.java)
+    }
 
-    override suspend fun getById(medicalVisitId: String): MedicalVisit? = null
+    override suspend fun deleteMedicalVisit(medicalVisitId: String) {
+        medicalVisitRef.child(medicalVisitId).removeValue().await()
+    }
 
-    override suspend fun upsert(medicalVisit: MedicalVisit) {}
+    override suspend fun updateMedicalVisit(
+        medicalVisitId: String,
+        medicalVisit: FirebaseMedicalVisit
+    ) {
+        medicalVisitRef.child(medicalVisitId).setValue(medicalVisit).await()
+    }
 
-    override suspend fun upsertAll(medicalVisits: List<MedicalVisit>) {}
-
-    override suspend fun deleteById(medicalVisitId: String): Int = 0
-
-    override suspend fun deleteAll(): Int = 0
+    override suspend fun getAllMedicalVisitsByUserId(userId: String): List<FirebaseMedicalVisit> {
+        val snapshot = medicalVisitRef.orderByChild("userId").equalTo(userId).get().await()
+        return snapshot.children.mapNotNull { it.getValue(FirebaseMedicalVisit::class.java) }
+    }
 }

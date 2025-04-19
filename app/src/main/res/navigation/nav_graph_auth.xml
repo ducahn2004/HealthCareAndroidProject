@@ -8,7 +8,7 @@
     <!-- Login Method Fragment -->
     <fragment
         android:id="@+id/loginMethodFragment"
-        android:name="com.example.healthcareproject.ui.auth.LoginMethodFragment"
+        android:name="com.example.healthcareproject.present.auth.LoginMethodFragment"
         android:label="Login Method"
         tools:layout="@layout/fragment_login_method">
         <action
@@ -25,7 +25,7 @@
     <!-- Login Fragment -->
     <fragment
         android:id="@+id/loginFragment"
-        android:name="com.example.healthcareproject.ui.auth.LoginFragment"
+        android:name="com.example.healthcareproject.present.auth.LoginFragment"
         android:label="Login"
         tools:layout="@layout/fragment_login">
         <action
@@ -44,7 +44,7 @@
     <!-- Register Fragment -->
     <fragment
         android:id="@+id/registerFragment"
-        android:name="com.example.healthcareproject.ui.auth.RegisterFragment"
+        android:name="com.example.healthcareproject.present.auth.RegisterFragment"
         android:label="Register"
         tools:layout="@layout/fragment_register">
         <action
@@ -60,7 +60,7 @@
     <!-- Verify Code Fragment -->
     <fragment
         android:id="@+id/verifyCodeFragment"
-        android:name="com.example.healthcareproject.ui.auth.VerifyCodeFragment"
+        android:name="com.example.healthcareproject.present.auth.VerifyCodeFragment"
         android:label="Verify Code"
         tools:layout="@layout/fragment_verify_code">
         <action
@@ -71,7 +71,7 @@
     <!-- Google Login Fragment -->
     <fragment
         android:id="@+id/googleLoginFragment"
-        android:name="com.example.healthcareproject.ui.auth.GoogleLoginFragment"
+        android:name="com.example.healthcareproject.present.auth.GoogleLoginFragment"
         android:label="Google Login"
         tools:layout="@layout/fragment_google_login">
         <action
@@ -84,7 +84,7 @@
     <!-- Forgot Password Fragment -->
     <fragment
         android:id="@+id/forgotPasswordFragment"
-        android:name="com.example.healthcareproject.ui.auth.ForgotPasswordFragment"
+        android:name="com.example.healthcareproject.present.auth.ForgotPasswordFragment"
         android:label="Forgot Password"
         tools:layout="@layout/fragment_forgot_password">
         <action
@@ -100,7 +100,7 @@
     <!-- Create New Password Fragment -->
     <fragment
         android:id="@+id/createNewPasswordFragment"
-        android:name="com.example.healthcareproject.ui.auth.CreateNewPasswordFragment"
+        android:name="com.example.healthcareproject.present.auth.CreateNewPasswordFragment"
         android:label="Create New Password"
         tools:layout="@layout/fragment_create_new_password" />
 </navigation>
