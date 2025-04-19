@@ -61,6 +61,8 @@ dependencies {
     implementation(libs.mpandroidchart)
     implementation(libs.material)
     implementation(libs.gson)
+    implementation(libs.socketio.client)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

@@ -1,18 +1,28 @@
 package com.example.healthcareproject.present.notification
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.graphics.Canvas
 import android.graphics.drawable.ColorDrawable
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import android.Manifest
 import com.example.healthcareproject.R
 import com.example.healthcareproject.databinding.FragmentNotificationBinding
 
@@ -22,6 +32,18 @@ class NotificationFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var adapter: NotificationAdapter
     private lateinit var notifications: MutableList<Notification>
+    private lateinit var broadcastReceiver: BroadcastReceiver
+
+    // Permission launcher for POST_NOTIFICATIONS
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            startNotificationService()
+        } else {
+            Toast.makeText(requireContext(), "Notification permission denied", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -146,9 +168,46 @@ class NotificationFragment : Fragment() {
         }
         val itemTouchHelper = ItemTouchHelper(itemTouchHelperCallback)
         itemTouchHelper.attachToRecyclerView(binding.rvNotifications)
+        // Check and request POST_NOTIFICATIONS permission
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                startNotificationService()
+            } else {
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        } else {
+            startNotificationService()
+        }
 
+        // Setup BroadcastReceiver
+        broadcastReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                val notification = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    intent?.getParcelableExtra("notification", Notification::class.java)
+                } else {
+                    @Suppress("DEPRECATION")
+                    intent?.getParcelableExtra("notification")
+                }
+                notification?.let {
+                    notifications.add(0, it)
+                    adapter.submitList(notifications.toList())
+                    updateNotificationsList()
+                }
+            }
+        }
+        LocalBroadcastManager.getInstance(requireContext())
+            .registerReceiver(broadcastReceiver, IntentFilter("NEW_NOTIFICATION"))
         // Cập nhật danh sách ban đầu
         updateNotificationsList()
+    }
+
+    private fun startNotificationService() {
+        val serviceIntent = Intent(requireContext(), NotificationService::class.java)
+        ContextCompat.startForegroundService(requireContext(), serviceIntent)
     }
 
     private fun updateNotificationsList() {
