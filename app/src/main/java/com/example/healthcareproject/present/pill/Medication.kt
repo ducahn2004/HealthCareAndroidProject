@@ -1,4 +1,4 @@
-package com.example.healthcareproject.present.medicine
+package com.example.healthcareproject.present.pill
 
 import android.os.Parcel
 import android.os.Parcelable

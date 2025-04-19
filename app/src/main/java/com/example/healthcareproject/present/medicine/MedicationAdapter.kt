@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.healthcareproject.databinding.ItemMedicationBinding
+import com.example.healthcareproject.present.pill.Medication
 
 class MedicationAdapter : ListAdapter<Medication, MedicationAdapter.MedicationViewHolder>(MedicationDiffCallback()) {
 
