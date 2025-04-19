@@ -1,10 +1,13 @@
 package com.example.healthcareproject.data.source.network.model
 
+import com.example.healthcareproject.domain.model.MeasurementType
+
 data class FirebaseMeasurement(
-    var id: String = "",
+    var measurementId: String = "",
     var userId: String = "",
-    var type: String = "",
-    var value: Double = 0.0,
+    var type: MeasurementType = MeasurementType.None,
+    var value: Float? = null,
+    var valueList: List<Float>? = null,
     var timestamp: String = ""
 )
 

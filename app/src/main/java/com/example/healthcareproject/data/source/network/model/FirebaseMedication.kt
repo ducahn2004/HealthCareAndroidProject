@@ -1,13 +1,17 @@
 package com.example.healthcareproject.data.source.network.model
 
+import com.example.healthcareproject.domain.model.DosageUnit
+import com.example.healthcareproject.domain.model.MealRelation
+
 data class FirebaseMedication(
-    var id: String = "",
+    var medicationId: String = "",
     var userId: String = "",
+    var visitId: String? = null,
     var name: String = "",
-    var dosage: String = "",
+    var dosageUnit: DosageUnit = DosageUnit.None,
     var frequency: String = "",
     var timeOfDay: List<String> = emptyList(),
-    var beforeAfterMeal: String = "",
+    var mealRelation: MealRelation = MealRelation.None,
     var startDate: String = "",
     var endDate: String = "",
     var notes: String = ""

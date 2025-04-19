@@ -1,22 +1,20 @@
 package com.example.healthcareproject.data.source.network.datasource
 
-import com.example.healthcareproject.data.source.local.entity.Measurement
+import com.example.healthcareproject.data.source.network.model.FirebaseMeasurement
 import kotlinx.coroutines.flow.Flow
 
 interface MeasurementDataSource {
-    fun observeAll(): Flow<List<Measurement>>
 
-    fun observeById(measurementId: String): Flow<Measurement?>
+    suspend fun writeMeasurement(measurement: FirebaseMeasurement)
 
-    suspend fun getAll(): List<Measurement>
+    suspend fun readMeasurements(userId: String): List<FirebaseMeasurement>
 
-    suspend fun getById(measurementId: String): Measurement?
+    suspend fun deleteMeasurement(userId: String, measurementId: String)
 
-    suspend fun upsert(measurement: Measurement)
+    suspend fun deleteMeasurements(userId: String, measurementIds: List<String>)
 
-    suspend fun upsertAll(measurements: List<Measurement>)
+    suspend fun readAllMeasurementsByUserId(userId: String): List<FirebaseMeasurement>?
 
-    suspend fun deleteById(measurementId: String): Int
+    fun getMeasurementsRealtime(userId: String): Flow<List<FirebaseMeasurement>>
 
-    suspend fun deleteAll(): Int
 }

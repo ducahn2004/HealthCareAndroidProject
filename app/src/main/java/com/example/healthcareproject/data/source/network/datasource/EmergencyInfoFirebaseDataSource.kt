@@ -1,24 +1,32 @@
 package com.example.healthcareproject.data.source.network.datasource
 
-import com.example.healthcareproject.data.source.local.entity.EmergencyInfo
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
+import com.example.healthcareproject.data.source.network.firebase.FirebaseService
+import com.example.healthcareproject.data.source.network.model.FirebaseEmergencyInfo
+import kotlinx.coroutines.tasks.await
 
 class EmergencyInfoFirebaseDataSource : EmergencyInfoDataSource {
 
-    override fun observeAll(): Flow<List<EmergencyInfo>> = flowOf(emptyList())
+    private val emergencyInfosRef = FirebaseService.getReference("emergency_infos")
 
-    override fun observeById(emergencyInfoId: String): Flow<EmergencyInfo?> = flowOf(null)
+    override suspend fun writeEmergencyInfo(emergencyInfo: FirebaseEmergencyInfo) {
+        emergencyInfosRef.child(emergencyInfo.userId).setValue(emergencyInfo).await()
+    }
 
-    override suspend fun getAll(): List<EmergencyInfo> = emptyList()
+    override suspend fun readEmergencyInfo(userId: String): FirebaseEmergencyInfo? {
+        val snapshot = emergencyInfosRef.child(userId).get().await()
+        return snapshot.getValue(FirebaseEmergencyInfo::class.java)
+    }
 
-    override suspend fun getById(emergencyInfoId: String): EmergencyInfo? = null
+    override suspend fun deleteEmergencyInfo(userId: String) {
+        emergencyInfosRef.child(userId).removeValue().await()
+    }
 
-    override suspend fun upsert(emergencyInfo: EmergencyInfo) {}
+    override suspend fun updateEmergencyInfo(userId: String, emergencyInfo: FirebaseEmergencyInfo) {
+        emergencyInfosRef.child(userId).setValue(emergencyInfo).await()
+    }
 
-    override suspend fun upsertAll(emergencyInfos: List<EmergencyInfo>) {}
-
-    override suspend fun deleteById(emergencyInfoId: String): Int = 0
-
-    override suspend fun deleteAll(): Int = 0
+    override suspend fun readAllEmergencyInfosByUserId(userId: String): List<FirebaseEmergencyInfo> {
+        val snapshot = emergencyInfosRef.child(userId).get().await()
+        return snapshot.children.mapNotNull { it.getValue(FirebaseEmergencyInfo::class.java) }
+    }
 }

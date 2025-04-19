@@ -1,25 +1,33 @@
 package com.example.healthcareproject.data.source.network.datasource
 
-import com.example.healthcareproject.data.source.local.entity.Medication
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
+import com.example.healthcareproject.data.source.network.firebase.FirebaseService
+import com.example.healthcareproject.data.source.network.model.FirebaseMedication
+import kotlinx.coroutines.tasks.await
 
 class MedicationFirebaseDataSource : MedicationDataSource {
 
-    override fun observeAll(): Flow<List<Medication>> = flowOf(emptyList())
+    private val medicationRef = FirebaseService.getReference("medications")
 
-    override fun observeById(medicationId: String): Flow<Medication?> = flowOf(null)
+    override suspend fun writeMedication(medication: FirebaseMedication) {
+        medicationRef.child(medication.medicationId).setValue(medication).await()
+    }
 
-    override suspend fun getAll(): List<Medication> = emptyList()
+    override suspend fun readMedication(medicationId: String): FirebaseMedication? {
+        val snapshot = medicationRef.child(medicationId).get().await()
+        return snapshot.getValue(FirebaseMedication::class.java)
+    }
 
-    override suspend fun getById(medicationId: String): Medication? = null
+    override suspend fun deleteMedication(medicationId: String) {
+        medicationRef.child(medicationId).removeValue().await()
+    }
 
-    override suspend fun upsert(medication: Medication) {}
+    override suspend fun updateMedication(medicationId: String, medication: FirebaseMedication) {
+        medicationRef.child(medicationId).setValue(medication).await()
+    }
 
-    override suspend fun upsertAll(medications: List<Medication>) {}
-
-    override suspend fun deleteById(medicationId: String): Int = 0
-
-    override suspend fun deleteAll(): Int = 0
+    override suspend fun readAllMedicationsByUserId(userId: String): List<FirebaseMedication> {
+        val snapshot = medicationRef.orderByChild("userId").equalTo(userId).get().await()
+        return snapshot.children.mapNotNull { it.getValue(FirebaseMedication::class.java) }
+    }
 }
 
