@@ -51,7 +51,7 @@ class AddMedicationFragment : Fragment() {
             val bundle = Bundle().apply {
                 putParcelable("medication", medication)
             }
-            findNavController().navigate(R.id.action_pillFragment_to_medicationDetailFragment, bundle)
+            findNavController().navigate(R.id.action_pillFragment_to_medicalHistoryDetailFragment, bundle)
         }
         binding.rvMedications.layoutManager = LinearLayoutManager(context)
         binding.rvMedications.adapter = medicationAdapter

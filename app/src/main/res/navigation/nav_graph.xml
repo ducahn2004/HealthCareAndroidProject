@@ -67,16 +67,13 @@
         android:label="Pill"
         tools:layout="@layout/fragment_pill">
         <action
-            android:id="@+id/action_pillFragment_to_medicationDetailFragment"
-            app:destination="@id/medicationDetailFragment" />
+            android:id="@+id/action_pillFragment_to_medicalHistoryDetailFragment"
+            app:destination="@id/medicalHistoryDetailFragment" />
         <action
             android:id="@+id/action_pillFragment_to_addMedicationFragment"
             app:destination="@id/addMedicationFragment" />
     </fragment>
-    <fragment
-        android:id="@+id/medicationDetailFragment"
-        android:name="com.example.healthcareproject.present.pill.MedicationDetailFragment"
-        tools:layout="@layout/fragment_medication_detail" />
+
     <fragment
         android:id="@+id/addMedicationFragment"
         android:name="com.example.healthcareproject.AddMedicationFragment"

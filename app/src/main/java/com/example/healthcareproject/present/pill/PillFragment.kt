@@ -12,6 +12,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.healthcareproject.R
 import com.example.healthcareproject.databinding.FragmentPillBinding
+import com.example.healthcareproject.present.medicine.MedicalVisit
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.util.*
@@ -40,13 +41,41 @@ class PillFragment : Fragment() {
 
         // Thiết lập RecyclerView cho medications
         medicationAdapter = MedicationAdapter { medication ->
-            val bundle = Bundle().apply {
-                putParcelable("medication", medication)
+            // Tìm MedicalVisit liên quan đến medication (dựa trên visitId)
+            val medicalVisit = if (medication.visitId != null) {
+                // Load MedicalVisit từ SharedPreferences dựa trên visitId
+                val sharedPrefs = requireActivity().getSharedPreferences("medical_visits", Context.MODE_PRIVATE)
+                val visitsJson = sharedPrefs.getString("medical_visit_list", null)
+                if (visitsJson != null) {
+                    val type = object : TypeToken<List<MedicalVisit>>() {}.type
+                    val medicalVisits: List<MedicalVisit> = Gson().fromJson(visitsJson, type)
+                    medicalVisits.find { it.id == medication.visitId }
+                } else {
+                    null
+                }
+            } else {
+                // Nếu không có visitId, tạo một MedicalVisit giả định
+                MedicalVisit(
+                    condition = "Medication: ${medication.name}",
+                    doctor = "Not specified",
+                    facility = "Not specified",
+                    timestamp = medication.startTimestamp,
+                    location = null,
+                    diagnosis = null,
+                    doctorRemarks = medication.note
+                )
             }
-            findNavController().navigate(R.id.action_pillFragment_to_medicationDetailFragment, bundle)
+
+            // Điều hướng đến MedicalHistoryDetailFragment
+            if (medicalVisit != null) {
+                val bundle = Bundle().apply {
+                    putParcelable("medicalVisit", medicalVisit)
+                }
+                findNavController().navigate(R.id.action_pillFragment_to_medicalHistoryDetailFragment, bundle)
+            }
         }
         binding.rvCurrentMedications.layoutManager = LinearLayoutManager(context)
-        binding.rvCurrentMedications.adapter = medicationAdapter // Sửa từ rvPastMedications sang rvCurrentMedications
+        binding.rvCurrentMedications.adapter = medicationAdapter
         medicationAdapter.submitList(medications.toList())
 
         // Xử lý nút thêm thuốc mới
