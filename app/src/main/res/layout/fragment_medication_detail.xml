@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background"
@@ -15,157 +14,138 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Medical Visit Details"
+            android:text="Medication Details"
             android:textColor="@color/primary_text_color"
             android:textSize="24sp"
             android:textStyle="bold"
             android:layout_marginBottom="16dp" />
 
-        <!-- Condition -->
+        <!-- Name -->
         <TextView
-            android:id="@+id/tv_condition_label"
+            android:id="@+id/tv_name_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Condition:"
+            android:text="Name:"
             android:textColor="@color/primary_text_color"
             android:textSize="18sp"
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/tv_condition"
+            android:id="@+id/tv_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/primary_text_color"
             android:textSize="16sp"
             android:layout_marginTop="4dp" />
 
-        <!-- Doctor -->
+        <!-- Dosage -->
         <TextView
-            android:id="@+id/tv_doctor_label"
+            android:id="@+id/tv_dosage_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Doctor:"
+            android:text="Dosage:"
             android:textColor="@color/primary_text_color"
             android:textSize="18sp"
             android:textStyle="bold"
             android:layout_marginTop="16dp" />
 
         <TextView
-            android:id="@+id/tv_doctor"
+            android:id="@+id/tv_dosage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/primary_text_color"
             android:textSize="16sp"
             android:layout_marginTop="4dp" />
 
-        <!-- Facility -->
+        <!-- Frequency -->
         <TextView
-            android:id="@+id/tv_facility_label"
+            android:id="@+id/tv_frequency_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Facility:"
+            android:text="Frequency:"
             android:textColor="@color/primary_text_color"
             android:textSize="18sp"
             android:textStyle="bold"
             android:layout_marginTop="16dp" />
 
         <TextView
-            android:id="@+id/tv_facility"
+            android:id="@+id/tv_frequency"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/primary_text_color"
             android:textSize="16sp"
             android:layout_marginTop="4dp" />
 
-        <!-- Date -->
+        <!-- Time of Day -->
         <TextView
-            android:id="@+id/tv_date_label"
+            android:id="@+id/tv_time_of_day_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Date:"
+            android:text="Time of Day:"
             android:textColor="@color/primary_text_color"
             android:textSize="18sp"
             android:textStyle="bold"
             android:layout_marginTop="16dp" />
 
         <TextView
-            android:id="@+id/tv_date"
+            android:id="@+id/tv_time_of_day"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/primary_text_color"
             android:textSize="16sp"
             android:layout_marginTop="4dp" />
 
-        <!-- Time -->
+        <!-- Start Date -->
         <TextView
-            android:id="@+id/tv_time_label"
+            android:id="@+id/tv_start_date_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Time:"
+            android:text="Start Date:"
             android:textColor="@color/primary_text_color"
             android:textSize="18sp"
             android:textStyle="bold"
             android:layout_marginTop="16dp" />
 
         <TextView
-            android:id="@+id/tv_time"
+            android:id="@+id/tv_start_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/primary_text_color"
             android:textSize="16sp"
             android:layout_marginTop="4dp" />
 
-        <!-- Location -->
+        <!-- End Date -->
         <TextView
-            android:id="@+id/tv_location_label"
+            android:id="@+id/tv_end_date_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Location:"
+            android:text="End Date:"
             android:textColor="@color/primary_text_color"
             android:textSize="18sp"
             android:textStyle="bold"
             android:layout_marginTop="16dp" />
 
         <TextView
-            android:id="@+id/tv_location"
+            android:id="@+id/tv_end_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/primary_text_color"
             android:textSize="16sp"
             android:layout_marginTop="4dp" />
 
-        <!-- Diagnosis -->
+        <!-- Note -->
         <TextView
-            android:id="@+id/tv_diagnosis_label"
+            android:id="@+id/tv_note_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Diagnosis:"
+            android:text="Note:"
             android:textColor="@color/primary_text_color"
             android:textSize="18sp"
             android:textStyle="bold"
             android:layout_marginTop="16dp" />
 
         <TextView
-            android:id="@+id/tv_diagnosis"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/primary_text_color"
-            android:textSize="16sp"
-            android:layout_marginTop="4dp" />
-
-        <!-- Doctor Remarks -->
-        <TextView
-            android:id="@+id/tv_doctor_remarks_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Doctor Remarks:"
-            android:textColor="@color/primary_text_color"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:layout_marginTop="16dp" />
-
-        <TextView
-            android:id="@+id/tv_doctor_remarks"
+            android:id="@+id/tv_note"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/primary_text_color"

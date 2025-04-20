@@ -8,18 +8,20 @@ data class MedicalVisit(
     val condition: String,
     val doctor: String,
     val facility: String,
-    val date: String,
-    val time: String,
-    val location: String? = null
+    val timestamp: Long,
+    val location: String? = null,
+    val diagnosis: String? = null,
+    val doctorRemarks: String? = null
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         id = parcel.readLong(),
         condition = parcel.readString() ?: "",
         doctor = parcel.readString() ?: "",
         facility = parcel.readString() ?: "",
-        date = parcel.readString() ?: "",
-        time = parcel.readString() ?: "",
-        location = parcel.readString()
+        timestamp = parcel.readLong(),
+        location = parcel.readString(),
+        diagnosis = parcel.readString(),
+        doctorRemarks = parcel.readString()
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -27,9 +29,10 @@ data class MedicalVisit(
         parcel.writeString(condition)
         parcel.writeString(doctor)
         parcel.writeString(facility)
-        parcel.writeString(date)
-        parcel.writeString(time)
+        parcel.writeLong(timestamp)
         parcel.writeString(location)
+        parcel.writeString(diagnosis)
+        parcel.writeString(doctorRemarks)
     }
 
     override fun describeContents(): Int = 0

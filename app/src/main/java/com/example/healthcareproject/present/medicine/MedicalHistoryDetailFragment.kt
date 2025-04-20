@@ -4,55 +4,46 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
-import com.example.healthcareproject.R
+import com.example.healthcareproject.databinding.FragmentMedicalHistoryDetailBinding
+import java.text.SimpleDateFormat
+import java.util.*
 
 class MedicalHistoryDetailFragment : Fragment() {
 
-    private lateinit var tvFacility: TextView
-    private lateinit var tvDoctor: TextView
-    private lateinit var tvDate: TextView
-    private lateinit var tvTime: TextView
-    private lateinit var tvDiagnosis: TextView
-    private lateinit var tvRemarks: TextView
-    private lateinit var ivBack: ImageView
+    private var _binding: FragmentMedicalHistoryDetailBinding? = null
+    private val binding get() = _binding!!
+
+    private val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+    private val timeFormat = SimpleDateFormat("hh:mm a", Locale.getDefault())
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.fragment_medical_history_detail, container, false)
+    ): View {
+        _binding = FragmentMedicalHistoryDetailBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
-        // Khởi tạo các TextView
-        tvFacility = view.findViewById(R.id.tv_facility_value)
-        tvDoctor = view.findViewById(R.id.tv_doctor_value)
-        tvDate = view.findViewById(R.id.tv_date_value)
-        tvTime = view.findViewById(R.id.tv_time_value)
-        tvDiagnosis = view.findViewById(R.id.tv_diagnosis_value)
-        tvRemarks = view.findViewById(R.id.tv_remarks)
-        ivBack = view.findViewById(R.id.iv_back)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        // Lấy MedicalVisit từ arguments
         val medicalVisit = arguments?.getParcelable<MedicalVisit>("medicalVisit")
-
-        // Hiển thị dữ liệu
-        medicalVisit?.let {
-            tvFacility.text = it.facility
-            tvDoctor.text = it.doctor
-            tvDate.text = it.date
-            tvTime.text = it.time
-            tvDiagnosis.text = "Not available" // diagnosis không tồn tại trong MedicalVisit
-            tvRemarks.text = "Not available"   // doctorRemarks không tồn tại trong MedicalVisit
+        if (medicalVisit != null) {
+            binding.tvCondition.text = medicalVisit.condition
+            binding.tvDoctor.text = medicalVisit.doctor
+            binding.tvFacility.text = medicalVisit.facility
+            val dateTime = Date(medicalVisit.timestamp)
+            binding.tvDate.text = dateFormat.format(dateTime)
+            binding.tvTime.text = timeFormat.format(dateTime)
+            binding.tvLocation.text = medicalVisit.location ?: "Not specified"
+            binding.tvDiagnosis.text = medicalVisit.diagnosis ?: "Not specified"
+            binding.tvDoctorRemarks.text = medicalVisit.doctorRemarks ?: "Not specified"
         }
+    }
 
-        // Sự kiện click nút Back
-        ivBack.setOnClickListener {
-            findNavController().navigateUp()
-        }
-
-        return view
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

@@ -1,205 +1,242 @@
-package com.example.healthcareproject.present.medicine
+package com.example.healthcareproject
 
+import android.content.Context
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.example.healthcareproject.R
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import com.example.healthcareproject.databinding.FragmentMedicineBinding
+import com.example.healthcareproject.present.medicine.MedicalVisit
+import com.example.healthcareproject.present.medicine.MedicalVisitAdapter
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import java.util.*
 
 class MedicineFragment : Fragment() {
 
-    private lateinit var recyclerViewBefore: RecyclerView
-    private lateinit var recyclerViewAfter: RecyclerView
-    private lateinit var adapterBefore: MedicalVisitAdapter
-    private lateinit var adapterAfter: MedicalVisitAdapter
-    private lateinit var medicalVisits: MutableList<MedicalVisit>
-    private lateinit var fabAddVisit: FloatingActionButton
+    private var _binding: FragmentMedicineBinding? = null
+    private val binding get() = _binding!!
+
+    private val medicalVisits = mutableListOf<MedicalVisit>()
+    private val futureVisits = mutableListOf<MedicalVisit>()
+    private val pastVisits = mutableListOf<MedicalVisit>()
+    private lateinit var futureVisitAdapter: MedicalVisitAdapter
+    private lateinit var pastVisitAdapter: MedicalVisitAdapter
+    private val searchHandler = Handler(Looper.getMainLooper())
+    private var searchRunnable: Runnable? = null
+    private val SEARCH_DEBOUNCE_DELAY = 300L
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.fragment_medicine, container, false)
-
-        recyclerViewBefore = view.findViewById(R.id.recycler_view_before)
-        recyclerViewAfter = view.findViewById(R.id.recycler_view_after)
-        fabAddVisit = view.findViewById(R.id.fab_add_visit)
-
-        medicalVisits = mutableListOf()
-        adapterBefore = MedicalVisitAdapter { visit ->
-            openMedicalHistoryDetail(visit)
-        }
-        adapterAfter = MedicalVisitAdapter { visit ->
-            openMedicalHistoryDetail(visit)
-        }
-
-        recyclerViewBefore.layoutManager = LinearLayoutManager(context)
-        recyclerViewAfter.layoutManager = LinearLayoutManager(context)
-        recyclerViewBefore.adapter = adapterBefore
-        recyclerViewAfter.adapter = adapterAfter
-
-        loadSampleData()
-        filterVisitsByDate()
-
-        // Điều hướng đến AddAppointmentFragment khi nhấn FAB
-        fabAddVisit.setOnClickListener {
-            findNavController().navigate(R.id.action_medicineFragment_to_addAppointmentFragment)
-        }
-
-        return view
+    ): View {
+        _binding = FragmentMedicineBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Di chuyển setupSearch() vào onViewCreated
-        setupSearch()
+        // Load danh sách MedicalVisit từ SharedPreferences
+        loadMedicalVisits()
 
-        // Nhận dữ liệu từ AddAppointmentFragment
+        // Phân loại visits thành future và past
+        categorizeVisits()
+
+        // Thiết lập RecyclerView cho future visits
+        futureVisitAdapter = MedicalVisitAdapter { visit ->
+            val bundle = Bundle().apply {
+                putParcelable("medicalVisit", visit)
+            }
+            findNavController().navigate(R.id.action_medicineFragment_to_medicalHistoryDetailFragment, bundle)
+        }
+        binding.recyclerViewAfter.layoutManager = LinearLayoutManager(context)
+        binding.recyclerViewAfter.adapter = futureVisitAdapter
+        updateFutureVisitsVisibility()
+
+        // Thiết lập RecyclerView cho past visits
+        pastVisitAdapter = MedicalVisitAdapter { visit ->
+            val bundle = Bundle().apply {
+                putParcelable("medicalVisit", visit)
+            }
+            findNavController().navigate(R.id.action_medicineFragment_to_medicalHistoryDetailFragment, bundle)
+        }
+        binding.recyclerViewBefore.layoutManager = LinearLayoutManager(context)
+        binding.recyclerViewBefore.adapter = pastVisitAdapter
+        updatePastVisitsVisibility()
+
+        // Xử lý nút thêm cuộc hẹn mới
+        binding.fabAddVisit.setOnClickListener {
+            findNavController().navigate(R.id.action_medicineFragment_to_addAppointmentFragment)
+        }
+
+        // Lắng nghe kết quả từ AddAppointmentFragment
         setFragmentResultListener("requestKey") { _, bundle ->
             val newVisit = bundle.getParcelable<MedicalVisit>("newVisit")
-            newVisit?.let {
-                medicalVisits.add(it)
-                filterVisitsByDate()
+            if (newVisit != null) {
+                medicalVisits.add(newVisit)
+                saveMedicalVisits()
+                categorizeVisits()
+                updateAdapters()
             }
         }
-    }
 
-    private fun loadSampleData() {
-        medicalVisits.addAll(
-            listOf(
-                // History (trước ngày 15/04/2025)
-                MedicalVisit(
-                    condition = "PNEUMONIA",
-                    doctor = "BS. Tuana Satoth",
-                    facility = "BV Bach Mai",
-                    date = "10/04/2025",
-                    time = "08:00",
-                    location = "Room 301, Building A, 123 Nguyen Trai Street"
-                ),
-                MedicalVisit(
-                    condition = "BRONCHITIS",
-                    doctor = "Dr. Nguyen Van A",
-                    facility = "Cho Ray Hospital",
-                    date = "05/04/2025",
-                    time = "14:30",
-                    location = "Room 205, Building C, 789 Tran Hung Dao Street"
-                ),
-                MedicalVisit(
-                    condition = "MIGRAINE",
-                    doctor = "Dr. Le Thi C",
-                    facility = "FV Hospital",
-                    date = "01/04/2025",
-                    time = "10:00",
-                    location = "Room 102, Building D, 456 Le Dai Hanh Street"
-                ),
-                // Future (ngày 15/04/2025 hoặc sau đó)
-                MedicalVisit(
-                    condition = "FLU",
-                    doctor = "Dr. John Doe",
-                    facility = "City Hospital",
-                    date = "15/04/2025",
-                    time = "09:00",
-                    location = "Room 402, Building B, 456 Le Loi Street"
-                ),
-                MedicalVisit(
-                    condition = "CHECK-UP",
-                    doctor = "Dr. Pham Thi B",
-                    facility = "Vinmec Hospital",
-                    date = "20/04/2025",
-                    time = "11:00",
-                    location = "Room 305, Building E, 123 Vinh Nghiem Street"
-                ),
-                MedicalVisit(
-                    condition = "ALLERGY TEST",
-                    doctor = "Dr. Tran Van D",
-                    facility = "International Clinic",
-                    date = "25/04/2025",
-                    time = "15:00",
-                    location = "Room 108, Building F, 789 Nguyen Thi Minh Khai Street"
-                )
-            )
-        )
-        filterVisitsByDate()
-    }
-
-    private fun filterVisitsByDate() {
-        val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-        val currentDate = sdf.parse(sdf.format(Date())) // Ngày hiện tại: 15/04/2025
-
-        val visitsBefore = medicalVisits.filter { visit ->
-            val visitDate = sdf.parse(visit.date)
-            visitDate != null && visitDate.before(currentDate)
-        }
-        val visitsAfter = medicalVisits.filter { visit ->
-            val visitDate = sdf.parse(visit.date)
-            visitDate != null && (visitDate.after(currentDate) || visitDate == currentDate)
+        // Lắng nghe kết quả từ AddMedicationFragment
+        setFragmentResultListener("medicationKey") { _, bundle ->
+            val newVisit = bundle.getParcelable<MedicalVisit>("newVisit")
+            if (newVisit != null) {
+                medicalVisits.add(newVisit)
+                saveMedicalVisits()
+                categorizeVisits()
+                updateAdapters()
+            }
         }
 
-        adapterBefore.submitList(visitsBefore.toMutableList())
-        adapterAfter.submitList(visitsAfter.toMutableList())
-    }
-
-    private fun setupSearch() {
-        val etSearch: EditText = requireView().findViewById(R.id.et_search)
-        etSearch.addTextChangedListener(object : TextWatcher {
+        // Thiết lập tìm kiếm với debounce
+        binding.etSearch.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
-                val query = s.toString().trim().lowercase()
-                if (query.isEmpty()) {
-                    filterVisitsByDate()
-                } else {
-                    val filteredBefore = medicalVisits.filter { visit ->
-                        visit.condition.lowercase().contains(query) ||
-                                visit.doctor.lowercase().contains(query) ||
-                                visit.facility.lowercase().contains(query)
-                    }.filter { visit ->
-                        val visitDate = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).parse(visit.date)
-                        visitDate != null && visitDate.before(
-                            SimpleDateFormat(
-                                "dd/MM/yyyy",
-                                Locale.getDefault()
-                            ).parse("15/04/2025"))
-                    }
-                    val filteredAfter = medicalVisits.filter { visit ->
-                        visit.condition.lowercase().contains(query) ||
-                                visit.doctor.lowercase().contains(query) ||
-                                visit.facility.lowercase().contains(query)
-                    }.filter { visit ->
-                        val visitDate = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).parse(visit.date)
-                        visitDate != null && (visitDate.after(
-                            SimpleDateFormat(
-                                "dd/MM/yyyy",
-                                Locale.getDefault()
-                            ).parse("15/04/2025")) || visitDate == SimpleDateFormat(
-                            "dd/MM/yyyy",
-                            Locale.getDefault()
-                        ).parse("15/04/2025"))
-                    }
-                    adapterBefore.submitList(filteredBefore.toMutableList())
-                    adapterAfter.submitList(filteredAfter.toMutableList())
+                searchRunnable?.let { searchHandler.removeCallbacks(it) }
+                searchRunnable = Runnable {
+                    filterVisits(s.toString())
                 }
+                searchHandler.postDelayed(searchRunnable!!, SEARCH_DEBOUNCE_DELAY)
             }
         })
+
+        // Xử lý nút xóa văn bản tìm kiếm
+        binding.etSearch.setOnTouchListener { _, event ->
+            val DRAWABLE_END = 2
+            if (event.action == android.view.MotionEvent.ACTION_UP) {
+                if (event.rawX >= (binding.etSearch.right - binding.etSearch.compoundDrawables[DRAWABLE_END].bounds.width())) {
+                    binding.etSearch.setText("")
+                    return@setOnTouchListener true
+                }
+            }
+            false
+        }
     }
 
-    private fun openMedicalHistoryDetail(visit: MedicalVisit) {
-        val bundle = Bundle().apply {
-            putParcelable("medicalVisit", visit)
+    private fun loadMedicalVisits() {
+        val sharedPrefs = requireActivity().getSharedPreferences("medical_visits", Context.MODE_PRIVATE)
+        val visitsJson = sharedPrefs.getString("medical_visit_list", null)
+        if (visitsJson != null) {
+            val type = object : TypeToken<List<MedicalVisit>>() {}.type
+            val loadedVisits: List<MedicalVisit> = Gson().fromJson(visitsJson, type)
+            medicalVisits.clear()
+            medicalVisits.addAll(loadedVisits)
+        } else {
+            // Dữ liệu mẫu nếu chưa có
+            val calendar = Calendar.getInstance()
+            calendar.set(2025, Calendar.APRIL, 11, 11, 0)
+            medicalVisits.add(
+                MedicalVisit(
+                    condition = "Fever",
+                    doctor = "Dr. Tran Thi B",
+                    facility = "University Medical Center, HCMC",
+                    timestamp = calendar.timeInMillis,
+                    diagnosis = "Acute pharyngitis",
+                    doctorRemarks = "Patient shows symptoms of fever, sore throat, and wheezing. Advised to rest and take prescribed medications for 5 days."
+                )
+            )
         }
-        findNavController().navigate(R.id.action_medicineFragment_to_medicalHistoryDetailFragment, bundle)
+    }
+
+    private fun saveMedicalVisits() {
+        val sharedPrefs = requireActivity().getSharedPreferences("medical_visits", Context.MODE_PRIVATE)
+        val editor = sharedPrefs.edit()
+        val visitsJson = Gson().toJson(medicalVisits)
+        editor.putString("medical_visit_list", visitsJson)
+        editor.apply()
+    }
+
+    private fun categorizeVisits() {
+        futureVisits.clear()
+        pastVisits.clear()
+
+        val today = Calendar.getInstance().timeInMillis
+
+        medicalVisits.forEach { visit ->
+            if (visit.timestamp >= today) {
+                futureVisits.add(visit)
+            } else {
+                pastVisits.add(visit)
+            }
+        }
+
+        // Sắp xếp future visits theo ngày tăng dần
+        futureVisits.sortBy { visit: MedicalVisit -> visit.timestamp }
+        // Sắp xếp past visits theo ngày giảm dần
+        pastVisits.sortByDescending { visit: MedicalVisit -> visit.timestamp }
+    }
+
+    private fun updateAdapters() {
+        futureVisitAdapter.submitList(futureVisits.toList())
+        pastVisitAdapter.submitList(pastVisits.toList())
+        updateFutureVisitsVisibility()
+        updatePastVisitsVisibility()
+    }
+
+    private fun updateFutureVisitsVisibility() {
+        if (futureVisits.isEmpty()) {
+            binding.recyclerViewAfter.visibility = View.GONE
+            binding.tvNoFutureVisits.visibility = View.VISIBLE
+        } else {
+            binding.recyclerViewAfter.visibility = View.VISIBLE
+            binding.tvNoFutureVisits.visibility = View.GONE
+        }
+    }
+
+    private fun updatePastVisitsVisibility() {
+        if (pastVisits.isEmpty()) {
+            binding.recyclerViewBefore.visibility = View.GONE
+            binding.tvNoPastVisits.visibility = View.VISIBLE
+        } else {
+            binding.recyclerViewBefore.visibility = View.VISIBLE
+            binding.tvNoPastVisits.visibility = View.GONE
+        }
+    }
+
+    private fun filterVisits(query: String) {
+        val filteredFutureVisits = if (query.isEmpty()) {
+            futureVisits.toList()
+        } else {
+            futureVisits.filter {
+                it.condition.contains(query, ignoreCase = true) ||
+                        it.doctor.contains(query, ignoreCase = true) ||
+                        it.facility.contains(query, ignoreCase = true)
+            }
+        }
+
+        val filteredPastVisits = if (query.isEmpty()) {
+            pastVisits.toList()
+        } else {
+            pastVisits.filter {
+                it.condition.contains(query, ignoreCase = true) ||
+                        it.doctor.contains(query, ignoreCase = true) ||
+                        it.facility.contains(query, ignoreCase = true)
+            }
+        }
+
+        futureVisitAdapter.submitList(filteredFutureVisits)
+        pastVisitAdapter.submitList(filteredPastVisits)
+        updateFutureVisitsVisibility()
+        updatePastVisitsVisibility()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        searchRunnable?.let { searchHandler.removeCallbacks(it) }
+        _binding = null
     }
 }

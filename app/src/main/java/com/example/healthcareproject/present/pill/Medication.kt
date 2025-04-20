@@ -8,18 +8,20 @@ data class Medication(
     val dosage: String,
     val frequency: String,
     val timeOfDay: String,
-    val startDate: String,
-    val endDate: String,
-    val note: String
+    val startTimestamp: Long,
+    val endTimestamp: Long? = null,
+    val note: String,
+    val visitId: Long? = null
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         name = parcel.readString() ?: "",
         dosage = parcel.readString() ?: "",
         frequency = parcel.readString() ?: "",
         timeOfDay = parcel.readString() ?: "",
-        startDate = parcel.readString() ?: "",
-        endDate = parcel.readString() ?: "",
-        note = parcel.readString() ?: ""
+        startTimestamp = parcel.readLong(),
+        endTimestamp = parcel.readLong().let { if (it == -1L) null else it },
+        note = parcel.readString() ?: "",
+        visitId = parcel.readLong().let { if (it == -1L) null else it }
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -27,9 +29,10 @@ data class Medication(
         parcel.writeString(dosage)
         parcel.writeString(frequency)
         parcel.writeString(timeOfDay)
-        parcel.writeString(startDate)
-        parcel.writeString(endDate)
+        parcel.writeLong(startTimestamp)
+        parcel.writeLong(endTimestamp ?: -1L)
         parcel.writeString(note)
+        parcel.writeLong(visitId ?: -1L)
     }
 
     override fun describeContents(): Int = 0
