@@ -9,7 +9,7 @@ data class Medication(
     val frequency: String,
     val timeOfDay: String,
     val startTimestamp: Long,
-    val endTimestamp: Long? = null,
+    val endTimestamp: Long?,
     val note: String,
     val visitId: Long? = null
 ) : Parcelable {
@@ -19,9 +19,9 @@ data class Medication(
         frequency = parcel.readString() ?: "",
         timeOfDay = parcel.readString() ?: "",
         startTimestamp = parcel.readLong(),
-        endTimestamp = parcel.readLong().let { if (it == -1L) null else it },
+        endTimestamp = parcel.readValue(Long::class.java.classLoader) as? Long,
         note = parcel.readString() ?: "",
-        visitId = parcel.readLong().let { if (it == -1L) null else it }
+        visitId = parcel.readValue(Long::class.java.classLoader) as? Long
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -30,9 +30,9 @@ data class Medication(
         parcel.writeString(frequency)
         parcel.writeString(timeOfDay)
         parcel.writeLong(startTimestamp)
-        parcel.writeLong(endTimestamp ?: -1L)
+        parcel.writeValue(endTimestamp)
         parcel.writeString(note)
-        parcel.writeLong(visitId ?: -1L)
+        parcel.writeValue(visitId)
     }
 
     override fun describeContents(): Int = 0

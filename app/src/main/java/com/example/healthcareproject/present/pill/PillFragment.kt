@@ -43,7 +43,6 @@ class PillFragment : Fragment() {
         medicationAdapter = MedicationAdapter { medication ->
             // Tìm MedicalVisit liên quan đến medication (dựa trên visitId)
             val medicalVisit = if (medication.visitId != null) {
-                // Load MedicalVisit từ SharedPreferences dựa trên visitId
                 val sharedPrefs = requireActivity().getSharedPreferences("medical_visits", Context.MODE_PRIVATE)
                 val visitsJson = sharedPrefs.getString("medical_visit_list", null)
                 if (visitsJson != null) {
@@ -56,6 +55,7 @@ class PillFragment : Fragment() {
             } else {
                 // Nếu không có visitId, tạo một MedicalVisit giả định
                 MedicalVisit(
+                    id = System.currentTimeMillis(),
                     condition = "Medication: ${medication.name}",
                     doctor = "Not specified",
                     facility = "Not specified",
@@ -113,6 +113,28 @@ class PillFragment : Fragment() {
             val startTimestamp = calendar.timeInMillis
             calendar.set(2025, Calendar.APRIL, 10)
             val endTimestamp = calendar.timeInMillis
+
+            // Tạo MedicalVisit mẫu để liên kết với Medication
+            val medicalVisit = MedicalVisit(
+                id = System.currentTimeMillis(),
+                condition = "Fever",
+                doctor = "Dr. Tran Thi B",
+                facility = "University Medical Center, HCMC",
+                timestamp = startTimestamp,
+                diagnosis = "Acute pharyngitis",
+                doctorRemarks = "Take prescribed medications for 5 days."
+            )
+
+            // Lưu MedicalVisit mẫu vào SharedPreferences
+            val medicalVisits = mutableListOf<MedicalVisit>()
+            medicalVisits.add(medicalVisit)
+            val sharedPrefsVisits = requireActivity().getSharedPreferences("medical_visits", Context.MODE_PRIVATE)
+            val editor = sharedPrefsVisits.edit()
+            val visitsJson = Gson().toJson(medicalVisits)
+            editor.putString("medical_visit_list", visitsJson)
+            editor.apply()
+
+            // Gán visitId cho Medication mẫu
             medications.add(
                 Medication(
                     name = "Paracetamol",
@@ -122,9 +144,10 @@ class PillFragment : Fragment() {
                     startTimestamp = startTimestamp,
                     endTimestamp = endTimestamp,
                     note = "Take after meals",
-                    visitId = null
+                    visitId = medicalVisit.id
                 )
             )
+            saveMedications()
         }
     }
 

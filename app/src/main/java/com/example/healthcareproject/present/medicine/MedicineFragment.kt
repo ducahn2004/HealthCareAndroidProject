@@ -90,17 +90,6 @@ class MedicineFragment : Fragment() {
             }
         }
 
-        // Lắng nghe kết quả từ AddMedicationFragment
-        setFragmentResultListener("medicationKey") { _, bundle ->
-            val newVisit = bundle.getParcelable<MedicalVisit>("newVisit")
-            if (newVisit != null) {
-                medicalVisits.add(newVisit)
-                saveMedicalVisits()
-                categorizeVisits()
-                updateAdapters()
-            }
-        }
-
         // Thiết lập tìm kiếm với debounce
         binding.etSearch.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -141,6 +130,7 @@ class MedicineFragment : Fragment() {
             calendar.set(2025, Calendar.APRIL, 11, 11, 0)
             medicalVisits.add(
                 MedicalVisit(
+                    id = System.currentTimeMillis(),
                     condition = "Fever",
                     doctor = "Dr. Tran Thi B",
                     facility = "University Medical Center, HCMC",
@@ -149,6 +139,7 @@ class MedicineFragment : Fragment() {
                     doctorRemarks = "Patient shows symptoms of fever, sore throat, and wheezing. Advised to rest and take prescribed medications for 5 days."
                 )
             )
+            saveMedicalVisits()
         }
     }
 
