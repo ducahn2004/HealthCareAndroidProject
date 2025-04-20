@@ -2,6 +2,7 @@ package com.example.healthcareproject.present.pill
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -42,11 +43,10 @@ class PillFragment : Fragment() {
             val bundle = Bundle().apply {
                 putParcelable("medication", medication)
             }
-            // Cập nhật ID điều hướng nếu cần
             findNavController().navigate(R.id.action_pillFragment_to_medicationDetailFragment, bundle)
         }
         binding.rvCurrentMedications.layoutManager = LinearLayoutManager(context)
-        binding.rvPastMedications.adapter = medicationAdapter
+        binding.rvCurrentMedications.adapter = medicationAdapter // Sửa từ rvPastMedications sang rvCurrentMedications
         medicationAdapter.submitList(medications.toList())
 
         // Xử lý nút thêm thuốc mới
@@ -56,12 +56,15 @@ class PillFragment : Fragment() {
 
         // Lắng nghe kết quả từ AddMedicationFragment
         setFragmentResultListener("medicationKey") { _, bundle ->
-            val newVisit = bundle.getParcelable<Medication>("newVisit")
+            Log.d("PillFragment", "Received bundle: $bundle")
             val newMedications = bundle.getParcelableArrayList<Medication>("newMedications")
+            Log.d("PillFragment", "newMedications: $newMedications")
             if (newMedications != null) {
                 medications.addAll(newMedications)
+                Log.d("PillFragment", "Updated medications: $medications")
                 saveMedications()
                 medicationAdapter.submitList(medications.toList())
+                Log.d("PillFragment", "Adapter updated with new list: $medications")
             }
         }
     }

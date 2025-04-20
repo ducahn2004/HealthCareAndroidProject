@@ -34,12 +34,11 @@ class AddAppointmentFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Sự kiện click nút Back
+
         binding.ivBack.setOnClickListener {
             findNavController().navigateUp()
         }
 
-        // Sự kiện click chọn ngày
         binding.etDate.setOnClickListener {
             showDatePicker { calendar ->
                 selectedDate = calendar
@@ -47,7 +46,6 @@ class AddAppointmentFragment : Fragment() {
             }
         }
 
-// Change tvTime to etTime
         binding.etTime.setOnClickListener {
             showTimePicker { calendar ->
                 selectedTime = calendar

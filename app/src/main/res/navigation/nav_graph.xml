@@ -81,7 +81,7 @@
         android:id="@+id/addMedicationFragment"
         android:name="com.example.healthcareproject.AddMedicationFragment"
         android:label="Add Medication"
-        tools:layout="@layout/fragment_add_medication">
+        tools:layout="@layout/dialog_add_medication">
         <action
             android:id="@+id/action_addMedicationFragment_to_pillFragment"
             app:destination="@id/pillFragment"
