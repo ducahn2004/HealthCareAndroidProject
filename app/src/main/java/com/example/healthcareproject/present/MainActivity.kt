@@ -26,6 +26,13 @@ class MainActivity : AppCompatActivity() {
 
         // Thiết lập BottomNavigationView với NavController
         binding.bottomNavigationView.setupWithNavController(navController)
+
+        // Handle navigation from notification
+        intent.getStringExtra("navigate_to")?.let { destination ->
+            if (destination == "heart_rate") {
+                navController.navigate(R.id.heartRateFragment)
+            }
+        }
     }
 
     override fun onSupportNavigateUp(): Boolean {
