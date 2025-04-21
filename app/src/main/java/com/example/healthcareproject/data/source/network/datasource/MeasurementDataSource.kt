@@ -5,16 +5,9 @@ import kotlinx.coroutines.flow.Flow
 
 interface MeasurementDataSource {
 
-    suspend fun writeMeasurement(measurement: FirebaseMeasurement)
+    fun getMeasurementsFirebaseRealtime(userId: String): Flow<List<FirebaseMeasurement>>
 
-    suspend fun readMeasurements(userId: String): List<FirebaseMeasurement>
+    suspend fun loadMeasurements(userId: String): List<FirebaseMeasurement>
 
-    suspend fun deleteMeasurement(userId: String, measurementId: String)
-
-    suspend fun deleteMeasurements(userId: String, measurementIds: List<String>)
-
-    suspend fun readAllMeasurementsByUserId(userId: String): List<FirebaseMeasurement>?
-
-    fun getMeasurementsRealtime(userId: String): Flow<List<FirebaseMeasurement>>
-
+    suspend fun saveMeasurements(measurements: List<FirebaseMeasurement>)
 }

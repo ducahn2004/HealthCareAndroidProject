@@ -3,33 +3,32 @@ package com.example.healthcareproject.data.source.network.datasource
 import com.example.healthcareproject.data.source.network.firebase.FirebaseService
 import com.example.healthcareproject.data.source.network.model.FirebaseNotification
 import kotlinx.coroutines.tasks.await
+import javax.inject.Inject
 
-class NotificationFirebaseDataSource : NotificationDataSource {
+class NotificationFirebaseDataSource @Inject constructor() : NotificationDataSource {
 
     private val notificationRef = FirebaseService.getReference("notifications")
-    override suspend fun writeNotification(notification: FirebaseNotification) {
-        notificationRef.child(notification.notificationId).setValue(notification).await()
+
+    override suspend fun loadNotifications(userId: String): List<FirebaseNotification> = try {
+        notificationRef
+            .orderByChild("userId")
+            .equalTo(userId)
+            .get()
+            .await()
+            .children
+            .mapNotNull { it.getValue(FirebaseNotification::class.java) }
+    } catch (e: Exception) {
+        throw Exception("Error loading notifications for userId '$userId': ${e.message}", e)
     }
 
-    override suspend fun readNotification(notificationId: String): FirebaseNotification? {
-        val snapshot = notificationRef.child(notificationId).get().await()
-        return snapshot.getValue(FirebaseNotification::class.java)
-    }
+    override suspend fun saveNotifications(notifications: List<FirebaseNotification>) {
+        if (notifications.isEmpty()) return
 
-    override suspend fun deleteNotification(notificationId: String) {
-        notificationRef.child(notificationId).removeValue().await()
+        try {
+            val updates = notifications.associateBy { it.notificationId }
+            notificationRef.updateChildren(updates).await()
+        } catch (e: Exception) {
+            throw Exception("Error saving notifications: ${e.message}", e)
+        }
     }
-
-    override suspend fun updateNotification(
-        notificationId: String,
-        notification: FirebaseNotification
-    ) {
-        notificationRef.child(notificationId).setValue(notification).await()
-    }
-
-    override suspend fun readAllNotificationsByUserId(userId: String): List<FirebaseNotification> {
-        val snapshot = notificationRef.orderByChild("userId").equalTo(userId).get().await()
-        return snapshot.children.mapNotNull { it.getValue(FirebaseNotification::class.java) }
-    }
-
 }

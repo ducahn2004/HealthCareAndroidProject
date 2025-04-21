@@ -4,13 +4,7 @@ import com.example.healthcareproject.data.source.network.model.FirebaseNotificat
 
 interface NotificationDataSource {
 
-    suspend fun writeNotification(notification: FirebaseNotification)
+    suspend fun loadNotifications(userId: String): List<FirebaseNotification>
 
-    suspend fun readNotification(notificationId: String): FirebaseNotification?
-
-    suspend fun deleteNotification(notificationId: String)
-
-    suspend fun updateNotification(notificationId: String, notification: FirebaseNotification)
-
-    suspend fun readAllNotificationsByUserId(userId: String): List<FirebaseNotification>?
+    suspend fun saveNotifications(notifications: List<FirebaseNotification>)
 }

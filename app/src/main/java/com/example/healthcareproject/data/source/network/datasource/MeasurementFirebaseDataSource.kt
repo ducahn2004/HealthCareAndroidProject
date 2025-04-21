@@ -9,36 +9,14 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
+import javax.inject.Inject
 
 
-class MeasurementFirebaseDataSource : MeasurementDataSource {
+class MeasurementFirebaseDataSource @Inject constructor() : MeasurementDataSource {
 
     private val measurementsRef = FirebaseService.getReference("measurements")
 
-    override suspend fun writeMeasurement(measurement: FirebaseMeasurement) {
-        measurementsRef.child(measurement.userId).child(measurement.measurementId)
-            .setValue(measurement).await()
-    }
-
-    override suspend fun readMeasurements(userId: String): List<FirebaseMeasurement> {
-        val snapshot = measurementsRef.child(userId).get().await()
-        return snapshot.children.mapNotNull { it.getValue(FirebaseMeasurement::class.java) }
-    }
-
-    override suspend fun deleteMeasurement(userId: String, measurementId: String) {
-        measurementsRef.child(userId).child(measurementId).removeValue().await()
-    }
-
-    override suspend fun deleteMeasurements(userId: String, measurementIds: List<String>) {
-        measurementIds.map { measurementsRef.child(userId).child(it).removeValue() }
-    }
-
-    override suspend fun readAllMeasurementsByUserId(userId: String): List<FirebaseMeasurement> {
-        val snapshot = measurementsRef.child(userId).get().await()
-        return snapshot.children.mapNotNull { it.getValue(FirebaseMeasurement::class.java) }
-    }
-
-    override fun getMeasurementsRealtime(userId: String): Flow<List<FirebaseMeasurement>>
+    override fun getMeasurementsFirebaseRealtime(userId: String): Flow<List<FirebaseMeasurement>>
             = callbackFlow {
         val ref = measurementsRef.child(userId)
         val listener = object : ValueEventListener {
@@ -55,5 +33,28 @@ class MeasurementFirebaseDataSource : MeasurementDataSource {
         }
         ref.addValueEventListener(listener)
         awaitClose { ref.removeEventListener(listener) }
+    }
+
+    override suspend fun loadMeasurements(userId: String): List<FirebaseMeasurement> = try {
+        measurementsRef
+            .orderByChild("userId")
+            .equalTo(userId)
+            .get()
+            .await()
+            .children
+            .mapNotNull { it.getValue(FirebaseMeasurement::class.java) }
+    } catch (e: Exception) {
+        throw Exception("Error loading measurements for userId '$userId': ${e.message}", e)
+    }
+
+    override suspend fun saveMeasurements(measurements: List<FirebaseMeasurement>) {
+        if (measurements.isEmpty()) return
+
+        try {
+            val updates = measurements.associateBy { it.measurementId }
+            measurementsRef.updateChildren(updates).await()
+        } catch (e: Exception) {
+            throw Exception("Error saving measurements: ${e.message}", e)
+        }
     }
 }

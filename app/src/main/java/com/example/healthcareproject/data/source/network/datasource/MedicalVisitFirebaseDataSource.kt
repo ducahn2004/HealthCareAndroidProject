@@ -3,33 +3,32 @@ package com.example.healthcareproject.data.source.network.datasource
 import com.example.healthcareproject.data.source.network.firebase.FirebaseService
 import com.example.healthcareproject.data.source.network.model.FirebaseMedicalVisit
 import kotlinx.coroutines.tasks.await
+import javax.inject.Inject
 
-class MedicalVisitFirebaseDataSource : MedicalVisitDataSource {
+class MedicalVisitFirebaseDataSource @Inject constructor() : MedicalVisitDataSource {
 
     private val medicalVisitRef = FirebaseService.getReference("medical_visits")
 
-    override suspend fun writeMedicalVisit(medicalVisit: FirebaseMedicalVisit) {
-        medicalVisitRef.child(medicalVisit.medicalVisitId).setValue(medicalVisit).await()
+    override suspend fun loadMedicalVisits(userId: String): List<FirebaseMedicalVisit> = try {
+        medicalVisitRef
+            .orderByChild("userId")
+            .equalTo(userId)
+            .get()
+            .await()
+            .children
+            .mapNotNull { it.getValue(FirebaseMedicalVisit::class.java) }
+    } catch (e: Exception) {
+        throw Exception("Error loading medical visits for userId '$userId': ${e.message}", e)
     }
 
-    override suspend fun readMedicalVisit(medicalVisitId: String): FirebaseMedicalVisit? {
-        val snapshot = medicalVisitRef.child(medicalVisitId).get().await()
-        return snapshot.getValue(FirebaseMedicalVisit::class.java)
-    }
+    override suspend fun saveMedicalVisits(medicalVisits: List<FirebaseMedicalVisit>) {
+        if (medicalVisits.isEmpty()) return
 
-    override suspend fun deleteMedicalVisit(medicalVisitId: String) {
-        medicalVisitRef.child(medicalVisitId).removeValue().await()
-    }
-
-    override suspend fun updateMedicalVisit(
-        medicalVisitId: String,
-        medicalVisit: FirebaseMedicalVisit
-    ) {
-        medicalVisitRef.child(medicalVisitId).setValue(medicalVisit).await()
-    }
-
-    override suspend fun getAllMedicalVisitsByUserId(userId: String): List<FirebaseMedicalVisit> {
-        val snapshot = medicalVisitRef.orderByChild("userId").equalTo(userId).get().await()
-        return snapshot.children.mapNotNull { it.getValue(FirebaseMedicalVisit::class.java) }
+        try {
+            val updates = medicalVisits.associateBy { it.medicalVisitId }
+            medicalVisitRef.updateChildren(updates).await()
+        } catch (e: Exception) {
+            throw Exception("Error saving medical visits: ${e.message}", e)
+        }
     }
 }
