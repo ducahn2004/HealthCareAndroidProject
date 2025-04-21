@@ -16,6 +16,7 @@ cardview = "1.0.0"
 mpandroidchart = "3.1.0"
 gson = "2.10.1"
 socketio = "2.1.0"
+localbroadcastmanager = "1.1.0"
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -32,6 +33,7 @@ androidx-cardview = { group = "androidx.cardview", name = "cardview", version.re
 mpandroidchart = { group = "com.github.PhilJay", name = "MPAndroidChart", version.ref = "mpandroidchart" }
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 socketio-client = { group = "io.socket", name = "socket.io-client", version.ref = "socketio" }
+androidx-localbroadcastmanager = { group = "androidx.localbroadcastmanager", name = "localbroadcastmanager", version.ref = "localbroadcastmanager" }
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

@@ -29,8 +29,9 @@ class MainActivity : AppCompatActivity() {
 
         // Handle navigation from notification
         intent.getStringExtra("navigate_to")?.let { destination ->
-            if (destination == "heart_rate") {
-                navController.navigate(R.id.heartRateFragment)
+            when (destination) {
+                "heart_rate" -> navController.navigate(R.id.action_global_heartRateFragment)
+                "oxygen" -> navController.navigate(R.id.action_global_oxygenFragment)
             }
         }
     }

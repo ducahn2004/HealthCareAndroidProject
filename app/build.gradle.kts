@@ -18,18 +18,23 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    buildFeatures {
+        buildConfig = true
+        viewBinding = true
+    }
+
     buildTypes {
-        release {
+        getByName("debug") {
+            buildConfigField("String", "SOCKET_URL", "\"http://192.168.1.100:3000\"")
+        }
+        getByName("release") {
+            buildConfigField("String", "SOCKET_URL", "\"https://your-production-server.com\"")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
         }
-    }
-
-    viewBinding {
-        enable = true
     }
 
     compileOptions {
@@ -42,7 +47,7 @@ android {
     sourceSets {
         getByName("main") {
             assets {
-                srcDirs("src\\main\\assets", "src\\main\\assets")
+                srcDirs("src/main/assets")
             }
         }
     }
@@ -59,12 +64,11 @@ dependencies {
     implementation(libs.google.play.services.auth)
     implementation(libs.androidx.cardview)
     implementation(libs.mpandroidchart)
-    implementation(libs.material)
     implementation(libs.gson)
     implementation(libs.socketio.client)
+    implementation(libs.androidx.localbroadcastmanager)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-
 }

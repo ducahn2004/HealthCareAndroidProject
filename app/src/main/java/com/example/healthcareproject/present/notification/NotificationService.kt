@@ -13,6 +13,7 @@ import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.example.healthcareproject.BuildConfig
 import com.example.healthcareproject.R
 import com.example.healthcareproject.present.MainActivity
 import io.socket.client.IO
@@ -75,10 +76,11 @@ class NotificationService : Service() {
         try {
             val options = IO.Options().apply {
                 reconnection = true
-                reconnectionAttempts = 5
+                reconnectionAttempts = 10
                 reconnectionDelay = 1000
+                timeout = 20000
             }
-            socket = IO.socket("http://192.168.1.100:3000", options)
+            socket = IO.socket(BuildConfig.SOCKET_URL, options)
             socket.on(Socket.EVENT_CONNECT) {
                 Log.d("SocketIO", "Connected to server")
             }.on("newNotification") { args ->
@@ -107,8 +109,6 @@ class NotificationService : Service() {
             }.on(Socket.EVENT_CONNECT_ERROR) { args ->
                 val error = args[0] as? EngineIOException
                 Log.e("SocketIO", "Connection error: ${error?.message}")
-            }.on(Socket.EVENT_CONNECT) {
-                Log.d("SocketIO", "Attempting to reconnect...")
             }.on(Socket.EVENT_DISCONNECT) {
                 Log.d("SocketIO", "Disconnected from server")
             }
@@ -134,8 +134,10 @@ class NotificationService : Service() {
                 }
             }
         }
-        LocalBroadcastManager.getInstance(this)
-            .registerReceiver(alertReceiver, IntentFilter("HEART_RATE_ALERT"))
+        LocalBroadcastManager.getInstance(this).apply {
+            registerReceiver(alertReceiver, IntentFilter("HEART_RATE_ALERT"))
+            registerReceiver(alertReceiver, IntentFilter("OXYGEN_LEVEL_ALERT"))
+        }
     }
 
     private fun sendNotificationToUI(notification: Notification) {
@@ -154,7 +156,11 @@ class NotificationService : Service() {
         val notificationManager = getSystemService(NotificationManager::class.java)
 
         val intent = Intent(this, MainActivity::class.java).apply {
-            putExtra("navigate_to", "heart_rate")
+            putExtra("navigate_to", when (notification.title) {
+                "HEART RATE ALERT" -> "heart_rate"
+                "OXYGEN LEVEL ALERT" -> "oxygen"
+                else -> ""
+            })
         }
         val pendingIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
