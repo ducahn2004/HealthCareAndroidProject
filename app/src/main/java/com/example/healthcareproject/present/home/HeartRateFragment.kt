@@ -1,8 +1,9 @@
 package com.example.healthcareproject.present.home
 
+import android.app.ActivityManager
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
-import android.graphics.DashPathEffect
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.os.Handler
@@ -18,6 +19,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
 import com.example.healthcareproject.R
 import com.example.healthcareproject.present.notification.Notification
+import com.github.mikephil.charting.BuildConfig
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
@@ -46,15 +48,14 @@ class HeartRateFragment : Fragment() {
     private val heartRateData = mutableListOf<Float>()
     private val maxDataPoints = 20
     private val handler = Handler(Looper.getMainLooper())
-    private val updateInterval = 1000L
+    private val updateInterval = if (BuildConfig.DEBUG) 1000L else 5000L // 5s in production
     private lateinit var timeFrame: String
     private val timeStamps = mutableListOf<Long>()
     private var lastAlertTime: Long = 0
-    private var notificationCounter = 0
 
     private val updateRunnable = object : Runnable {
         override fun run() {
-            // Modified to generate heart rates between 100 and 150 BPM for testing
+            if (!isAdded) return // Prevent running if fragment is detached
             val newHeartRate = Random.nextFloat() * (150f - 100f) + 100f
             heartRateData.add(newHeartRate)
             timeStamps.add(System.currentTimeMillis())
@@ -101,7 +102,6 @@ class HeartRateFragment : Fragment() {
 
         val initialTime = System.currentTimeMillis()
         repeat(maxDataPoints) { index ->
-            // Modified initial data to 100–150 BPM for testing
             heartRateData.add(Random.nextFloat() * (150f - 100f) + 100f)
             timeStamps.add(initialTime - (maxDataPoints - 1 - index) * updateInterval)
         }
@@ -168,6 +168,8 @@ class HeartRateFragment : Fragment() {
     }
 
     private fun updateChartData() {
+        if (!isAdded) return // Prevent crash if fragment is detached
+
         val entries = heartRateData.mapIndexed { index, value ->
             Entry(index.toFloat(), value)
         }
@@ -211,41 +213,45 @@ class HeartRateFragment : Fragment() {
 
         val minValue = heartRateData.minOrNull() ?: 0f
         val maxValue = heartRateData.maxOrNull() ?: 0f
-        val averageValue = heartRateData.average().toFloat()
-        tvHeartRateValue.text = "${heartRateData.last().toInt()}"
+        val averageValue = if (heartRateData.isNotEmpty()) heartRateData.average().toFloat() else 0f
+        tvHeartRateValue.text = "${heartRateData.lastOrNull()?.toInt() ?: 0}"
         tvMinValue.text = "${minValue.toInt()}"
         tvMaxValue.text = "${maxValue.toInt()}"
-        tvAverageLabel.text = "Average ${(averageValue.toInt())} BPM"
+        tvAverageLabel.text = "Average ${averageValue.toInt()} BPM"
 
         val alertThreshold = 120f
-        val currentHeartRate = heartRateData.last()
+        val currentHeartRate = heartRateData.lastOrNull() ?: 0f
         val currentTime = System.currentTimeMillis()
-        val alertCooldown = 5_000L // Reduced to 5 seconds for testing
+        val alertCooldown = 5_000L
 
         if (currentHeartRate > alertThreshold && (currentTime - lastAlertTime) > alertCooldown) {
             val notification = Notification(
-                id = notificationCounter++.toLong(),
+                id = System.currentTimeMillis(),
                 title = "HEART RATE ALERT",
                 message = "Heart rate is too high (${currentHeartRate.toInt()} BPM). Need to Emergency!",
                 time = SimpleDateFormat("hh:mma", Locale.getDefault()).format(Date()),
                 iconResId = R.drawable.ic_heart_rate
             )
-            val intent = Intent("HEART_RATE_ALERT")
-            intent.putExtra("notification", notification)
-            LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(intent)
-            lastAlertTime = currentTime
+            if (isServiceRunning()) {
+                val intent = Intent("HEART_RATE_ALERT")
+                intent.putExtra("notification", notification)
+                LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(intent)
+                lastAlertTime = currentTime
+            } else {
+                startNotificationService()
+            }
         }
 
         val isAlert = heartRateData.any { it > alertThreshold }
         val gradientColors = if (isAlert) {
             intArrayOf(
-                resources.getColor(R.color.chart_gradient_alert_top, null),
-                resources.getColor(R.color.chart_gradient_alert_bottom, null)
+                ContextCompat.getColor(requireContext(), R.color.chart_gradient_alert_top),
+                ContextCompat.getColor(requireContext(), R.color.chart_gradient_alert_bottom)
             )
         } else {
             intArrayOf(
-                resources.getColor(R.color.chart_gradient_normal_top, null),
-                resources.getColor(R.color.chart_gradient_normal_bottom, null)
+                ContextCompat.getColor(requireContext(), R.color.chart_gradient_normal_top),
+                ContextCompat.getColor(requireContext(), R.color.chart_gradient_normal_bottom)
             )
         }
 
@@ -262,13 +268,13 @@ class HeartRateFragment : Fragment() {
         val chartValueColor = if (isAlert) R.color.alert_text_color else R.color.chart_value_text_normal
 
         val dataSet = LineDataSet(entries, "Heart Rate (BPM)").apply {
-            color = resources.getColor(R.color.chart_line_color, null)
+            color = ContextCompat.getColor(requireContext(), R.color.chart_line_color)
             setCircleColor(Color.BLACK)
             lineWidth = 2f
             circleRadius = 4f
             setDrawCircleHole(false)
             setDrawValues(true)
-            valueTextColor = resources.getColor(chartValueColor, null)
+            valueTextColor = ContextCompat.getColor(requireContext(), chartValueColor)
             valueTextSize = 10f
             enableDashedLine(10f, 5f, 0f)
             setDrawFilled(true)
@@ -283,5 +289,20 @@ class HeartRateFragment : Fragment() {
         val lineData = LineData(dataSet)
         lineChart.data = lineData
         lineChart.invalidate()
+    }
+
+    private fun isServiceRunning(): Boolean {
+        val manager = requireContext().getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        for (service in manager.getRunningServices(Integer.MAX_VALUE)) {
+            if ("com.example.healthcareproject.present.notification.NotificationService" == service.service.className) {
+                return true
+            }
+        }
+        return false
+    }
+
+    private fun startNotificationService() {
+        val serviceIntent = Intent(requireContext(), com.example.healthcareproject.present.notification.NotificationService::class.java)
+        ContextCompat.startForegroundService(requireContext(), serviceIntent)
     }
 }
