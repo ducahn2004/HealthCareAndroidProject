@@ -1,6 +1,5 @@
 package com.example.healthcareproject.present.notification
 
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
@@ -9,6 +8,7 @@ import android.graphics.Canvas
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,9 +22,10 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import android.Manifest
 import com.example.healthcareproject.R
 import com.example.healthcareproject.databinding.FragmentNotificationBinding
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
 class NotificationFragment : Fragment() {
 
@@ -32,16 +33,26 @@ class NotificationFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var adapter: NotificationAdapter
     private lateinit var notifications: MutableList<Notification>
-    private lateinit var broadcastReceiver: BroadcastReceiver
+    private lateinit var localBroadcastManager: LocalBroadcastManager
+    private lateinit var broadcastReceiver: android.content.BroadcastReceiver
 
-    // Permission launcher for POST_NOTIFICATIONS
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
-        if (isGranted) {
-            startNotificationService()
-        } else {
-            Toast.makeText(requireContext(), "Notification permission denied", Toast.LENGTH_SHORT).show()
+        context?.let { ctx ->
+            if (isGranted) {
+                startNotificationService(ctx)
+            } else {
+                Toast.makeText(
+                    ctx,
+                    "Please enable notifications in Settings",
+                    Toast.LENGTH_LONG
+                ).show()
+                val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                    putExtra(Settings.EXTRA_APP_PACKAGE, ctx.packageName)
+                }
+                startActivity(intent)
+            }
         }
     }
 
@@ -56,38 +67,9 @@ class NotificationFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Khởi tạo danh sách notifications với id duy nhất
-        notifications = mutableListOf(
-            Notification(id = 1, title = "HEART RATE ALERT", message = "Heart rate is too high. Need to Emergency!", time = "10:24pm", iconResId = R.drawable.ic_heart_rate),
-            Notification(id = 2, title = "ECG ALERT", message = "ECG is not stable. Need to Emergency!", time = "10:24pm", iconResId = R.drawable.ic_ecg),
-            Notification(id = 3, title = "OXYGEN LEVEL ALERT", message = "Oxygen Level is too high. Need to Emergency!", time = "10:24pm", iconResId = R.drawable.ic_oxygen),
-            Notification(id = 4, title = "HEART RATE ALERT", message = "Heart rate is too high. Need to Emergency!", time = "10:24pm", iconResId = R.drawable.ic_heart_rate),
-            Notification(id = 5, title = "UPDATE WEIGHT", message = "Weight is 65KG. Keep yourself!", time = "10:24pm", iconResId = R.drawable.ic_weight),
-            Notification(id = 6, title = "HEART RATE ALERT", message = "Heart rate is too high. Need to Emergency!", time = "10:24pm", iconResId = R.drawable.ic_heart_rate),
-            Notification(id = 7, title = "ECG ALERT", message = "ECG is not stable. Need to Emergency!", time = "10:24pm", iconResId = R.drawable.ic_ecg),
-            Notification(id = 8, title = "OXYGEN LEVEL ALERT", message = "Oxygen Level is too high. Need to Emergency!", time = "10:24pm", iconResId = R.drawable.ic_oxygen),
-            Notification(id = 9, title = "HEART RATE ALERT", message = "Heart rate is too high. Need to Emergency!", time = "10:24pm", iconResId = R.drawable.ic_heart_rate),
-            Notification(id = 10, title = "HEART RATE ALERT", message = "Heart rate is too high. Need to Emergency!", time = "10:24pm", iconResId = R.drawable.ic_heart_rate),
-            Notification(id = 11, title = "ECG ALERT", message = "ECG is not stable. Need to Emergency!", time = "10:24pm", iconResId = R.drawable.ic_ecg),
-            Notification(id = 12, title = "OXYGEN LEVEL ALERT", message = "Oxygen Level is too high. Need to Emergency!", time = "10:24pm", iconResId = R.drawable.ic_oxygen),
-            Notification(id = 13, title = "HEART RATE ALERT", message = "Heart rate is too high. Need to Emergency!", time = "10:24pm", iconResId = R.drawable.ic_heart_rate),
-            Notification(id = 14, title = "HEART RATE ALERT", message = "Heart rate is too high. Need to Emergency!", time = "10:24pm", iconResId = R.drawable.ic_heart_rate),
-            Notification(id = 15, title = "ECG ALERT", message = "ECG is not stable. Need to Emergency!", time = "10:24pm", iconResId = R.drawable.ic_ecg),
-            Notification(id = 16, title = "OXYGEN LEVEL ALERT", message = "Oxygen Level is too high. Need to Emergency!", time = "10:24pm", iconResId = R.drawable.ic_oxygen),
-            Notification(id = 17, title = "HEART RATE ALERT", message = "Heart rate is too high. Need to Emergency!", time = "10:24pm", iconResId = R.drawable.ic_heart_rate),
-            Notification(id = 18, title = "HEART RATE ALERT", message = "Heart rate is too high. Need to Emergency!", time = "10:24pm", iconResId = R.drawable.ic_heart_rate),
-            Notification(id = 19, title = "ECG ALERT", message = "ECG is not stable. Need to Emergency!", time = "10:24pm", iconResId = R.drawable.ic_ecg),
-            Notification(id = 20, title = "OXYGEN LEVEL ALERT", message = "Oxygen Level is too high. Need to Emergency!", time = "10:24pm", iconResId = R.drawable.ic_oxygen),
-            Notification(id = 21, title = "HEART RATE ALERT", message = "Heart rate is too high. Need to Emergency!", time = "10:24pm", iconResId = R.drawable.ic_heart_rate),
-            // Thêm các thông báo UPDATE WEIGHT mới
-            Notification(id = 22, title = "UPDATE WEIGHT", message = "Weight increased to 66KG. Monitor your diet!", time = "09:15am", iconResId = R.drawable.ic_weight),
-            Notification(id = 23, title = "UPDATE WEIGHT", message = "Weight decreased to 64KG. Good progress!", time = "08:30am", iconResId = R.drawable.ic_weight),
-            Notification(id = 24, title = "UPDATE WEIGHT", message = "Weight is 65.5KG. Keep up the good work!", time = "07:45am", iconResId = R.drawable.ic_weight)
-        )
-
-        // Thiết lập RecyclerView
+        notifications = loadNotifications()
         adapter = NotificationAdapter { notification ->
-            // Xử lý sự kiện nhấn vào thông báo
+            if (!isAdded) return@NotificationAdapter
             when (notification.title) {
                 "HEART RATE ALERT" -> findNavController().navigate(R.id.action_notificationFragment_to_heartRateFragment)
                 "OXYGEN LEVEL ALERT" -> findNavController().navigate(R.id.action_notificationFragment_to_oxygenFragment)
@@ -95,134 +77,159 @@ class NotificationFragment : Fragment() {
                 "UPDATE WEIGHT" -> findNavController().navigate(R.id.action_notificationFragment_to_weightFragment)
             }
         }
-        binding.rvNotifications.layoutManager = LinearLayoutManager(requireContext())
+        binding.rvNotifications.layoutManager = LinearLayoutManager(context)
         binding.rvNotifications.adapter = adapter
 
-        // Thêm divider tùy chỉnh
-        val dividerItemDecoration = DividerItemDecoration(requireContext(), LinearLayoutManager.VERTICAL)
-        dividerItemDecoration.setDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.divider)!!)
-        binding.rvNotifications.addItemDecoration(dividerItemDecoration)
+        context?.let { ctx ->
+            val dividerItemDecoration = DividerItemDecoration(ctx, LinearLayoutManager.VERTICAL)
+            dividerItemDecoration.setDrawable(ContextCompat.getDrawable(ctx, R.drawable.divider)!!)
+            binding.rvNotifications.addItemDecoration(dividerItemDecoration)
 
-        // Thiết lập ItemTouchHelper để quẹt xóa
-        val itemTouchHelperCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
-            // Nền đỏ khi quẹt
-            private val background = ColorDrawable(ContextCompat.getColor(requireContext(), android.R.color.holo_red_light))
-            // Biểu tượng thùng rác
-            private val deleteIcon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_delete)
-            private val intrinsicWidth = deleteIcon?.intrinsicWidth ?: 0
-            private val intrinsicHeight = deleteIcon?.intrinsicHeight ?: 0
+            val itemTouchHelperCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+                private val background = ColorDrawable(ContextCompat.getColor(ctx, android.R.color.holo_red_light))
+                private val deleteIcon = ContextCompat.getDrawable(ctx, R.drawable.ic_delete)
+                private val intrinsicWidth = deleteIcon?.intrinsicWidth ?: 0
+                private val intrinsicHeight = deleteIcon?.intrinsicHeight ?: 0
 
-            override fun onMove(
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-                target: RecyclerView.ViewHolder
-            ): Boolean {
-                return false // Không hỗ trợ kéo thả
-            }
-
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                val position = viewHolder.adapterPosition
-                notifications.removeAt(position) // Xóa thông báo khỏi danh sách
-                adapter.submitList(notifications.toList()) // Cập nhật danh sách
-
-                // Cập nhật giao diện empty state
-                if (notifications.isEmpty()) {
-                    binding.rvNotifications.visibility = View.GONE
-                    binding.emptyStateLayout.visibility = View.VISIBLE
+                override fun onMove(
+                    recyclerView: RecyclerView,
+                    viewHolder: RecyclerView.ViewHolder,
+                    target: RecyclerView.ViewHolder
+                ): Boolean {
+                    return false
                 }
-            }
 
-            override fun onChildDraw(
-                c: Canvas,
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-                dX: Float,
-                dY: Float,
-                actionState: Int,
-                isCurrentlyActive: Boolean
-            ) {
-                val itemView = viewHolder.itemView
-                val itemHeight = itemView.bottom - itemView.top
-
-                // Vẽ nền đỏ
-                background.setBounds(
-                    itemView.right + dX.toInt(),
-                    itemView.top,
-                    itemView.right,
-                    itemView.bottom
-                )
-                background.draw(c)
-
-                // Tính toán vị trí để vẽ biểu tượng thùng rác (căn giữa theo chiều dọc, cách mép phải 16dp)
-                val iconMargin = 16
-                val iconTop = itemView.top + (itemHeight - intrinsicHeight) / 2
-                val iconBottom = iconTop + intrinsicHeight
-                val iconLeft = itemView.right - intrinsicWidth - iconMargin
-                val iconRight = itemView.right - iconMargin
-
-                deleteIcon?.setBounds(iconLeft, iconTop, iconRight, iconBottom)
-                deleteIcon?.draw(c)
-
-                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
-            }
-        }
-        val itemTouchHelper = ItemTouchHelper(itemTouchHelperCallback)
-        itemTouchHelper.attachToRecyclerView(binding.rvNotifications)
-        // Check and request POST_NOTIFICATIONS permission
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(
-                    requireContext(),
-                    Manifest.permission.POST_NOTIFICATIONS
-                ) == PackageManager.PERMISSION_GRANTED
-            ) {
-                startNotificationService()
-            } else {
-                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-            }
-        } else {
-            startNotificationService()
-        }
-
-        // Setup BroadcastReceiver
-        broadcastReceiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context?, intent: Intent?) {
-                val notification = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    intent?.getParcelableExtra("notification", Notification::class.java)
-                } else {
-                    @Suppress("DEPRECATION")
-                    intent?.getParcelableExtra("notification")
-                }
-                notification?.let {
-                    notifications.add(0, it)
+                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                    if (!isAdded) return
+                    val position = viewHolder.adapterPosition
+                    notifications.removeAt(position)
                     adapter.submitList(notifications.toList())
+                    saveNotifications()
                     updateNotificationsList()
                 }
+
+                override fun onChildDraw(
+                    c: Canvas,
+                    recyclerView: RecyclerView,
+                    viewHolder: RecyclerView.ViewHolder,
+                    dX: Float,
+                    dY: Float,
+                    actionState: Int,
+                    isCurrentlyActive: Boolean
+                ) {
+                    val itemView = viewHolder.itemView
+                    val itemHeight = itemView.bottom - itemView.top
+                    background.setBounds(
+                        itemView.right + dX.toInt(),
+                        itemView.top,
+                        itemView.right,
+                        itemView.bottom
+                    )
+                    background.draw(c)
+                    val iconMargin = 16
+                    val iconTop = itemView.top + (itemHeight - intrinsicHeight) / 2
+                    val iconBottom = iconTop + intrinsicHeight
+                    val iconLeft = itemView.right - intrinsicWidth - iconMargin
+                    val iconRight = itemView.right - iconMargin
+                    deleteIcon?.setBounds(iconLeft, iconTop, iconRight, iconBottom)
+                    deleteIcon?.draw(c)
+                    super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+                }
             }
+            val itemTouchHelper = ItemTouchHelper(itemTouchHelperCallback)
+            itemTouchHelper.attachToRecyclerView(binding.rvNotifications)
         }
-        LocalBroadcastManager.getInstance(requireContext())
-            .registerReceiver(broadcastReceiver, IntentFilter("NEW_NOTIFICATION"))
-        // Cập nhật danh sách ban đầu
+
+        context?.let { ctx ->
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                if (ContextCompat.checkSelfPermission(
+                        ctx,
+                        android.Manifest.permission.POST_NOTIFICATIONS
+                    ) == PackageManager.PERMISSION_GRANTED
+                ) {
+                    startNotificationService(ctx)
+                } else {
+                    requestPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                }
+            } else {
+                startNotificationService(ctx)
+            }
+
+            localBroadcastManager = LocalBroadcastManager.getInstance(ctx)
+            broadcastReceiver = object : android.content.BroadcastReceiver() {
+                override fun onReceive(context: Context?, intent: Intent?) {
+                    if (!isAdded || context == null) return // Prevent crash if fragment is detached
+                    val notification = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        intent?.getParcelableExtra("notification", Notification::class.java)
+                    } else {
+                        @Suppress("DEPRECATION")
+                        intent?.getParcelableExtra("notification")
+                    }
+                    notification?.let {
+                        notifications.add(0, it)
+                        adapter.submitList(notifications.toList())
+                        saveNotifications()
+                        updateNotificationsList()
+                    }
+                }
+            }
+            localBroadcastManager.registerReceiver(broadcastReceiver, IntentFilter("NEW_NOTIFICATION"))
+        }
+
         updateNotificationsList()
     }
 
-    private fun startNotificationService() {
-        val serviceIntent = Intent(requireContext(), NotificationService::class.java)
-        ContextCompat.startForegroundService(requireContext(), serviceIntent)
-    }
-
-    private fun updateNotificationsList() {
-        if (notifications.isNotEmpty()) {
-            binding.rvNotifications.visibility = View.VISIBLE
-            binding.emptyStateLayout.visibility = View.GONE
-            adapter.submitList(notifications.toList())
-        } else {
-            binding.rvNotifications.visibility = View.GONE
-            binding.emptyStateLayout.visibility = View.VISIBLE
+    override fun onStop() {
+        super.onStop()
+        if (::localBroadcastManager.isInitialized && ::broadcastReceiver.isInitialized) {
+            localBroadcastManager.unregisterReceiver(broadcastReceiver)
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun startNotificationService(context: Context) {
+        val serviceIntent = Intent(context, NotificationService::class.java)
+        ContextCompat.startForegroundService(context, serviceIntent)
+    }
+
+    private fun updateNotificationsList() {
+        if (!isAdded || _binding == null) return
+        _binding?.let { binding ->
+            if (notifications.isNotEmpty()) {
+                binding.rvNotifications.visibility = View.VISIBLE
+                binding.emptyStateLayout.visibility = View.GONE
+                adapter.submitList(notifications.toList())
+            } else {
+                binding.rvNotifications.visibility = View.GONE
+                binding.emptyStateLayout.visibility = View.VISIBLE
+            }
+        }
+    }
+
+    private fun saveNotifications() {
+        context?.let { ctx ->
+            val prefs = ctx.getSharedPreferences("notifications", Context.MODE_PRIVATE)
+            val editor = prefs.edit()
+            val json = Gson().toJson(notifications)
+            editor.putString("notification_list", json)
+            editor.apply()
+        }
+    }
+
+    private fun loadNotifications(): MutableList<Notification> {
+        context?.let { ctx ->
+            val prefs = ctx.getSharedPreferences("notifications", Context.MODE_PRIVATE)
+            val json = prefs.getString("notification_list", null)
+            return if (json != null) {
+                Gson().fromJson(json, object : TypeToken<MutableList<Notification>>() {}.type)
+            } else {
+                mutableListOf()
+            }
+        }
+        return mutableListOf()
     }
 }

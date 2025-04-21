@@ -11,28 +11,32 @@ import android.content.IntentFilter
 import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.example.healthcareproject.R
+import com.example.healthcareproject.present.MainActivity
 import io.socket.client.IO
 import io.socket.client.Socket
+import io.socket.engineio.client.EngineIOException
 import org.json.JSONObject
+import android.Manifest
+import android.util.Log
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import android.util.Log
-import com.example.healthcareproject.present.MainActivity
+
 class NotificationService : Service() {
 
     private lateinit var socket: Socket
     private val CHANNEL_ID = "HealthcareNotificationChannel"
-    private val NOTIFICATION_ID = 1
+    private val FOREGROUND_NOTIFICATION_ID = 1
     private lateinit var alertReceiver: BroadcastReceiver
 
     override fun onCreate() {
         super.onCreate()
         Log.d("NotificationService", "Service started")
         createNotificationChannel()
-        startForeground(NOTIFICATION_ID, createForegroundNotification())
+        startForeground(FOREGROUND_NOTIFICATION_ID, createForegroundNotification())
         setupSocket()
         setupAlertReceiver()
     }
@@ -51,7 +55,9 @@ class NotificationService : Service() {
                 CHANNEL_ID,
                 "Healthcare Notifications",
                 NotificationManager.IMPORTANCE_DEFAULT
-            )
+            ).apply {
+                description = "Channel for healthcare app notifications"
+            }
             val manager = getSystemService(NotificationManager::class.java)
             manager.createNotificationChannel(channel)
         }
@@ -62,11 +68,17 @@ class NotificationService : Service() {
             .setContentTitle("Healthcare App")
             .setContentText("Monitoring health notifications...")
             .setSmallIcon(R.drawable.ic_notification)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
             .build()
 
     private fun setupSocket() {
         try {
-            socket = IO.socket("http://10.0.2.2:3000") // Update with your server IP
+            val options = IO.Options().apply {
+                reconnection = true
+                reconnectionAttempts = 5
+                reconnectionDelay = 1000
+            }
+            socket = IO.socket("http://192.168.1.100:3000", options)
             socket.on(Socket.EVENT_CONNECT) {
                 Log.d("SocketIO", "Connected to server")
             }.on("newNotification") { args ->
@@ -92,8 +104,11 @@ class NotificationService : Service() {
 
                 sendNotificationToUI(notification)
                 showSystemNotification(notification)
-            }.on(Socket.EVENT_CONNECT_ERROR) {
-                Log.e("SocketIO", "Connection error: ${it.toString()}")
+            }.on(Socket.EVENT_CONNECT_ERROR) { args ->
+                val error = args[0] as? EngineIOException
+                Log.e("SocketIO", "Connection error: ${error?.message}")
+            }.on(Socket.EVENT_CONNECT) {
+                Log.d("SocketIO", "Attempting to reconnect...")
             }.on(Socket.EVENT_DISCONNECT) {
                 Log.d("SocketIO", "Disconnected from server")
             }
@@ -113,7 +128,7 @@ class NotificationService : Service() {
                     intent?.getParcelableExtra("notification")
                 }
                 notification?.let {
-                    Log.d("NotificationService", "Received heart rate alert: ${it.title}")
+                    Log.d("NotificationService", "Received alert: ${it.title}")
                     sendNotificationToUI(it)
                     showSystemNotification(it)
                 }
@@ -130,11 +145,16 @@ class NotificationService : Service() {
     }
 
     private fun showSystemNotification(notification: Notification) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            Log.w("NotificationService", "Notification permission not granted")
+            return
+        }
+
         val notificationManager = getSystemService(NotificationManager::class.java)
 
-        // Create a PendingIntent to open the app
         val intent = Intent(this, MainActivity::class.java).apply {
-            putExtra("navigate_to", "heart_rate") // Optional: Add extra to navigate to HeartRateFragment
+            putExtra("navigate_to", "heart_rate")
         }
         val pendingIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
@@ -147,8 +167,8 @@ class NotificationService : Service() {
             .setContentText(notification.message)
             .setSmallIcon(notification.iconResId)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setContentIntent(pendingIntent) // Add PendingIntent
-            .setAutoCancel(true) // Dismiss notification when tapped
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true)
             .build()
 
         notificationManager.notify(notification.id.toInt(), androidNotification)
