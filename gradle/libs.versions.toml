@@ -1,18 +1,20 @@
 [versions]
 agp = "8.9.1"
+annotation = "1.9.1"
 coreTesting = "2.2.0"
-dagger = "2.51.1"
+androidGradlePlugin = "8.7.3"
+hilt = "2.53.1"
 desugar_jdk_libs = "2.1.5"
 firebaseBom = "33.12.0"
-hiltAndroid = "2.44"
+hiltNavigationCompose = "1.2.0"
 javaxInject = "1"
-kotlin = "2.0.21"
+kotlin = "2.1.10"
 coreKtx = "1.16.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 appcompat = "1.7.0"
-kotlinxCoroutinesCore = "1.7.3"
+kotlinxCoroutinesCore = "1.8.0"
 material = "1.12.0"
 activity = "1.10.1"
 constraintlayout = "2.2.1"
@@ -21,15 +23,17 @@ navigationUiKtx = "2.8.9"
 googlePlayServicesAuth = "21.3.0"
 cardview = "1.0.0"
 mpandroidchart = "3.1.0"
-gson = "2.10.1"
+gson = "2.11.0"
 roomVersion = "2.7.0"
-firebaseFirestoreKtx = "25.1.3"
-firebaseAuthKtx = "23.2.0"
 places = "4.2.0"
+timber = "5.0.1"
+ksp = "2.1.10-1.0.30"
 
 [libraries]
+androidx-annotation = { module = "androidx.annotation:annotation", version.ref = "annotation" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-core-testing = { module = "androidx.arch.core:core-testing", version.ref = "coreTesting" }
+androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomVersion" }
 androidx-room-guava = { module = "androidx.room:room-guava", version.ref = "roomVersion" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomVersion" }
@@ -37,7 +41,6 @@ androidx-room-paging = { module = "androidx.room:room-paging", version.ref = "ro
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomVersion" }
 androidx-room-rxjava3 = { module = "androidx.room:room-rxjava3", version.ref = "roomVersion" }
 androidx-room-testing = { module = "androidx.room:room-testing", version.ref = "roomVersion" }
-dagger-compiler = { module = "com.google.dagger:dagger-compiler", version.ref = "dagger" }
 desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
 firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 firebase-auth = { module = "com.google.firebase:firebase-auth" }
@@ -45,15 +48,12 @@ firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "fir
 firebase-common-ktx = { module = "com.google.firebase:firebase-common-ktx" }
 firebase-database = { module = "com.google.firebase:firebase-database" }
 firebase-firestore = { module = "com.google.firebase:firebase-firestore" }
-firebase-firestore-ktx = { group = "com.google.firebase", name = "firebase-firestore-ktx", version.ref = "firebaseFirestoreKtx" }
-firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx", version.ref = "firebaseAuthKtx" }
-hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
-hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hiltAndroid" }
 javax-inject = { module = "javax.inject:javax.inject", version.ref = "javaxInject" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+kotlin-metadata-jvm = { module = "org.jetbrains.kotlin:kotlin-metadata-jvm", version = "2.0.0" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesCore" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesCore" }
@@ -66,10 +66,17 @@ google-play-services-auth = { module = "com.google.android.gms:play-services-aut
 androidx-cardview = { group = "androidx.cardview", name = "cardview", version.ref = "cardview" }
 mpandroidchart = { group = "com.github.PhilJay", name = "MPAndroidChart", version.ref = "mpandroidchart" }
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
-symbol-processing-api = { module = "com.google.devtools.ksp:symbol-processing-api" }
+symbol-processing-api = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
 places = { group = "com.google.android.libraries.places", name = "places", version.ref = "places" }
+timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
+hilt-android-core = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
+hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+android-library = { id = "com.android.library", version.ref = "androidGradlePlugin" }
