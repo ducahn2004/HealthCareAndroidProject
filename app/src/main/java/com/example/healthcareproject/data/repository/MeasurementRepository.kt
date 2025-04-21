@@ -1,24 +1,51 @@
 package com.example.healthcareproject.data.repository
 
-import com.example.healthcareproject.data.source.local.entity.Measurement
-import com.example.healthcareproject.data.source.network.datasource.MeasurementDataSource
+import com.example.healthcareproject.domain.model.Measurement
+import com.example.healthcareproject.domain.model.MeasurementType
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDateTime
 
-class MeasurementRepository(private val measurementDataSource: MeasurementDataSource) {
+/**
+ * Interface to the data layer for measurements.
+ */
+interface MeasurementRepository {
 
-    fun observeAll(): Flow<List<Measurement>> = measurementDataSource.observeAll()
+    suspend fun createMeasurement(
+        type: MeasurementType,
+        value: Float?,
+        valueList: List<Float>?,
+        measurementTime: LocalDateTime,
+        status: Boolean
+    ): String
 
-    fun observeById(measurementId: String): Flow<Measurement?> = measurementDataSource.observeById(measurementId)
+    suspend fun updateMeasurement(
+        measurementId: String,
+        type: MeasurementType,
+        value: Float?,
+        valueList: List<Float>?,
+        measurementTime: LocalDateTime,
+        status: Boolean
+    )
 
-    suspend fun getAll(): List<Measurement> = measurementDataSource.getAll()
+    fun getMeasurementsRealtime(userId: String): Flow<List<Measurement>>
 
-    suspend fun getById(measurementId: String): Measurement? = measurementDataSource.getById(measurementId)
+    fun getMeasurementsStream(): Flow<List<Measurement>>
 
-    suspend fun upsert(measurement: Measurement) = measurementDataSource.upsert(measurement)
+    fun getMeasurementStream(measurementId: String): Flow<Measurement?>
 
-    suspend fun upsertAll(measurements: List<Measurement>) = measurementDataSource.upsertAll(measurements)
+    suspend fun getMeasurements(forceUpdate: Boolean = false): List<Measurement>
 
-    suspend fun deleteById(measurementId: String): Int = measurementDataSource.deleteById(measurementId)
+    suspend fun refresh()
 
-    suspend fun deleteAll(): Int = measurementDataSource.deleteAll()
+    suspend fun getMeasurement(measurementId: String, forceUpdate: Boolean = false): Measurement?
+
+    suspend fun refreshMeasurement(measurementId: String)
+
+    suspend fun activateMeasurement(measurementId: String)
+
+    suspend fun deactivateMeasurement(measurementId: String)
+
+    suspend fun deleteAllMeasurements()
+
+    suspend fun deleteMeasurement(measurementId: String)
 }

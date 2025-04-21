@@ -1,24 +1,51 @@
 package com.example.healthcareproject.data.repository
 
-import com.example.healthcareproject.data.source.local.entity.EmergencyInfo
-import com.example.healthcareproject.data.source.network.datasource.EmergencyInfoDataSource
+import com.example.healthcareproject.domain.model.Appointment
+import com.example.healthcareproject.domain.model.EmergencyInfo
+import com.example.healthcareproject.domain.model.Relationship
 import kotlinx.coroutines.flow.Flow
 
-class EmergencyInfoRepository(private val emergencyInfoDataSource: EmergencyInfoDataSource) {
+/**
+ * Interface to the data layer for emergency information.
+ */
+interface EmergencyInfoRepository {
 
-    fun observeAll(): Flow<List<EmergencyInfo>> = emergencyInfoDataSource.observeAll()
+    suspend fun createEmergencyInfo(
+        contactName: String,
+        contactNumber: String,
+        relationship: Relationship,
+        notes: String?,
+        status: Boolean
+    ): String
 
-    fun observeById(emergencyInfoId: String): Flow<EmergencyInfo?> = emergencyInfoDataSource.observeById(emergencyInfoId)
+    suspend fun updateEmergencyInfo(
+        emergencyInfoId: String,
+        contactName: String,
+        contactNumber: String,
+        relationship: Relationship,
+        notes: String?,
+        status: Boolean
+    )
 
-    suspend fun getAll(): List<EmergencyInfo> = emergencyInfoDataSource.getAll()
+    suspend fun getEmergencyInfos(forceUpdate: Boolean = false): List<EmergencyInfo>
 
-    suspend fun getById(emergencyInfoId: String): EmergencyInfo? = emergencyInfoDataSource.getById(emergencyInfoId)
+    suspend fun refresh()
 
-    suspend fun upsert(emergencyInfo: EmergencyInfo) = emergencyInfoDataSource.upsert(emergencyInfo)
+    suspend fun getEmergencyInfo(emergencyInfoId: String, forceUpdate: Boolean = false): EmergencyInfo?
 
-    suspend fun upsertAll(emergencyInfos: List<EmergencyInfo>) = emergencyInfoDataSource.upsertAll(emergencyInfos)
+    suspend fun refreshEmergencyInfo(emergencyInfoId: String)
 
-    suspend fun deleteById(emergencyInfoId: String): Int = emergencyInfoDataSource.deleteById(emergencyInfoId)
+    fun getEmergencyInfosStream(): Flow<List<EmergencyInfo>>
 
-    suspend fun deleteAll(): Int = emergencyInfoDataSource.deleteAll()
+    fun getEmergencyInfoStream(emergencyInfoId: String): Flow<EmergencyInfo?>
+
+    suspend fun activateEmergencyInfo(emergencyInfoId: String)
+
+    suspend fun deactivateEmergencyInfo(emergencyInfoId: String)
+
+    suspend fun clearInactiveEmergencyInfos()
+
+    suspend fun deleteAllEmergencyInfos()
+
+    suspend fun deleteEmergencyInfo(emergencyInfoId: String)
 }

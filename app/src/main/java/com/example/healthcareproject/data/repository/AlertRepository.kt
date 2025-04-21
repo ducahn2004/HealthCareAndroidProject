@@ -1,24 +1,51 @@
 package com.example.healthcareproject.data.repository
 
-import com.example.healthcareproject.data.source.local.entity.Alert
-import com.example.healthcareproject.data.source.network.datasource.AlertDataSource
+import com.example.healthcareproject.domain.model.Alert
+import com.example.healthcareproject.domain.model.RepeatPattern
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalTime
 
-class AlertRepository(private val alertDataSource: AlertDataSource) {
+/**
+ * Interface to the data layer for alerts.
+ */
+interface AlertRepository {
 
-    fun observeAll(): Flow<List<Alert>> = alertDataSource.observeAll()
+    suspend fun createAlert(
+        title: String,
+        message: String,
+        alertTime: LocalTime,
+        repeatPattern: RepeatPattern,
+        status: Boolean
+    ): String
 
-    fun observeById(alertId: String): Flow<Alert?> = alertDataSource.observeById(alertId)
+    suspend fun updateAlert(
+        alertId: String,
+        title: String,
+        message: String,
+        alertTime: LocalTime,
+        repeatPattern: RepeatPattern,
+        status: Boolean
+    )
 
-    suspend fun getAll(): List<Alert> = alertDataSource.getAll()
+    suspend fun deleteAlert(alertId: String)
 
-    suspend fun getById(alertId: String): Alert? = alertDataSource.getById(alertId)
+    suspend fun getAlert(alertId: String, forceUpdate: Boolean = false): Alert?
 
-    suspend fun upsert(alert: Alert) = alertDataSource.upsert(alert)
+    suspend fun getAlerts(forceUpdate: Boolean = false): List<Alert>
 
-    suspend fun upsertAll(alerts: List<Alert>) = alertDataSource.upsertAll(alerts)
+    fun getAlertsStream(): Flow<List<Alert>>
 
-    suspend fun deleteById(alertId: String): Int = alertDataSource.deleteById(alertId)
+    fun getAlertsStream(alertId: String): Flow<Alert?>
 
-    suspend fun deleteAll(): Int = alertDataSource.deleteAll()
+    suspend fun refresh()
+
+    suspend fun refreshAlert(alertId: String)
+
+    suspend fun activateAlert(alertId: String)
+
+    suspend fun deactivateAlert(alertId: String)
+
+    suspend fun clearInactiveAlerts()
+
+    suspend fun deleteAllAlerts()
 }

@@ -1,24 +1,60 @@
 package com.example.healthcareproject.data.repository
 
-import com.example.healthcareproject.data.source.local.entity.Medication
-import com.example.healthcareproject.data.source.network.datasource.MedicationDataSource
+import com.example.healthcareproject.domain.model.Medication
+import com.example.healthcareproject.domain.model.DosageUnit
+import com.example.healthcareproject.domain.model.MealRelation
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDate
 
-class MedicationRepository(private val medicationDataSource: MedicationDataSource) {
+/**
+ * Interface to the data layer for medications.
+ */
+interface MedicationRepository {
 
-    fun observeAll(): Flow<List<Medication>> = medicationDataSource.observeAll()
+    suspend fun createMedication(
+        name: String,
+        dosageUnit: DosageUnit,
+        dosageAmount: Float,
+        frequency: Int,
+        timeOfDay: List<String>,
+        mealRelation: MealRelation,
+        startDate: LocalDate,
+        endDate: LocalDate,
+        notes: String
+    ): String
 
-    fun observeById(medicationId: String): Flow<Medication?> = medicationDataSource.observeById(medicationId)
+    suspend fun updateMedication(
+        medicationId: String,
+        name: String,
+        dosageUnit: DosageUnit,
+        dosageAmount: Float,
+        frequency: Int,
+        timeOfDay: List<String>,
+        mealRelation: MealRelation,
+        startDate: LocalDate,
+        endDate: LocalDate,
+        notes: String
+    )
 
-    suspend fun getAll(): List<Medication> = medicationDataSource.getAll()
+    fun getMedicationsStream(): Flow<List<Medication>>
 
-    suspend fun getById(medicationId: String): Medication? = medicationDataSource.getById(medicationId)
+    fun getMedicationStream(medicationId: String): Flow<Medication?>
 
-    suspend fun upsert(medication: Medication) = medicationDataSource.upsert(medication)
+    suspend fun getMedications(forceUpdate: Boolean = false): List<Medication>
 
-    suspend fun upsertAll(medications: List<Medication>) = medicationDataSource.upsertAll(medications)
+    suspend fun refresh()
 
-    suspend fun deleteById(medicationId: String): Int = medicationDataSource.deleteById(medicationId)
+    suspend fun getMedication(medicationId: String, forceUpdate: Boolean = false): Medication?
 
-    suspend fun deleteAll(): Int = medicationDataSource.deleteAll()
+    suspend fun refreshMedication(medicationId: String)
+
+    suspend fun activateMedication(medicationId: String)
+
+    suspend fun deactivateMedication(medicationId: String)
+
+    suspend fun clearInactiveMedications()
+
+    suspend fun deleteAllMedications()
+
+    suspend fun deleteMedication(medicationId: String)
 }

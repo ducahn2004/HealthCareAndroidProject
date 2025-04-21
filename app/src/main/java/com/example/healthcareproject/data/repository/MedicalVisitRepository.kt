@@ -1,24 +1,52 @@
 package com.example.healthcareproject.data.repository
 
-import com.example.healthcareproject.data.source.local.entity.MedicalVisit
-import com.example.healthcareproject.data.source.network.datasource.MedicalVisitDataSource
+import com.example.healthcareproject.domain.model.MedicalVisit
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDate
 
-class MedicalVisitRepository(private val medicalVisitDataSource: MedicalVisitDataSource) {
+/**
+ * Interface to the data layer for medical visits.
+ */
+interface MedicalVisitRepository {
 
-    fun observeAll(): Flow<List<MedicalVisit>> = medicalVisitDataSource.observeAll()
+    suspend fun createMedicalVisit(
+        patientName: String,
+        visitReason: String,
+        visitDate: LocalDate,
+        doctorName: String,
+        notes: String?,
+        status: Boolean
+    ): String
 
-    fun observeById(medicalVisitId: String): Flow<MedicalVisit?> = medicalVisitDataSource.observeById(medicalVisitId)
+    suspend fun updateMedicalVisit(
+        medicalVisitId: String,
+        patientName: String,
+        visitReason: String,
+        visitDate: LocalDate,
+        doctorName: String,
+        notes: String?,
+        status: Boolean
+    )
 
-    suspend fun getAll(): List<MedicalVisit> = medicalVisitDataSource.getAll()
+    fun getMedicalVisitsStream(): Flow<List<MedicalVisit>>
 
-    suspend fun getById(medicalVisitId: String): MedicalVisit? = medicalVisitDataSource.getById(medicalVisitId)
+    fun getMedicalVisitStream(medicalVisitId: String): Flow<MedicalVisit?>
 
-    suspend fun upsert(medicalVisit: MedicalVisit) = medicalVisitDataSource.upsert(medicalVisit)
+    suspend fun getMedicalVisits(forceUpdate: Boolean = false): List<MedicalVisit>
 
-    suspend fun upsertAll(medicalVisits: List<MedicalVisit>) = medicalVisitDataSource.upsertAll(medicalVisits)
+    suspend fun refresh()
 
-    suspend fun deleteById(medicalVisitId: String): Int = medicalVisitDataSource.deleteById(medicalVisitId)
+    suspend fun getMedicalVisit(medicalVisitId: String, forceUpdate: Boolean = false): MedicalVisit?
 
-    suspend fun deleteAll(): Int = medicalVisitDataSource.deleteAll()
+    suspend fun refreshMedicalVisit(medicalVisitId: String)
+
+    suspend fun activateMedicalVisit(medicalVisitId: String)
+
+    suspend fun deactivateMedicalVisit(medicalVisitId: String)
+
+    suspend fun clearInactiveMedicalVisits()
+
+    suspend fun deleteAllMedicalVisits()
+
+    suspend fun deleteMedicalVisit(medicalVisitId: String)
 }

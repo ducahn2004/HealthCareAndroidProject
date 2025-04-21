@@ -1,25 +1,46 @@
 package com.example.healthcareproject.data.repository
 
-import com.example.healthcareproject.data.source.local.entity.Notification
-import com.example.healthcareproject.data.source.network.datasource.NotificationDataSource
-import com.example.healthcareproject.data.source.network.model.FirebaseNotification
+import com.example.healthcareproject.domain.model.Notification
+import com.example.healthcareproject.domain.model.NotificationType
+import com.example.healthcareproject.domain.model.RelatedTable
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDateTime
 
-class NotificationRepository(private val notificationDataSource: NotificationDataSource) {
+/**
+ * Interface to the data layer for notifications.
+ */
+interface NotificationRepository {
 
-    fun observeAll(): Flow<List<FirebaseNotification>> = notificationDataSource.observeAll()
+    suspend fun createNotification(
+        type: NotificationType,
+        relatedTable: RelatedTable,
+        relatedId: String,
+        message: String,
+        notificationTime: LocalDateTime
+    ): String
 
-    fun observeById(notificationId: String): Flow<FirebaseNotification?> = notificationDataSource.observeById(notificationId)
+    suspend fun updateNotification(
+        notificationId: String,
+        type: NotificationType,
+        relatedTable: RelatedTable,
+        relatedId: String,
+        message: String,
+        notificationTime: LocalDateTime
+    )
 
-    suspend fun getAll(): List<FirebaseNotification> = notificationDataSource.getAll()
+    fun getNotificationsStream(): Flow<List<Notification>>
 
-    suspend fun getById(notificationId: String): FirebaseNotification? = notificationDataSource.getById(notificationId)
+    fun getNotificationStream(notificationId: String): Flow<Notification?>
 
-    suspend fun upsert(notification: Notification) = notificationDataSource.upsert(notification)
+    suspend fun getNotifications(forceUpdate: Boolean = false): List<Notification>
 
-    suspend fun upsertAll(notifications: List<Notification>) = notificationDataSource.upsertAll(notifications)
+    suspend fun refresh()
 
-    suspend fun deleteById(notificationId: String): Int = notificationDataSource.deleteById(notificationId)
+    suspend fun getNotification(notificationId: String, forceUpdate: Boolean = false): Notification?
 
-    suspend fun deleteAll(): Int = notificationDataSource.deleteAll()
+    suspend fun refreshNotification(notificationId: String)
+
+    suspend fun deleteAllNotifications()
+
+    suspend fun deleteNotification(notificationId: String)
 }

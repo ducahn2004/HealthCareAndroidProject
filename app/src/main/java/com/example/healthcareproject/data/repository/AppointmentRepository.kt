@@ -1,24 +1,42 @@
 package com.example.healthcareproject.data.repository
 
-import com.example.healthcareproject.data.source.local.entity.Appointment
-import com.example.healthcareproject.data.source.network.datasource.AppointmentDataSource
+import com.example.healthcareproject.domain.model.Appointment
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDateTime
 
-class AppointmentRepository(private val appointmentDataSource: AppointmentDataSource) {
+/**
+ * Interface to the data layer for appointments.
+ */
+interface AppointmentRepository {
 
-    fun observeAll(): Flow<List<Appointment>> = appointmentDataSource.observeAll()
+    suspend fun createAppointment(
+        doctorName: String,
+        location: String,
+        appointmentTime: LocalDateTime,
+        note: String?
+    ): String
 
-    fun observeById(appointmentId: String): Flow<Appointment?> = appointmentDataSource.observeById(appointmentId)
+    suspend fun updateAppointment(
+        appointmentId: String,
+        doctorName: String,
+        location: String,
+        appointmentTime: LocalDateTime,
+        note: String?
+    )
 
-    suspend fun getAll(): List<Appointment> = appointmentDataSource.getAll()
+    suspend fun deleteAppointment(appointmentId: String)
 
-    suspend fun getById(appointmentId: String): Appointment? = appointmentDataSource.getById(appointmentId)
+    suspend fun getAppointment(appointmentId: String, forceUpdate: Boolean = false): Appointment?
 
-    suspend fun upsert(appointment: Appointment) = appointmentDataSource.upsert(appointment)
+    suspend fun getAppointments(forceUpdate: Boolean = false): List<Appointment>
 
-    suspend fun upsertAll(appointments: List<Appointment>) = appointmentDataSource.upsertAll(appointments)
+    fun getAppointmentsStream(): Flow<List<Appointment>>
 
-    suspend fun deleteById(appointmentId: String): Int = appointmentDataSource.deleteById(appointmentId)
+    fun getAppointmentStream(appointmentId: String): Flow<Appointment?>
 
-    suspend fun deleteAll(): Int = appointmentDataSource.deleteAll()
+    suspend fun deleteAllAppointments()
+
+    suspend fun refresh()
+
+    suspend fun refreshAppointment(appointmentId: String)
 }

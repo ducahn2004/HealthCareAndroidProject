@@ -1,24 +1,42 @@
 package com.example.healthcareproject.data.repository
 
-import com.example.healthcareproject.data.source.local.entity.User
-import com.example.healthcareproject.data.source.network.datasource.UserDataSource
+import com.example.healthcareproject.domain.model.User
 import kotlinx.coroutines.flow.Flow
 
-class UserRepository(private val userDataSource: UserDataSource) {
+/**
+ * Interface to the data layer for users.
+ */
+interface UserRepository {
 
-    fun observeAll(): Flow<List<User>> = userDataSource.observeAll()
+    suspend fun createUser(
+        userId: String,
+        password: String,
+        name: String,
+        address: String?,
+        dateOfBirth: String,
+        gender: String,
+        bloodType: String,
+        phone: String
+    )
 
-    fun observeById(userId: String): Flow<User?> = userDataSource.observeById(userId)
+    suspend fun updateUser(
+        userId: String,
+        password: String,
+        name: String,
+        address: String?,
+        dateOfBirth: String,
+        gender: String,
+        bloodType: String,
+        phone: String
+    )
 
-    suspend fun getAll(): List<User> = userDataSource.getAll()
+    suspend fun refresh(userId: String)
 
-    suspend fun getById(userId: String): User? = userDataSource.getById(userId)
+    fun getUserStream(userId: String): Flow<User?>
 
-    suspend fun upsert(user: User) = userDataSource.upsert(user)
+    suspend fun getUser(userId: String, forceUpdate: Boolean = false): User?
 
-    suspend fun upsertAll(users: List<User>) = userDataSource.upsertAll(users)
+    suspend fun refreshUser(userId: String)
 
-    suspend fun deleteById(userId: String): Int = userDataSource.deleteById(userId)
-
-    suspend fun deleteAll(): Int = userDataSource.deleteAll()
+    suspend fun deleteUser(userId: String)
 }
