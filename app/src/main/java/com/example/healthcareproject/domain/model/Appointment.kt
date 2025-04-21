@@ -9,5 +9,5 @@ data class Appointment(
     val doctorName: String,
     val location: String,
     val appointmentTime: LocalDateTime,
-    val note: String
+    val note: String?
 )
