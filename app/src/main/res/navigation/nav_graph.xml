@@ -64,17 +64,36 @@
         app:destination="@id/notificationFragment" />
     </fragment>
 
-    <!-- Explore Fragment -->
+    <!-- Pill Fragment -->
     <fragment
         android:id="@+id/pillFragment"
         android:name="com.example.healthcareproject.present.pill.PillFragment"
         android:label="Pill"
-        tools:layout="@layout/fragment_pill" />
+        tools:layout="@layout/fragment_pill">
+        <action
+            android:id="@+id/action_pillFragment_to_medicalHistoryDetailFragment"
+            app:destination="@id/medicalHistoryDetailFragment" />
+        <action
+            android:id="@+id/action_pillFragment_to_addMedicationFragment"
+            app:destination="@id/addMedicationFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/addMedicationFragment"
+        android:name="com.example.healthcareproject.AddMedicationFragment"
+        android:label="Add Medication"
+        tools:layout="@layout/dialog_add_medication">
+        <action
+            android:id="@+id/action_addMedicationFragment_to_pillFragment"
+            app:destination="@id/pillFragment"
+            app:popUpTo="@id/pillFragment"
+            app:popUpToInclusive="false" />
+    </fragment>
 
     <!-- Medicine Fragment -->
     <fragment
         android:id="@+id/medicineFragment"
-        android:name="com.example.healthcareproject.present.medicine.MedicineFragment"
+        android:name="com.example.healthcareproject.MedicineFragment"
         android:label="Medicine">
         <action
             android:id="@+id/action_medicineFragment_to_medicalHistoryDetailFragment"
@@ -91,7 +110,7 @@
     <!-- Add Appointment Fragment -->
     <fragment
         android:id="@+id/addAppointmentFragment"
-        android:name="com.example.healthcareproject.AddAppointmentFragment"
+        android:name="com.example.healthcareproject.present.medicine.AddAppointmentFragment"
         android:label="Add Appointment"
         tools:layout="@layout/fragment_add_appointment">
         <action

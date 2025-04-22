@@ -8,36 +8,39 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.healthcareproject.R
+import java.text.SimpleDateFormat
+import java.util.*
 
 class MedicalVisitAdapter(
     private val onItemClick: (MedicalVisit) -> Unit
-) : ListAdapter<MedicalVisit, MedicalVisitAdapter.ViewHolder>(MedicalVisitDiffCallback()) {
+) : ListAdapter<MedicalVisit, MedicalVisitAdapter.MedicalVisitViewHolder>(MedicalVisitDiffCallback()) {
 
-    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val tvCondition: TextView = itemView.findViewById(R.id.tv_condition)
-        val tvDoctorValue: TextView = itemView.findViewById(R.id.tv_doctor_value)
-        val tvFacilityValue: TextView = itemView.findViewById(R.id.tv_facility_value)
-        val tvDateValue: TextView = itemView.findViewById(R.id.tv_date_value)
-        val tvTimeValue: TextView = itemView.findViewById(R.id.tv_time_value)
-        val tvLocationValue: TextView = itemView.findViewById(R.id.tv_location_value)
+    private val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+    private val timeFormat = SimpleDateFormat("hh:mm a", Locale.getDefault())
+
+    class MedicalVisitViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val tvFacility: TextView = itemView.findViewById(R.id.tv_facility)
+        val tvDoctor: TextView = itemView.findViewById(R.id.tv_doctor)
+        val tvDate: TextView = itemView.findViewById(R.id.tv_date)
+        val tvTime: TextView = itemView.findViewById(R.id.tv_time)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_medical_visit, parent, false)
-        return ViewHolder(view)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MedicalVisitViewHolder {
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_medical_visit, parent, false)
+        return MedicalVisitViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: MedicalVisitViewHolder, position: Int) {
         val visit = getItem(position)
+        holder.tvFacility.text = visit.facility
+        holder.tvDoctor.text = visit.doctor
 
-        holder.tvCondition.text = visit.condition
-        holder.tvDoctorValue.text = visit.doctor
-        holder.tvFacilityValue.text = visit.facility
-        holder.tvDateValue.text = visit.date
-        holder.tvTimeValue.text = visit.time
-        holder.tvLocationValue.text = visit.location ?: "Not specified"
+        // Chuyển đổi timestamp thành định dạng ngày và giờ
+        val dateTime = Date(visit.timestamp)
+        holder.tvDate.text = dateFormat.format(dateTime)
+        holder.tvTime.text = timeFormat.format(dateTime)
 
-        // Sự kiện click vào item để mở chi tiết
         holder.itemView.setOnClickListener {
             onItemClick(visit)
         }
