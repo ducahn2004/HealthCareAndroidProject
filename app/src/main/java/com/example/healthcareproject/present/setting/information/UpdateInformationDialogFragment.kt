@@ -99,7 +99,7 @@ class UpdateInformationDialogFragment(
             val width = (resources.displayMetrics.widthPixels * 0.9).toInt() // 90% chiều rộng màn hình
             params.width = width
             window.attributes = params
-            window.setBackgroundDrawableResource(android.R.color.transparent) // Nền trong suốt
+
         }
     }
 
