@@ -6,8 +6,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.MultiAutoCompleteTextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.healthcareproject.R
 import com.example.healthcareproject.databinding.FragmentAlarmBinding
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
@@ -18,6 +23,9 @@ class AlarmFragment : Fragment() {
 
     private var _binding: FragmentAlarmBinding? = null
     private val binding get() = _binding!!
+
+    private val viewModel: AlarmViewModel by viewModels()
+    private lateinit var alarmAdapter: AlarmAdapter
     private var selectedHour: Int = 0
     private var selectedMinute: Int = 0
 
@@ -33,10 +41,38 @@ class AlarmFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Sample medication list (in a real app, this would come from the Medications table)
-        val medications = listOf("Aspirin", "Ibuprofen", "Paracetamol")
-        val medicationAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, medications)
-        binding.spinnerMedication.setAdapter(medicationAdapter)
+        // Load data using ViewModel
+        viewModel.loadAlarms(requireContext())
+        viewModel.loadMedications(requireContext())
+
+        // Set up RecyclerView for alarms
+        alarmAdapter = AlarmAdapter()
+        binding.rvAlarms.layoutManager = LinearLayoutManager(context)
+        binding.rvAlarms.adapter = alarmAdapter
+
+        // Observe alarms LiveData
+        viewModel.alarms.observe(viewLifecycleOwner) { alarms ->
+            alarmAdapter.submitList(alarms)
+        }
+
+        // Set up back icon navigation
+        binding.ivBack.setOnClickListener {
+            findNavController().navigate(R.id.action_back_alarmFragment_to_homeFragment)
+        }
+
+        // Set up FAB to show/hide add alarm form
+        binding.fabAddAlarm.setOnClickListener {
+            binding.llAddAlarmContainer.visibility = View.VISIBLE
+            binding.fabAddAlarm.visibility = View.GONE
+        }
+
+        // Set up medication multi-selection
+        viewModel.medications.observe(viewLifecycleOwner) { medications ->
+            val medicationNames = medications.map { it.name }
+            val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, medicationNames)
+            binding.multiSelectMedications.setAdapter(adapter)
+            binding.multiSelectMedications.setTokenizer(MultiAutoCompleteTextView.CommaTokenizer())
+        }
 
         // Repeat pattern options
         val repeatOptions = listOf("Daily", "Weekly", "Once")
@@ -69,11 +105,14 @@ class AlarmFragment : Fragment() {
 
         // Set up save button
         binding.btnSaveAlarm.setOnClickListener {
-            val selectedMedication = binding.spinnerMedication.selectedItem?.toString() ?: ""
+            val selectedMedications = binding.multiSelectMedications.text.toString()
+                .split(",")
+                .map { it.trim() }
+                .filter { it.isNotEmpty() }
             val repeatPattern = binding.spinnerRepeatPattern.selectedItem?.toString() ?: ""
 
-            if (selectedMedication.isEmpty()) {
-                Toast.makeText(requireContext(), "Please select a medication", Toast.LENGTH_SHORT).show()
+            if (selectedMedications.isEmpty()) {
+                Toast.makeText(requireContext(), "Please select at least one medication", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
@@ -91,24 +130,25 @@ class AlarmFragment : Fragment() {
             val sdf = SimpleDateFormat("HH:mm")
             val alertTime = sdf.format(calendar.time)
 
-            // Simulate saving the alarm (in a real app, save to the Alerts table)
-            val alertMessage = "Take $selectedMedication at $alertTime ($repeatPattern)"
-            Toast.makeText(requireContext(), "Alarm set: $alertMessage", Toast.LENGTH_LONG).show()
+            // Create and save the alarm using ViewModel
+            val newAlarm = Alarm(
+                medications = selectedMedications,
+                time = alertTime,
+                repeatPattern = repeatPattern
+            )
+            viewModel.addAlarm(newAlarm, requireContext())
 
-            // You can add logic here to save to the database using the Alerts table schema:
-            // - alert_id (auto-generated)
-            // - user_id (from current user)
-            // - title (e.g., "Medication Reminder: $selectedMedication")
-            // - message (e.g., alertMessage)
-            // - alert_time (calendar.time)
-            // - repeat_pattern (e.g., repeatPattern)
-            // - status (e.g., true for active)
-            // - created_at (current timestamp)
+            // Hide the form and show FAB
+            binding.llAddAlarmContainer.visibility = View.GONE
+            binding.fabAddAlarm.visibility = View.VISIBLE
+
+            Toast.makeText(requireContext(), "Alarm set for ${selectedMedications.joinToString()} at $alertTime", Toast.LENGTH_LONG).show()
         }
 
         // Set up cancel button
         binding.btnCancel.setOnClickListener {
-            requireActivity().onBackPressed()
+            binding.llAddAlarmContainer.visibility = View.GONE
+            binding.fabAddAlarm.visibility = View.VISIBLE
         }
     }
 

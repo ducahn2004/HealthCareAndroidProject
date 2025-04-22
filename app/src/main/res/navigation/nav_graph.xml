@@ -60,8 +60,8 @@
         android:name="com.example.healthcareproject.present.home.AlarmFragment"
         android:label="Alarm">
         <action
-        android:id="@+id/action_back_oxygen_to_notification"
-        app:destination="@id/notificationFragment" />
+            android:id="@+id/action_back_alarmFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
     </fragment>
 
     <!-- Pill Fragment -->

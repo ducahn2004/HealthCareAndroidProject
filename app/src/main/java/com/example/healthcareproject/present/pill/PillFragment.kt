@@ -150,3 +150,17 @@ class PillFragment : Fragment() {
             saveMedications()
         }
     }
+
+    private fun saveMedications() {
+        val sharedPrefs = requireActivity().getSharedPreferences("medications", Context.MODE_PRIVATE)
+        val editor = sharedPrefs.edit()
+        val medicationsJson = Gson().toJson(medications)
+        editor.putString("medication_list", medicationsJson)
+        editor.apply()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+}
