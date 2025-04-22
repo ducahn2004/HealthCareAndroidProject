@@ -72,7 +72,7 @@ class PillFragment : Fragment() {
             findNavController().navigate(R.id.action_pillFragment_to_addMedicationFragment)
         }
 
-        // Lắng nghe kết quả từ AddMedicationFragment
+
         setFragmentResultListener("medicationKey") { _, bundle ->
             val newVisit = bundle.getParcelable<MedicalVisit>("newVisit")
             val newMedications = bundle.getParcelableArrayList<Medication>("newMedications")
@@ -103,10 +103,16 @@ class PillFragment : Fragment() {
         val sharedPrefs = requireActivity().getSharedPreferences("medications", android.content.Context.MODE_PRIVATE)
         val medicationsJson = sharedPrefs.getString("medication_list", null)
         if (medicationsJson != null) {
-            val type = object : TypeToken<List<Medication>>() {}.type
-            val loadedMedications: List<Medication> = Gson().fromJson(medicationsJson, type)
-            medications.clear()
-            medications.addAll(loadedMedications)
+            try {
+                val type = object : TypeToken<List<Medication>>() {}.type
+                val loadedMedications: List<Medication> = Gson().fromJson(medicationsJson, type)
+                medications.clear()
+                medications.addAll(loadedMedications)
+            } catch (e: com.google.gson.JsonSyntaxException) {
+                // Clear the invalid data to prevent future crashes
+                sharedPrefs.edit() { remove("medication_list") }
+                medications.clear()
+            }
         }
     }
 
@@ -120,17 +126,15 @@ class PillFragment : Fragment() {
 
     private fun saveMedications() {
         val sharedPrefs = requireActivity().getSharedPreferences("medications", android.content.Context.MODE_PRIVATE)
-        sharedPrefs.edit() {
-            val medicationsJson = Gson().toJson(medications)
-            putString("medication_list", medicationsJson)
-        }
+        val editor = sharedPrefs.edit()
+        val medicationsJson = Gson().toJson(medications)
+        editor.putString("medication_list", medicationsJson)
+        editor.apply()
     }
 
     private fun updateMedicationList() {
-        // Sắp xếp danh sách theo ngày bắt đầu giảm dần
         val sortedMedications = medications.sortedByDescending { it.startDate }
 
-        // Phân loại Current và Past Medications
         val today = LocalDate.now()
         val currentMedications = sortedMedications.filter { medication ->
             medication.startDate <= today && (medication.endDate >= today || medication.endDate == today)

@@ -15,7 +15,7 @@
         android:textStyle="bold"
         android:layout_marginBottom="16dp" />
 
-    <!-- Medication ID (Auto-generated, can be hidden or read-only) -->
+    <!-- Medication ID (Auto-generated, hidden) -->
     <EditText
         android:id="@+id/et_medication_id"
         android:layout_width="match_parent"
@@ -26,9 +26,10 @@
         android:textColorHint="@color/secondary_text_color"
         android:backgroundTint="@color/light_gray"
         android:layout_marginTop="8dp"
-        android:enabled="false" />
+        android:enabled="false"
+        android:visibility="gone" />
 
-    <!-- User ID (Can be pre-filled if tied to a user) -->
+    <!-- User ID (Hidden) -->
     <EditText
         android:id="@+id/et_user_id"
         android:layout_width="match_parent"
@@ -38,7 +39,8 @@
         android:textColor="@color/primary_text_color"
         android:textColorHint="@color/secondary_text_color"
         android:backgroundTint="@color/light_gray"
-        android:layout_marginTop="8dp" />
+        android:layout_marginTop="8dp"
+        android:visibility="gone" />
 
     <!-- Medication Name -->
     <EditText
@@ -70,6 +72,8 @@
         android:id="@+id/spinner_dosage_unit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        android:padding="12dp"
         android:backgroundTint="@color/light_gray"
         android:layout_marginTop="8dp" />
 
@@ -79,7 +83,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="48dp"
-        android:hint="Frequency (e.g., 2 times a day)"
+        android:hint="Frequency (e.g., 2)"
         android:inputType="number"
         android:textColor="@color/primary_text_color"
         android:textColorHint="@color/secondary_text_color"
@@ -103,6 +107,8 @@
         android:id="@+id/spinner_meal_relation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        android:padding="12dp"
         android:backgroundTint="@color/light_gray"
         android:layout_marginTop="8dp" />
 

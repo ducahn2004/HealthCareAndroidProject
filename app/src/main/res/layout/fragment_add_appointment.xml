@@ -51,17 +51,17 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Condition"
+                    android:text="Diagnosis"
                     android:textColor="@color/secondary_text_color"
                     android:textSize="14sp"
                     android:textStyle="bold" />
 
                 <EditText
-                    android:id="@+id/et_condition"
+                    android:id="@+id/et_diagnosis"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:hint="Enter condition"
+                    android:hint="Enter diagnosis"
                     android:inputType="text"
                     android:textColor="@color/secondary_text_color"
                     android:textSize="18sp" />

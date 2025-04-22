@@ -57,13 +57,13 @@ class AddAppointmentFragment : Fragment() {
 
         // Sự kiện click nút Save
         binding.btnSave.setOnClickListener {
-            val diagnosis = binding.etCondition.text.toString().trim()
+            val diagnosis = binding.etDiagnosis.text.toString().trim()
             val doctorName = binding.etDoctor.text.toString().trim()
             val clinicName = binding.etFacility.text.toString().trim()
 
             // Validate fields
             if (diagnosis.isEmpty()) {
-                binding.etCondition.error = "Required"
+                binding.etDiagnosis.error = "Required"
                 return@setOnClickListener
             }
             if (doctorName.isEmpty()) {

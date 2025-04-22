@@ -80,7 +80,7 @@
 
     <fragment
         android:id="@+id/addMedicationFragment"
-        android:name="com.example.healthcareproject.AddMedicationFragment"
+        android:name="com.example.healthcareproject.present.pill.AddMedicationFragment"
         android:label="Add Medication"
         tools:layout="@layout/dialog_add_medication">
         <action
@@ -93,7 +93,7 @@
     <!-- Medicine Fragment -->
     <fragment
         android:id="@+id/medicineFragment"
-        android:name="com.example.healthcareproject.MedicineFragment"
+        android:name="com.example.healthcareproject.present.medicine.MedicineFragment"
         android:label="Medicine">
         <action
             android:id="@+id/action_medicineFragment_to_medicalHistoryDetailFragment"
