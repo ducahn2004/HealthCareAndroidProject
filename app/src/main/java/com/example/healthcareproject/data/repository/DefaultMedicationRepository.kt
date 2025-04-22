@@ -10,6 +10,7 @@ import com.example.healthcareproject.di.DefaultDispatcher
 import com.example.healthcareproject.domain.model.DosageUnit
 import com.example.healthcareproject.domain.model.MealRelation
 import com.example.healthcareproject.domain.model.Medication
+import com.example.healthcareproject.domain.repository.MedicationRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow

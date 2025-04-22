@@ -8,6 +8,7 @@ import com.example.healthcareproject.data.source.network.datasource.MedicalVisit
 import com.example.healthcareproject.di.ApplicationScope
 import com.example.healthcareproject.di.DefaultDispatcher
 import com.example.healthcareproject.domain.model.MedicalVisit
+import com.example.healthcareproject.domain.repository.MedicalVisitRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow

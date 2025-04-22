@@ -7,6 +7,7 @@ import com.example.healthcareproject.data.source.local.dao.UserDao
 import com.example.healthcareproject.data.source.network.datasource.UserDataSource
 import com.example.healthcareproject.di.DefaultDispatcher
 import com.example.healthcareproject.domain.model.User
+import com.example.healthcareproject.domain.repository.UserRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn

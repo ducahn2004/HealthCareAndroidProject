@@ -8,6 +8,7 @@ import com.example.healthcareproject.data.source.network.datasource.SosDataSourc
 import com.example.healthcareproject.di.ApplicationScope
 import com.example.healthcareproject.di.DefaultDispatcher
 import com.example.healthcareproject.domain.model.Sos
+import com.example.healthcareproject.domain.repository.SosRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow

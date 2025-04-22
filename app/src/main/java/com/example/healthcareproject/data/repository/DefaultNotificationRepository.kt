@@ -10,6 +10,7 @@ import com.example.healthcareproject.di.DefaultDispatcher
 import com.example.healthcareproject.domain.model.Notification
 import com.example.healthcareproject.domain.model.NotificationType
 import com.example.healthcareproject.domain.model.RelatedTable
+import com.example.healthcareproject.domain.repository.NotificationRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow

@@ -1,4 +1,4 @@
-package com.example.healthcareproject.data.repository
+package com.example.healthcareproject.domain.repository
 
 import com.example.healthcareproject.domain.model.Alert
 import com.example.healthcareproject.domain.model.RepeatPattern

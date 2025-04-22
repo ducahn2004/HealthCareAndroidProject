@@ -9,6 +9,7 @@ import com.example.healthcareproject.di.ApplicationScope
 import com.example.healthcareproject.di.DefaultDispatcher
 import com.example.healthcareproject.domain.model.Measurement
 import com.example.healthcareproject.domain.model.MeasurementType
+import com.example.healthcareproject.domain.repository.MeasurementRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow

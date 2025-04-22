@@ -8,6 +8,7 @@ import com.example.healthcareproject.data.source.network.datasource.AppointmentD
 import com.example.healthcareproject.di.ApplicationScope
 import com.example.healthcareproject.di.DefaultDispatcher
 import com.example.healthcareproject.domain.model.Appointment
+import com.example.healthcareproject.domain.repository.AppointmentRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow

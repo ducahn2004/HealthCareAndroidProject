@@ -9,6 +9,7 @@ import com.example.healthcareproject.di.ApplicationScope
 import com.example.healthcareproject.di.DefaultDispatcher
 import com.example.healthcareproject.domain.model.Alert
 import com.example.healthcareproject.domain.model.RepeatPattern
+import com.example.healthcareproject.domain.repository.AlertRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow

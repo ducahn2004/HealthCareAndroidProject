@@ -1,6 +1,5 @@
-package com.example.healthcareproject.data.repository
+package com.example.healthcareproject.domain.repository
 
-import com.example.healthcareproject.domain.model.Appointment
 import com.example.healthcareproject.domain.model.EmergencyInfo
 import com.example.healthcareproject.domain.model.Relationship
 import kotlinx.coroutines.flow.Flow
