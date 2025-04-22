@@ -1,152 +1,196 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/background">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <LinearLayout
+    <data>
+        <variable
+            name="viewModel"
+            type="com.example.healthcareproject.present.setting.information.UpdateInformationViewModel" />
+    </data>
+
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:layout_height="match_parent"
+        android:background="@color/background">
 
-        <!-- Header: Back Button and Title -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="16dp">
+            android:orientation="vertical"
+            android:padding="16dp">
 
-            <ImageView
-                android:id="@+id/ic_back_information_to_settings"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_back"
-                android:contentDescription="Back to Settings"
-                android:layout_marginEnd="16dp" />
+            <!-- Header: Back Button and Title -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="16dp">
 
+                <ImageView
+                    android:id="@+id/ic_back_information_to_settings"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_back"
+                    android:contentDescription="Back to Settings"
+                    android:layout_marginEnd="16dp" />
+
+                <TextView
+                    android:id="@+id/tv_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="User Information"
+                    android:textColor="@color/primary_text_color"
+                    android:textSize="24sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- Name -->
             <TextView
-                android:id="@+id/tv_title"
+                android:id="@+id/tv_name_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="User Information"
+                android:text="Name:"
+                android:textColor="@color/secondary_text_color"
+                android:textSize="20sp" />
+            <TextView
+                android:id="@+id/tv_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{viewModel.userInfo.name}"
                 android:textColor="@color/primary_text_color"
-                android:textSize="24sp"
-                android:textStyle="bold" />
+                android:textSize="20sp"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Address -->
+            <TextView
+                android:id="@+id/tv_address_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Address:"
+                android:textColor="@color/secondary_text_color"
+                android:textSize="20sp" />
+            <TextView
+                android:id="@+id/tv_address"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{viewModel.userInfo.address != null ? viewModel.userInfo.address : ``}"
+                android:textColor="@color/primary_text_color"
+                android:textSize="20sp"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Date of Birth -->
+            <TextView
+                android:id="@+id/tv_dob_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Date of Birth:"
+                android:textColor="@color/secondary_text_color"
+                android:textSize="20sp" />
+            <TextView
+                android:id="@+id/tv_dob"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{viewModel.formatDateForDisplay(viewModel.userInfo.dateOfBirth)}"
+                android:textColor="@color/primary_text_color"
+                android:textSize="20sp"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Gender -->
+            <TextView
+                android:id="@+id/tv_gender_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Gender:"
+                android:textColor="@color/secondary_text_color"
+                android:textSize="20sp" />
+            <TextView
+                android:id="@+id/tv_gender"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{viewModel.formatGenderForDisplay(viewModel.userInfo.gender)}"
+                android:textColor="@color/primary_text_color"
+                android:textSize="20sp"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Blood Type -->
+            <TextView
+                android:id="@+id/tv_blood_type_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Blood Type:"
+                android:textColor="@color/secondary_text_color"
+                android:textSize="20sp" />
+            <TextView
+                android:id="@+id/tv_blood_type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{viewModel.formatBloodTypeForDisplay(viewModel.userInfo.bloodType)}"
+                android:textColor="@color/primary_text_color"
+                android:textSize="20sp"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Phone -->
+            <TextView
+                android:id="@+id/tv_phone_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Phone:"
+                android:textColor="@color/secondary_text_color"
+                android:textSize="20sp" />
+            <TextView
+                android:id="@+id/tv_phone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{viewModel.userInfo.phone}"
+                android:textColor="@color/primary_text_color"
+                android:textSize="20sp"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Created At -->
+            <TextView
+                android:id="@+id/tv_created_at_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Created At:"
+                android:textColor="@color/secondary_text_color"
+                android:textSize="20sp" />
+            <TextView
+                android:id="@+id/tv_created_at"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{viewModel.formatDateTimeForDisplay(viewModel.userInfo.createdAt)}"
+                android:textColor="@color/primary_text_color"
+                android:textSize="20sp"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Updated At -->
+            <TextView
+                android:id="@+id/tv_updated_at_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Updated At:"
+                android:textColor="@color/secondary_text_color"
+                android:textSize="20sp" />
+            <TextView
+                android:id="@+id/tv_updated_at"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{viewModel.formatDateTimeForDisplay(viewModel.userInfo.updatedAt)}"
+                android:textColor="@color/primary_text_color"
+                android:textSize="20sp"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Update Button -->
+            <Button
+                android:id="@+id/btn_update"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/button_background_color"
+                android:text="Update Information"
+                android:textColor="@color/button_text_color"
+                android:layout_marginTop="20dp" />
+
         </LinearLayout>
-
-        <!-- Name -->
-        <TextView
-            android:id="@+id/tv_name_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Name:"
-            android:textColor="@color/secondary_text_color"
-            android:textSize="20sp" />
-        <TextView
-            android:id="@+id/tv_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="John Doe"
-            android:textColor="@color/primary_text_color"
-            android:textSize="20sp"
-            android:layout_marginBottom="8dp" />
-
-        <!-- Address -->
-        <TextView
-            android:id="@+id/tv_address_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Address:"
-            android:textColor="@color/secondary_text_color"
-            android:textSize="20sp" />
-        <TextView
-            android:id="@+id/tv_address"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="123 Main St, City"
-            android:textColor="@color/primary_text_color"
-            android:textSize="20sp"
-            android:layout_marginBottom="8dp" />
-
-        <!-- Date of Birth -->
-        <TextView
-            android:id="@+id/tv_dob_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Date of Birth:"
-            android:textColor="@color/secondary_text_color"
-            android:textSize="20sp" />
-        <TextView
-            android:id="@+id/tv_dob"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="01/01/1990"
-            android:textColor="@color/primary_text_color"
-            android:textSize="20sp"
-            android:layout_marginBottom="8dp" />
-
-        <!-- Gender -->
-        <TextView
-            android:id="@+id/tv_gender_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Gender:"
-            android:textColor="@color/secondary_text_color"
-            android:textSize="20sp" />
-        <TextView
-            android:id="@+id/tv_gender"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Male"
-            android:textColor="@color/primary_text_color"
-            android:textSize="20sp"
-            android:layout_marginBottom="8dp" />
-
-        <!-- Blood Type -->
-        <TextView
-            android:id="@+id/tv_blood_type_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Blood Type:"
-            android:textColor="@color/secondary_text_color"
-            android:textSize="20sp" />
-        <TextView
-            android:id="@+id/tv_blood_type"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="O+"
-            android:textColor="@color/primary_text_color"
-            android:textSize="20sp"
-            android:layout_marginBottom="8dp" />
-
-        <!-- Phone -->
-        <TextView
-            android:id="@+id/tv_phone_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Phone:"
-            android:textColor="@color/secondary_text_color"
-            android:textSize="20sp" />
-        <TextView
-            android:id="@+id/tv_phone"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="+1234567890"
-            android:textColor="@color/primary_text_color"
-            android:textSize="20sp"
-            android:layout_marginBottom="16dp" />
-
-        <!-- Update Button -->
-        <Button
-            android:id="@+id/btn_update"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:backgroundTint="@color/button_background_color"
-            android:text="Update Information"
-            android:textColor="@color/button_text_color"
-            android:layout_marginTop="20dp" />
-
-    </LinearLayout>
-</ScrollView>
+    </ScrollView>
+</layout>

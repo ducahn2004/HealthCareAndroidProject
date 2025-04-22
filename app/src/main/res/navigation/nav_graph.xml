@@ -63,8 +63,8 @@
     <!-- Explore Fragment -->
     <fragment
         android:id="@+id/pillFragment"
-        android:name="com.example.healthcareproject.pill.PillFragment"
-        android:label="Explore"
+        android:name="com.example.healthcareproject.present.pill.PillFragment"
+        android:label="Pill"
         tools:layout="@layout/fragment_pill" />
 
     <!-- Medicine Fragment -->
@@ -160,7 +160,7 @@
     <!-- Information Fragment -->
     <fragment
         android:id="@+id/informationFragment"
-        android:name="com.example.healthcareproject.InformationFragment"
+        android:name="com.example.healthcareproject.present.setting.information.InformationFragment"
         android:label="Information"
         tools:layout="@layout/fragment_information">
         <action
