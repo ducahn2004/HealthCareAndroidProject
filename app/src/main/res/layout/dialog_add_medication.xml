@@ -15,6 +15,32 @@
         android:textStyle="bold"
         android:layout_marginBottom="16dp" />
 
+    <!-- Medication ID (Auto-generated, can be hidden or read-only) -->
+    <EditText
+        android:id="@+id/et_medication_id"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        android:hint="Medication ID (Auto-generated)"
+        android:textColor="@color/primary_text_color"
+        android:textColorHint="@color/secondary_text_color"
+        android:backgroundTint="@color/light_gray"
+        android:layout_marginTop="8dp"
+        android:enabled="false" />
+
+    <!-- User ID (Can be pre-filled if tied to a user) -->
+    <EditText
+        android:id="@+id/et_user_id"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        android:hint="User ID"
+        android:textColor="@color/primary_text_color"
+        android:textColorHint="@color/secondary_text_color"
+        android:backgroundTint="@color/light_gray"
+        android:layout_marginTop="8dp" />
+
+    <!-- Medication Name -->
     <EditText
         android:id="@+id/et_medication_name"
         android:layout_width="match_parent"
@@ -26,39 +52,61 @@
         android:backgroundTint="@color/light_gray"
         android:layout_marginTop="8dp" />
 
+    <!-- Dosage Amount -->
     <EditText
-        android:id="@+id/et_dosage"
+        android:id="@+id/et_dosage_amount"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="48dp"
-        android:hint="Dosage (e.g., 1 tablet)"
+        android:hint="Dosage Amount (e.g., 2.5)"
+        android:inputType="numberDecimal"
         android:textColor="@color/primary_text_color"
         android:textColorHint="@color/secondary_text_color"
         android:backgroundTint="@color/light_gray"
         android:layout_marginTop="8dp" />
 
+    <!-- Dosage Unit -->
+    <Spinner
+        android:id="@+id/spinner_dosage_unit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/light_gray"
+        android:layout_marginTop="8dp" />
+
+    <!-- Frequency -->
     <EditText
         android:id="@+id/et_frequency"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="48dp"
-        android:hint="Frequency (e.g., Once a day)"
+        android:hint="Frequency (e.g., 2 times a day)"
+        android:inputType="number"
         android:textColor="@color/primary_text_color"
         android:textColorHint="@color/secondary_text_color"
         android:backgroundTint="@color/light_gray"
         android:layout_marginTop="8dp" />
 
+    <!-- Time of Day -->
     <EditText
         android:id="@+id/et_time_of_day"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="48dp"
-        android:hint="Time of Day (e.g., Morning)"
+        android:hint="Time of Day (e.g., Morning, Evening)"
         android:textColor="@color/primary_text_color"
         android:textColorHint="@color/secondary_text_color"
         android:backgroundTint="@color/light_gray"
         android:layout_marginTop="8dp" />
 
+    <!-- Meal Relation -->
+    <Spinner
+        android:id="@+id/spinner_meal_relation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/light_gray"
+        android:layout_marginTop="8dp" />
+
+    <!-- Start Date -->
     <TextView
         android:id="@+id/tv_start_date"
         android:layout_width="match_parent"
@@ -71,24 +119,26 @@
         android:padding="12dp"
         android:layout_marginTop="8dp" />
 
+    <!-- End Date -->
     <TextView
         android:id="@+id/tv_end_date"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="48dp"
-        android:hint="Select End Date (optional)"
+        android:hint="Select End Date"
         android:textColor="@color/primary_text_color"
         android:textColorHint="@color/secondary_text_color"
         android:background="@drawable/edit_text_background"
         android:padding="12dp"
         android:layout_marginTop="8dp" />
 
+    <!-- Notes -->
     <EditText
-        android:id="@+id/et_note"
+        android:id="@+id/et_notes"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="48dp"
-        android:hint="Note (optional)"
+        android:hint="Notes (optional)"
         android:textColor="@color/primary_text_color"
         android:textColorHint="@color/secondary_text_color"
         android:backgroundTint="@color/light_gray"

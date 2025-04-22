@@ -11,6 +11,9 @@ import androidx.fragment.app.setFragmentResult
 import androidx.navigation.fragment.findNavController
 import com.example.healthcareproject.databinding.FragmentAddAppointmentBinding
 import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.ZoneId
 import java.util.*
 
 class AddAppointmentFragment : Fragment() {
@@ -34,7 +37,6 @@ class AddAppointmentFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
         binding.ivBack.setOnClickListener {
             findNavController().navigateUp()
         }
@@ -42,34 +44,33 @@ class AddAppointmentFragment : Fragment() {
         binding.etDate.setOnClickListener {
             showDatePicker { calendar ->
                 selectedDate = calendar
-                binding.etDate.setText(dateFormat.format(calendar.time)) // Use setText for EditText
+                binding.etDate.setText(dateFormat.format(calendar.time))
             }
         }
 
         binding.etTime.setOnClickListener {
             showTimePicker { calendar ->
                 selectedTime = calendar
-                binding.etTime.setText(timeFormat.format(calendar.time)) // Use setText for EditText
+                binding.etTime.setText(timeFormat.format(calendar.time))
             }
         }
 
         // Sự kiện click nút Save
         binding.btnSave.setOnClickListener {
-            val condition = binding.etCondition.text.toString().trim()
-            val doctor = binding.etDoctor.text.toString().trim()
-            val facility = binding.etFacility.text.toString().trim()
-            val location = binding.etLocation.text.toString().trim()
+            val diagnosis = binding.etCondition.text.toString().trim()
+            val doctorName = binding.etDoctor.text.toString().trim()
+            val clinicName = binding.etFacility.text.toString().trim()
 
             // Validate fields
-            if (condition.isEmpty()) {
+            if (diagnosis.isEmpty()) {
                 binding.etCondition.error = "Required"
                 return@setOnClickListener
             }
-            if (doctor.isEmpty()) {
+            if (doctorName.isEmpty()) {
                 binding.etDoctor.error = "Required"
                 return@setOnClickListener
             }
-            if (facility.isEmpty()) {
+            if (clinicName.isEmpty()) {
                 binding.etFacility.error = "Required"
                 return@setOnClickListener
             }
@@ -82,22 +83,24 @@ class AddAppointmentFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            // Kết hợp ngày và giờ thành timestamp
+            // Kết hợp ngày và giờ
             val calendar = Calendar.getInstance()
             calendar.time = selectedDate!!.time
             calendar.set(Calendar.HOUR_OF_DAY, selectedTime!!.get(Calendar.HOUR_OF_DAY))
             calendar.set(Calendar.MINUTE, selectedTime!!.get(Calendar.MINUTE))
-            val timestamp = calendar.timeInMillis
+            val visitDateTime = calendar.time.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()
+            val visitDate = visitDateTime.toLocalDate()
 
             // Create MedicalVisit object
             val newVisit = MedicalVisit(
-                condition = condition,
-                doctor = doctor,
-                facility = facility,
-                timestamp = timestamp,
-                location = if (location.isNotEmpty()) location else null,
-                diagnosis = null,
-                doctorRemarks = null
+                visitId = UUID.randomUUID().toString(),
+                userId = "user123", // Replace with actual user ID
+                visitDate = visitDate,
+                clinicName = clinicName,
+                doctorName = doctorName,
+                diagnosis = diagnosis,
+                treatment = "", // Default to empty, can be updated later
+                createdAt = LocalDateTime.now()
             )
 
             // Truyền dữ liệu về thông qua setFragmentResult

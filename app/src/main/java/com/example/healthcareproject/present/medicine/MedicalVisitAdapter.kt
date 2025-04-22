@@ -8,21 +8,24 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.healthcareproject.R
-import java.text.SimpleDateFormat
-import java.util.*
+import java.time.format.DateTimeFormatter
 
 class MedicalVisitAdapter(
     private val onItemClick: (MedicalVisit) -> Unit
 ) : ListAdapter<MedicalVisit, MedicalVisitAdapter.MedicalVisitViewHolder>(MedicalVisitDiffCallback()) {
 
-    private val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-    private val timeFormat = SimpleDateFormat("hh:mm a", Locale.getDefault())
+    private val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+    private val timeFormatter = DateTimeFormatter.ofPattern("hh:mm a")
 
     class MedicalVisitViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val tvFacility: TextView = itemView.findViewById(R.id.tv_facility)
-        val tvDoctor: TextView = itemView.findViewById(R.id.tv_doctor)
-        val tvDate: TextView = itemView.findViewById(R.id.tv_date)
-        val tvTime: TextView = itemView.findViewById(R.id.tv_time)
+        val tvDiagnosis: TextView = itemView.findViewById(R.id.tv_diagnosis)
+        val tvVisitId: TextView = itemView.findViewById(R.id.tv_visit_id)
+        val tvUserId: TextView = itemView.findViewById(R.id.tv_user_id)
+        val tvDoctorName: TextView = itemView.findViewById(R.id.tv_doctor_name)
+        val tvClinicName: TextView = itemView.findViewById(R.id.tv_clinic_name)
+        val tvVisitDate: TextView = itemView.findViewById(R.id.tv_visit_date)
+        val tvTreatment: TextView = itemView.findViewById(R.id.tv_treatment)
+        val tvCreatedAt: TextView = itemView.findViewById(R.id.tv_created_at)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MedicalVisitViewHolder {
@@ -33,13 +36,14 @@ class MedicalVisitAdapter(
 
     override fun onBindViewHolder(holder: MedicalVisitViewHolder, position: Int) {
         val visit = getItem(position)
-        holder.tvFacility.text = visit.facility
-        holder.tvDoctor.text = visit.doctor
-
-        // Chuyển đổi timestamp thành định dạng ngày và giờ
-        val dateTime = Date(visit.timestamp)
-        holder.tvDate.text = dateFormat.format(dateTime)
-        holder.tvTime.text = timeFormat.format(dateTime)
+        holder.tvDiagnosis.text = visit.diagnosis
+        holder.tvVisitId.text = visit.visitId
+        holder.tvUserId.text = visit.userId
+        holder.tvDoctorName.text = visit.doctorName
+        holder.tvClinicName.text = visit.clinicName
+        holder.tvVisitDate.text = visit.visitDate.format(dateFormatter)
+        holder.tvTreatment.text = visit.treatment.takeIf { it.isNotEmpty() } ?: "Not specified"
+        holder.tvCreatedAt.text = visit.createdAt.format(dateFormatter)
 
         holder.itemView.setOnClickListener {
             onItemClick(visit)
@@ -49,7 +53,7 @@ class MedicalVisitAdapter(
 
 class MedicalVisitDiffCallback : DiffUtil.ItemCallback<MedicalVisit>() {
     override fun areItemsTheSame(oldItem: MedicalVisit, newItem: MedicalVisit): Boolean {
-        return oldItem.id == newItem.id
+        return oldItem.visitId == newItem.visitId
     }
 
     override fun areContentsTheSame(oldItem: MedicalVisit, newItem: MedicalVisit): Boolean {

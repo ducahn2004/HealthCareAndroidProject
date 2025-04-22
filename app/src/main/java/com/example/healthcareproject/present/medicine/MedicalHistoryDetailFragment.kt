@@ -1,5 +1,6 @@
 package com.example.healthcareproject.present.medicine
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -14,16 +15,15 @@ import com.example.healthcareproject.databinding.FragmentMedicalHistoryDetailBin
 import com.example.healthcareproject.present.pill.Medication
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import java.text.SimpleDateFormat
-import java.util.*
+import java.time.format.DateTimeFormatter
 
 class MedicalHistoryDetailFragment : Fragment() {
 
     private var _binding: FragmentMedicalHistoryDetailBinding? = null
     private val binding get() = _binding!!
 
-    private val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-    private val timeFormat = SimpleDateFormat("hh:mm a", Locale.getDefault())
+    private val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+    private val timeFormatter = DateTimeFormatter.ofPattern("hh:mm a")
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -45,22 +45,21 @@ class MedicalHistoryDetailFragment : Fragment() {
         val medicalVisit = arguments?.getParcelable<MedicalVisit>("medicalVisit")
         if (medicalVisit != null) {
             // Hiển thị thông tin MedicalVisit
-            binding.tvCondition.text = medicalVisit.condition
-            binding.tvDoctor.text = medicalVisit.doctor
-            binding.tvFacility.text = medicalVisit.facility
-            binding.tvDate.text = dateFormat.format(Date(medicalVisit.timestamp))
-            binding.tvTime.text = timeFormat.format(Date(medicalVisit.timestamp))
-            binding.tvLocation.text = medicalVisit.location ?: "Not specified"
-            binding.tvDiagnosis.text = medicalVisit.diagnosis ?: "Not specified"
-            binding.tvDoctorRemarks.text = medicalVisit.doctorRemarks ?: "Not specified"
+            binding.tvCondition.text = medicalVisit.diagnosis
+            binding.tvDoctor.text = medicalVisit.doctorName
+            binding.tvFacility.text = medicalVisit.clinicName
+            binding.tvDate.text = medicalVisit.visitDate.format(dateFormatter)
+            binding.tvTime.text = medicalVisit.visitDate.atStartOfDay().format(timeFormatter)
+            binding.tvDiagnosis.text = medicalVisit.diagnosis
+            binding.tvDoctorRemarks.text = medicalVisit.treatment
 
             // Load và hiển thị danh sách Medication
-            val medications = loadMedications(medicalVisit.id)
+            val medications = loadMedications(medicalVisit.visitId)
             displayMedications(medications)
         }
     }
 
-    private fun loadMedications(visitId: Long): List<Medication> {
+    private fun loadMedications(visitId: String): List<Medication> {
         val sharedPrefs = requireActivity().getSharedPreferences("medications", Context.MODE_PRIVATE)
         val medicationsJson = sharedPrefs.getString("medication_list", null)
         return if (medicationsJson != null) {
@@ -72,6 +71,7 @@ class MedicalHistoryDetailFragment : Fragment() {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun displayMedications(medications: List<Medication>) {
         val container = binding.llMedications
         if (medications.isEmpty()) {
@@ -149,7 +149,7 @@ class MedicalHistoryDetailFragment : Fragment() {
                     isAllCaps = true
                 }
                 val dosageValue = TextView(context).apply {
-                    text = medication.dosage
+                    text = "${medication.dosageAmount} ${medication.dosageUnit.name.lowercase()}"
                     textSize = 16f
                     setTextColor(resources.getColor(R.color.secondary_text_color, null))
                     layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 2f)
@@ -176,7 +176,7 @@ class MedicalHistoryDetailFragment : Fragment() {
                     isAllCaps = true
                 }
                 val frequencyValue = TextView(context).apply {
-                    text = medication.frequency
+                    text = "${medication.frequency} times a day"
                     textSize = 16f
                     setTextColor(resources.getColor(R.color.secondary_text_color, null))
                     layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 2f)
@@ -184,9 +184,149 @@ class MedicalHistoryDetailFragment : Fragment() {
                 frequencyLayout.addView(frequencyLabel)
                 frequencyLayout.addView(frequencyValue)
 
+                // Time of Day
+                val timeOfDayLayout = LinearLayout(context).apply {
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                    ).apply {
+                        topMargin = 8
+                    }
+                    orientation = LinearLayout.HORIZONTAL
+                }
+                val timeOfDayLabel = TextView(context).apply {
+                    text = "TIME OF DAY:"
+                    textSize = 16f
+                    setTextColor(resources.getColor(R.color.secondary_text_color, null))
+                    layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                    setTypeface(null, android.graphics.Typeface.BOLD)
+                    isAllCaps = true
+                }
+                val timeOfDayValue = TextView(context).apply {
+                    text = medication.timeOfDay.joinToString(", ")
+                    textSize = 16f
+                    setTextColor(resources.getColor(R.color.secondary_text_color, null))
+                    layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 2f)
+                }
+                timeOfDayLayout.addView(timeOfDayLabel)
+                timeOfDayLayout.addView(timeOfDayValue)
+
+                // Meal Relation
+                val mealRelationLayout = LinearLayout(context).apply {
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                    ).apply {
+                        topMargin = 8
+                    }
+                    orientation = LinearLayout.HORIZONTAL
+                }
+                val mealRelationLabel = TextView(context).apply {
+                    text = "MEAL RELATION:"
+                    textSize = 16f
+                    setTextColor(resources.getColor(R.color.secondary_text_color, null))
+                    layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                    setTypeface(null, android.graphics.Typeface.BOLD)
+                    isAllCaps = true
+                }
+                val mealRelationValue = TextView(context).apply {
+                    text = medication.mealRelation.name.replace("_", " ").lowercase()
+                    textSize = 16f
+                    setTextColor(resources.getColor(R.color.secondary_text_color, null))
+                    layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 2f)
+                }
+                mealRelationLayout.addView(mealRelationLabel)
+                mealRelationLayout.addView(mealRelationValue)
+
+                // Start Date
+                val startDateLayout = LinearLayout(context).apply {
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                    ).apply {
+                        topMargin = 8
+                    }
+                    orientation = LinearLayout.HORIZONTAL
+                }
+                val startDateLabel = TextView(context).apply {
+                    text = "START DATE:"
+                    textSize = 16f
+                    setTextColor(resources.getColor(R.color.secondary_text_color, null))
+                    layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                    setTypeface(null, android.graphics.Typeface.BOLD)
+                    isAllCaps = true
+                }
+                val startDateValue = TextView(context).apply {
+                    text = medication.startDate.format(dateFormatter)
+                    textSize = 16f
+                    setTextColor(resources.getColor(R.color.secondary_text_color, null))
+                    layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 2f)
+                }
+                startDateLayout.addView(startDateLabel)
+                startDateLayout.addView(startDateValue)
+
+                // End Date
+                val endDateLayout = LinearLayout(context).apply {
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                    ).apply {
+                        topMargin = 8
+                    }
+                    orientation = LinearLayout.HORIZONTAL
+                }
+                val endDateLabel = TextView(context).apply {
+                    text = "END DATE:"
+                    textSize = 16f
+                    setTextColor(resources.getColor(R.color.secondary_text_color, null))
+                    layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                    setTypeface(null, android.graphics.Typeface.BOLD)
+                    isAllCaps = true
+                }
+                val endDateValue = TextView(context).apply {
+                    text = medication.endDate.format(dateFormatter)
+                    textSize = 16f
+                    setTextColor(resources.getColor(R.color.secondary_text_color, null))
+                    layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 2f)
+                }
+                endDateLayout.addView(endDateLabel)
+                endDateLayout.addView(endDateValue)
+
+                // Notes
+                val notesLayout = LinearLayout(context).apply {
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                    ).apply {
+                        topMargin = 8
+                    }
+                    orientation = LinearLayout.HORIZONTAL
+                }
+                val notesLabel = TextView(context).apply {
+                    text = "NOTES:"
+                    textSize = 16f
+                    setTextColor(resources.getColor(R.color.secondary_text_color, null))
+                    layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                    setTypeface(null, android.graphics.Typeface.BOLD)
+                    isAllCaps = true
+                }
+                val notesValue = TextView(context).apply {
+                    text = medication.notes.takeIf { it.isNotEmpty() } ?: "Not specified"
+                    textSize = 16f
+                    setTextColor(resources.getColor(R.color.secondary_text_color, null))
+                    layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 2f)
+                }
+                notesLayout.addView(notesLabel)
+                notesLayout.addView(notesValue)
+
                 linearLayout.addView(nameLayout)
                 linearLayout.addView(dosageLayout)
                 linearLayout.addView(frequencyLayout)
+                linearLayout.addView(timeOfDayLayout)
+                linearLayout.addView(mealRelationLayout)
+                linearLayout.addView(startDateLayout)
+                linearLayout.addView(endDateLayout)
+                linearLayout.addView(notesLayout)
                 cardView.addView(linearLayout)
                 container.addView(cardView)
             }

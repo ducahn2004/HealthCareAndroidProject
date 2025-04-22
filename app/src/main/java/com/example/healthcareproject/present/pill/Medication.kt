@@ -2,37 +2,52 @@ package com.example.healthcareproject.present.pill
 
 import android.os.Parcel
 import android.os.Parcelable
+import com.example.healthcareproject.domain.model.DosageUnit
+import com.example.healthcareproject.domain.model.MealRelation
+import java.time.LocalDate
 
 data class Medication(
+    val medicationId: String,
+    val userId: String,
+    val visitId: String?,
     val name: String,
-    val dosage: String,
-    val frequency: String,
-    val timeOfDay: String,
-    val startTimestamp: Long,
-    val endTimestamp: Long?,
-    val note: String,
-    val visitId: Long? = null
+    val dosageUnit: DosageUnit,
+    val dosageAmount: Float,
+    val frequency: Int,
+    val timeOfDay: List<String>,
+    val mealRelation: MealRelation,
+    val startDate: LocalDate,
+    val endDate: LocalDate,
+    val notes: String
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
+        medicationId = parcel.readString() ?: "",
+        userId = parcel.readString() ?: "",
+        visitId = parcel.readString(),
         name = parcel.readString() ?: "",
-        dosage = parcel.readString() ?: "",
-        frequency = parcel.readString() ?: "",
-        timeOfDay = parcel.readString() ?: "",
-        startTimestamp = parcel.readLong(),
-        endTimestamp = parcel.readValue(Long::class.java.classLoader) as? Long,
-        note = parcel.readString() ?: "",
-        visitId = parcel.readValue(Long::class.java.classLoader) as? Long
+        dosageUnit = DosageUnit.valueOf(parcel.readString() ?: DosageUnit.GallonPerDay.name),
+        dosageAmount = parcel.readFloat(),
+        frequency = parcel.readInt(),
+        timeOfDay = parcel.createStringArrayList() ?: emptyList(),
+        mealRelation = MealRelation.valueOf(parcel.readString() ?: MealRelation.AfterMeal.name),
+        startDate = LocalDate.parse(parcel.readString()),
+        endDate = LocalDate.parse(parcel.readString()),
+        notes = parcel.readString() ?: ""
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeString(medicationId)
+        parcel.writeString(userId)
+        parcel.writeString(visitId)
         parcel.writeString(name)
-        parcel.writeString(dosage)
-        parcel.writeString(frequency)
-        parcel.writeString(timeOfDay)
-        parcel.writeLong(startTimestamp)
-        parcel.writeValue(endTimestamp)
-        parcel.writeString(note)
-        parcel.writeValue(visitId)
+        parcel.writeString(dosageUnit.name)
+        parcel.writeFloat(dosageAmount)
+        parcel.writeInt(frequency)
+        parcel.writeStringList(timeOfDay)
+        parcel.writeString(mealRelation.name)
+        parcel.writeString(startDate.toString())
+        parcel.writeString(endDate.toString())
+        parcel.writeString(notes)
     }
 
     override fun describeContents(): Int = 0

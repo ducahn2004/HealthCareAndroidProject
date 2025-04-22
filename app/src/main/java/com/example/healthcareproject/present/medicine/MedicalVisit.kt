@@ -2,37 +2,39 @@ package com.example.healthcareproject.present.medicine
 
 import android.os.Parcel
 import android.os.Parcelable
+import java.time.LocalDate
+import java.time.LocalDateTime
 
 data class MedicalVisit(
-    val id: Long = System.currentTimeMillis(),
-    val condition: String,
-    val doctor: String,
-    val facility: String,
-    val timestamp: Long,
-    val location: String? = null,
-    val diagnosis: String? = null,
-    val doctorRemarks: String? = null
+    val visitId: String,
+    val userId: String,
+    val visitDate: LocalDate,
+    val clinicName: String,
+    val doctorName: String,
+    val diagnosis: String,
+    val treatment: String,
+    val createdAt: LocalDateTime
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
-        id = parcel.readLong(),
-        condition = parcel.readString() ?: "",
-        doctor = parcel.readString() ?: "",
-        facility = parcel.readString() ?: "",
-        timestamp = parcel.readLong(),
-        location = parcel.readString(),
-        diagnosis = parcel.readString(),
-        doctorRemarks = parcel.readString()
+        visitId = parcel.readString() ?: "",
+        userId = parcel.readString() ?: "",
+        visitDate = LocalDate.parse(parcel.readString()),
+        clinicName = parcel.readString() ?: "",
+        doctorName = parcel.readString() ?: "",
+        diagnosis = parcel.readString() ?: "",
+        treatment = parcel.readString() ?: "",
+        createdAt = LocalDateTime.parse(parcel.readString())
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeLong(id)
-        parcel.writeString(condition)
-        parcel.writeString(doctor)
-        parcel.writeString(facility)
-        parcel.writeLong(timestamp)
-        parcel.writeString(location)
+        parcel.writeString(visitId)
+        parcel.writeString(userId)
+        parcel.writeString(visitDate.toString())
+        parcel.writeString(clinicName)
+        parcel.writeString(doctorName)
         parcel.writeString(diagnosis)
-        parcel.writeString(doctorRemarks)
+        parcel.writeString(treatment)
+        parcel.writeString(createdAt.toString())
     }
 
     override fun describeContents(): Int = 0
