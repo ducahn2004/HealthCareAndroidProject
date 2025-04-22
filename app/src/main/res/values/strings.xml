@@ -44,7 +44,7 @@
     <string name="dashboard">DASHBOARD</string>
     <string name="good_morning">Good Morning</string>
     <string name="heart_rate">HEART RATE</string>
-    <string name="oxygen_level">OXYGEN</string>
+    <string name="oxygen_level">OXYGEN LEVEL</string>
     <string name="ecg">ECG</string>
     <string name="weight">WEIGHT</string>
     <string name="check_heart_rate">Check Heart Rate</string>
@@ -106,4 +106,6 @@
     <string name="appointments">APPOINTMENTS</string>
     <string name="history">HISTORY</string>
     <string name="add_information">Add Information</string>
+    <string name="information_icon">INFORMATION ICON HOME</string>
+    <string name="set_alarm">Set Alarm</string>
 </resources>

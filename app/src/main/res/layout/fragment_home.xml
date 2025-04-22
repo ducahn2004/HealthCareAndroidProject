@@ -128,36 +128,7 @@
                 android:textStyle="bold" />
         </LinearLayout>
 
-        <!-- Weight -->
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:padding="8dp">
 
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:contentDescription="@string/weight_icon"
-                android:src="@drawable/ic_weight" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/weight"
-
-                android:textSize="12sp" />
-
-            <TextView
-                android:id="@+id/tv_weight_value"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/default_weight"
-                android:textSize="14sp"
-                android:textStyle="bold" />
-        </LinearLayout>
     </LinearLayout>
 
     <androidx.cardview.widget.CardView
@@ -227,21 +198,21 @@
             <ImageView
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:contentDescription="@string/weight_icon"
-                android:src="@drawable/ic_weight" />
+                android:contentDescription="@string/information_icon"
+                android:src="@drawable/ic_timer" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="@string/enter_weight"
+                android:text="@string/set_alarm"
                 android:textSize="16sp" />
 
             <TextView
                 android:id="@+id/tv_weight_current"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/default_weight_current"
+                android:text="Update"
                 android:textSize="14sp"
                 android:textStyle="bold" />
         </LinearLayout>

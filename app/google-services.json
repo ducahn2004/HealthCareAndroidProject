@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "859583818046",
+    "firebase_url": "https://heart-careproject-default-rtdb.firebaseio.com",
+    "project_id": "heart-careproject",
+    "storage_bucket": "heart-careproject.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:859583818046:android:2f899c8bcc2f7ad9e7246f",
+        "android_client_info": {
+          "package_name": "com.example.healthcareproject"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCb0-HHxBODZaZyyf1YHsYCdTEjiPcTKhA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
