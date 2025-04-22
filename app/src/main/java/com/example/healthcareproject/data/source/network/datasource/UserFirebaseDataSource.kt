@@ -3,6 +3,7 @@ package com.example.healthcareproject.data.source.network.datasource
 import com.example.healthcareproject.data.source.network.firebase.FirebaseService
 import com.example.healthcareproject.data.source.network.model.FirebaseUser
 import kotlinx.coroutines.tasks.await
+import timber.log.Timber
 import javax.inject.Inject
 
 class UserFirebaseDataSource @Inject constructor() : UserDataSource {
@@ -12,6 +13,7 @@ class UserFirebaseDataSource @Inject constructor() : UserDataSource {
     override suspend fun saveUser(user: FirebaseUser) {
         try {
             usersRef.child(user.userId).setValue(user).await()
+            Timber.tag("Firebase").d("Saved user: $user")
         } catch (e: Exception) {
             throw Exception("Failed to write user: ${e.message}", e)
         }

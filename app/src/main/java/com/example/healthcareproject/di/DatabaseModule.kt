@@ -19,10 +19,11 @@ object DatabaseModule {
     @Provides
     fun provideDatabase(@ApplicationContext context: Context): AppDatabase {
         return Room.databaseBuilder(
-            context,
-            AppDatabase::class.java,
-            "AppDatabase.db"
-        ).build()
+                context,
+                AppDatabase::class.java,
+                "AppDatabase.db"
+            ).fallbackToDestructiveMigration(false)
+            .build()
     }
 
     @Provides

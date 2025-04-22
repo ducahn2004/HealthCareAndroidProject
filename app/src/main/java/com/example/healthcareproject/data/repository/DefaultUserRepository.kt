@@ -48,8 +48,8 @@ class DefaultUserRepository @Inject constructor(
             createdAt = java.time.LocalDateTime.now(),
             updatedAt = java.time.LocalDateTime.now()
         )
-        localDataSource.upsert(user.toLocal())
         networkDataSource.saveUser(user.toNetwork())
+        localDataSource.upsert(user.toLocal())
     }
 
     override suspend fun updateUser(
