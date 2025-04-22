@@ -147,40 +147,6 @@
                 android:textSize="20sp"
                 android:layout_marginBottom="8dp" />
 
-            <!-- Created At -->
-            <TextView
-                android:id="@+id/tv_created_at_label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Created At:"
-                android:textColor="@color/secondary_text_color"
-                android:textSize="20sp" />
-            <TextView
-                android:id="@+id/tv_created_at"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@{viewModel.formatDateTimeForDisplay(viewModel.userInfo.createdAt)}"
-                android:textColor="@color/primary_text_color"
-                android:textSize="20sp"
-                android:layout_marginBottom="8dp" />
-
-            <!-- Updated At -->
-            <TextView
-                android:id="@+id/tv_updated_at_label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Updated At:"
-                android:textColor="@color/secondary_text_color"
-                android:textSize="20sp" />
-            <TextView
-                android:id="@+id/tv_updated_at"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@{viewModel.formatDateTimeForDisplay(viewModel.userInfo.updatedAt)}"
-                android:textColor="@color/primary_text_color"
-                android:textSize="20sp"
-                android:layout_marginBottom="16dp" />
-
             <!-- Update Button -->
             <Button
                 android:id="@+id/btn_update"

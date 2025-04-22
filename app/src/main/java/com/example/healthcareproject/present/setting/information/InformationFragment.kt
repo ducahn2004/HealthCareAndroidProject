@@ -58,7 +58,6 @@ class InformationFragment : Fragment() {
         // Handle update button
         binding.btnUpdate.setOnClickListener {
             val dialog = UpdateInformationDialogFragment { updatedInfo ->
-                // Optionally handle the updated info callback
                 Toast.makeText(requireContext(), "Information updated", Toast.LENGTH_SHORT).show()
             }
             dialog.show(parentFragmentManager, "UpdateInformationDialog")
