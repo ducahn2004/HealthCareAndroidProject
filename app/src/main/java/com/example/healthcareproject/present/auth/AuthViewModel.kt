@@ -20,6 +20,30 @@ class AuthViewModel @Inject constructor(
     private val userFirebaseDataSource: UserFirebaseDataSource
 ) : ViewModel() {
 
+    private val _navigateToGoogleLogin = MutableLiveData<Boolean>()
+    val navigateToGoogleLogin: LiveData<Boolean> = _navigateToGoogleLogin
+
+    fun onGoogleLoginClicked() {
+        _navigateToGoogleLogin.value = true
+    }
+
+    fun resetNavigationStates() {
+        _navigateToGoogleLogin.value = false
+    }
+
+    fun setEmail(value: String) {
+        _email.value = value
+    }
+
+    fun setPassword(value: String) {
+        _password.value = value
+    }
+
+    fun setVerificationCode(value: String) {
+        _verificationCode.value = value
+    }
+
+    // Authentication state
     private val _isAuthenticated = MutableLiveData<Boolean>()
     val isAuthenticated: LiveData<Boolean> = _isAuthenticated
 
@@ -35,6 +59,159 @@ class AuthViewModel @Inject constructor(
     private val _verificationCodeError = MutableLiveData<String?>()
     val verificationCodeError: LiveData<String?> = _verificationCodeError
 
+    // Form fields
+    private val _name = MutableLiveData<String>()
+    val name: LiveData<String> = _name
+
+    private val _email = MutableLiveData<String>()
+    val email: LiveData<String> = _email
+
+    private val _password = MutableLiveData<String>()
+    val password: LiveData<String> = _password
+
+    private val _confirmPassword = MutableLiveData<String>()
+    val confirmPassword: LiveData<String> = _confirmPassword
+
+    private val _dateOfBirth = MutableLiveData<String>()
+    val dateOfBirth: LiveData<String> = _dateOfBirth
+
+    private val _gender = MutableLiveData<String>()
+    val gender: LiveData<String> = _gender
+
+    private val _bloodType = MutableLiveData<String>()
+    val bloodType: LiveData<String> = _bloodType
+
+    private val _phone = MutableLiveData<String>()
+    val phone: LiveData<String> = _phone
+
+    private val _address = MutableLiveData<String?>()
+    val address: LiveData<String?> = _address
+
+    private val _verificationCode = MutableLiveData<String>()
+    val verificationCode: LiveData<String> = _verificationCode
+
+    // Error fields
+    private val _nameError = MutableLiveData<String?>()
+    val nameError: LiveData<String?> = _nameError
+
+    private val _emailError = MutableLiveData<String?>()
+    val emailError: LiveData<String?> = _emailError
+
+    private val _passwordError = MutableLiveData<String?>()
+    val passwordError: LiveData<String?> = _passwordError
+
+    private val _confirmPasswordError = MutableLiveData<String?>()
+    val confirmPasswordError: LiveData<String?> = _confirmPasswordError
+
+    private val _dateOfBirthError = MutableLiveData<String?>()
+    val dateOfBirthError: LiveData<String?> = _dateOfBirthError
+
+    private val _genderError = MutableLiveData<String?>()
+    val genderError: LiveData<String?> = _genderError
+
+    private val _bloodTypeError = MutableLiveData<String?>()
+    val bloodTypeError: LiveData<String?> = _bloodTypeError
+
+    fun onLoginClicked() {
+        val emailValue = email.value ?: ""
+        val passwordValue = password.value ?: ""
+
+        // Reset errors
+        _emailError.value = null
+        _passwordError.value = null
+
+        // Validate inputs
+        var isValid = true
+        if (emailValue.isBlank()) {
+            _emailError.value = "Email is required"
+            isValid = false
+        } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(emailValue).matches()) {
+            _emailError.value = "Invalid email format"
+            isValid = false
+        }
+        if (passwordValue.isBlank()) {
+            _passwordError.value = "Password is required"
+            isValid = false
+        }
+
+        if (isValid) {
+            login(emailValue, passwordValue)
+        }
+    }
+
+    fun onRegisterClicked() {
+        val nameValue = name.value ?: ""
+        val emailValue = email.value ?: ""
+        val passwordValue = password.value ?: ""
+        val confirmPasswordValue = confirmPassword.value ?: ""
+        val dateOfBirthValue = dateOfBirth.value ?: ""
+        val genderValue = gender.value ?: ""
+        val bloodTypeValue = bloodType.value ?: ""
+        val phoneValue = phone.value ?: ""
+        val addressValue = address.value
+
+        // Reset errors
+        _nameError.value = null
+        _emailError.value = null
+        _passwordError.value = null
+        _confirmPasswordError.value = null
+        _dateOfBirthError.value = null
+        _genderError.value = null
+        _bloodTypeError.value = null
+
+        // Validate inputs
+        var isValid = true
+        if (nameValue.isBlank()) {
+            _nameError.value = "Name is required"
+            isValid = false
+        }
+        if (emailValue.isBlank()) {
+            _emailError.value = "Email is required"
+            isValid = false
+        } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(emailValue).matches()) {
+            _emailError.value = "Invalid email format"
+            isValid = false
+        }
+        if (passwordValue.isBlank()) {
+            _passwordError.value = "Password is required"
+            isValid = false
+        } else if (passwordValue.length < 8) {
+            _passwordError.value = "Password must be at least 8 characters"
+            isValid = false
+        }
+        if (confirmPasswordValue != passwordValue) {
+            _confirmPasswordError.value = "Passwords do not match"
+            isValid = false
+        }
+        if (dateOfBirthValue.isBlank()) {
+            _dateOfBirthError.value = "Date of birth is required"
+            isValid = false
+        }
+        if (genderValue.isBlank()) {
+            _genderError.value = "Gender is required"
+            isValid = false
+        }
+        if (bloodTypeValue.isBlank()) {
+            _bloodTypeError.value = "Blood type is required"
+            isValid = false
+        }
+
+        if (!isValid) {
+            return
+        }
+
+        register(
+            email = emailValue,
+            password = passwordValue,
+            name = nameValue,
+            address = addressValue,
+            dateOfBirth = dateOfBirthValue,
+            gender = genderValue,
+            bloodType = bloodTypeValue,
+            phone = phoneValue
+        )
+    }
+
     fun handleGoogleSignIn(idToken: String) {
         viewModelScope.launch {
             _isLoading.value = true
@@ -49,11 +226,14 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-    fun verifyCode(email: String, verificationCode: String) {
+    fun verifyCode() {
+        val emailValue = email.value ?: ""
+        val codeValue = verificationCode.value ?: ""
+
         _verificationCodeError.value = null
         _error.value = null
 
-        if (verificationCode.isBlank()) {
+        if (codeValue.isBlank()) {
             _verificationCodeError.value = "Verification code is required"
             return
         }
@@ -61,7 +241,7 @@ class AuthViewModel @Inject constructor(
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                verifyCodeUseCase(email, verificationCode)
+                verifyCodeUseCase(emailValue, codeValue)
                 _isCodeVerified.value = true
             } catch (e: Exception) {
                 _verificationCodeError.value = e.message ?: "Invalid verification code"
