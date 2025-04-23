@@ -19,40 +19,81 @@ class AuthViewModel @Inject constructor(
     private val createUserUseCase: CreateUserUseCase
 ) : ViewModel() {
 
-    // Form fields
-    private val _firstName = MutableLiveData<String>("")
-    val firstName: LiveData<String> get() = _firstName
+    // Form fields for registration (String properties for two-way binding)
+    var name: String = ""
+        set(value) {
+            field = value
+            _name.value = value
+            _nameError.value = null
+        }
 
-    private val _lastName = MutableLiveData<String>("")
-    val lastName: LiveData<String> get() = _lastName
+    var email: String = ""
+        set(value) {
+            field = value
+            _email.value = value
+            _emailError.value = null
+        }
+
+    var password: String = ""
+        set(value) {
+            field = value
+            _password.value = value
+            _passwordError.value = null
+        }
+
+    var confirmPassword: String = ""
+        set(value) {
+            field = value
+            _confirmPassword.value = value
+            _confirmPasswordError.value = null
+        }
+
+    var dateOfBirth: String = ""
+        set(value) {
+            field = value
+            _dateOfBirth.value = value
+            _dateOfBirthError.value = null
+        }
+
+    var gender: String = ""
+        set(value) {
+            field = value
+            _gender.value = value
+            _genderError.value = null
+        }
+
+    var bloodType: String = ""
+        set(value) {
+            field = value
+            _bloodType.value = value
+            _bloodTypeError.value = null
+        }
+
+    // LiveData for observing changes (used for validation and UI updates)
+    private val _name = MutableLiveData<String>("")
+    val nameLiveData: LiveData<String> get() = _name
 
     private val _email = MutableLiveData<String>("")
-    val email: LiveData<String> get() = _email
+    val emailLiveData: LiveData<String> get() = _email
 
     private val _password = MutableLiveData<String>("")
-    val password: LiveData<String> get() = _password
+    val passwordLiveData: LiveData<String> get() = _password
 
     private val _confirmPassword = MutableLiveData<String>("")
-    val confirmPassword: LiveData<String> get() = _confirmPassword
+    val confirmPasswordLiveData: LiveData<String> get() = _confirmPassword
 
-    private val _dateOfBirth = MutableLiveData<LocalDate?>(null)
-    val dateOfBirth: LiveData<LocalDate?> get() = _dateOfBirth
-    val dateOfBirthString: LiveData<String> = MutableLiveData<String>().apply {
-        value = ""
-    } // For UI display
+    private val _dateOfBirth = MutableLiveData<String>("")
+    val dateOfBirthLiveData: LiveData<String> get() = _dateOfBirth
 
-    private val _gender = MutableLiveData<Gender?>(null)
-    val gender: LiveData<Gender?> get() = _gender
+    private val _gender = MutableLiveData<String>("")
+    val genderLiveData: LiveData<String> get() = _gender
 
-    private val _bloodType = MutableLiveData<BloodType?>(null)
-    val bloodType: LiveData<BloodType?> get() = _bloodType
+    private val _bloodType = MutableLiveData<String>("")
+    val bloodTypeLiveData: LiveData<String> get() = _bloodType
 
-    // Error messages
-    private val _firstNameError = MutableLiveData<String?>(null)
-    val firstNameError: LiveData<String?> get() = _firstNameError
-
-    private val _lastNameError = MutableLiveData<String?>(null)
-    val lastNameError: LiveData<String?> get() = _lastNameError
+    // Error messages for validation
+    private val _nameError = MutableLiveData<String?>(null)
+    val nameError: LiveData<String?> get() = _nameError
 
     private val _emailError = MutableLiveData<String?>(null)
     val emailError: LiveData<String?> get() = _emailError
@@ -72,7 +113,7 @@ class AuthViewModel @Inject constructor(
     private val _bloodTypeError = MutableLiveData<String?>(null)
     val bloodTypeError: LiveData<String?> get() = _bloodTypeError
 
-    // UI states
+    // State for navigation or UI updates
     private val _isRegistered = MutableLiveData<Boolean>(false)
     val isRegistered: LiveData<Boolean> get() = _isRegistered
 
@@ -82,60 +123,10 @@ class AuthViewModel @Inject constructor(
     private val _error = MutableLiveData<String?>(null)
     val error: LiveData<String?> get() = _error
 
-    private val _navigateBack = MutableLiveData<Boolean>(false)
-    val navigateBack: LiveData<Boolean> get() = _navigateBack
-
-    // Setters
-    fun setFirstName(value: String) {
-        _firstName.value = value
-        _firstNameError.value = null
-    }
-
-    fun setLastName(value: String) {
-        _lastName.value = value
-        _lastNameError.value = null
-    }
-
-    fun setEmail(value: String) {
-        _email.value = value
-        _emailError.value = null
-    }
-
-    fun setPassword(value: String) {
-        _password.value = value
-        _passwordError.value = null
-    }
-
-    fun setConfirmPassword(value: String) {
-        _confirmPassword.value = value
-        _confirmPasswordError.value = null
-    }
-
-    fun setDateOfBirth(date: LocalDate?) {
-        _dateOfBirth.value = date
-        _dateOfBirthError.value = null
-        (dateOfBirthString as MutableLiveData).value = date?.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) ?: ""
-    }
-
-    fun setGender(gender: Gender?) {
-        _gender.value = gender
-        _genderError.value = null
-    }
-
-    fun setBloodType(bloodType: BloodType?) {
-        _bloodType.value = bloodType
-        _bloodTypeError.value = null
-    }
-
-    fun onBackClicked() {
-        _navigateBack.value = true
-    }
-
     // Handle registration
     fun register() {
         // Reset errors
-        _firstNameError.value = null
-        _lastNameError.value = null
+        _nameError.value = null
         _emailError.value = null
         _passwordError.value = null
         _confirmPasswordError.value = null
@@ -144,25 +135,11 @@ class AuthViewModel @Inject constructor(
         _bloodTypeError.value = null
         _error.value = null
 
-        val firstName = _firstName.value ?: ""
-        val lastName = _lastName.value ?: ""
-        val email = _email.value ?: ""
-        val password = _password.value ?: ""
-        val confirmPassword = _confirmPassword.value ?: ""
-        val dateOfBirth = _dateOfBirth.value
-        val gender = _gender.value
-        val bloodType = _bloodType.value
-
         // Validation
         var isValid = true
 
-        if (firstName.isBlank()) {
-            _firstNameError.value = "First name is required"
-            isValid = false
-        }
-
-        if (lastName.isBlank()) {
-            _lastNameError.value = "Last name is required"
+        if (name.isBlank()) {
+            _nameError.value = "Name is required"
             isValid = false
         }
 
@@ -190,22 +167,48 @@ class AuthViewModel @Inject constructor(
             isValid = false
         }
 
-        if (dateOfBirth == null) {
+        // Validate date of birth
+        var parsedDateOfBirth: LocalDate? = null
+        if (dateOfBirth.isBlank()) {
             _dateOfBirthError.value = "Date of birth is required"
             isValid = false
-        } else if (dateOfBirth.isAfter(LocalDate.now())) {
-            _dateOfBirthError.value = "Date of birth cannot be in the future"
-            isValid = false
+        } else {
+            try {
+                parsedDateOfBirth = LocalDate.parse(dateOfBirth, DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+                if (parsedDateOfBirth.isAfter(LocalDate.now())) {
+                    _dateOfBirthError.value = "Date of birth cannot be in the future"
+                    isValid = false
+                }
+            } catch (e: DateTimeParseException) {
+                _dateOfBirthError.value = "Invalid date format (use DD/MM/YYYY)"
+                isValid = false
+            }
         }
 
-        if (gender == null) {
+        // Validate gender
+        if (gender.isBlank()) {
             _genderError.value = "Gender is required"
             isValid = false
+        } else {
+            try {
+                Gender.valueOf(gender)
+            } catch (e: IllegalArgumentException) {
+                _genderError.value = "Invalid gender"
+                isValid = false
+            }
         }
 
-        if (bloodType == null) {
+        // Validate blood type
+        if (bloodType.isBlank()) {
             _bloodTypeError.value = "Blood type is required"
             isValid = false
+        } else {
+            try {
+                BloodType.valueOf(bloodType)
+            } catch (e: IllegalArgumentException) {
+                _bloodTypeError.value = "Invalid blood type"
+                isValid = false
+            }
         }
 
         if (!isValid) return
@@ -214,18 +217,17 @@ class AuthViewModel @Inject constructor(
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                val fullName = "$firstName $lastName"
                 createUserUseCase(
                     userId = email,
                     password = password,
-                    name = fullName,
-                    address = null,
-                    dateOfBirth = dateOfBirth.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
-                    gender = gender.name,
-                    bloodType = bloodType.name,
-                    phone = ""
+                    name = name,
+                    address = null, // Address is optional
+                    dateOfBirth = dateOfBirth, // Already in DD/MM/YYYY format
+                    gender = gender,
+                    bloodType = bloodType,
+                    phone = "" // Not collected in the form
                 )
-                _isRegistered.value = true
+                _isRegistered.value = true // Trigger navigation
             } catch (e: Exception) {
                 _error.value = e.message ?: "Registration failed"
             } finally {

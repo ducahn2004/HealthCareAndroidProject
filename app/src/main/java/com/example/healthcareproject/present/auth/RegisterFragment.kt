@@ -75,7 +75,7 @@ class RegisterFragment : Fragment() {
 
     private fun showDatePicker() {
         val calendar = Calendar.getInstance()
-        val currentDob = viewModel.dateOfBirth.value ?: ""
+        val currentDob = viewModel.dateOfBirthLiveData.value ?: ""
         if (currentDob.isNotEmpty() && currentDob.matches(Regex("\\d{2}/\\d{2}/\\d{4}"))) {
             val parts = currentDob.split("/")
             calendar.set(parts[2].toInt(), parts[1].toInt() - 1, parts[0].toInt())
@@ -85,7 +85,7 @@ class RegisterFragment : Fragment() {
             requireContext(),
             { _, year, month, dayOfMonth ->
                 val selectedDate = String.format(Locale.US, "%02d/%02d/%04d", dayOfMonth, month + 1, year)
-                viewModel.setDateOfBirth(selectedDate)
+                viewModel.dateOfBirth = selectedDate
             },
             calendar.get(Calendar.YEAR),
             calendar.get(Calendar.MONTH),
@@ -102,7 +102,7 @@ class RegisterFragment : Fragment() {
         binding.spinnerGender.adapter = adapter
 
         // Set initial selection based on ViewModel's gender
-        viewModel.gender.observe(viewLifecycleOwner) { gender ->
+        viewModel.genderLiveData.observe(viewLifecycleOwner) { gender ->
             val index = genders.indexOf(gender)
             if (index >= 0) {
                 binding.spinnerGender.setSelection(index)
@@ -112,7 +112,7 @@ class RegisterFragment : Fragment() {
         // Update ViewModel when selection changes
         binding.spinnerGender.setOnItemSelectedListener(object : android.widget.AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: android.widget.AdapterView<*>, view: View?, position: Int, id: Long) {
-                viewModel.setGender(genders[position])
+                viewModel.gender = genders[position]
             }
 
             override fun onNothingSelected(parent: android.widget.AdapterView<*>) {
@@ -128,7 +128,7 @@ class RegisterFragment : Fragment() {
         binding.spinnerBloodType.adapter = adapter
 
         // Set initial selection based on ViewModel's bloodType
-        viewModel.bloodType.observe(viewLifecycleOwner) { bloodType ->
+        viewModel.bloodTypeLiveData.observe(viewLifecycleOwner) { bloodType ->
             val index = bloodTypes.indexOf(bloodType)
             if (index >= 0) {
                 binding.spinnerBloodType.setSelection(index)
@@ -138,7 +138,7 @@ class RegisterFragment : Fragment() {
         // Update ViewModel when selection changes
         binding.spinnerBloodType.setOnItemSelectedListener(object : android.widget.AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: android.widget.AdapterView<*>, view: View?, position: Int, id: Long) {
-                viewModel.setBloodType(bloodTypes[position])
+                viewModel.bloodType = bloodTypes[position]
             }
 
             override fun onNothingSelected(parent: android.widget.AdapterView<*>) {
