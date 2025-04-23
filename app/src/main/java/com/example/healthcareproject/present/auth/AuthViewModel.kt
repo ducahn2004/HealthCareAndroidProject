@@ -7,6 +7,9 @@ import androidx.lifecycle.viewModelScope
 import com.example.healthcareproject.domain.model.BloodType
 import com.example.healthcareproject.domain.model.Gender
 import com.example.healthcareproject.domain.usecase.CreateUserUseCase
+import com.example.healthcareproject.domain.usecase.GoogleSignInUseCase
+import com.example.healthcareproject.domain.usecase.LoginUserUseCase
+import com.example.healthcareproject.domain.usecase.VerifyCodeUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -16,10 +19,13 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
-    private val createUserUseCase: CreateUserUseCase
+    private val createUserUseCase: CreateUserUseCase,
+    private val loginUserUseCase: LoginUserUseCase,
+    private val verifyCodeUseCase: VerifyCodeUseCase,
+    private val googleSignInUseCase: GoogleSignInUseCase // New use case for Google Sign-In
 ) : ViewModel() {
 
-    // Form fields for registration (String properties for two-way binding)
+    // Form fields for registration, login, and verification (unchanged)
     var name: String = ""
         set(value) {
             field = value
@@ -69,7 +75,14 @@ class AuthViewModel @Inject constructor(
             _bloodTypeError.value = null
         }
 
-    // LiveData for observing changes (used for validation and UI updates)
+    var verificationCode: String = ""
+        set(value) {
+            field = value
+            _verificationCode.value = value
+            _verificationCodeError.value = null
+        }
+
+    // LiveData for observing changes (unchanged)
     private val _name = MutableLiveData<String>("")
     val nameLiveData: LiveData<String> get() = _name
 
@@ -83,7 +96,7 @@ class AuthViewModel @Inject constructor(
     val confirmPasswordLiveData: LiveData<String> get() = _confirmPassword
 
     private val _dateOfBirth = MutableLiveData<String>("")
-    val dateOfBirthLiveData: LiveData<String> get() = _dateOfBirth
+    val dateOfBirthLiveData: LiveData<String> get() = _dateOfDateOfBirth
 
     private val _gender = MutableLiveData<String>("")
     val genderLiveData: LiveData<String> get() = _gender
@@ -91,7 +104,10 @@ class AuthViewModel @Inject constructor(
     private val _bloodType = MutableLiveData<String>("")
     val bloodTypeLiveData: LiveData<String> get() = _bloodType
 
-    // Error messages for validation
+    private val _verificationCode = MutableLiveData<String>("")
+    val verificationCodeLiveData: LiveData<String> get() = _verificationCode
+
+    // Error messages for validation (unchanged)
     private val _nameError = MutableLiveData<String?>(null)
     val nameError: LiveData<String?> get() = _nameError
 
@@ -113,9 +129,15 @@ class AuthViewModel @Inject constructor(
     private val _bloodTypeError = MutableLiveData<String?>(null)
     val bloodTypeError: LiveData<String?> get() = _bloodTypeError
 
-    // State for navigation or UI updates
-    private val _isRegistered = MutableLiveData<Boolean>(false)
-    val isRegistered: LiveData<Boolean> get() = _isRegistered
+    private val _verificationCodeError = MutableLiveData<String?>(null)
+    val verificationCodeError: LiveData<String?> get() = _verificationCodeError
+
+    // State for navigation or UI updates (unchanged)
+    private val _isAuthenticated = MutableLiveData<Boolean>(false)
+    val isAuthenticated: LiveData<Boolean> get() = _isAuthenticated
+
+    private val _isCodeVerified = MutableLiveData<Boolean>(false)
+    val isCodeVerified: LiveData<Boolean> get() = _isCodeVerified
 
     private val _isLoading = MutableLiveData<Boolean>(false)
     val isLoading: LiveData<Boolean> get() = _isLoading
@@ -123,8 +145,58 @@ class AuthViewModel @Inject constructor(
     private val _error = MutableLiveData<String?>(null)
     val error: LiveData<String?> get() = _error
 
-    // Handle registration
+    // Navigation events for LoginMethodFragment (unchanged)
+    private val _navigateToRegister = MutableLiveData<Boolean>(false)
+    val navigateToRegister: LiveData<Boolean> get() = _navigateToRegister
+
+    private val _navigateToLogin = MutableLiveData<Boolean>(false)
+    val navigateToLogin: LiveData<Boolean> get() = _navigateToLogin
+
+    private val _navigateToGoogleLogin = MutableLiveData<Boolean>(false)
+    val navigateToGoogleLogin: LiveData<Boolean> get() = _navigateToGoogleLogin
+
+    // Track the current authentication flow (unchanged)
+    private val _authFlow = MutableLiveData<AuthFlow>(AuthFlow.NONE)
+    val authFlow: LiveData<AuthFlow> get() = _authFlow
+
+    enum class AuthFlow {
+        NONE, REGISTRATION, LOGIN, FORGOT_PASSWORD, GOOGLE_LOGIN // Added GOOGLE_LOGIN
+    }
+
+    // Trigger navigation to register (unchanged)
+    fun onRegisterClicked() {
+        _navigateToRegister.value = true
+    }
+
+    // Trigger navigation to login (unchanged)
+    fun onLoginClicked() {
+        _navigateToLogin.value = true
+    }
+
+    // Trigger Google Sign-In process
+    fun onGoogleLoginClicked() {
+        _authFlow.value = AuthFlow.GOOGLE_LOGIN
+        _isLoading.value = true
+        // The actual Google Sign-In intent is handled in GoogleLoginFragment
+    }
+
+    // Handle Google Sign-In result
+    fun handleGoogleSignIn(idToken: String) {
+        viewModelScope.launch {
+            try {
+                googleSignInUseCase(idToken)
+                _isAuthenticated.value = true
+            } catch (e: Exception) {
+                _error.value = e.message ?: "Google Sign-In failed"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    // Handle registration (unchanged)
     fun register() {
+        _authFlow.value = AuthFlow.REGISTRATION
         // Reset errors
         _nameError.value = null
         _emailError.value = null
@@ -221,18 +293,96 @@ class AuthViewModel @Inject constructor(
                     userId = email,
                     password = password,
                     name = name,
-                    address = null, // Address is optional
-                    dateOfBirth = dateOfBirth, // Already in DD/MM/YYYY format
+                    address = null,
+                    dateOfBirth = dateOfBirth,
                     gender = gender,
                     bloodType = bloodType,
-                    phone = "" // Not collected in the form
+                    phone = ""
                 )
-                _isRegistered.value = true // Trigger navigation
+                _isAuthenticated.value = true
             } catch (e: Exception) {
                 _error.value = e.message ?: "Registration failed"
             } finally {
                 _isLoading.value = false
             }
         }
+    }
+
+    // Handle login (unchanged)
+    fun login() {
+        _authFlow.value = AuthFlow.LOGIN
+        // Reset errors
+        _emailError.value = null
+        _passwordError.value = null
+        _error.value = null
+
+        // Validation
+        var isValid = true
+
+        if (email.isBlank()) {
+            _emailError.value = "Email is required"
+            isValid = false
+        } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            _emailError.value = "Invalid email address"
+            isValid = false
+        }
+
+        if (password.isBlank()) {
+            _passwordError.value = "Password is required"
+            isValid = false
+        }
+
+        if (!isValid) return
+
+        // Authenticate user
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                loginUserUseCase(
+                    userId = email,
+                    password = password
+                )
+                _isAuthenticated.value = true
+            } catch (e: Exception) {
+                _error.value = e.message ?: "Login failed"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    // Handle code verification (unchanged)
+    fun verifyCode() {
+        // Reset errors
+        _verificationCodeError.value = null
+        _error.value = null
+
+        // Validation
+        if (verificationCode.isBlank()) {
+            _verificationCodeError.value = "Verification code is required"
+            return
+        }
+
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                verifyCodeUseCase(email, verificationCode)
+                _isCodeVerified.value = true
+            } catch (e: Exception) {
+                _verificationCodeError.value = e.message ?: "Invalid verification code"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    // Reset navigation states (updated to include Google login)
+    fun resetNavigationStates() {
+        _navigateToRegister.value = false
+        _navigateToLogin.value = false
+        _navigateToGoogleLogin.value = false
+        _isAuthenticated.value = false
+        _isCodeVerified.value = false
+        _authFlow.value = AuthFlow.NONE
     }
 }
