@@ -1,5 +1,6 @@
 package com.example.healthcareproject.present.auth
 
+import android.os.CountDownTimer
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -12,6 +13,7 @@ import com.example.healthcareproject.domain.usecase.VerifyCodeUseCase
 import com.example.healthcareproject.data.source.network.datasource.UserFirebaseDataSource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -134,6 +136,9 @@ class AuthViewModel @Inject constructor(
     fun onVerificationCodeChanged(value: String) {
         _verificationCode.value = value
     }
+
+    private val _timerText = MutableLiveData<String>("00:59")
+    val timerText: LiveData<String> = _timerText
 
     // Error fields
     private val _nameError = MutableLiveData<String?>()
@@ -275,6 +280,45 @@ class AuthViewModel @Inject constructor(
         }
     }
 
+    private var countDownTimer: CountDownTimer? = null
+
+    fun startTimer() {
+        // Cancel any existing timer
+        countDownTimer?.cancel()
+
+        // Start a new 59-second countdown
+        countDownTimer = object : CountDownTimer(59000, 1000) {
+            override fun onTick(millisUntilFinished: Long) {
+                val seconds = (millisUntilFinished / 1000).toInt()
+                _timerText.value = String.format("%02d:%02d", seconds / 60, seconds % 60)
+            }
+
+            override fun onFinish() {
+                _timerText.value = "00:00"
+                // Optionally enable resend functionality
+            }
+        }.start()
+    }
+
+    fun stopTimer() {
+        countDownTimer?.cancel()
+        countDownTimer = null
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        stopTimer() // Clean up timer when ViewModel is cleared
+    }
+
+    fun navigateToRegister() {
+        Timber.d("Navigate to Register clicked")
+        _navigateToRegister.value = true
+    }
+
+    fun navigateToLogin() {
+        Timber.d("Navigate to Login clicked")
+        _navigateToLogin.value = true
+    }
     fun verifyCode() {
         val emailValue = email.value ?: ""
         val codeValue = verificationCode.value ?: ""
