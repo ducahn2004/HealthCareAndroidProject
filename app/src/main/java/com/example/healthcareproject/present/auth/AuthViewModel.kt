@@ -42,6 +42,12 @@ class AuthViewModel @Inject constructor(
     private val _navigateToGoogleLogin = MutableLiveData<Boolean>()
     val navigateToGoogleLogin: LiveData<Boolean> = _navigateToGoogleLogin
 
+    private val _navigateToRegister = MutableLiveData<Boolean>()
+    val navigateToRegister: LiveData<Boolean> = _navigateToRegister
+
+    private val _navigateToLogin = MutableLiveData<Boolean>()
+    val navigateToLogin: LiveData<Boolean> = _navigateToLogin
+
     fun onGoogleLoginClicked() {
         _navigateToGoogleLogin.value = true
     }
