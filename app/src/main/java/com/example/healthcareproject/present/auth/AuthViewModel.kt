@@ -1,16 +1,15 @@
 package com.example.healthcareproject.present.auth
 
-import androidx.databinding.BaseObservable
-import androidx.databinding.InverseMethod
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.healthcareproject.domain.usecase.CreateUserUseCase
 import com.example.healthcareproject.domain.usecase.LoginUserUseCase
+import com.example.healthcareproject.domain.usecase.SendPasswordResetEmailUseCase
+import com.example.healthcareproject.domain.usecase.UpdatePasswordUseCase
 import com.example.healthcareproject.domain.usecase.VerifyCodeUseCase
 import com.example.healthcareproject.data.source.network.datasource.UserFirebaseDataSource
-import com.example.healthcareproject.domain.usecase.UpdatePasswordUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -21,6 +20,7 @@ class AuthViewModel @Inject constructor(
     private val loginUserUseCase: LoginUserUseCase,
     private val verifyCodeUseCase: VerifyCodeUseCase,
     private val updatePasswordUseCase: UpdatePasswordUseCase,
+    private val sendPasswordResetEmailUseCase: SendPasswordResetEmailUseCase,
     private val userFirebaseDataSource: UserFirebaseDataSource
 ) : ViewModel() {
 
@@ -65,8 +65,6 @@ class AuthViewModel @Inject constructor(
     fun setConfirmPassword(value: String) {
         _confirmPassword.value = value
     }
-
-    // This method is already in your ViewModel
 
     // Authentication state
     private val _isAuthenticated = MutableLiveData<Boolean>()
@@ -120,6 +118,7 @@ class AuthViewModel @Inject constructor(
     fun onVerificationCodeChanged(value: String) {
         _verificationCode.value = value
     }
+
     // Error fields
     private val _nameError = MutableLiveData<String?>()
     val nameError: LiveData<String?> = _nameError
@@ -338,7 +337,6 @@ class AuthViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                sendpllback
                 sendPasswordResetEmailUseCase(email)
                 _email.value = email
             } catch (e: Exception) {
