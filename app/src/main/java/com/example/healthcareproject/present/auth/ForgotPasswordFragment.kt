@@ -9,10 +9,8 @@ import android.widget.ImageButton
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.healthcareproject.R
-import kotlinx.coroutines.launch
 
 class ForgotPasswordFragment : Fragment() {
 
@@ -28,11 +26,34 @@ class ForgotPasswordFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Set the auth flow type
+        viewModel.setAuthFlow(AuthViewModel.AuthFlow.FORGOT_PASSWORD)
+
         val etEmail = view.findViewById<EditText>(R.id.et_email)
         val btnBack = view.findViewById<ImageButton>(R.id.btn_back_forgot_password_to_login_method)
 
         btnBack.setOnClickListener {
             findNavController().navigate(R.id.action_forgotPasswordFragment_to_loginMethodFragment)
+        }
+
+        // Set up observers
+        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            // Handle loading state (maybe show/hide a progress indicator)
+            view.findViewById<View>(R.id.btn_send_reset).isEnabled = !isLoading
+        }
+
+        viewModel.error.observe(viewLifecycleOwner) { errorMessage ->
+            errorMessage?.let {
+                Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
+                viewModel.setError("") // Reset error state
+            }
+        }
+
+        // Navigate when email is successfully sent
+        viewModel.email.observe(viewLifecycleOwner) { email ->
+            if (!email.isNullOrEmpty() && viewModel.authFlow.value == AuthViewModel.AuthFlow.FORGOT_PASSWORD) {
+                findNavController().navigate(R.id.action_forgotPasswordFragment_to_verifyCodeFragment)
+            }
         }
 
         view.findViewById<View>(R.id.btn_send_reset).setOnClickListener {
@@ -46,18 +67,13 @@ class ForgotPasswordFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            lifecycleScope.launch {
-                try {
-                    viewModel.sendPasswordResetEmail(email)
-                    findNavController().navigate(R.id.action_forgotPasswordFragment_to_verifyCodeFragment)
-                } catch (e: Exception) {
-                    Toast.makeText(
-                        requireContext(),
-                        "Failed to send reset email: ${e.message}",
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-            }
+            // Call the ViewModel method
+            viewModel.sendPasswordResetEmail(email)
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        // Clean up any references or observers if needed
     }
 }
