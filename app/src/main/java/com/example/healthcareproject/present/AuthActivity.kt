@@ -1,11 +1,14 @@
 package com.example.healthcareproject.present
 
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import com.example.healthcareproject.R
-
+import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
+@AndroidEntryPoint
 class AuthActivity : AppCompatActivity() {
 
     private lateinit var navController: NavController
@@ -14,15 +17,23 @@ class AuthActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_auth)
 
-        // Thiết lập NavController
         val navHostFragment = supportFragmentManager
-            .findFragmentById(R.id.fragment_container) as NavHostFragment
+            .findFragmentById(R.id.fragment_container) as? NavHostFragment
+        if (navHostFragment == null) {
+            Timber.tag("AuthActivity").e("NavHostFragment not found at R.id.fragment_container")
+            finish() // Exit activity to prevent further crashes
+            return
+        }
         navController = navHostFragment.navController
 
-        // Kiểm tra Intent để điều hướng đến LoginFragment
         intent.getStringExtra("destination")?.let { destination ->
             if (destination == "loginMethodFragment") {
-                navController.navigate(R.id.loginMethodFragment)
+                try {
+                    navController.navigate(R.id.loginMethodFragment)
+                } catch (e: IllegalArgumentException) {
+                    Timber.tag("AuthActivity")
+                        .e("Navigation to loginMethodFragment failed: ${e.message}")
+                }
             }
         }
     }
