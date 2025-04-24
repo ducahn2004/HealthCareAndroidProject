@@ -6,7 +6,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.healthcareproject.domain.usecase.CreateUserUseCase
 import com.example.healthcareproject.domain.usecase.LoginUserUseCase
-import com.example.healthcareproject.domain.usecase.SendPasswordResetEmailUseCase
 import com.example.healthcareproject.domain.usecase.UpdatePasswordUseCase
 import com.example.healthcareproject.domain.usecase.VerifyCodeUseCase
 import com.example.healthcareproject.data.source.network.datasource.UserFirebaseDataSource
@@ -20,7 +19,6 @@ class AuthViewModel @Inject constructor(
     private val loginUserUseCase: LoginUserUseCase,
     private val verifyCodeUseCase: VerifyCodeUseCase,
     private val updatePasswordUseCase: UpdatePasswordUseCase,
-    private val sendPasswordResetEmailUseCase: SendPasswordResetEmailUseCase,
     private val userFirebaseDataSource: UserFirebaseDataSource
 ) : ViewModel() {
 
@@ -140,6 +138,10 @@ class AuthViewModel @Inject constructor(
 
     private val _bloodTypeError = MutableLiveData<String?>()
     val bloodTypeError: LiveData<String?> = _bloodTypeError
+
+    fun setError(message: String) {
+        _error.value = message
+    }
 
     fun onLoginClicked() {
         val emailValue = email.value ?: ""
@@ -324,23 +326,6 @@ class AuthViewModel @Inject constructor(
                 _isAuthenticated.value = true
             } catch (e: Exception) {
                 _error.value = e.message ?: "Registration failed"
-            } finally {
-                _isLoading.value = false
-            }
-        }
-    }
-
-    fun sendPasswordResetEmail(email: String) {
-        _emailError.value = null
-        _error.value = null
-        _isLoading.value = true
-
-        viewModelScope.launch {
-            try {
-                sendPasswordResetEmailUseCase(email)
-                _email.value = email
-            } catch (e: Exception) {
-                _error.value = e.message ?: "Failed to send reset email"
             } finally {
                 _isLoading.value = false
             }
