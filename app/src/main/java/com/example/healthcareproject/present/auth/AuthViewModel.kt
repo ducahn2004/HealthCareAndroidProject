@@ -1,5 +1,7 @@
 package com.example.healthcareproject.present.auth
 
+import androidx.databinding.BaseObservable
+import androidx.databinding.InverseMethod
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -8,6 +10,7 @@ import com.example.healthcareproject.domain.usecase.CreateUserUseCase
 import com.example.healthcareproject.domain.usecase.LoginUserUseCase
 import com.example.healthcareproject.domain.usecase.VerifyCodeUseCase
 import com.example.healthcareproject.data.source.network.datasource.UserFirebaseDataSource
+import com.example.healthcareproject.domain.usecase.UpdatePasswordUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -17,8 +20,24 @@ class AuthViewModel @Inject constructor(
     private val createUserUseCase: CreateUserUseCase,
     private val loginUserUseCase: LoginUserUseCase,
     private val verifyCodeUseCase: VerifyCodeUseCase,
+    private val updatePasswordUseCase: UpdatePasswordUseCase,
     private val userFirebaseDataSource: UserFirebaseDataSource
 ) : ViewModel() {
+
+    enum class AuthFlow {
+        REGISTRATION,
+        LOGIN,
+        FORGOT_PASSWORD
+    }
+
+    // Track current authentication flow
+    private val _authFlow = MutableLiveData<AuthFlow>()
+    val authFlow: LiveData<AuthFlow> = _authFlow
+
+    // Set authentication flow
+    fun setAuthFlow(flow: AuthFlow) {
+        _authFlow.value = flow
+    }
 
     private val _navigateToGoogleLogin = MutableLiveData<Boolean>()
     val navigateToGoogleLogin: LiveData<Boolean> = _navigateToGoogleLogin
@@ -39,9 +58,15 @@ class AuthViewModel @Inject constructor(
         _password.value = value
     }
 
-    fun setVerificationCode(value: String) {
-        _verificationCode.value = value
+    fun setDateOfBirth(value: String) {
+        _dateOfBirth.value = value
     }
+
+    fun setConfirmPassword(value: String) {
+        _confirmPassword.value = value
+    }
+
+    // This method is already in your ViewModel
 
     // Authentication state
     private val _isAuthenticated = MutableLiveData<Boolean>()
@@ -60,8 +85,11 @@ class AuthViewModel @Inject constructor(
     val verificationCodeError: LiveData<String?> = _verificationCodeError
 
     // Form fields
-    private val _name = MutableLiveData<String>()
+    private val _name = MutableLiveData<String>("")
     val name: LiveData<String> = _name
+    fun onNameChanged(value: String) {
+        _name.value = value
+    }
 
     private val _email = MutableLiveData<String>()
     val email: LiveData<String> = _email
@@ -89,7 +117,9 @@ class AuthViewModel @Inject constructor(
 
     private val _verificationCode = MutableLiveData<String>()
     val verificationCode: LiveData<String> = _verificationCode
-
+    fun onVerificationCodeChanged(value: String) {
+        _verificationCode.value = value
+    }
     // Error fields
     private val _nameError = MutableLiveData<String?>()
     val nameError: LiveData<String?> = _nameError
@@ -295,6 +325,38 @@ class AuthViewModel @Inject constructor(
                 _isAuthenticated.value = true
             } catch (e: Exception) {
                 _error.value = e.message ?: "Registration failed"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun sendPasswordResetEmail(email: String) {
+        _emailError.value = null
+        _error.value = null
+        _isLoading.value = true
+
+        viewModelScope.launch {
+            try {
+                sendpllback
+                sendPasswordResetEmailUseCase(email)
+                _email.value = email
+            } catch (e: Exception) {
+                _error.value = e.message ?: "Failed to send reset email"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun updatePassword(newPassword: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                updatePasswordUseCase(newPassword)
+                _password.value = newPassword
+            } catch (e: Exception) {
+                _error.value = e.message ?: "Failed to update password"
             } finally {
                 _isLoading.value = false
             }
