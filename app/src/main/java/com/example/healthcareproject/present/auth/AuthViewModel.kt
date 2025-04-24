@@ -6,10 +6,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.healthcareproject.domain.usecase.CreateUserUseCase
 import com.example.healthcareproject.domain.usecase.LoginUserUseCase
+import com.example.healthcareproject.domain.usecase.SendPasswordResetEmailUseCase
 import com.example.healthcareproject.domain.usecase.UpdatePasswordUseCase
 import com.example.healthcareproject.domain.usecase.VerifyCodeUseCase
 import com.example.healthcareproject.data.source.network.datasource.UserFirebaseDataSource
-import com.example.healthcareproject.domain.usecase.SendPasswordResetEmailUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -54,6 +54,8 @@ class AuthViewModel @Inject constructor(
 
     fun resetNavigationStates() {
         _navigateToGoogleLogin.value = false
+        _navigateToRegister.value = false
+        _navigateToLogin.value = false
     }
 
     fun setEmail(value: String) {
@@ -70,6 +72,14 @@ class AuthViewModel @Inject constructor(
 
     fun setConfirmPassword(value: String) {
         _confirmPassword.value = value
+    }
+
+    fun setGender(value: String) {
+        _gender.value = value
+    }
+
+    fun setBloodType(value: String) {
+        _bloodType.value = value
     }
 
     // Authentication state
@@ -290,6 +300,23 @@ class AuthViewModel @Inject constructor(
         }
     }
 
+    fun sendPasswordResetEmail(email: String) {
+        _emailError.value = null
+        _error.value = null
+        _isLoading.value = true
+
+        viewModelScope.launch {
+            try {
+                sendPasswordResetEmailUseCase(email)
+                _email.value = email
+            } catch (e: Exception) {
+                _error.value = e.message ?: "Failed to send reset email"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
     fun login(email: String, password: String) {
         _error.value = null
         _isLoading.value = true
@@ -348,22 +375,6 @@ class AuthViewModel @Inject constructor(
                 _password.value = newPassword
             } catch (e: Exception) {
                 _error.value = e.message ?: "Failed to update password"
-            } finally {
-                _isLoading.value = false
-            }
-        }
-    }
-    fun sendPasswordResetEmail(email: String) {
-        _emailError.value = null
-        _error.value = null
-        _isLoading.value = true
-
-        viewModelScope.launch {
-            try {
-                sendPasswordResetEmailUseCase(email)
-                _email.value = email
-            } catch (e: Exception) {
-                _error.value = e.message ?: "Failed to send reset email"
             } finally {
                 _isLoading.value = false
             }
