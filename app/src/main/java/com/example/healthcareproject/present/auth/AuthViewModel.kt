@@ -9,6 +9,7 @@ import com.example.healthcareproject.domain.usecase.LoginUserUseCase
 import com.example.healthcareproject.domain.usecase.UpdatePasswordUseCase
 import com.example.healthcareproject.domain.usecase.VerifyCodeUseCase
 import com.example.healthcareproject.data.source.network.datasource.UserFirebaseDataSource
+import com.example.healthcareproject.domain.usecase.SendPasswordResetEmailUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -19,6 +20,7 @@ class AuthViewModel @Inject constructor(
     private val loginUserUseCase: LoginUserUseCase,
     private val verifyCodeUseCase: VerifyCodeUseCase,
     private val updatePasswordUseCase: UpdatePasswordUseCase,
+    private val sendPasswordResetEmailUseCase: SendPasswordResetEmailUseCase,
     private val userFirebaseDataSource: UserFirebaseDataSource
 ) : ViewModel() {
 
@@ -340,6 +342,22 @@ class AuthViewModel @Inject constructor(
                 _password.value = newPassword
             } catch (e: Exception) {
                 _error.value = e.message ?: "Failed to update password"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+    fun sendPasswordResetEmail(email: String) {
+        _emailError.value = null
+        _error.value = null
+        _isLoading.value = true
+
+        viewModelScope.launch {
+            try {
+                sendPasswordResetEmailUseCase(email)
+                _email.value = email
+            } catch (e: Exception) {
+                _error.value = e.message ?: "Failed to send reset email"
             } finally {
                 _isLoading.value = false
             }
