@@ -1,76 +1,118 @@
 package com.example.healthcareproject.present.auth
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
-import android.widget.ImageButton
-import android.widget.TextView
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
+import com.example.healthcareproject.databinding.FragmentLoginBinding
 import com.example.healthcareproject.present.MainActivity
 import com.example.healthcareproject.R
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class LoginFragment : Fragment() {
 
-    private val viewModel: AuthViewModel by activityViewModels()
+    // Initialize AuthViewModel using Hilt
+    private val viewModel: AuthViewModel by viewModels()
+    // View Binding property
+    private var _binding: FragmentLoginBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_login, container, false)
+    ): View {
+        // Inflate the layout using View Binding
+        _binding = FragmentLoginBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
-    @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val etEmail = view.findViewById<EditText>(R.id.et_email)
-        val etPassword = view.findViewById<EditText>(R.id.et_password)
-        val tvError = view.findViewById<TextView>(R.id.tv_error)
-
-        val btnBack = view.findViewById<ImageButton>(R.id.btn_back_login_to_login_method)
-
-        btnBack.setOnClickListener {
-            findNavController().navigate(R.id.action_loginFragment_to_loginMethodFragment)
+        // Update ViewModel with user input
+        binding.etEmail.addTextChangedListener { text ->
+            viewModel.setEmail(text.toString().trim())
         }
-        // Nút "Login"
-        view.findViewById<View>(R.id.btn_login).setOnClickListener {
-            viewModel.email = etEmail.text.toString()
-            viewModel.password = etPassword.text.toString()
+        binding.etPassword.addTextChangedListener { text ->
+            viewModel.setPassword(text.toString().trim())
+        }
 
-            // Giả sử kiểm tra đăng nhập (thay bằng logic thực tế, ví dụ: gọi API)
-            if (viewModel.email == "admin" && viewModel.password == "password123") {
-                viewModel.isLoginSuccessful = true
-                saveLoginState(true)
-                // Chuyển sang MainActivity
+        // Observe authentication state
+        viewModel.isAuthenticated.observe(viewLifecycleOwner, Observer { isAuthenticated ->
+            if (isAuthenticated) {
+                // Navigate to MainActivity and finish AuthActivity
                 val intent = Intent(requireContext(), MainActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                 startActivity(intent)
                 requireActivity().finish()
-            } else {
-                tvError.visibility = View.VISIBLE
-                tvError.text = "Incorrect password. Please check your password."
+                viewModel.resetNavigationStates()
             }
+        })
+
+        // Observe Google login navigation
+        viewModel.navigateToGoogleLogin.observe(viewLifecycleOwner, Observer { navigate ->
+            if (navigate) {
+                findNavController().navigate(R.id.action_loginFragment_to_googleLoginFragment)
+                viewModel.resetNavigationStates()
+            }
+        })
+
+        // Observe error messages
+        viewModel.error.observe(viewLifecycleOwner, Observer { error ->
+            error?.let {
+                binding.tvError.text = it
+                binding.tvError.visibility = View.VISIBLE
+            } ?: run {
+                binding.tvError.visibility = View.GONE
+            }
+        })
+
+        // Observe email and password errors
+        viewModel.emailError.observe(viewLifecycleOwner, Observer { error ->
+            binding.etEmail.error = error
+        })
+        viewModel.passwordError.observe(viewLifecycleOwner, Observer { error ->
+            binding.etPassword.error = error
+        })
+
+        // Observe loading state
+        viewModel.isLoading.observe(viewLifecycleOwner, Observer { isLoading ->
+            binding.btnLogin.isEnabled = !isLoading
+            binding.googleLoginContainer.isEnabled = !isLoading
+            binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+        })
+
+        // Set click listener for the login button
+        binding.btnLogin.setOnClickListener {
+            viewModel.onLoginClicked()
         }
 
-        // Nút "Forgot Password"
-        view.findViewById<View>(R.id.tv_forgot_password).setOnClickListener {
+        // Set click listener for the Google login container
+        binding.googleLoginContainer.setOnClickListener {
+            viewModel.onGoogleLoginClicked()
+        }
+
+        // Set click listener for the forgot password link
+        binding.tvForgotPassword.setOnClickListener {
             findNavController().navigate(R.id.action_loginFragment_to_forgotPasswordFragment)
         }
-        view.findViewById<View>(R.id.google_login_container).setOnClickListener {
-            findNavController().navigate(R.id.action_loginFragment_to_googleLoginFragment)
+
+        // Set click listener for the back button
+        binding.btnBackLoginToLoginMethod.setOnClickListener {
+            findNavController().navigate(R.id.action_loginFragment_to_loginMethodFragment)
         }
     }
 
-    private fun saveLoginState(isLoggedIn: Boolean) {
-        val sharedPreferences = requireContext().getSharedPreferences("user_prefs", 0)
-        val editor = sharedPreferences.edit()
-        editor.putBoolean("is_logged_in", isLoggedIn)
-        editor.apply()
+    override fun onDestroyView() {
+        super.onDestroyView()
+        // Clear binding to prevent memory leaks
+        _binding = null
     }
 }

@@ -33,7 +33,7 @@ class AuthViewModel @Inject constructor(
     }
 
     // Track current authentication flow
-    private val _authFlow = MutableLiveData<AuthFlow>()
+    private val _authFlow = MutableLiveData<AuthFlow>(AuthFlow.LOGIN)
     val authFlow: LiveData<AuthFlow> = _authFlow
 
     // Set authentication flow
@@ -88,7 +88,7 @@ class AuthViewModel @Inject constructor(
     private val _isAuthenticated = MutableLiveData<Boolean>()
     val isAuthenticated: LiveData<Boolean> = _isAuthenticated
 
-    private val _isLoading = MutableLiveData<Boolean>()
+    private val _isLoading = MutableLiveData<Boolean>(false)
     val isLoading: LiveData<Boolean> = _isLoading
 
     private val _error = MutableLiveData<String?>()
@@ -319,6 +319,7 @@ class AuthViewModel @Inject constructor(
         Timber.d("Navigate to Login clicked")
         _navigateToLogin.value = true
     }
+
     fun verifyCode() {
         val emailValue = email.value ?: ""
         val codeValue = verificationCode.value ?: ""
@@ -335,11 +336,13 @@ class AuthViewModel @Inject constructor(
             _isLoading.value = true
             try {
                 verifyCodeUseCase(emailValue, codeValue)
-                _isCodeVerified.value = true
+                _isCodeVerified.postValue(true)
+                Timber.d("Code verification successful")
             } catch (e: Exception) {
-                _verificationCodeError.value = e.message ?: "Invalid verification code"
+                Timber.e(e, "Code verification failed")
+                _verificationCodeError.postValue(e.message ?: "Invalid verification code")
             } finally {
-                _isLoading.value = false
+                _isLoading.postValue(false)
             }
         }
     }
@@ -352,11 +355,14 @@ class AuthViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 sendPasswordResetEmailUseCase(email)
-                _email.value = email
+                // Only update email value if successful
+                _email.postValue(email)
+                Timber.d("Password reset email sent successfully to $email")
             } catch (e: Exception) {
-                _error.value = e.message ?: "Failed to send reset email"
+                Timber.e(e, "Failed to send reset email")
+                _error.postValue(e.message ?: "Failed to send reset email")
             } finally {
-                _isLoading.value = false
+                _isLoading.postValue(false)
             }
         }
     }
@@ -423,5 +429,16 @@ class AuthViewModel @Inject constructor(
                 _isLoading.value = false
             }
         }
+    }
+
+    fun resetVerificationState() {
+        _isCodeVerified.value = false
+        _verificationCodeError.value = null
+    }
+
+    fun onForgotPasswordStarted() {
+        _error.value = null
+        _emailError.value = null
+        // Reset other state as needed
     }
 }
