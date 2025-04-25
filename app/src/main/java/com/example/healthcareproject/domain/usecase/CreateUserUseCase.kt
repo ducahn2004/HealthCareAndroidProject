@@ -1,13 +1,16 @@
 package com.example.healthcareproject.domain.usecase
 
-import com.example.healthcareproject.domain.repository.UserRepository
+import com.example.healthcareproject.data.source.network.datasource.UserFirebaseDataSource
+import com.example.healthcareproject.data.source.network.model.FirebaseUser
+import com.example.healthcareproject.domain.model.Gender
+import com.example.healthcareproject.domain.model.BloodType
 import javax.inject.Inject
 
 class CreateUserUseCase @Inject constructor(
-    private val userRepository: UserRepository
+    private val userFirebaseDataSource: UserFirebaseDataSource
 ) {
     suspend operator fun invoke(
-        userId: String,
+        email: String,
         password: String,
         name: String,
         address: String?,
@@ -16,15 +19,35 @@ class CreateUserUseCase @Inject constructor(
         bloodType: String,
         phone: String
     ) {
-        userRepository.createUser(
-            userId = userId,
-            password = password,
+        // Tạo tài khoản Firebase Auth
+        userFirebaseDataSource.createUser(email, password)
+
+        // Chuyển đổi gender từ String sang Gender enum
+        val genderEnum = try {
+            Gender.valueOf(gender.replace(" ", "").capitalize())
+        } catch (e: IllegalArgumentException) {
+            throw IllegalArgumentException("Invalid gender: $gender. Expected: Male, Female, None")
+        }
+
+        // Chuyển đổi bloodType từ String sang BloodType enum
+        val bloodTypeEnum = try {
+            BloodType.valueOf(bloodType.replace(" ", "").capitalize())
+        } catch (e: IllegalArgumentException) {
+            throw IllegalArgumentException("Invalid blood type: $bloodType. Expected: A, B, AB, O, None")
+        }
+
+        // Tạo FirebaseUser
+        val user = FirebaseUser(
+            userId = email,
             name = name,
             address = address,
             dateOfBirth = dateOfBirth,
-            gender = gender,
-            bloodType = bloodType,
+            gender = genderEnum,
+            bloodType = bloodTypeEnum,
             phone = phone
         )
+
+        // Lưu vào Realtime Database
+        userFirebaseDataSource.saveUser(user)
     }
 }

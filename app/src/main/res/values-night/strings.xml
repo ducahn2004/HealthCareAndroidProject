@@ -15,7 +15,8 @@
     <string name="verify_account">Verify Account</string>
     <string name="didn_t_receive_code_resend_code_00_59">Didn\'t receive code? Resend Code 00:59</string>
     <string name="_4_digit_code">4 Digit Code</string>
-    <string name="code_has_been_send_to_johndoe_gmail_com_nenter_the_code_to_verify_your_account">Code has been send to johndoe@gmail.com.\nEnter the code to verify your account.</string>
+    <string name="didnt_receive_code_resend_with_timer">Didn\'t receive code? Resend in %s</string>
+    <string name="code_has_been_send_to_johndoe_gmail_com_nenter_the_code_to_verify_your_account">Code has been sent to johndoe@gmail.com.\nEnter the code to verify your account.</string>
     <string name="logout">Logout</string>
     <string name="by_continuing_you_agree_to_terms_of_service_and_privacy_policy">By continuing, you agree to Terms of Service and Privacy Policy.</string>
     <string name="create_account">Create Account</string>
@@ -90,6 +91,7 @@
     <string name="appointments">APPOINTMENTS</string>
     <string name="history">HISTORY</string>
     <string name="add_information">Add Information</string>
+    <string name="default_web_client_id">YOUR_WEB_CLIENT_ID</string>
     <string-array name="gender_options">
         <item>Male</item>
         <item>Female</item>

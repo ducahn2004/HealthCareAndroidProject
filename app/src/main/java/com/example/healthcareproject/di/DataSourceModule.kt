@@ -15,6 +15,7 @@ abstract class DataSourceModule {
     @Binds
     abstract fun bindUserDataSource(dataSource: UserFirebaseDataSource): UserDataSource
 
+
     @Singleton
     @Binds
     abstract fun bindSosDataSource(dataSource: SosFirebaseDataSource): SosDataSource

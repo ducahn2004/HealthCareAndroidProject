@@ -13,7 +13,20 @@
           "package_name": "com.example.healthcareproject"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "859583818046-65fvo099dfi9f73cc8pa01csk4fja683.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.healthcareproject",
+            "certificate_hash": "17468e55940241aa3cbc77f955d5ecf5d8b57ac5"
+          }
+        },
+        {
+          "client_id": "859583818046-7t98mnh1a879qkksa02jpj7h6j85gcam.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCb0-HHxBODZaZyyf1YHsYCdTEjiPcTKhA"
@@ -21,7 +34,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "859583818046-7t98mnh1a879qkksa02jpj7h6j85gcam.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

@@ -86,6 +86,15 @@ class DefaultUserRepository @Inject constructor(
             .map { it.toExternal() }
             .flowOn(dispatcher)
     }
+    override suspend fun verifyCode(email: String, code: String) {
+        withContext(dispatcher) {
+            try {
+                networkDataSource.verifyCode(email, code)
+            } catch (e: Exception) {
+                throw Exception("Verification failed: ${e.message}")
+            }
+        }
+    }
 
     override suspend fun getUser(userId: String, forceUpdate: Boolean): User? {
         if (forceUpdate) {

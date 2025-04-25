@@ -21,7 +21,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.healthcareproject"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -101,6 +101,13 @@ dependencies {
     implementation(libs.androidx.room.paging)
     ksp(libs.androidx.room.compiler)
     testImplementation(libs.androidx.room.testing)
+
+    // Data Binding
+    implementation(libs.androidx.databinding.runtime)
+
+    // ViewModel and LiveData
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.lifecycle.livedata.ktx)
 
     // Dependency Injection (Hilt)
     implementation(libs.hilt.android.core)
