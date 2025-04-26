@@ -84,6 +84,14 @@ class AuthViewModel @Inject constructor(
         _bloodType.value = value
     }
 
+    fun setPhone(value: String) {
+        _phone.value = value
+    }
+
+    fun setAddress(value: String?) {
+        _address.value = value
+    }
+
     // Authentication state
     private val _isAuthenticated = MutableLiveData<Boolean>()
     val isAuthenticated: LiveData<Boolean> = _isAuthenticated
@@ -131,6 +139,7 @@ class AuthViewModel @Inject constructor(
     private val _address = MutableLiveData<String?>()
     val address: LiveData<String?> = _address
 
+
     private val _verificationCode = MutableLiveData<String>()
     val verificationCode: LiveData<String> = _verificationCode
     fun onVerificationCodeChanged(value: String) {
@@ -161,6 +170,12 @@ class AuthViewModel @Inject constructor(
 
     private val _bloodTypeError = MutableLiveData<String?>()
     val bloodTypeError: LiveData<String?> = _bloodTypeError
+
+    private val _addressError = MutableLiveData<String?>()
+    val addressError: LiveData<String?> = _addressError
+
+    private val _phoneError = MutableLiveData<String?>()
+    val phoneError: LiveData<String?> = _phoneError
 
     fun setError(message: String) {
         _error.value = message
@@ -212,7 +227,8 @@ class AuthViewModel @Inject constructor(
         _dateOfBirthError.value = null
         _genderError.value = null
         _bloodTypeError.value = null
-
+        _addressError.value = null
+        _phoneError.value = null
         // Validate inputs
         var isValid = true
         if (nameValue.isBlank()) {
@@ -249,7 +265,13 @@ class AuthViewModel @Inject constructor(
             _bloodTypeError.value = "Blood type is required"
             isValid = false
         }
-
+        if (phoneValue.isBlank()) {
+            _phoneError.value = "Phone is required"
+            isValid = false
+        } else if (!android.util.Patterns.PHONE.matcher(phoneValue).matches()) {
+            _phoneError.value = "Invalid phone number format"
+            isValid = false
+        }
         if (!isValid) {
             return
         }
@@ -397,9 +419,11 @@ class AuthViewModel @Inject constructor(
         _isLoading.value = true
 
         viewModelScope.launch {
+            _isLoading.value = true
             try {
+                println("Registering user: $email")
                 createUserUseCase(
-                    email = email,
+                    userId = email,
                     password = password,
                     name = name,
                     address = address,
