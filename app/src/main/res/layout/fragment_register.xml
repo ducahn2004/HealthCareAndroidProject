@@ -78,7 +78,7 @@
                 android:inputType="textEmailAddress"
                 android:text="@{viewModel.email}"
                 android:onTextChanged="@{(text, start, before, count) -> viewModel.setEmail(text.toString())}"
-                android:backgroundTint="@{viewModel.nameError != null ? @android:color/holo_red_light : @android:color/darker_gray}"
+                android:backgroundTint="@{viewModel.emailError != null ? @android:color/holo_red_light : @android:color/darker_gray}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tv_name_error" />
@@ -100,7 +100,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="Date of Birth:"
-                android:textColor="@android:color/black"
+                android:textColor="?android:textColorPrimary"
                 android:textSize="16sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tv_email_error" />
@@ -113,9 +113,8 @@
                 android:hint="DD/MM/YYYY"
                 android:inputType="date"
                 android:text="@{viewModel.dateOfBirth}"
-                android:onTextChanged="@{(text, start, before, count) -> viewModel.setDateOfBirth(text.toString())}"
                 android:focusable="false"
-                android:backgroundTint="@{viewModel.nameError != null ? @android:color/holo_red_light : @android:color/darker_gray}"
+                android:backgroundTint="@{viewModel.dateOfBirthError != null ? @android:color/holo_red_light : @android:color/darker_gray}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tv_dob_label" />
@@ -137,7 +136,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="Gender:"
-                android:textColor="@android:color/black"
+                android:textColor="?android:textColorPrimary"
                 android:textSize="16sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tv_dob_error" />
@@ -169,7 +168,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="Blood Type:"
-                android:textColor="@android:color/black"
+                android:textColor="?android:textColorPrimary"
                 android:textSize="16sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tv_gender_error" />
@@ -194,6 +193,78 @@
                 app:layout_constraintStart_toStartOf="@id/spinner_blood_type"
                 app:layout_constraintTop_toBottomOf="@id/spinner_blood_type" />
 
+            <!-- Address -->
+            <TextView
+                android:id="@+id/tv_address_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Address:"
+                android:textColor="?android:textColorPrimary"
+                android:textSize="16sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_blood_type_error" />
+
+            <EditText
+                android:id="@+id/et_address"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_marginTop="8dp"
+                android:hint="Address"
+                android:inputType="textPostalAddress"
+                android:text="@{viewModel.address}"
+                android:onTextChanged="@{(text, start, before, count) -> viewModel.setAddress(text.toString())}"
+                android:backgroundTint="@{viewModel.addressError != null ? @android:color/holo_red_light : @android:color/darker_gray}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_address_label" />
+
+            <TextView
+                android:id="@+id/tv_address_error"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{viewModel.addressError}"
+                android:textColor="@android:color/holo_red_light"
+                android:visibility="@{viewModel.addressError != null ? View.VISIBLE : View.GONE}"
+                app:layout_constraintStart_toStartOf="@id/et_address"
+                app:layout_constraintTop_toBottomOf="@id/et_address" />
+
+            <!-- Phone -->
+            <TextView
+                android:id="@+id/tv_phone_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Phone:"
+                android:textColor="?android:textColorPrimary"
+                android:textSize="16sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_address_error" />
+
+            <EditText
+                android:id="@+id/et_phone"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_marginTop="8dp"
+                android:hint="Phone"
+                android:inputType="phone"
+                android:text="@{viewModel.phone}"
+                android:onTextChanged="@{(text, start, before, count) -> viewModel.setPhone(text.toString())}"
+                android:backgroundTint="@{viewModel.phoneError != null ? @android:color/holo_red_light : @android:color/darker_gray}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_phone_label" />
+
+            <TextView
+                android:id="@+id/tv_phone_error"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{viewModel.phoneError}"
+                android:textColor="@android:color/holo_red_light"
+                android:visibility="@{viewModel.phoneError != null ? View.VISIBLE : View.GONE}"
+                app:layout_constraintStart_toStartOf="@id/et_phone"
+                app:layout_constraintTop_toBottomOf="@id/et_phone" />
+
             <!-- Password -->
             <EditText
                 android:id="@+id/et_password"
@@ -204,10 +275,10 @@
                 android:inputType="textPassword"
                 android:text="@{viewModel.password}"
                 android:onTextChanged="@{(text, start, before, count) -> viewModel.setPassword(text.toString())}"
-                android:backgroundTint="@{viewModel.nameError != null ? @android:color/holo_red_light : @android:color/darker_gray}"
+                android:backgroundTint="@{viewModel.passwordError != null ? @android:color/holo_red_light : @android:color/darker_gray}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tv_blood_type_error" />
+                app:layout_constraintTop_toBottomOf="@id/tv_phone_error" />
 
             <TextView
                 android:id="@+id/tv_password_error"
@@ -239,7 +310,7 @@
                 android:inputType="textPassword"
                 android:text="@{viewModel.confirmPassword}"
                 android:onTextChanged="@{(text, start, before, count) -> viewModel.setConfirmPassword(text.toString())}"
-                android:backgroundTint="@{viewModel.nameError != null ? @android:color/holo_red_light : @android:color/darker_gray}"
+                android:backgroundTint="@{viewModel.confirmPasswordError != null ? @android:color/holo_red_light : @android:color/darker_gray}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tv_password_hint" />
@@ -255,18 +326,18 @@
                 app:layout_constraintTop_toBottomOf="@id/et_confirm_password" />
 
             <!-- Create Account Button -->
-                <Button
-                    android:id="@+id/btn_create_account"
-                    android:layout_width="0dp"
-                    android:layout_height="48dp"
-                    android:layout_marginTop="16dp"
-                    android:backgroundTint="#6200EE"
-                    android:onClick="@{() -> viewModel.onRegisterClicked()}"
-                    android:text="@string/create_account"
-                    android:textColor="@android:color/white"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/tv_confirm_password_error" />
+            <Button
+                android:id="@+id/btn_create_account"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_marginTop="16dp"
+                android:backgroundTint="#6200EE"
+                android:onClick="@{() -> viewModel.onRegisterClicked()}"
+                android:text="@string/create_account"
+                android:textColor="@android:color/white"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_confirm_password_error" />
 
             <!-- Terms and Conditions -->
             <TextView

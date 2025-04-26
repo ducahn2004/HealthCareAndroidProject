@@ -141,6 +141,9 @@
         <action
             android:id="@+id/action_settingsFragment_to_informationFragment"
             app:destination="@id/informationFragment" />
+        <action
+            android:id="@+id/action_settingsFragment_to_changePasswordFragment"
+            app:destination="@id/changePasswordFragment" />
     </fragment>
 
     <!-- Theme Fragment -->
@@ -182,5 +185,17 @@
             app:destination="@id/settingsFragment"
             app:popUpTo="@id/settingsFragment"
             app:popUpToInclusive="false" />
+    </fragment>
+
+    <!-- Update Password Fragment -->
+    <fragment
+        android:id="@+id/changePasswordFragment"
+        android:name="com.example.healthcareproject.present.setting.ChangePasswordFragment"
+        tools:layout="@layout/fragment_change_password">
+        <action
+            android:id="@+id/action_changePasswordFragment_to_settingsFragment"
+            app:destination="@id/settingsFragment"
+            app:popUpTo="@id/settingsFragment"
+            app:popUpToInclusive="true" />
     </fragment>
 </navigation>
