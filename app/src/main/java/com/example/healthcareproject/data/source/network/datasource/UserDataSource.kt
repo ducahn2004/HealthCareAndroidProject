@@ -22,5 +22,7 @@ interface UserDataSource {
 
     suspend fun updatePassword(newPassword: String)
 
+    suspend fun updatePassword(userId: String, currentPassword: String, newPassword: String)
+
     suspend fun sendPasswordResetEmail(email: String)
 }

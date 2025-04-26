@@ -8,9 +8,8 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import com.example.healthcareproject.present.setting.information.UpdateInformationDialogFragment
-import com.example.healthcareproject.present.setting.information.UpdateInformationViewModel
 import com.example.healthcareproject.databinding.FragmentInformationBinding
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -34,33 +33,39 @@ class InformationFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Load user info
-        viewModel.loadUserInfo("user123") // Replace with actual userId
+        // Check if user is logged in
+        val userId = FirebaseAuth.getInstance().currentUser?.email
+        if (userId == null) {
+            Toast.makeText(requireContext(), "User not logged in", Toast.LENGTH_SHORT).show()
+            findNavController().navigateUp()
+            return
+        }
 
-        // Observe ViewModel states
+        // Load user info
+        viewModel.loadUserInfo(userId)
+
+        // Observe error
         viewModel.error.observe(viewLifecycleOwner) { error ->
             if (error != null) {
                 Toast.makeText(requireContext(), error, Toast.LENGTH_SHORT).show()
             }
         }
 
+        // Observe loading state
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
-            // Optionally show a loading indicator
-            // For example, you can add a ProgressBar to the layout and toggle its visibility
-            // binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+            binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
         }
 
         // Handle back button
-        binding.icBackInformationToSettings.setOnClickListener {
-            findNavController().navigateUp() // Navigate back to previous fragment
+        binding.icBackInformation.setOnClickListener {
+            findNavController().navigateUp()
         }
 
         // Handle update button
         binding.btnUpdate.setOnClickListener {
-            val dialog = UpdateInformationDialogFragment { updatedInfo ->
-                Toast.makeText(requireContext(), "Information updated", Toast.LENGTH_SHORT).show()
-            }
-            dialog.show(parentFragmentManager, "UpdateInformationDialog")
+            UpdateInformationDialogFragment { updatedInfo ->
+                // Optional: Handle updated info if needed
+            }.show(parentFragmentManager, "UpdateInformationDialog")
         }
     }
 

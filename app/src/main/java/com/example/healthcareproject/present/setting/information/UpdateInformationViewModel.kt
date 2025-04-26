@@ -84,7 +84,7 @@ class UpdateInformationViewModel @Inject constructor(
     // Instance of UserForm for binding
     val userForm = UserForm()
 
-    // MutableLiveData for fields (used internally and for observation)
+    // MutableLiveData for fields
     private val _name = MutableLiveData<String>()
     val name: LiveData<String> get() = _name
 
@@ -94,11 +94,11 @@ class UpdateInformationViewModel @Inject constructor(
     private val _dateOfBirth = MutableLiveData<String>()
     val dateOfBirth: LiveData<String> get() = _dateOfBirth
 
-    private val _gender = MutableLiveData<String>()
-    val gender: LiveData<String> get() = _gender
+    private val _genderLiveData = MutableLiveData<String>() // Renamed from _gender
+    val genderLiveData: LiveData<String> get() = _genderLiveData // Renamed from gender
 
-    private val _bloodType = MutableLiveData<String>()
-    val bloodType: LiveData<String> get() = _bloodType
+    private val _bloodTypeLiveData = MutableLiveData<String>() // Renamed from _bloodType
+    val bloodTypeLiveData: LiveData<String> get() = _bloodTypeLiveData // Renamed from bloodType
 
     private val _phone = MutableLiveData<String>()
     val phone: LiveData<String> get() = _phone
@@ -109,16 +109,16 @@ class UpdateInformationViewModel @Inject constructor(
         userForm.dateOfBirth = date
     }
 
-    fun getGender(): String? = _gender.value
+    fun getGender(): String? = _genderLiveData.value
 
     fun setGender(gender: String) {
-        _gender.value = gender
+        _genderLiveData.value = gender
     }
 
-    fun getBloodType(): String? = _bloodType.value
+    fun getBloodType(): String? = _bloodTypeLiveData.value
 
     fun setBloodType(bloodType: String) {
-        _bloodType.value = bloodType
+        _bloodTypeLiveData.value = bloodType
     }
 
     fun loadUserInfo(userId: String) {
@@ -131,8 +131,8 @@ class UpdateInformationViewModel @Inject constructor(
                     userForm.name = it.name
                     userForm.address = it.address ?: ""
                     userForm.dateOfBirth = formatDateForDisplay(it.dateOfBirth)
-                    _gender.value = formatGenderForDisplay(it.gender)
-                    _bloodType.value = formatBloodTypeForDisplay(it.bloodType)
+                    _genderLiveData.value = formatGenderForDisplay(it.gender)
+                    _bloodTypeLiveData.value = formatBloodTypeForDisplay(it.bloodType)
                     userForm.phone = it.phone
                 }
                 _error.value = null
@@ -144,22 +144,17 @@ class UpdateInformationViewModel @Inject constructor(
         }
     }
 
-    fun saveUserInfo(
-        userId: String,
-        password: String
-    ) {
+    fun saveUserInfo(userId: String) {
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                // Use the values from the UserForm/MutableLiveData fields
                 val nameValue = userForm.name
                 val addressValue = userForm.address
                 val dateOfBirthValue = userForm.dateOfBirth
-                val genderValue = _gender.value ?: ""
-                val bloodTypeValue = _bloodType.value ?: ""
+                val genderValue = _genderLiveData.value ?: ""
+                val bloodTypeValue = _bloodTypeLiveData.value ?: ""
                 val phoneValue = userForm.phone
 
-                // Validate inputs
                 if (nameValue.trim().isEmpty()) {
                     _error.value = "Name is required"
                     return@launch
@@ -170,17 +165,14 @@ class UpdateInformationViewModel @Inject constructor(
                     return@launch
                 }
 
-                // Validate blood type
                 val validBloodTypes = listOf("A", "B", "AB", "O", "None")
                 if (bloodTypeValue !in validBloodTypes) {
                     _error.value = "Invalid blood type. Must be one of: A, B, AB, O, None"
                     return@launch
                 }
 
-                // Update user via UpdateUserUseCase
                 updateUserUseCase(
                     userId = userId,
-                    password = password,
                     name = nameValue,
                     address = addressValue,
                     dateOfBirth = dateOfBirthValue,
@@ -189,8 +181,7 @@ class UpdateInformationViewModel @Inject constructor(
                     phone = phoneValue
                 )
 
-                // Update the user info state
-                loadUserInfo(userId) // Refresh the user info after saving
+                loadUserInfo(userId)
                 _isSaved.value = true
                 _error.value = null
             } catch (e: Exception) {
@@ -236,9 +227,9 @@ class UpdateInformationViewModel @Inject constructor(
     private fun isValidDate(date: String): Boolean {
         return try {
             val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-            sdf.isLenient = false // Do not accept invalid dates (e.g., 31/04)
+            sdf.isLenient = false
             val parsedDate = sdf.parse(date)
-            parsedDate != null && parsedDate.before(Date()) // Ensure date is not in the future
+            parsedDate != null && parsedDate.before(Date())
         } catch (e: Exception) {
             false
         }
@@ -249,8 +240,8 @@ class UpdateInformationViewModel @Inject constructor(
             "name" to userForm.name,
             "address" to userForm.address,
             "dob" to userForm.dateOfBirth,
-            "gender" to (_gender.value ?: ""),
-            "blood_type" to (_bloodType.value ?: ""),
+            "gender" to (_genderLiveData.value ?: ""),
+            "blood_type" to (_bloodTypeLiveData.value ?: ""),
             "phone" to userForm.phone
         )
     }

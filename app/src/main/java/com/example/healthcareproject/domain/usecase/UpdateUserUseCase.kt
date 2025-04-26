@@ -1,30 +1,42 @@
 package com.example.healthcareproject.domain.usecase
 
-import com.example.healthcareproject.domain.repository.UserRepository
+import com.example.healthcareproject.data.source.network.datasource.UserFirebaseDataSource
+import com.example.healthcareproject.data.source.network.model.FirebaseUser
+import com.example.healthcareproject.domain.model.BloodType
+import com.example.healthcareproject.domain.model.Gender
 import javax.inject.Inject
 
 class UpdateUserUseCase @Inject constructor(
-    private val userRepository: UserRepository
+    private val userFirebaseDataSource: UserFirebaseDataSource
 ) {
     suspend operator fun invoke(
         userId: String,
-        password: String,
         name: String,
-        address: String?,
+        address: String,
         dateOfBirth: String,
         gender: String,
         bloodType: String,
         phone: String
     ) {
-        userRepository.updateUser(
-            userId = userId,
-            password = password,
-            name = name,
-            address = address,
-            dateOfBirth = dateOfBirth,
-            gender = gender,
-            bloodType = bloodType,
-            phone = phone
-        )
+        try {
+            val genderEnum = Gender.valueOf(gender.replace(" ", "").replaceFirstChar { it.uppercase() })
+            val bloodTypeEnum = BloodType.valueOf(bloodType.replace(" ", "").replaceFirstChar { it.uppercase() })
+
+            val user = FirebaseUser(
+                userId = userId, // Unescaped email
+                name = name,
+                address = address,
+                dateOfBirth = dateOfBirth,
+                gender = genderEnum,
+                bloodType = bloodTypeEnum,
+                phone = phone
+            )
+
+            userFirebaseDataSource.updateUser(userId, user)
+            println("User updated: $userId")
+        } catch (e: Exception) {
+            println("Error in UpdateUserUseCase: ${e.message}")
+            throw e
+        }
     }
 }

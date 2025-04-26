@@ -28,6 +28,8 @@ class UserFirebaseDataSource @Inject constructor(
     override suspend fun saveUser(user: FirebaseUser) {
         try {
             val escapedUserId = escapeEmail(user.userId)
+            println("Saving user with userId: ${user.userId}")
+            println("Escaped userId: $escapedUserId")
             println("Saving user to path: users/$escapedUserId")
             usersRef.child(escapedUserId).setValue(user).await()
             Timber.tag("Firebase").d("Saved user: $user")
@@ -40,6 +42,8 @@ class UserFirebaseDataSource @Inject constructor(
     override suspend fun loadUser(userId: String): FirebaseUser? {
         try {
             val escapedUserId = escapeEmail(userId)
+            println("Loading user with userId: $userId")
+            println("Escaped userId: $escapedUserId")
             println("Loading user from path: users/$escapedUserId")
             val snapshot = usersRef.child(escapedUserId).get().await()
             val user = snapshot.getValue(FirebaseUser::class.java)
@@ -54,6 +58,8 @@ class UserFirebaseDataSource @Inject constructor(
     override suspend fun deleteUser(userId: String) {
         try {
             val escapedUserId = escapeEmail(userId)
+            println("Deleting user with userId: $userId")
+            println("Escaped userId: $escapedUserId")
             println("Deleting user at path: users/$escapedUserId")
             usersRef.child(escapedUserId).removeValue().await()
             Timber.tag("Firebase").d("Deleted user: $userId")
@@ -66,6 +72,8 @@ class UserFirebaseDataSource @Inject constructor(
     override suspend fun updateUser(userId: String, user: FirebaseUser) {
         try {
             val escapedUserId = escapeEmail(userId)
+            println("Updating user with userId: $userId")
+            println("Escaped userId: $escapedUserId")
             println("Updating user at path: users/$escapedUserId")
             usersRef.child(escapedUserId).setValue(user).await()
             Timber.tag("Firebase").d("Updated user: $user")

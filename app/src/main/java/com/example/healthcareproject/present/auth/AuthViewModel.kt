@@ -139,7 +139,6 @@ class AuthViewModel @Inject constructor(
     private val _address = MutableLiveData<String?>()
     val address: LiveData<String?> = _address
 
-
     private val _verificationCode = MutableLiveData<String>()
     val verificationCode: LiveData<String> = _verificationCode
     fun onVerificationCodeChanged(value: String) {
@@ -229,6 +228,7 @@ class AuthViewModel @Inject constructor(
         _bloodTypeError.value = null
         _addressError.value = null
         _phoneError.value = null
+
         // Validate inputs
         var isValid = true
         if (nameValue.isBlank()) {
@@ -294,8 +294,10 @@ class AuthViewModel @Inject constructor(
             try {
                 userFirebaseDataSource.googleSignIn(idToken)
                 _isAuthenticated.value = true
+                println("Google Sign-In successful")
             } catch (e: Exception) {
                 _error.value = e.message ?: "Google Sign-In failed"
+                println("Google Sign-In failed: ${e.message}")
             } finally {
                 _isLoading.value = false
             }
@@ -397,8 +399,10 @@ class AuthViewModel @Inject constructor(
             try {
                 loginUserUseCase(email, password)
                 _isAuthenticated.value = true
+                println("Login successful for: $email")
             } catch (e: Exception) {
                 _error.value = e.message ?: "Login failed"
+                println("Login failed: ${e.message}")
             } finally {
                 _isLoading.value = false
             }
@@ -419,9 +423,8 @@ class AuthViewModel @Inject constructor(
         _isLoading.value = true
 
         viewModelScope.launch {
-            _isLoading.value = true
             try {
-                println("Registering user: $email")
+                println("Registering user with email: $email")
                 createUserUseCase(
                     userId = email,
                     password = password,
@@ -433,8 +436,10 @@ class AuthViewModel @Inject constructor(
                     phone = phone
                 )
                 _isAuthenticated.value = true
+                println("Registration successful for: $email")
             } catch (e: Exception) {
                 _error.value = e.message ?: "Registration failed"
+                println("Registration failed: ${e.message}")
             } finally {
                 _isLoading.value = false
             }
@@ -447,8 +452,10 @@ class AuthViewModel @Inject constructor(
             try {
                 updatePasswordUseCase(newPassword)
                 _password.value = newPassword
+                println("Password updated successfully")
             } catch (e: Exception) {
                 _error.value = e.message ?: "Failed to update password"
+                println("Failed to update password: ${e.message}")
             } finally {
                 _isLoading.value = false
             }

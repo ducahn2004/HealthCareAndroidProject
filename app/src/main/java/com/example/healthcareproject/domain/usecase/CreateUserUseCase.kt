@@ -2,15 +2,15 @@ package com.example.healthcareproject.domain.usecase
 
 import com.example.healthcareproject.data.source.network.datasource.UserFirebaseDataSource
 import com.example.healthcareproject.data.source.network.model.FirebaseUser
-import com.example.healthcareproject.domain.model.Gender
 import com.example.healthcareproject.domain.model.BloodType
+import com.example.healthcareproject.domain.model.Gender
 import javax.inject.Inject
 
 class CreateUserUseCase @Inject constructor(
     private val userFirebaseDataSource: UserFirebaseDataSource
 ) {
     suspend operator fun invoke(
-        email: String,
+        userId: String,
         password: String,
         name: String,
         address: String?,
@@ -19,35 +19,42 @@ class CreateUserUseCase @Inject constructor(
         bloodType: String,
         phone: String
     ) {
-        // Tạo tài khoản Firebase Auth
-        userFirebaseDataSource.createUser(email, password)
+        try {
+            // Create user in Firebase Authentication
+            userFirebaseDataSource.createUser(userId, password)
+            println("User created in Authentication: $userId")
 
-        // Chuyển đổi gender từ String sang Gender enum
-        val genderEnum = try {
-            Gender.valueOf(gender.replace(" ", "").capitalize())
-        } catch (e: IllegalArgumentException) {
-            throw IllegalArgumentException("Invalid gender: $gender. Expected: Male, Female, None")
+            // Parse gender and blood type
+            // Parse gender and blood type
+            val genderEnum = try {
+                Gender.valueOf(gender.replace(" ", "").replaceFirstChar { it.uppercase() })
+            } catch (e: IllegalArgumentException) {
+                throw Exception("Invalid gender value: $gender")
+            }
+
+            val bloodTypeEnum = try {
+                BloodType.valueOf(bloodType.replace(" ", "").replaceFirstChar { it.uppercase() })
+            } catch (e: IllegalArgumentException) {
+                throw Exception("Invalid blood type value: $bloodType")
+            }
+
+            // Create FirebaseUser object with unescaped userId
+            val user = FirebaseUser(
+                userId = userId, // Unescaped email (e.g., aeo4051@gmail.com)
+                name = name,
+                address = address,
+                dateOfBirth = dateOfBirth,
+                gender = genderEnum,
+                bloodType = bloodTypeEnum,
+                phone = phone
+            )
+            println("FirebaseUser created with userId: ${user.userId}")
+            // Save user to Realtime Database (escaping handled by UserFirebaseDataSource)
+            userFirebaseDataSource.saveUser(user)
+            println("User data saved for: $userId")
+        } catch (e: Exception) {
+            println("Error in CreateUserUseCase: ${e.message}")
+            throw e
         }
-
-        // Chuyển đổi bloodType từ String sang BloodType enum
-        val bloodTypeEnum = try {
-            BloodType.valueOf(bloodType.replace(" ", "").capitalize())
-        } catch (e: IllegalArgumentException) {
-            throw IllegalArgumentException("Invalid blood type: $bloodType. Expected: A, B, AB, O, None")
-        }
-
-        // Tạo FirebaseUser
-        val user = FirebaseUser(
-            userId = email,
-            name = name,
-            address = address,
-            dateOfBirth = dateOfBirth,
-            gender = genderEnum,
-            bloodType = bloodTypeEnum,
-            phone = phone
-        )
-
-        // Lưu vào Realtime Database
-        userFirebaseDataSource.saveUser(user)
     }
 }
