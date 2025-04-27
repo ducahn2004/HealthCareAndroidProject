@@ -109,6 +109,7 @@
     <string name="history">HISTORY</string>
     <string name="add_information">Add Information</string>
     <string name="default_web_client_id">YOUR_WEB_CLIENT_ID</string>
+    <string name="enter_email_to_reset_password">Enter Email to reset</string>
     <string-array name="gender_options">
         <item>Male</item>
         <item>Female</item>
