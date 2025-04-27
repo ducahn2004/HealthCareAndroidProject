@@ -7,10 +7,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import com.example.healthcareproject.R
 import com.example.healthcareproject.databinding.FragmentRegisterBinding
+import com.example.healthcareproject.present.auth.viewmodel.RegisterViewModel
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.LocalDate
@@ -21,7 +21,8 @@ class RegisterFragment : Fragment() {
 
     private var _binding: FragmentRegisterBinding? = null
     private val binding get() = _binding!!
-    private val viewModel: AuthViewModel by activityViewModels()
+    private val viewModel: RegisterViewModel by viewModels()
+    private lateinit var navigator: AuthNavigator
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -30,6 +31,7 @@ class RegisterFragment : Fragment() {
         _binding = FragmentRegisterBinding.inflate(inflater, container, false)
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
+        navigator = AuthNavigator(findNavController())
         return binding.root
     }
 
@@ -38,7 +40,7 @@ class RegisterFragment : Fragment() {
 
         // Back button
         binding.btnBackRegisterToLoginMethod.setOnClickListener {
-            findNavController().navigateUp()
+            navigator.fromRegisterToLoginMethod()
         }
 
         // Date picker for date of birth
@@ -84,7 +86,7 @@ class RegisterFragment : Fragment() {
         // Observe authentication success
         viewModel.isAuthenticated.observe(viewLifecycleOwner) { isAuthenticated ->
             if (isAuthenticated) {
-                findNavController().navigate(R.id.action_registerFragment_to_verifyCodeFragment)
+                navigator.fromRegisterToVerifyCode()
                 viewModel.resetNavigationStates()
             }
         }
@@ -107,3 +109,5 @@ class RegisterFragment : Fragment() {
         _binding = null
     }
 }
+
+

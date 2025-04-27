@@ -26,6 +26,9 @@
         <action
             android:id="@+id/action_registerFragment_to_verifyCodeFragment"
             app:destination="@id/verifyCodeFragment" />
+        <action
+            android:id="@+id/action_registerFragment_to_loginMethodFragment"
+            app:destination="@id/loginMethodFragment" />
     </fragment>
 
     <fragment

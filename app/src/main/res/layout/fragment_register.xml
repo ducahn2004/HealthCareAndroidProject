@@ -6,7 +6,7 @@
         <import type="android.view.View" />
         <variable
             name="viewModel"
-            type="com.example.healthcareproject.present.auth.AuthViewModel" />
+            type="com.example.healthcareproject.present.auth.viewmodel.RegisterViewModel" />
     </data>
 
     <ScrollView
@@ -51,8 +51,7 @@
                 android:layout_height="48dp"
                 android:layout_marginTop="32dp"
                 android:hint="Name"
-                android:text="@{viewModel.name}"
-                android:onTextChanged="@{(text, start, before, count) -> viewModel.onNameChanged(text.toString())}"
+                android:text="@={viewModel.name}"
                 android:backgroundTint="@{viewModel.nameError != null ? @android:color/holo_red_light : @android:color/darker_gray}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -76,8 +75,7 @@
                 android:layout_marginTop="8dp"
                 android:hint="@string/e_mail"
                 android:inputType="textEmailAddress"
-                android:text="@{viewModel.email}"
-                android:onTextChanged="@{(text, start, before, count) -> viewModel.setEmail(text.toString())}"
+                android:text="@={viewModel.email}"
                 android:backgroundTint="@{viewModel.emailError != null ? @android:color/holo_red_light : @android:color/darker_gray}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -112,7 +110,7 @@
                 android:layout_marginTop="8dp"
                 android:hint="DD/MM/YYYY"
                 android:inputType="date"
-                android:text="@{viewModel.dateOfBirth}"
+                android:text="@={viewModel.dateOfBirth}"
                 android:focusable="false"
                 android:backgroundTint="@{viewModel.dateOfBirthError != null ? @android:color/holo_red_light : @android:color/darker_gray}"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -212,8 +210,7 @@
                 android:layout_marginTop="8dp"
                 android:hint="Address"
                 android:inputType="textPostalAddress"
-                android:text="@{viewModel.address}"
-                android:onTextChanged="@{(text, start, before, count) -> viewModel.setAddress(text.toString())}"
+                android:text="@={viewModel.address}"
                 android:backgroundTint="@{viewModel.addressError != null ? @android:color/holo_red_light : @android:color/darker_gray}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -248,8 +245,7 @@
                 android:layout_marginTop="8dp"
                 android:hint="Phone"
                 android:inputType="phone"
-                android:text="@{viewModel.phone}"
-                android:onTextChanged="@{(text, start, before, count) -> viewModel.setPhone(text.toString())}"
+                android:text="@={viewModel.phone}"
                 android:backgroundTint="@{viewModel.phoneError != null ? @android:color/holo_red_light : @android:color/darker_gray}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -273,8 +269,7 @@
                 android:layout_marginTop="8dp"
                 android:hint="@string/password"
                 android:inputType="textPassword"
-                android:text="@{viewModel.password}"
-                android:onTextChanged="@{(text, start, before, count) -> viewModel.setPassword(text.toString())}"
+                android:text="@={viewModel.password}"
                 android:backgroundTint="@{viewModel.passwordError != null ? @android:color/holo_red_light : @android:color/darker_gray}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -308,8 +303,7 @@
                 android:layout_marginTop="8dp"
                 android:hint="@string/confirm_password"
                 android:inputType="textPassword"
-                android:text="@{viewModel.confirmPassword}"
-                android:onTextChanged="@{(text, start, before, count) -> viewModel.setConfirmPassword(text.toString())}"
+                android:text="@={viewModel.confirmPassword}"
                 android:backgroundTint="@{viewModel.confirmPasswordError != null ? @android:color/holo_red_light : @android:color/darker_gray}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
