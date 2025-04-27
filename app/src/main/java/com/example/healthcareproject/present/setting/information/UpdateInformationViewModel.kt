@@ -177,6 +177,7 @@ class UpdateInformationViewModel @Inject constructor(
                     return@launch
                 }
 
+
                 // Fetch the user's email (userId) from the stored email or user data
                 val userId = _email.value ?: throw Exception("User email not found")
 
@@ -202,17 +203,13 @@ class UpdateInformationViewModel @Inject constructor(
         }
     }
 
+
     fun formatDateForDisplay(date: LocalDate?): String {
         if (date == null) return ""
-        val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+        val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy").withLocale(Locale.US)
         return date.format(formatter)
     }
 
-    fun formatDateTimeForDisplay(dateTime: LocalDateTime?): String {
-        if (dateTime == null) return ""
-        val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")
-        return dateTime.format(formatter)
-    }
 
     fun formatGenderForDisplay(gender: Gender?): String {
         if (gender == null) return ""
@@ -236,10 +233,9 @@ class UpdateInformationViewModel @Inject constructor(
 
     private fun isValidDate(date: String): Boolean {
         return try {
-            val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-            sdf.isLenient = false
-            val parsedDate = sdf.parse(date)
-            parsedDate != null && parsedDate.before(Date())
+            val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy").withLocale(Locale.US)
+            val parsedDate = LocalDate.parse(date, formatter)
+            parsedDate != null && parsedDate.isBefore(LocalDate.now())
         } catch (e: Exception) {
             false
         }
@@ -262,4 +258,5 @@ class UpdateInformationViewModel @Inject constructor(
         _isSaved.value = false
         super.onCleared()
     }
+
 }

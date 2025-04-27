@@ -15,6 +15,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
+import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -36,11 +40,9 @@ class DefaultUserRepository @Inject constructor(
         phone: String
     ): String {
         return withContext(dispatcher) {
-            // Create user in Firebase Authentication and get UID
             val uid = networkDataSource.createUser(userId, password)
             println("User created in Authentication: $userId with UID: $uid")
 
-            // Parse gender and blood type from strings to enums
             val genderEnum = try {
                 Gender.valueOf(gender.replace(" ", "").replaceFirstChar { it.uppercase() })
             } catch (e: IllegalArgumentException) {
@@ -53,13 +55,16 @@ class DefaultUserRepository @Inject constructor(
                 throw Exception("Invalid blood type value: $bloodType")
             }
 
-            // Create domain User object
+            if (!isValidDateFormat(dateOfBirth) || !isValidDate(dateOfBirth)) {
+                throw Exception("Invalid date of birth. Use dd/MM/yyyy and ensure it's a valid date.")
+            }
+
             val user = User(
                 userId = userId,
                 password = password,
                 name = name,
                 address = address,
-                dateOfBirth = java.time.LocalDate.parse(dateOfBirth, java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                dateOfBirth = LocalDate.parse(dateOfBirth, DateTimeFormatter.ofPattern("dd/MM/yyyy").withLocale(Locale.US)),
                 gender = genderEnum,
                 bloodType = bloodTypeEnum,
                 phone = phone,
@@ -67,16 +72,10 @@ class DefaultUserRepository @Inject constructor(
                 updatedAt = java.time.LocalDateTime.now()
             )
 
-            // Save to network (Firebase Realtime Database)
             networkDataSource.saveUser(user.toNetwork(), uid)
-
-            // Save to local (Room database)
             localDataSource.upsert(user.toLocal())
-
-            // Send verification code (default code "000000" will be used)
             networkDataSource.sendVerificationCode(userId)
-
-            uid // Return the UID as required by the interface
+            uid
         }
     }
 
@@ -90,25 +89,34 @@ class DefaultUserRepository @Inject constructor(
         bloodType: String,
         phone: String
     ) {
-        val user = getUser(userId)?.copy(
-            password = password,
-            name = name,
-            address = address,
-            dateOfBirth = java.time.LocalDate.parse(dateOfBirth),
-            gender = com.example.healthcareproject.domain.model.Gender.valueOf(gender),
-            bloodType = com.example.healthcareproject.domain.model.BloodType.valueOf(bloodType),
-            phone = phone,
-            updatedAt = java.time.LocalDateTime.now()
-        ) ?: throw Exception("User (id $userId) not found")
-
         withContext(dispatcher) {
-            // Fetch the UID using the userId (email)
-            val uid = networkDataSource.getUidByEmail(userId)
-                ?: throw Exception("Failed to retrieve UID for user $userId")
+            if (!isValidDateFormat(dateOfBirth) || !isValidDate(dateOfBirth)) {
+                throw Exception("Invalid date of birth. Use dd/MM/yyyy and ensure it's a valid date.")
+            }
 
-            // Update user in both local and network data sources
-            localDataSource.upsert(user.toLocal())
-            networkDataSource.updateUser(uid, user.toNetwork())
+            try {
+                val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy").withLocale(Locale.US)
+                val localDate = LocalDate.parse(dateOfBirth, formatter)
+
+                val user = getUser(userId)?.copy(
+                    password = password,
+                    name = name,
+                    address = address,
+                    dateOfBirth = localDate,
+                    gender = Gender.valueOf(gender.replace(" ", "").replaceFirstChar { it.uppercase() }),
+                    bloodType = BloodType.valueOf(bloodType.replace(" ", "").replaceFirstChar { it.uppercase() }),
+                    phone = phone,
+                    updatedAt = java.time.LocalDateTime.now()
+                ) ?: throw Exception("User (id $userId) not found")
+
+                val uid = networkDataSource.getUidByEmail(userId)
+                    ?: throw Exception("Failed to retrieve UID for user $userId")
+
+                localDataSource.upsert(user.toLocal())
+                networkDataSource.updateUser(uid, user.toNetwork())
+            } catch (e: Exception) {
+                throw Exception("Failed to update user: ${e.message}")
+            }
         }
     }
 
@@ -157,7 +165,6 @@ class DefaultUserRepository @Inject constructor(
 
     override suspend fun deleteUser(userId: String) {
         withContext(dispatcher) {
-            // Fetch the UID to delete from the network
             val uid = networkDataSource.getUidByEmail(userId)
                 ?: throw Exception("Failed to retrieve UID for user $userId")
             localDataSource.deleteById(userId)
@@ -175,6 +182,21 @@ class DefaultUserRepository @Inject constructor(
             } else {
                 throw IllegalArgumentException("Invalid user data received from network")
             }
+        }
+    }
+
+    private fun isValidDateFormat(date: String): Boolean {
+        return date.matches(Regex("\\d{2}/\\d{2}/\\d{4}"))
+    }
+
+    private fun isValidDate(date: String): Boolean {
+        return try {
+            val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.US)
+            sdf.isLenient = false
+            val parsedDate = sdf.parse(date)
+            parsedDate != null && parsedDate.before(Date())
+        } catch (e: Exception) {
+            false
         }
     }
 }

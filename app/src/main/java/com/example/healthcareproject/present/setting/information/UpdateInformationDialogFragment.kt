@@ -157,8 +157,12 @@ class UpdateInformationDialogFragment(
         val calendar = Calendar.getInstance()
         val currentDob = viewModel.getDateOfBirth() ?: ""
         if (currentDob.isNotEmpty() && currentDob.matches(Regex("\\d{2}/\\d{2}/\\d{4}"))) {
-            val parts = currentDob.split("/")
-            calendar.set(parts[2].toInt(), parts[1].toInt() - 1, parts[0].toInt())
+            try {
+                val parts = currentDob.split("/")
+                calendar.set(parts[2].toInt(), parts[1].toInt() - 1, parts[0].toInt())
+            } catch (e: Exception) {
+                calendar.time = Date()
+            }
         }
 
         val datePicker = DatePickerDialog(
