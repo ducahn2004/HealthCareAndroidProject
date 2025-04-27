@@ -44,4 +44,12 @@ interface UserRepository {
 
     suspend fun deleteUser(userId: String)
 
+    suspend fun updatePassword(email: String, currentPassword: String, newPassword: String)
+
+    suspend fun sendPasswordResetEmail(email: String)
+
+    suspend fun resetPassword(email: String, newPassword: String)
+
+    suspend fun loginUser(userId: String, password: String)
+
 }

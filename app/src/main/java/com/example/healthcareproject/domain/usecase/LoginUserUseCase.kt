@@ -1,12 +1,12 @@
 package com.example.healthcareproject.domain.usecase
 
-import com.example.healthcareproject.data.source.network.datasource.UserFirebaseDataSource
+import com.example.healthcareproject.domain.repository.UserRepository
 import javax.inject.Inject
 
 class LoginUserUseCase @Inject constructor(
-    private val userFirebaseDataSource: UserFirebaseDataSource
+    private val userRepository: UserRepository
 ) {
     suspend operator fun invoke(userId: String, password: String) {
-        userFirebaseDataSource.loginUser(userId, password)
+        userRepository.loginUser(userId, password)
     }
 }

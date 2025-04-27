@@ -172,6 +172,26 @@ class DefaultUserRepository @Inject constructor(
         }
     }
 
+    override suspend fun updatePassword(
+        email: String,
+        currentPassword: String,
+        newPassword: String
+    ) {
+        networkDataSource.updatePassword(email, currentPassword, newPassword)
+    }
+
+    override suspend fun sendPasswordResetEmail(email: String) {
+        networkDataSource.sendPasswordResetEmail(email)
+    }
+
+    override suspend fun resetPassword(email: String, newPassword: String) {
+        networkDataSource.resetPassword(email, newPassword)
+    }
+
+    override suspend fun loginUser(userId: String, password: String) {
+        networkDataSource.loginUser(userId, password)
+    }
+
     override suspend fun refresh(userId: String) {
         withContext(dispatcher) {
             val uid = networkDataSource.getUidByEmail(userId)

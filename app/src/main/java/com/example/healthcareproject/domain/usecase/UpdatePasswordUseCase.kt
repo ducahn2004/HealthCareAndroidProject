@@ -1,14 +1,15 @@
 package com.example.healthcareproject.domain.usecase
 
 import com.example.healthcareproject.data.source.network.datasource.UserFirebaseDataSource
+import com.example.healthcareproject.domain.repository.UserRepository
 import javax.inject.Inject
 
 class UpdatePasswordUseCase @Inject constructor(
-    private val userFirebaseDataSource: UserFirebaseDataSource
+    private val userRepository: UserRepository
 ) {
     suspend operator fun invoke(email: String, currentPassword: String, newPassword: String) {
         try {
-            userFirebaseDataSource.updatePassword(email, currentPassword, newPassword)
+            userRepository.updatePassword(email, currentPassword, newPassword)
         } catch (e: Exception) {
             throw Exception("Password update failed: ${e.message}", e)
         }
