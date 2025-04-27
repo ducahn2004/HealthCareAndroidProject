@@ -24,62 +24,104 @@ class UserFirebaseDataSource @Inject constructor(
         return email.replace(".", "#")
     }
 
-
-    override suspend fun saveUser(user: FirebaseUser) {
+    override suspend fun getUidByEmail(email: String): String? {
         try {
-            val escapedUserId = escapeEmail(user.userId)
-            println("Saving user with userId: ${user.userId}")
-            println("Escaped userId: $escapedUserId")
-            println("Saving user to path: users/$escapedUserId")
-            usersRef.child(escapedUserId).setValue(user).await()
-            Timber.tag("Firebase").d("Saved user: $user")
+            val escapedEmail = escapeEmail(email)
+            println("Looking up UID for email: $email")
+            println("Escaped email: $escapedEmail")
+            println("Querying path: emailToUid/$escapedEmail")
+            val snapshot = emailToUidRef.child(escapedEmail).get().await()
+            val uid = snapshot.getValue(String::class.java)
+            println("Found UID: $uid for email: $email")
+            return uid
         } catch (e: Exception) {
-            Timber.tag("Firebase").e(e, "Failed to write user: ${e.message}")
-            throw Exception("Failed to write user: ${e.message}", e)
+            Timber.tag("Firebase").e(e, "Failed to get UID for email: $email")
+            return null
         }
     }
 
-    override suspend fun loadUser(userId: String): FirebaseUser? {
+    override suspend fun saveUser(user: FirebaseUser, uid: String) {
         try {
-            val escapedUserId = escapeEmail(userId)
-            println("Loading user with userId: $userId")
-            println("Escaped userId: $escapedUserId")
-            println("Loading user from path: users/$escapedUserId")
-            val snapshot = usersRef.child(escapedUserId).get().await()
+            println("Saving user with userId: ${user.userId}, UID: $uid")
+            println("Saving user to path: users/$uid")
+            // Save user data under UID
+            val userData = mapOf(
+                "name" to user.name,
+                "address" to user.address,
+                "dateOfBirth" to user.dateOfBirth,
+                "gender" to user.gender.toString(),
+                "bloodType" to user.bloodType.toString(),
+                "phone" to user.phone,
+                "userId" to user.userId
+            )
+            usersRef.child(uid).setValue(userData).await()
+
+            // Save email-to-UID mapping
+            val escapedEmail = escapeEmail(user.userId)
+            println("Saving email-to-UID mapping: emailToUid/$escapedEmail -> $uid")
+            emailToUidRef.child(escapedEmail).setValue(uid).await()
+
+            Timber.tag("Firebase").d("Saved user with UID: $uid")
+        } catch (e: Exception) {
+            Timber.tag("Firebase").e(e, "Failed to write user with UID $uid: ${e.message}")
+            throw Exception("Failed to write user with UID $uid: ${e.message}", e)
+        }
+    }
+
+    override suspend fun loadUser(uid: String): FirebaseUser? {
+        try {
+            println("Loading user with UID: $uid")
+            println("Loading user from path: users/$uid")
+            val snapshot = usersRef.child(uid).get().await()
             val user = snapshot.getValue(FirebaseUser::class.java)
             println("Loaded user: $user")
             return user
         } catch (e: Exception) {
-            println("Error loading user: ${e.message}")
+            println("Error loading user with UID $uid: ${e.message}")
             throw e
         }
     }
 
-    override suspend fun deleteUser(userId: String) {
+    override suspend fun deleteUser(uid: String) {
         try {
-            val escapedUserId = escapeEmail(userId)
-            println("Deleting user with userId: $userId")
-            println("Escaped userId: $escapedUserId")
-            println("Deleting user at path: users/$escapedUserId")
-            usersRef.child(escapedUserId).removeValue().await()
-            Timber.tag("Firebase").d("Deleted user: $userId")
+            println("Deleting user with UID: $uid")
+            println("Deleting user at path: users/$uid")
+            // Delete user data
+            usersRef.child(uid).removeValue().await()
+
+            // Delete email-to-UID mapping
+            val user = loadUser(uid)
+            if (user != null) {
+                val escapedEmail = escapeEmail(user.userId)
+                println("Deleting email-to-UID mapping at: emailToUid/$escapedEmail")
+                emailToUidRef.child(escapedEmail).removeValue().await()
+            }
+
+            Timber.tag("Firebase").d("Deleted user with UID: $uid")
         } catch (e: Exception) {
-            Timber.tag("Firebase").e(e, "Failed to delete user: ${e.message}")
-            throw Exception("Failed to delete user: ${e.message}", e)
+            Timber.tag("Firebase").e(e, "Failed to delete user with UID $uid: ${e.message}")
+            throw Exception("Failed to delete user with UID $uid: ${e.message}", e)
         }
     }
 
-    override suspend fun updateUser(userId: String, user: FirebaseUser) {
+    override suspend fun updateUser(uid: String, user: FirebaseUser) {
         try {
-            val escapedUserId = escapeEmail(userId)
-            println("Updating user with userId: $userId")
-            println("Escaped userId: $escapedUserId")
-            println("Updating user at path: users/$escapedUserId")
-            usersRef.child(escapedUserId).setValue(user).await()
-            Timber.tag("Firebase").d("Updated user: $user")
+            println("Updating user with UID: $uid")
+            println("Updating user at path: users/$uid")
+            val userData = mapOf(
+                "name" to user.name,
+                "address" to user.address,
+                "dateOfBirth" to user.dateOfBirth,
+                "gender" to user.gender.toString(),
+                "bloodType" to user.bloodType.toString(),
+                "phone" to user.phone,
+                "userId" to user.userId
+            )
+            usersRef.child(uid).setValue(userData).await()
+            Timber.tag("Firebase").d("Updated user with UID: $uid")
         } catch (e: Exception) {
-            Timber.tag("Firebase").e(e, "Failed to update user: ${e.message}")
-            throw Exception("Failed to update user: ${e.message}", e)
+            Timber.tag("Firebase").e(e, "Failed to update user with UID $uid: ${e.message}")
+            throw Exception("Failed to update user with UID $uid: ${e.message}", e)
         }
     }
 
@@ -108,62 +150,83 @@ class UserFirebaseDataSource @Inject constructor(
         }
     }
 
-    override suspend fun createUser(userId: String, password: String) {
+    override suspend fun createUser(email: String, password: String) {
         try {
-            firebaseAuth.createUserWithEmailAndPassword(userId, password).await()
-            Timber.tag("Firebase").d("User created in Authentication: $userId")
+            println("Creating user in Authentication with email: $email")
+            firebaseAuth.createUserWithEmailAndPassword(email, password).await()
+            Timber.tag("Firebase").d("User created in Authentication: $email")
         } catch (e: Exception) {
             Timber.tag("Firebase").e(e, "User creation failed: ${e.message}")
             throw Exception("User creation failed: ${e.message}", e)
         }
     }
 
-    override suspend fun loginUser(userId: String, password: String) {
+    override suspend fun loginUser(email: String, password: String) {
         try {
-            firebaseAuth.signInWithEmailAndPassword(userId, password).await()
-            Timber.tag("Firebase").d("User logged in: $userId")
+            println("Logging in user with email: $email")
+            firebaseAuth.signInWithEmailAndPassword(email, password).await()
+            Timber.tag("Firebase").d("User logged in: $email")
         } catch (e: Exception) {
             Timber.tag("Firebase").e(e, "Login failed: ${e.message}")
             throw Exception("Login failed: ${e.message}", e)
         }
     }
 
-    override suspend fun googleSignIn(idToken: String) = try {
-        val credential = GoogleAuthProvider.getCredential(idToken, null)
-        firebaseAuth.signInWithCredential(credential).await()
-        Timber.tag("Firebase").d("Google Sign-In successful")
-    } catch (e: Exception) {
-        Timber.tag("Firebase").e(e, "Google Sign-In failed: ${e.message}")
-        throw Exception("Google Sign-In failed: ${e.message}", e)
-    }
-
-    override suspend fun updatePassword(newPassword: String) {
+    override suspend fun googleSignIn(idToken: String) {
         try {
-            val user = firebaseAuth.currentUser
-                ?: throw Exception("No authenticated user found")
-            user.updatePassword(newPassword).await()
-            Timber.tag("Firebase").d("Password updated successfully")
+            val credential = GoogleAuthProvider.getCredential(idToken, null)
+            firebaseAuth.signInWithCredential(credential).await()
+            Timber.tag("Firebase").d("Google Sign-In successful")
         } catch (e: Exception) {
-            Timber.tag("Firebase").e(e, "Failed to update password")
-            throw Exception("Failed to update password: ${e.message}", e)
+            Timber.tag("Firebase").e(e, "Google Sign-In failed: ${e.message}")
+            throw Exception("Google Sign-In failed: ${e.message}", e)
         }
     }
 
-    override suspend fun updatePassword(userId: String, currentPassword: String, newPassword: String) {
+    override suspend fun updatePassword(email: String, currentPassword: String, newPassword: String) {
         try {
             val user = firebaseAuth.currentUser
                 ?: throw Exception("No authenticated user found")
 
             // Re-authenticate the user
-            val credential = EmailAuthProvider.getCredential(userId, currentPassword)
+            val credential = EmailAuthProvider.getCredential(email, currentPassword)
             user.reauthenticate(credential).await()
 
             // Update the password
             user.updatePassword(newPassword).await()
-            Timber.tag("Firebase").d("Password updated successfully for: $userId")
+            Timber.tag("Firebase").d("Password updated successfully for: $email")
         } catch (e: Exception) {
-            Timber.tag("Firebase").e(e, "Failed to update password for: $userId")
+            Timber.tag("Firebase").e(e, "Failed to update password for: $email")
             throw Exception("Failed to update password: ${e.message}", e)
+        }
+    }
+
+    override suspend fun resetPassword(email: String, newPassword: String) {
+        try {
+            // Since the user has already verified their identity via a code,
+            // we need to sign them in temporarily to update the password.
+            // However, Firebase client SDK requires the user to be signed in.
+            // For a proper reset, we should use a password reset link, but since you're using a verification code,
+            // we'll assume the user has been authenticated or use a custom flow.
+
+            // First, sign the user out to ensure a clean state
+            firebaseAuth.signOut()
+
+            // Sign in the user temporarily (assuming the verification code flow has confirmed their identity)
+            // In a real app, you might use a custom token or a password reset link instead.
+            // For this example, we'll assume the verification code flow has already validated the user.
+            // We need to fetch the user by email and update their password.
+
+            val user = firebaseAuth.currentUser
+            if (user != null && user.email == email) {
+                user.updatePassword(newPassword).await()
+                Timber.tag("Firebase").d("Password reset successfully for: $email")
+            } else {
+                throw Exception("User must be signed in to reset password. Please complete verification.")
+            }
+        } catch (e: Exception) {
+            Timber.tag("Firebase").e(e, "Failed to reset password for: $email")
+            throw Exception("Failed to reset password: ${e.message}", e)
         }
     }
     override suspend fun sendPasswordResetEmail(email: String) {
