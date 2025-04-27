@@ -1,19 +1,20 @@
 package com.example.healthcareproject.present.auth
 
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.edit
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import com.example.healthcareproject.R
 import com.example.healthcareproject.databinding.FragmentVerifyCodeBinding
 import com.example.healthcareproject.present.MainActivity
+import com.example.healthcareproject.present.auth.viewmodel.VerifyCodeViewModel
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
-import androidx.core.content.edit
 import timber.log.Timber
 
 @AndroidEntryPoint
@@ -21,16 +22,17 @@ class VerifyCodeFragment : Fragment() {
 
     private var _binding: FragmentVerifyCodeBinding? = null
     private val binding get() = _binding!!
-    private val viewModel: AuthViewModel by activityViewModels()
+    private val viewModel: VerifyCodeViewModel by viewModels()
+    private lateinit var navigator: AuthNavigator
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentVerifyCodeBinding.inflate(inflater, container, false)
-        // Setup data binding
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
+        navigator = AuthNavigator(findNavController())
         return binding.root
     }
 
@@ -43,8 +45,16 @@ class VerifyCodeFragment : Fragment() {
         if (viewModel.email.value.isNullOrEmpty()) {
             Timber.e("Email is null or empty in VerifyCodeFragment")
             Snackbar.make(binding.root, "Email is required for verification", Snackbar.LENGTH_LONG).show()
-            findNavController().navigateUp()
+            navigator.navigateUp()
             return
+        }
+
+        binding.btnBackVerifyCode.setOnClickListener {
+            when (viewModel.authFlow.value) {
+                VerifyCodeViewModel.AuthFlow.REGISTRATION -> navigator.fromRegisterToLoginMethod()
+                VerifyCodeViewModel.AuthFlow.FORGOT_PASSWORD -> navigator.fromForgotPasswordToLoginMethod()
+                null -> navigator.navigateUp()
+            }
         }
 
         // Start timer for code verification
@@ -60,7 +70,7 @@ class VerifyCodeFragment : Fragment() {
             val email = viewModel.email.value
             if (!email.isNullOrBlank()) {
                 try {
-                    viewModel.sendPasswordResetEmail(email)
+                    viewModel.sendVerificationCode()
                     viewModel.startTimer() // Restart timer after resending
                     Snackbar.make(binding.root, "Code resent to $email", Snackbar.LENGTH_SHORT).show()
                 } catch (e: Exception) {
@@ -81,16 +91,18 @@ class VerifyCodeFragment : Fragment() {
 
                 try {
                     when (viewModel.authFlow.value) {
-                        AuthViewModel.AuthFlow.REGISTRATION, AuthViewModel.AuthFlow.LOGIN -> {
+                        VerifyCodeViewModel.AuthFlow.REGISTRATION -> {
                             saveLoginState(true)
-                            startActivity(Intent(requireContext(), MainActivity::class.java))
+                            startActivity(Intent(requireContext(), MainActivity::class.java).apply {
+                                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                            })
                             requireActivity().finish()
                         }
-                        AuthViewModel.AuthFlow.FORGOT_PASSWORD -> {
-                            findNavController().navigate(R.id.action_verifyCodeFragment_to_createNewPasswordFragment)
+                        VerifyCodeViewModel.AuthFlow.FORGOT_PASSWORD -> {
+                            navigator.fromVerifyCodeToCreateNewPassword()
                         }
-                        else -> {
-                            Timber.e("Invalid authentication flow: ${viewModel.authFlow.value}")
+                        null -> {
+                            Timber.e("AuthFlow is null")
                             Snackbar.make(binding.root, "Invalid authentication flow", Snackbar.LENGTH_LONG).show()
                         }
                     }
@@ -116,14 +128,13 @@ class VerifyCodeFragment : Fragment() {
         viewModel.verificationCodeError.observe(viewLifecycleOwner) { error ->
             if (!error.isNullOrEmpty()) {
                 Timber.e("Verification code error: $error")
-                // Error is already handled by data binding in XML
+                // Error is handled by data binding in XML
             }
         }
 
         // Observe loading state
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             binding.btnVerify.isEnabled = !isLoading
-            // Consider adding a progress indicator here
         }
     }
 

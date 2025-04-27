@@ -6,13 +6,23 @@
         <import type="android.view.View" />
         <variable
             name="viewModel"
-            type="com.example.healthcareproject.present.auth.AuthViewModel" />
+            type="com.example.healthcareproject.present.auth.viewmodel.VerifyCodeViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="16dp">
+        <ImageButton
+            android:id="@+id/btn_back_verify_code"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:contentDescription="@string/back"
+            android:padding="16dp"
+            android:src="@drawable/ic_back"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
 
         <TextView
             android:id="@+id/tv_title"
@@ -31,7 +41,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:text="@{viewModel.email != null ? @string/code_has_been_send_to + viewModel.email : @string/code_has_been_send_to_johndoe_gmail_com_nenter_the_code_to_verify_your_account}"
+            android:text="@{viewModel.email != null ? @string/code_has_been_send_to + viewModel.email : @string/code_has_been_send_to_default}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tv_title" />
@@ -43,8 +53,7 @@
             android:layout_marginTop="12dp"
             android:hint="@string/_4_digit_code"
             android:inputType="number"
-            android:text="@{viewModel.verificationCode}"
-            android:onTextChanged="@{(text, start, before, count) -> viewModel.onVerificationCodeChanged(text.toString())}"
+            android:text="@={viewModel.verificationCode}"
             android:backgroundTint="@{viewModel.verificationCodeError != null ? @android:color/holo_red_light : null}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -83,6 +92,16 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tv_resend" />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="@{viewModel.isLoading ? View.VISIBLE : View.GONE}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

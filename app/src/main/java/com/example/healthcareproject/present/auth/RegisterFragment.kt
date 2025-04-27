@@ -11,6 +11,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.example.healthcareproject.databinding.FragmentRegisterBinding
 import com.example.healthcareproject.present.auth.viewmodel.RegisterViewModel
+import com.example.healthcareproject.present.auth.viewmodel.VerifyCodeViewModel
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.LocalDate
@@ -22,6 +23,7 @@ class RegisterFragment : Fragment() {
     private var _binding: FragmentRegisterBinding? = null
     private val binding get() = _binding!!
     private val viewModel: RegisterViewModel by viewModels()
+    private val verifyCodeViewModel: VerifyCodeViewModel by viewModels()
     private lateinit var navigator: AuthNavigator
 
     override fun onCreateView(
@@ -86,6 +88,8 @@ class RegisterFragment : Fragment() {
         // Observe authentication success
         viewModel.isAuthenticated.observe(viewLifecycleOwner) { isAuthenticated ->
             if (isAuthenticated) {
+                verifyCodeViewModel.setEmail(viewModel.email.value ?: "")
+                verifyCodeViewModel.setAuthFlow(VerifyCodeViewModel.AuthFlow.REGISTRATION)
                 navigator.fromRegisterToVerifyCode()
                 viewModel.resetNavigationStates()
             }
