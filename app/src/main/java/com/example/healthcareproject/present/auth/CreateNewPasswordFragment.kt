@@ -1,65 +1,90 @@
 package com.example.healthcareproject.present.auth
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
-import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.lifecycleScope
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import com.example.healthcareproject.present.MainActivity
-import com.example.healthcareproject.R
-import kotlinx.coroutines.launch
+import com.example.healthcareproject.databinding.FragmentCreateNewPasswordBinding
+import com.example.healthcareproject.present.auth.viewmodel.CreateNewPasswordViewModel
+import com.example.healthcareproject.present.auth.viewmodel.VerifyCodeViewModel
+import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 
+@AndroidEntryPoint
 class CreateNewPasswordFragment : Fragment() {
 
-    private val viewModel: AuthViewModel by activityViewModels()
+    private var _binding: FragmentCreateNewPasswordBinding? = null
+    private val binding get() = _binding!!
+    private val viewModel: CreateNewPasswordViewModel by viewModels()
+    private val verifyCodeViewModel: VerifyCodeViewModel by viewModels()
+    private lateinit var navigator: AuthNavigator
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_create_new_password, container, false)
+    ): View {
+        _binding = FragmentCreateNewPasswordBinding.inflate(inflater, container, false)
+        binding.viewModel = viewModel
+        binding.lifecycleOwner = viewLifecycleOwner
+        navigator = AuthNavigator(findNavController())
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val etPassword = view.findViewById<EditText>(R.id.et_password)
-        val etConfirmPassword = view.findViewById<EditText>(R.id.et_confirm_password)
+        Timber.d("CreateNewPasswordFragment: onViewCreated")
 
-        view.findViewById<View>(R.id.btn_reset_password).setOnClickListener {
-            val password = etPassword.text.toString()
-            val confirmPassword = etConfirmPassword.text.toString()
+        // Set email from VerifyCodeViewModel
+        val email = verifyCodeViewModel.email.value
+        if (email.isNullOrEmpty()) {
+            Timber.e("Email is null or empty in CreateNewPasswordFragment")
+            Snackbar.make(binding.root, "Email is required to reset password", Snackbar.LENGTH_LONG).show()
+            navigator.fromCreateNewPasswordToLogin()
+            return
+        }
+        viewModel.setEmail(email)
+        Timber.d("Email set to $email from VerifyCodeViewModel")
 
-            lifecycleScope.launch {
-                if (password == confirmPassword) {
-                    try {
-                        val email = viewModel.email.value
-                        if (email.isNullOrEmpty()) {
-                            Toast.makeText(requireContext(), "Email is required to reset password", Toast.LENGTH_LONG).show()
-                            findNavController().navigate(R.id.action_createNewPasswordFragment_to_loginFragment)
-                            return@launch
-                        }
+        // Back button
+        binding.btnBackCreateNewPassword.setOnClickListener {
+            navigator.navigateUp()
+        }
 
-                        // Use resetPassword instead of updatePassword
-                        viewModel.resetPassword(password)
-                        Toast.makeText(requireContext(), "Password reset successfully. Please log in.", Toast.LENGTH_LONG).show()
+        // Observe navigation to Login
+        viewModel.navigateToLogin.observe(viewLifecycleOwner) { navigate ->
+            if (navigate) {
+                Timber.d("Navigating to LoginFragment after successful password reset")
+                Snackbar.make(binding.root, "Password reset successfully. Please log in.", Snackbar.LENGTH_SHORT).show()
+                navigator.fromCreateNewPasswordToLogin()
+                viewModel.resetNavigationStates()
+            }
+        }
 
-                        // Navigate to login screen instead of MainActivity
-                        findNavController().navigate(R.id.action_createNewPasswordFragment_to_loginFragment)
-                    } catch (e: Exception) {
-                        Toast.makeText(requireContext(), "Failed to reset password: ${e.message}", Toast.LENGTH_LONG).show()
-                    }
+        // Observe errors
+        viewModel.error.observe(viewLifecycleOwner) { error ->
+            if (!error.isNullOrEmpty()) {
+                Timber.e("Error in CreateNewPasswordFragment: $error")
+                if (error == "Password reset successfully") {
+                    Snackbar.make(binding.root, error, Snackbar.LENGTH_SHORT).show()
                 } else {
-                    etConfirmPassword.error = "Passwords do not match"
-                    Toast.makeText(requireContext(), "Passwords do not match", Toast.LENGTH_SHORT).show()
+                    Snackbar.make(binding.root, error, Snackbar.LENGTH_LONG).show()
                 }
             }
         }
+
+        // Observe loading state
+        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            binding.btnResetPassword.isEnabled = !isLoading
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }
