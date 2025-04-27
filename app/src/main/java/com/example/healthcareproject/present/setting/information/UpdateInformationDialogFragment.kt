@@ -43,10 +43,10 @@ class UpdateInformationDialogFragment(
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Load user info
-        val userId = FirebaseAuth.getInstance().currentUser?.email
-        if (userId != null) {
-            viewModel.loadUserInfo(userId)
+        // Load user info using UID
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
+        if (uid != null) {
+            viewModel.loadUserInfoByUid(uid)
         } else {
             Toast.makeText(requireContext(), "User not logged in", Toast.LENGTH_SHORT).show()
             dismiss()
@@ -89,9 +89,9 @@ class UpdateInformationDialogFragment(
 
         // Xử lý nút Save
         binding.btnSave.setOnClickListener {
-            val userId = FirebaseAuth.getInstance().currentUser?.email
-            if (userId != null) {
-                viewModel.saveUserInfo(userId)
+            val uid = FirebaseAuth.getInstance().currentUser?.uid
+            if (uid != null) {
+                viewModel.saveUserInfoByUid(uid)
             } else {
                 Toast.makeText(requireContext(), "User not logged in", Toast.LENGTH_SHORT).show()
                 dismiss()
@@ -115,7 +115,6 @@ class UpdateInformationDialogFragment(
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         binding.spinnerGender.adapter = adapter
 
-        // Observe renamed genderLiveData
         viewModel.genderLiveData.observe(viewLifecycleOwner) { gender ->
             val index = genders.indexOf(gender)
             if (index >= 0) {
@@ -123,13 +122,13 @@ class UpdateInformationDialogFragment(
             }
         }
 
-        binding.spinnerGender.setOnItemSelectedListener(object : android.widget.AdapterView.OnItemSelectedListener {
+        binding.spinnerGender.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: android.widget.AdapterView<*>, view: View?, position: Int, id: Long) {
                 viewModel.setGender(genders[position])
             }
 
             override fun onNothingSelected(parent: android.widget.AdapterView<*>) {}
-        })
+        }
     }
 
     private fun setupBloodTypeSpinner() {
@@ -138,7 +137,6 @@ class UpdateInformationDialogFragment(
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         binding.spinnerBloodType.adapter = adapter
 
-        // Observe renamed bloodTypeLiveData
         viewModel.bloodTypeLiveData.observe(viewLifecycleOwner) { bloodType ->
             val index = bloodTypes.indexOf(bloodType)
             if (index >= 0) {

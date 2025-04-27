@@ -44,6 +44,25 @@ class UserFirebaseDataSource @Inject constructor(
         }
     }
 
+    override suspend fun getEmailByUid(uid: String): String? {
+        return try {
+            println("Looking up email for UID: $uid")
+            val snapshot = emailToUidRef.orderByValue().equalTo(uid).get().await()
+            for (child in snapshot.children) {
+                val escapedEmail = child.key ?: continue
+                val email = escapedEmail.replace("#", ".")
+                println("Found email: $email for UID: $uid")
+                return email
+            }
+            println("No email found for UID: $uid")
+            null
+        } catch (e: Exception) {
+            Timber.tag("Firebase").e(e, "Failed to get email for UID: $uid")
+            null
+        }
+    }
+
+
     override suspend fun saveUser(user: FirebaseUser, uid: String) {
         try {
             println("Saving user with userId: ${user.userId}, UID: $uid")

@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.healthcareproject.domain.model.BloodType
 import com.example.healthcareproject.domain.model.Gender
 import com.example.healthcareproject.domain.model.User
+import com.example.healthcareproject.domain.repository.UserRepository
 import com.example.healthcareproject.domain.usecase.GetUserUseCase
 import com.example.healthcareproject.domain.usecase.UpdateUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,7 +24,8 @@ import javax.inject.Inject
 @HiltViewModel
 class UpdateInformationViewModel @Inject constructor(
     private val getUserUseCase: GetUserUseCase,
-    private val updateUserUseCase: UpdateUserUseCase
+    private val updateUserUseCase: UpdateUserUseCase,
+    private val userRepository: UserRepository // Inject UserRepository to fetch email if needed
 ) : ViewModel() {
 
     private val _userInfo = MutableLiveData<User?>()
@@ -94,14 +96,17 @@ class UpdateInformationViewModel @Inject constructor(
     private val _dateOfBirth = MutableLiveData<String>()
     val dateOfBirth: LiveData<String> get() = _dateOfBirth
 
-    private val _genderLiveData = MutableLiveData<String>() // Renamed from _gender
-    val genderLiveData: LiveData<String> get() = _genderLiveData // Renamed from gender
+    private val _genderLiveData = MutableLiveData<String>()
+    val genderLiveData: LiveData<String> get() = _genderLiveData
 
-    private val _bloodTypeLiveData = MutableLiveData<String>() // Renamed from _bloodType
-    val bloodTypeLiveData: LiveData<String> get() = _bloodTypeLiveData // Renamed from bloodType
+    private val _bloodTypeLiveData = MutableLiveData<String>()
+    val bloodTypeLiveData: LiveData<String> get() = _bloodTypeLiveData
 
     private val _phone = MutableLiveData<String>()
     val phone: LiveData<String> get() = _phone
+
+    private val _email = MutableLiveData<String>()
+    val email: LiveData<String> get() = _email
 
     fun getDateOfBirth(): String? = userForm.dateOfBirth
 
@@ -121,11 +126,11 @@ class UpdateInformationViewModel @Inject constructor(
         _bloodTypeLiveData.value = bloodType
     }
 
-    fun loadUserInfo(userId: String) {
+    fun loadUserInfoByUid(uid: String) {
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                val user = getUserUseCase(userId)
+                val user = getUserUseCase.invoke(identifier = uid, forceUpdate = true, isUid = true)
                 _userInfo.value = user
                 user?.let {
                     userForm.name = it.name
@@ -134,6 +139,7 @@ class UpdateInformationViewModel @Inject constructor(
                     _genderLiveData.value = formatGenderForDisplay(it.gender)
                     _bloodTypeLiveData.value = formatBloodTypeForDisplay(it.bloodType)
                     userForm.phone = it.phone
+                    _email.value = it.userId
                 }
                 _error.value = null
             } catch (e: Exception) {
@@ -144,7 +150,7 @@ class UpdateInformationViewModel @Inject constructor(
         }
     }
 
-    fun saveUserInfo(userId: String) {
+    fun saveUserInfoByUid(uid: String) {
         viewModelScope.launch {
             _isLoading.value = true
             try {
@@ -171,6 +177,9 @@ class UpdateInformationViewModel @Inject constructor(
                     return@launch
                 }
 
+                // Fetch the user's email (userId) from the stored email or user data
+                val userId = _email.value ?: throw Exception("User email not found")
+
                 updateUserUseCase(
                     userId = userId,
                     name = nameValue,
@@ -181,7 +190,8 @@ class UpdateInformationViewModel @Inject constructor(
                     phone = phoneValue
                 )
 
-                loadUserInfo(userId)
+                // Reload user info after update
+                loadUserInfoByUid(uid)
                 _isSaved.value = true
                 _error.value = null
             } catch (e: Exception) {

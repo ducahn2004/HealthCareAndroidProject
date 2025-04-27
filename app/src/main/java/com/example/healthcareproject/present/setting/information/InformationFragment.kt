@@ -33,16 +33,16 @@ class InformationFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Check if user is logged in
-        val userId = FirebaseAuth.getInstance().currentUser?.email
-        if (userId == null) {
+        // Check if user is logged in and get UID
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
+        if (uid == null) {
             Toast.makeText(requireContext(), "User not logged in", Toast.LENGTH_SHORT).show()
             findNavController().navigateUp()
             return
         }
 
-        // Load user info
-        viewModel.loadUserInfo(userId)
+        // Load user info using UID
+        viewModel.loadUserInfoByUid(uid)
 
         // Observe error
         viewModel.error.observe(viewLifecycleOwner) { error ->

@@ -139,6 +139,22 @@ class DefaultUserRepository @Inject constructor(
         return localDataSource.getById(userId)?.toExternal()
     }
 
+    override suspend fun getUserByUid(uid: String, forceUpdate: Boolean): User? {
+        if (forceUpdate) {
+            withContext(dispatcher) {
+                val firebaseUser = networkDataSource.loadUser(uid)
+                if (firebaseUser != null && firebaseUser.userId.isNotEmpty() && firebaseUser.name.isNotEmpty()) {
+                    localDataSource.upsert(firebaseUser.toLocal())
+                } else {
+                    throw IllegalArgumentException("Invalid user data received from network")
+                }
+            }
+        }
+        val userId = networkDataSource.getEmailByUid(uid)
+            ?: throw Exception("Failed to retrieve email for UID $uid")
+        return localDataSource.getById(userId)?.toExternal()
+    }
+
     override suspend fun deleteUser(userId: String) {
         withContext(dispatcher) {
             // Fetch the UID to delete from the network

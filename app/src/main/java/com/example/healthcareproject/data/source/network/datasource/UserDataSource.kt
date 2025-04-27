@@ -7,6 +7,8 @@ interface UserDataSource {
 
     suspend fun getUidByEmail(email: String): String?
 
+    suspend fun getEmailByUid(uid: String): String?
+
     suspend fun saveUser(user: FirebaseUser, uid: String)
 
     suspend fun loadUser(uid: String): FirebaseUser?

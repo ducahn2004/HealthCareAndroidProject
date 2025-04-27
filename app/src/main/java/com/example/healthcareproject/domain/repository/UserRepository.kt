@@ -38,6 +38,8 @@ interface UserRepository {
 
     suspend fun getUser(userId: String, forceUpdate: Boolean = false): User?
 
+    suspend fun getUserByUid(uid: String, forceUpdate: Boolean): User?
+
     suspend fun refreshUser(userId: String)
 
     suspend fun deleteUser(userId: String)
