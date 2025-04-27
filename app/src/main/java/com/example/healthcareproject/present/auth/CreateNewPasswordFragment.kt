@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import com.example.healthcareproject.present.MainActivity
 import com.example.healthcareproject.R
 import kotlinx.coroutines.launch
@@ -38,12 +39,21 @@ class CreateNewPasswordFragment : Fragment() {
             lifecycleScope.launch {
                 if (password == confirmPassword) {
                     try {
-                        viewModel.updatePassword(password)
-                        saveLoginState(true)
-                        startActivity(Intent(requireContext(), MainActivity::class.java))
-                        requireActivity().finish()
+                        val email = viewModel.email.value
+                        if (email.isNullOrEmpty()) {
+                            Toast.makeText(requireContext(), "Email is required to reset password", Toast.LENGTH_LONG).show()
+                            findNavController().navigate(R.id.action_createNewPasswordFragment_to_loginFragment)
+                            return@launch
+                        }
+
+                        // Use resetPassword instead of updatePassword
+                        viewModel.resetPassword(password)
+                        Toast.makeText(requireContext(), "Password reset successfully. Please log in.", Toast.LENGTH_LONG).show()
+
+                        // Navigate to login screen instead of MainActivity
+                        findNavController().navigate(R.id.action_createNewPasswordFragment_to_loginFragment)
                     } catch (e: Exception) {
-                        Toast.makeText(requireContext(), "Failed to update password: ${e.message}", Toast.LENGTH_LONG).show()
+                        Toast.makeText(requireContext(), "Failed to reset password: ${e.message}", Toast.LENGTH_LONG).show()
                     }
                 } else {
                     etConfirmPassword.error = "Passwords do not match"
@@ -51,12 +61,5 @@ class CreateNewPasswordFragment : Fragment() {
                 }
             }
         }
-    }
-
-    private fun saveLoginState(isLoggedIn: Boolean) {
-        val sharedPreferences = requireContext().getSharedPreferences("user_prefs", 0)
-        val editor = sharedPreferences.edit()
-        editor.putBoolean("is_logged_in", isLoggedIn)
-        editor.apply()
     }
 }

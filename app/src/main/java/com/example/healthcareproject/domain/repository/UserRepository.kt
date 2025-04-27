@@ -17,7 +17,7 @@ interface UserRepository {
         gender: String,
         bloodType: String,
         phone: String
-    )
+    ): String
 
     suspend fun updateUser(
         userId: String,

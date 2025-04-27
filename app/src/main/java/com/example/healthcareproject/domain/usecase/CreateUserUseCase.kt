@@ -20,11 +20,10 @@ class CreateUserUseCase @Inject constructor(
         phone: String
     ) {
         try {
-            // Create user in Firebase Authentication
-            userFirebaseDataSource.createUser(userId, password)
-            println("User created in Authentication: $userId")
+            // Create user in Firebase Authentication and get the UID
+            val uid = userFirebaseDataSource.createUser(userId, password)
+            println("User created in Authentication: $userId with UID: $uid")
 
-            // Parse gender and blood type
             // Parse gender and blood type
             val genderEnum = try {
                 Gender.valueOf(gender.replace(" ", "").replaceFirstChar { it.uppercase() })
@@ -49,8 +48,8 @@ class CreateUserUseCase @Inject constructor(
                 phone = phone
             )
             println("FirebaseUser created with userId: ${user.userId}")
-            // Save user to Realtime Database (escaping handled by UserFirebaseDataSource)
-            userFirebaseDataSource.saveUser(user)
+            // Save user to Realtime Database using the retrieved UID
+            userFirebaseDataSource.saveUser(user, uid)
             println("User data saved for: $userId")
         } catch (e: Exception) {
             println("Error in CreateUserUseCase: ${e.message}")

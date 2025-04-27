@@ -2,6 +2,7 @@ package com.example.healthcareproject.data.source.network.datasource
 
 import com.example.healthcareproject.data.source.network.firebase.FirebaseService
 import com.example.healthcareproject.data.source.network.model.FirebaseUser
+import com.google.firebase.functions.FirebaseFunctions
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
@@ -9,15 +10,18 @@ import com.example.healthcareproject.R
 import kotlinx.coroutines.tasks.await
 import timber.log.Timber
 import javax.inject.Inject
+import kotlin.random.Random
+
 
 class UserFirebaseDataSource @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
-    private val firebaseService: FirebaseService
+    private val firebaseService: FirebaseService,
+    private val firebaseFunctions: FirebaseFunctions
 ) : UserDataSource {
 
     private val usersRef = firebaseService.getReference("users")
+    private val emailToUidRef = firebaseService.getReference("emailToUid")
     private val verificationCodesRef = firebaseService.getReference("verificationCodes")
-
 
     // Utility function to escape email for Firebase paths
     private fun escapeEmail(email: String): String {
@@ -25,7 +29,7 @@ class UserFirebaseDataSource @Inject constructor(
     }
 
     override suspend fun getUidByEmail(email: String): String? {
-        try {
+        return try {
             val escapedEmail = escapeEmail(email)
             println("Looking up UID for email: $email")
             println("Escaped email: $escapedEmail")
@@ -33,10 +37,10 @@ class UserFirebaseDataSource @Inject constructor(
             val snapshot = emailToUidRef.child(escapedEmail).get().await()
             val uid = snapshot.getValue(String::class.java)
             println("Found UID: $uid for email: $email")
-            return uid
+            uid
         } catch (e: Exception) {
             Timber.tag("Firebase").e(e, "Failed to get UID for email: $email")
-            return null
+            null
         }
     }
 
@@ -69,13 +73,13 @@ class UserFirebaseDataSource @Inject constructor(
     }
 
     override suspend fun loadUser(uid: String): FirebaseUser? {
-        try {
+        return try {
             println("Loading user with UID: $uid")
             println("Loading user from path: users/$uid")
             val snapshot = usersRef.child(uid).get().await()
             val user = snapshot.getValue(FirebaseUser::class.java)
             println("Loaded user: $user")
-            return user
+            user
         } catch (e: Exception) {
             println("Error loading user with UID $uid: ${e.message}")
             throw e
@@ -150,11 +154,13 @@ class UserFirebaseDataSource @Inject constructor(
         }
     }
 
-    override suspend fun createUser(email: String, password: String) {
+    override suspend fun createUser(email: String, password: String): String {
         try {
             println("Creating user in Authentication with email: $email")
-            firebaseAuth.createUserWithEmailAndPassword(email, password).await()
-            Timber.tag("Firebase").d("User created in Authentication: $email")
+            val authResult = firebaseAuth.createUserWithEmailAndPassword(email, password).await()
+            val uid = authResult.user?.uid ?: throw Exception("Failed to get UID after user creation")
+            Timber.tag("Firebase").d("User created in Authentication: $email with UID: $uid")
+            return uid
         } catch (e: Exception) {
             Timber.tag("Firebase").e(e, "User creation failed: ${e.message}")
             throw Exception("User creation failed: ${e.message}", e)
@@ -203,19 +209,8 @@ class UserFirebaseDataSource @Inject constructor(
 
     override suspend fun resetPassword(email: String, newPassword: String) {
         try {
-            // Since the user has already verified their identity via a code,
-            // we need to sign them in temporarily to update the password.
-            // However, Firebase client SDK requires the user to be signed in.
-            // For a proper reset, we should use a password reset link, but since you're using a verification code,
-            // we'll assume the user has been authenticated or use a custom flow.
 
-            // First, sign the user out to ensure a clean state
             firebaseAuth.signOut()
-
-            // Sign in the user temporarily (assuming the verification code flow has confirmed their identity)
-            // In a real app, you might use a custom token or a password reset link instead.
-            // For this example, we'll assume the verification code flow has already validated the user.
-            // We need to fetch the user by email and update their password.
 
             val user = firebaseAuth.currentUser
             if (user != null && user.email == email) {
@@ -229,6 +224,7 @@ class UserFirebaseDataSource @Inject constructor(
             throw Exception("Failed to reset password: ${e.message}", e)
         }
     }
+
     override suspend fun sendPasswordResetEmail(email: String) {
         try {
             firebaseAuth.sendPasswordResetEmail(email).await()
@@ -236,6 +232,26 @@ class UserFirebaseDataSource @Inject constructor(
         } catch (e: Exception) {
             Timber.tag("Firebase").e(e, "Failed to send password reset email to: $email")
             throw Exception("Failed to send password reset email: ${e.message}", e)
+        }
+    }
+    override suspend fun sendVerificationCode(email: String) {
+        try {
+            // Sử dụng mã cố định "000000" thay vì tạo mã ngẫu nhiên
+            val code = "000000"
+            // Lưu mã vào database
+            val codeData = mapOf(
+                "email" to email,
+                "code" to code
+            )
+            verificationCodesRef.push().setValue(codeData).await()
+            // Bỏ gọi Cloud Function để gửi email
+            // firebaseFunctions.getHttpsCallable("sendVerificationCode")
+            //     .call(data)
+            //     .await()
+            Timber.tag("Firebase").d("Verification code set to 000000 for email: $email")
+        } catch (e: Exception) {
+            Timber.tag("Firebase").e(e, "Failed to set verification code for: $email")
+            throw Exception("Failed to set verification code: ${e.message}", e)
         }
     }
 }

@@ -6,6 +6,8 @@ import com.example.healthcareproject.data.mapper.toNetwork
 import com.example.healthcareproject.data.source.local.dao.UserDao
 import com.example.healthcareproject.data.source.network.datasource.UserDataSource
 import com.example.healthcareproject.di.DefaultDispatcher
+import com.example.healthcareproject.domain.model.BloodType
+import com.example.healthcareproject.domain.model.Gender
 import com.example.healthcareproject.domain.model.User
 import com.example.healthcareproject.domain.repository.UserRepository
 import kotlinx.coroutines.CoroutineDispatcher
@@ -32,24 +34,50 @@ class DefaultUserRepository @Inject constructor(
         gender: String,
         bloodType: String,
         phone: String
-    ) {
-        val generatedUserId = withContext(dispatcher) {
-            userId.ifEmpty { java.util.UUID.randomUUID().toString() }
+    ): String {
+        return withContext(dispatcher) {
+            // Create user in Firebase Authentication and get UID
+            val uid = networkDataSource.createUser(userId, password)
+            println("User created in Authentication: $userId with UID: $uid")
+
+            // Parse gender and blood type from strings to enums
+            val genderEnum = try {
+                Gender.valueOf(gender.replace(" ", "").replaceFirstChar { it.uppercase() })
+            } catch (e: IllegalArgumentException) {
+                throw Exception("Invalid gender value: $gender")
+            }
+
+            val bloodTypeEnum = try {
+                BloodType.valueOf(bloodType.replace(" ", "").replaceFirstChar { it.uppercase() })
+            } catch (e: IllegalArgumentException) {
+                throw Exception("Invalid blood type value: $bloodType")
+            }
+
+            // Create domain User object
+            val user = User(
+                userId = userId,
+                password = password,
+                name = name,
+                address = address,
+                dateOfBirth = java.time.LocalDate.parse(dateOfBirth, java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                gender = genderEnum,
+                bloodType = bloodTypeEnum,
+                phone = phone,
+                createdAt = java.time.LocalDateTime.now(),
+                updatedAt = java.time.LocalDateTime.now()
+            )
+
+            // Save to network (Firebase Realtime Database)
+            networkDataSource.saveUser(user.toNetwork(), uid)
+
+            // Save to local (Room database)
+            localDataSource.upsert(user.toLocal())
+
+            // Send verification code (default code "000000" will be used)
+            networkDataSource.sendVerificationCode(userId)
+
+            uid // Return the UID as required by the interface
         }
-        val user = User(
-            userId = generatedUserId,
-            password = password,
-            name = name,
-            address = address,
-            dateOfBirth = java.time.LocalDate.parse(dateOfBirth),
-            gender = com.example.healthcareproject.domain.model.Gender.valueOf(gender),
-            bloodType = com.example.healthcareproject.domain.model.BloodType.valueOf(bloodType),
-            phone = phone,
-            createdAt = java.time.LocalDateTime.now(),
-            updatedAt = java.time.LocalDateTime.now()
-        )
-        networkDataSource.saveUser(user.toNetwork())
-        localDataSource.upsert(user.toLocal())
     }
 
     override suspend fun updateUser(
@@ -73,8 +101,15 @@ class DefaultUserRepository @Inject constructor(
             updatedAt = java.time.LocalDateTime.now()
         ) ?: throw Exception("User (id $userId) not found")
 
-        localDataSource.upsert(user.toLocal())
-        networkDataSource.updateUser(userId, user.toNetwork())
+        withContext(dispatcher) {
+            // Fetch the UID using the userId (email)
+            val uid = networkDataSource.getUidByEmail(userId)
+                ?: throw Exception("Failed to retrieve UID for user $userId")
+
+            // Update user in both local and network data sources
+            localDataSource.upsert(user.toLocal())
+            networkDataSource.updateUser(uid, user.toNetwork())
+        }
     }
 
     override suspend fun refreshUser(userId: String) {
@@ -86,6 +121,7 @@ class DefaultUserRepository @Inject constructor(
             .map { it.toExternal() }
             .flowOn(dispatcher)
     }
+
     override suspend fun verifyCode(email: String, code: String) {
         withContext(dispatcher) {
             try {
@@ -104,17 +140,25 @@ class DefaultUserRepository @Inject constructor(
     }
 
     override suspend fun deleteUser(userId: String) {
-        localDataSource.deleteById(userId)
-        networkDataSource.deleteUser(userId)
+        withContext(dispatcher) {
+            // Fetch the UID to delete from the network
+            val uid = networkDataSource.getUidByEmail(userId)
+                ?: throw Exception("Failed to retrieve UID for user $userId")
+            localDataSource.deleteById(userId)
+            networkDataSource.deleteUser(uid)
+        }
     }
 
-   override suspend fun refresh(userId: String) {
-        val firebaseUser = networkDataSource.loadUser(userId)
-        if (firebaseUser != null && firebaseUser.userId.isNotEmpty() && firebaseUser.name.isNotEmpty()) {
-            localDataSource.upsert(firebaseUser.toLocal())
-        } else {
-            // Log or handle invalid data case
-            throw IllegalArgumentException("Invalid user data received from network")
+    override suspend fun refresh(userId: String) {
+        withContext(dispatcher) {
+            val uid = networkDataSource.getUidByEmail(userId)
+                ?: throw Exception("Failed to retrieve UID for user $userId")
+            val firebaseUser = networkDataSource.loadUser(uid)
+            if (firebaseUser != null && firebaseUser.userId.isNotEmpty() && firebaseUser.name.isNotEmpty()) {
+                localDataSource.upsert(firebaseUser.toLocal())
+            } else {
+                throw IllegalArgumentException("Invalid user data received from network")
+            }
         }
     }
 }

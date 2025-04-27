@@ -78,5 +78,9 @@
     <fragment
         android:id="@+id/createNewPasswordFragment"
         android:name="com.example.healthcareproject.present.auth.CreateNewPasswordFragment"
-        android:label="CreateNewPasswordFragment" />
+        android:label="CreateNewPasswordFragment">
+        <action
+            android:id="@+id/action_createNewPasswordFragment_to_loginFragment"
+            app:destination="@id/loginFragment" />
+    </fragment>
 </navigation>

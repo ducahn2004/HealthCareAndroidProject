@@ -8,6 +8,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.functions.FirebaseFunctions
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -35,6 +36,12 @@ object FirebaseModule {
     @Singleton
     fun provideFirebaseService(): FirebaseService {
         return FirebaseService
+    }
+
+    @Provides
+    @Singleton
+    fun provideFirebaseFunctions(): FirebaseFunctions {
+        return FirebaseFunctions.getInstance()
     }
 
 

@@ -3,14 +3,14 @@ package com.example.healthcareproject.domain.usecase
 import com.example.healthcareproject.data.source.network.datasource.UserFirebaseDataSource
 import javax.inject.Inject
 
-class UpdatePasswordUseCase @Inject constructor(
+class ResetPasswordUseCase @Inject constructor(
     private val userFirebaseDataSource: UserFirebaseDataSource
 ) {
-    suspend operator fun invoke(email: String, currentPassword: String, newPassword: String) {
+    suspend operator fun invoke(email: String, newPassword: String) {
         try {
-            userFirebaseDataSource.updatePassword(email, currentPassword, newPassword)
+            userFirebaseDataSource.resetPassword(email, newPassword)
         } catch (e: Exception) {
-            throw Exception("Password update failed: ${e.message}", e)
+            throw Exception("Password reset failed: ${e.message}", e)
         }
     }
 }
