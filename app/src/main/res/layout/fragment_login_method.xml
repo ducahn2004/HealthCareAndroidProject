@@ -7,7 +7,7 @@
         <import type="android.view.View" />
         <variable
             name="viewModel"
-            type="com.example.healthcareproject.present.auth.AuthViewModel" />
+            type="com.example.healthcareproject.present.auth.viewmodel.LoginMethodViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -53,7 +53,7 @@
             android:layout_marginEnd="4dp"
             android:background="@drawable/btn_register"
             android:backgroundTint="@null"
-            android:onClick="@{() -> viewModel.navigateToRegister()}"
+            android:onClick="@{() -> viewModel.onRegisterClicked()}"
             android:text="@string/register"
             android:textColor="@color/button_text_color"
             app:layout_constraintEnd_toStartOf="@id/btn_login"
@@ -70,7 +70,7 @@
             android:layout_marginTop="32dp"
             android:layout_marginStart="4dp"
             android:background="@drawable/btn_login"
-            android:onClick="@{() -> viewModel.navigateToLogin()}"
+            android:onClick="@{() -> viewModel.onLoginClicked()}"
             android:text="@string/login"
             android:textColor="@android:color/white"
             app:layout_constraintEnd_toEndOf="parent"
