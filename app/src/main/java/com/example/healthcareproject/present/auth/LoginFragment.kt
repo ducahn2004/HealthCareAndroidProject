@@ -5,114 +5,91 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.example.healthcareproject.databinding.FragmentLoginBinding
 import com.example.healthcareproject.present.MainActivity
-import com.example.healthcareproject.R
+import com.example.healthcareproject.present.auth.AuthNavigator
+import com.example.healthcareproject.present.auth.viewmodel.LoginViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class LoginFragment : Fragment() {
 
-    // Initialize AuthViewModel using Hilt
-    private val viewModel: AuthViewModel by viewModels()
-    // View Binding property
+    private val viewModel: LoginViewModel by viewModels()
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
+    private lateinit var navigator: AuthNavigator
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        // Inflate the layout using View Binding
         _binding = FragmentLoginBinding.inflate(inflater, container, false)
+        binding.viewModel = viewModel
+        binding.lifecycleOwner = viewLifecycleOwner
+        navigator = AuthNavigator(findNavController())
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Update ViewModel with user input
-        binding.etEmail.addTextChangedListener { text ->
-            viewModel.setEmail(text.toString().trim())
-        }
-        binding.etPassword.addTextChangedListener { text ->
-            viewModel.setPassword(text.toString().trim())
-        }
-
         // Observe authentication state
-        viewModel.isAuthenticated.observe(viewLifecycleOwner, Observer { isAuthenticated ->
+        viewModel.isAuthenticated.observe(viewLifecycleOwner) { isAuthenticated: Boolean ->
             if (isAuthenticated) {
-                // Navigate to MainActivity and finish AuthActivity
                 val intent = Intent(requireContext(), MainActivity::class.java)
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                 startActivity(intent)
                 requireActivity().finish()
                 viewModel.resetNavigationStates()
             }
-        })
+        }
 
-        // Observe Google login navigation
-        viewModel.navigateToGoogleLogin.observe(viewLifecycleOwner, Observer { navigate ->
+        // Observe navigation to Google login
+        viewModel.navigateToGoogleLogin.observe(viewLifecycleOwner) { navigate: Boolean ->
             if (navigate) {
-                findNavController().navigate(R.id.action_loginFragment_to_googleLoginFragment)
+                navigator.fromLoginToGoogleLogin()
                 viewModel.resetNavigationStates()
             }
-        })
+        }
+
+        // Observe navigation to Forgot Password
+        viewModel.navigateToForgotPassword.observe(viewLifecycleOwner) { navigate: Boolean ->
+            if (navigate) {
+                navigator.fromLoginToForgotPassword()
+                viewModel.resetNavigationStates()
+            }
+        }
 
         // Observe error messages
-        viewModel.error.observe(viewLifecycleOwner, Observer { error ->
-            error?.let {
-                binding.tvError.text = it
-                binding.tvError.visibility = View.VISIBLE
-            } ?: run {
-                binding.tvError.visibility = View.GONE
-            }
-        })
+        viewModel.error.observe(viewLifecycleOwner) { error: String? ->
+            // Handled by Data Binding in XML
+        }
 
         // Observe email and password errors
-        viewModel.emailError.observe(viewLifecycleOwner, Observer { error ->
+        viewModel.emailError.observe(viewLifecycleOwner) { error: String? ->
             binding.etEmail.error = error
-        })
-        viewModel.passwordError.observe(viewLifecycleOwner, Observer { error ->
+        }
+        viewModel.passwordError.observe(viewLifecycleOwner) { error: String? ->
             binding.etPassword.error = error
-        })
+        }
 
         // Observe loading state
-        viewModel.isLoading.observe(viewLifecycleOwner, Observer { isLoading ->
+        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading: Boolean ->
             binding.btnLogin.isEnabled = !isLoading
             binding.googleLoginContainer.isEnabled = !isLoading
-            binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
-        })
-
-        // Set click listener for the login button
-        binding.btnLogin.setOnClickListener {
-            viewModel.onLoginClicked()
         }
 
-        // Set click listener for the Google login container
-        binding.googleLoginContainer.setOnClickListener {
-            viewModel.onGoogleLoginClicked()
-        }
-
-        // Set click listener for the forgot password link
-        binding.tvForgotPassword.setOnClickListener {
-            findNavController().navigate(R.id.action_loginFragment_to_forgotPasswordFragment)
-        }
-
-        // Set click listener for the back button
+        // Handle back button
         binding.btnBackLoginToLoginMethod.setOnClickListener {
-            findNavController().navigate(R.id.action_loginFragment_to_loginMethodFragment)
+            navigator.fromLoginToLoginMethod()
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        // Clear binding to prevent memory leaks
         _binding = null
     }
 }
