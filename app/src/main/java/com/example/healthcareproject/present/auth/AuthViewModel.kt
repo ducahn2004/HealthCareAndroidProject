@@ -9,6 +9,7 @@ import com.example.healthcareproject.domain.usecase.CreateUserUseCase
 import com.example.healthcareproject.domain.usecase.LoginUserUseCase
 import com.example.healthcareproject.domain.usecase.SendPasswordResetEmailUseCase
 import com.example.healthcareproject.domain.usecase.UpdatePasswordUseCase
+import com.example.healthcareproject.domain.usecase.ResetPasswordUseCase
 import com.example.healthcareproject.domain.usecase.VerifyCodeUseCase
 import com.example.healthcareproject.data.source.network.datasource.UserFirebaseDataSource
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,6 +23,7 @@ class AuthViewModel @Inject constructor(
     private val loginUserUseCase: LoginUserUseCase,
     private val verifyCodeUseCase: VerifyCodeUseCase,
     private val updatePasswordUseCase: UpdatePasswordUseCase,
+    private val resetPasswordUseCase: ResetPasswordUseCase,
     private val sendPasswordResetEmailUseCase: SendPasswordResetEmailUseCase,
     private val userFirebaseDataSource: UserFirebaseDataSource
 ) : ViewModel() {
@@ -32,12 +34,14 @@ class AuthViewModel @Inject constructor(
         FORGOT_PASSWORD
     }
 
-    // Track current authentication flow
     private val _authFlow = MutableLiveData<AuthFlow>(AuthFlow.LOGIN)
     val authFlow: LiveData<AuthFlow> = _authFlow
 
-    // Set authentication flow
+    private val _currentUid = MutableLiveData<String?>()
+    val currentUid: LiveData<String?> = _currentUid
+
     fun setAuthFlow(flow: AuthFlow) {
+        resetForm()
         _authFlow.value = flow
     }
 
@@ -92,7 +96,6 @@ class AuthViewModel @Inject constructor(
         _address.value = value
     }
 
-    // Authentication state
     private val _isAuthenticated = MutableLiveData<Boolean>()
     val isAuthenticated: LiveData<Boolean> = _isAuthenticated
 
@@ -108,7 +111,6 @@ class AuthViewModel @Inject constructor(
     private val _verificationCodeError = MutableLiveData<String?>()
     val verificationCodeError: LiveData<String?> = _verificationCodeError
 
-    // Form fields
     private val _name = MutableLiveData<String>("")
     val name: LiveData<String> = _name
     fun onNameChanged(value: String) {
@@ -148,7 +150,6 @@ class AuthViewModel @Inject constructor(
     private val _timerText = MutableLiveData<String>("00:59")
     val timerText: LiveData<String> = _timerText
 
-    // Error fields
     private val _nameError = MutableLiveData<String?>()
     val nameError: LiveData<String?> = _nameError
 
@@ -176,19 +177,18 @@ class AuthViewModel @Inject constructor(
     private val _phoneError = MutableLiveData<String?>()
     val phoneError: LiveData<String?> = _phoneError
 
-    fun setError(message: String) {
+    fun setError(message: String): String? {
         _error.value = message
+        return _error.value
     }
 
     fun onLoginClicked() {
         val emailValue = email.value ?: ""
         val passwordValue = password.value ?: ""
 
-        // Reset errors
         _emailError.value = null
         _passwordError.value = null
 
-        // Validate inputs
         var isValid = true
         if (emailValue.isBlank()) {
             _emailError.value = "Email is required"
@@ -218,7 +218,6 @@ class AuthViewModel @Inject constructor(
         val phoneValue = phone.value ?: ""
         val addressValue = address.value
 
-        // Reset errors
         _nameError.value = null
         _emailError.value = null
         _passwordError.value = null
@@ -229,7 +228,6 @@ class AuthViewModel @Inject constructor(
         _addressError.value = null
         _phoneError.value = null
 
-        // Validate inputs
         var isValid = true
         if (nameValue.isBlank()) {
             _nameError.value = "Name is required"
@@ -276,6 +274,7 @@ class AuthViewModel @Inject constructor(
             return
         }
 
+        println("AuthViewModel: Starting registration for email: $emailValue")
         register(
             email = emailValue,
             password = passwordValue,
@@ -293,8 +292,10 @@ class AuthViewModel @Inject constructor(
             _isLoading.value = true
             try {
                 userFirebaseDataSource.googleSignIn(idToken)
+                val uid = userFirebaseDataSource.getUidByEmail(email.value ?: "")
+                _currentUid.value = uid
                 _isAuthenticated.value = true
-                println("Google Sign-In successful")
+                println("Google Sign-In successful, UID: $uid")
             } catch (e: Exception) {
                 _error.value = e.message ?: "Google Sign-In failed"
                 println("Google Sign-In failed: ${e.message}")
@@ -307,10 +308,7 @@ class AuthViewModel @Inject constructor(
     private var countDownTimer: CountDownTimer? = null
 
     fun startTimer() {
-        // Cancel any existing timer
         countDownTimer?.cancel()
-
-        // Start a new 59-second countdown
         countDownTimer = object : CountDownTimer(59000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 val seconds = (millisUntilFinished / 1000).toInt()
@@ -319,7 +317,6 @@ class AuthViewModel @Inject constructor(
 
             override fun onFinish() {
                 _timerText.value = "00:00"
-                // Optionally enable resend functionality
             }
         }.start()
     }
@@ -331,7 +328,7 @@ class AuthViewModel @Inject constructor(
 
     override fun onCleared() {
         super.onCleared()
-        stopTimer() // Clean up timer when ViewModel is cleared
+        stopTimer()
     }
 
     fun navigateToRegister() {
@@ -379,12 +376,32 @@ class AuthViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 sendPasswordResetEmailUseCase(email)
-                // Only update email value if successful
                 _email.postValue(email)
-                Timber.d("Password reset email sent successfully to $email")
+                Timber.d("Verification code sent successfully to $email")
+                _error.postValue("Verification code sent. Please check your email.")
             } catch (e: Exception) {
-                Timber.e(e, "Failed to send reset email")
-                _error.postValue(e.message ?: "Failed to send reset email")
+                Timber.e(e, "Failed to send verification code")
+                _error.postValue(e.message ?: "Failed to send verification code")
+            } finally {
+                _isLoading.postValue(false)
+            }
+        }
+    }
+
+    fun sendVerificationCode(email: String) {
+        _emailError.value = null
+        _error.value = null
+        _isLoading.value = true
+
+        viewModelScope.launch {
+            try {
+                userFirebaseDataSource.sendVerificationCode(email)
+                _email.postValue(email)
+                Timber.d("Verification code sent successfully to $email")
+                _error.postValue("Verification code sent. Please check your email.")
+            } catch (e: Exception) {
+                Timber.e(e, "Failed to send verification code")
+                _error.postValue(e.message ?: "Failed to send verification code")
             } finally {
                 _isLoading.postValue(false)
             }
@@ -397,9 +414,10 @@ class AuthViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                loginUserUseCase(email, password)
+                val uid = loginUserUseCase(email, password)
+                _currentUid.value = uid.toString()
                 _isAuthenticated.value = true
-                println("Login successful for: $email")
+                println("Login successful for email: $email, UID: $uid")
             } catch (e: Exception) {
                 _error.value = e.message ?: "Login failed"
                 println("Login failed: ${e.message}")
@@ -424,7 +442,7 @@ class AuthViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                println("Registering user with email: $email")
+                println("AuthViewModel: Calling CreateUserUseCase for email: $email")
                 createUserUseCase(
                     userId = email,
                     password = password,
@@ -435,27 +453,58 @@ class AuthViewModel @Inject constructor(
                     bloodType = bloodType,
                     phone = phone
                 )
+                val uid = userFirebaseDataSource.getUidByEmail(email)
+                _currentUid.value = uid
+                sendVerificationCode(email)
                 _isAuthenticated.value = true
-                println("Registration successful for: $email")
+                println("AuthViewModel: Registration successful for email: $email, UID: $uid")
             } catch (e: Exception) {
                 _error.value = e.message ?: "Registration failed"
-                println("Registration failed: ${e.message}")
+                println("AuthViewModel: Registration failed: ${e.message}")
             } finally {
                 _isLoading.value = false
             }
         }
     }
 
-    fun updatePassword(newPassword: String) {
+    fun updatePassword(currentPassword: String, newPassword: String) {
+        val emailValue = email.value ?: ""
+        if (emailValue.isBlank()) {
+            _error.value = "Email is required to update password"
+            return
+        }
+
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                updatePasswordUseCase(newPassword)
+                updatePasswordUseCase(emailValue, currentPassword, newPassword)
                 _password.value = newPassword
                 println("Password updated successfully")
             } catch (e: Exception) {
                 _error.value = e.message ?: "Failed to update password"
                 println("Failed to update password: ${e.message}")
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun resetPassword(newPassword: String) {
+        val emailValue = email.value ?: ""
+        if (emailValue.isBlank()) {
+            _error.value = "Email is required to reset password"
+            return
+        }
+
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                resetPasswordUseCase(emailValue, newPassword)
+                _password.value = newPassword
+                println("Password reset successfully")
+            } catch (e: Exception) {
+                _error.value = e.message ?: "Failed to reset password"
+                println("Failed to reset password: ${e.message}")
             } finally {
                 _isLoading.value = false
             }
@@ -470,6 +519,27 @@ class AuthViewModel @Inject constructor(
     fun onForgotPasswordStarted() {
         _error.value = null
         _emailError.value = null
-        // Reset other state as needed
+    }
+
+    fun resetForm() {
+        _name.value = ""
+        _email.value = ""
+        _password.value = ""
+        _confirmPassword.value = ""
+        _dateOfBirth.value = ""
+        _gender.value = ""
+        _bloodType.value = ""
+        _phone.value = ""
+        _address.value = null
+        _error.value = null
+        _nameError.value = null
+        _emailError.value = null
+        _passwordError.value = null
+        _confirmPasswordError.value = null
+        _dateOfBirthError.value = null
+        _genderError.value = null
+        _bloodTypeError.value = null
+        _addressError.value = null
+        _phoneError.value = null
     }
 }
