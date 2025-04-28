@@ -18,6 +18,7 @@
     <string name="code_has_been_send_to">Code has been sent to </string>
     <string name="code_has_been_send_to_johndoe_gmail_com_nenter_the_code_to_verify_your_account">Code has been sent to johndoe@gmail.com.\nEnter the code to verify your account.</string>
     <string name="logout">Logout</string>
+    <string name="code_has_been_send_to_default">Code has been send to default</string>
     <string name="by_continuing_you_agree_to_terms_of_service_and_privacy_policy">By continuing, you agree to Terms of Service and Privacy Policy.</string>
     <string name="create_account">Create Account</string>
     <string name="must_contain_8_char">must contain 8 char.</string>

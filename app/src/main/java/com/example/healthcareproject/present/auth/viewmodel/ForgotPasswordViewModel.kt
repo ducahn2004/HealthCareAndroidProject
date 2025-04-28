@@ -1,5 +1,6 @@
 package com.example.healthcareproject.present.auth.viewmodel
 
+import android.text.Editable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -29,9 +30,10 @@ class ForgotPasswordViewModel @Inject constructor(
     private val _navigateToVerifyCode = MutableLiveData<Boolean>()
     val navigateToVerifyCode: LiveData<Boolean> = _navigateToVerifyCode
 
-    fun setEmail(value: String) {
-        _email.value = value
+    fun afterEmailChange(value: Editable){
+        _email.value = value.toString()
     }
+
 
     fun onResetPasswordClicked() {
         val emailValue = email.value ?: ""

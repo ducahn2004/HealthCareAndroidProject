@@ -1,6 +1,7 @@
 package com.example.healthcareproject.present.auth.viewmodel
 
 import android.os.CountDownTimer
+import android.text.Editable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -50,9 +51,8 @@ class VerifyCodeViewModel @Inject constructor(
     fun setEmail(value: String) {
         _email.value = value
     }
-
-    fun setVerificationCode(value: String) {
-        _verificationCode.value = value
+    fun afterVerificationCodeChange(value: Editable){
+        _verificationCode.value = value.toString()
     }
 
     fun setAuthFlow(flow: AuthFlow) {

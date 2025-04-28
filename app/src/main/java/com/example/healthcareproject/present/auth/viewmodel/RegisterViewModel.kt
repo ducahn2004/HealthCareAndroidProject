@@ -1,5 +1,6 @@
 package com.example.healthcareproject.present.auth.viewmodel
 
+import android.text.Editable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -83,18 +84,33 @@ class RegisterViewModel @Inject constructor(
         _name.value = value
     }
 
-    fun setEmail(value: String) {
-        _email.value = value
+    fun afterNameChange(value: Editable){
+        _name.value = value.toString()
     }
 
-    fun setPassword(value: String) {
-        _password.value = value
+    fun afterEmailChange(value: Editable){
+        _email.value = value.toString()
     }
 
-    fun setConfirmPassword(value: String) {
-        _confirmPassword.value = value
+    fun afterPasswordChange(value: Editable){
+        _password.value = value.toString()
     }
 
+    fun afterConfirmPasswordChange(value: Editable){
+        _confirmPassword.value = value.toString()
+    }
+
+    fun afterPhoneChange(value: Editable){
+        _phone.value = value.toString()
+    }
+
+    fun afterAddressChange(value: Editable){
+        _address.value = value.toString()
+    }
+
+    fun afterDateOfBirthChange(value: Editable){
+        _dateOfBirth.value = value.toString()
+    }
     fun setDateOfBirth(value: String) {
         _dateOfBirth.value = value
     }
@@ -107,13 +123,6 @@ class RegisterViewModel @Inject constructor(
         _bloodType.value = value
     }
 
-    fun setPhone(value: String) {
-        _phone.value = value
-    }
-
-    fun setAddress(value: String?) {
-        _address.value = value
-    }
 
     fun onRegisterClicked() {
         val nameValue = name.value ?: ""

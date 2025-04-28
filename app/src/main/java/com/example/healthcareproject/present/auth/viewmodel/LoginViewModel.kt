@@ -1,5 +1,7 @@
 package com.example.healthcareproject.present.auth.viewmodel
 
+import android.text.Editable
+import androidx.databinding.ObservableField
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -48,12 +50,12 @@ class LoginViewModel @Inject constructor(
         _navigateToGoogleLogin.value = true
     }
 
-    fun setEmail(value: String) {
-        _email.value = value
+    fun afterEmailChange(email: Editable) {
+        _email.value = email.toString()
     }
 
-    fun setPassword(value: String) {
-        _password.value = value
+    fun afterPasswordChange(password: Editable) {
+        _password.value = password.toString()
     }
 
     fun resetNavigationStates() {

@@ -1,5 +1,6 @@
 package com.example.healthcareproject.present.auth.viewmodel
 
+import android.text.Editable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -36,12 +37,14 @@ class CreateNewPasswordViewModel @Inject constructor(
         _email.value = value
     }
 
-    fun setNewPassword(value: String) {
-        _newPassword.value = value
+
+
+    fun afterNewPasswordChange(value: Editable){
+        _newPassword.value = value.toString()
     }
 
-    fun setConfirmPassword(value: String) {
-        _confirmPassword.value = value
+    fun afterConfirmPassword(value: Editable){
+        _confirmPassword.value = value.toString()
     }
 
     fun onResetPasswordClicked() {
