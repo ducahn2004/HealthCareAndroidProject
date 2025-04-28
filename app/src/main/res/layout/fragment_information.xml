@@ -5,7 +5,7 @@
     <data>
         <variable
             name="viewModel"
-            type="com.example.healthcareproject.present.setting.information.UpdateInformationViewModel" />
+            type="com.example.healthcareproject.present.setting.information.InformationViewModel" />
     </data>
 
     <LinearLayout
@@ -47,7 +47,7 @@
             android:id="@+id/tv_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@{viewModel.userForm.name}"
+            android:text="@{viewModel.name}"
             android:minHeight="48dp"
             android:textColor="@color/primary_text_color"
             android:layout_marginBottom="8dp" />
@@ -63,7 +63,7 @@
             android:id="@+id/tv_address"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@{viewModel.userForm.address}"
+            android:text="@{viewModel.address}"
             android:minHeight="48dp"
             android:textColor="@color/primary_text_color"
             android:layout_marginBottom="8dp" />
@@ -79,7 +79,7 @@
             android:id="@+id/tv_dob"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@{viewModel.userForm.dateOfBirth}"
+            android:text="@{viewModel.dateOfBirth}"
             android:minHeight="48dp"
             android:textColor="@color/primary_text_color"
             android:layout_marginBottom="8dp" />
@@ -127,7 +127,7 @@
             android:id="@+id/tv_phone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@{viewModel.userForm.phone}"
+            android:text="@{viewModel.phone}"
             android:minHeight="48dp"
             android:textColor="@color/primary_text_color"
             android:layout_marginBottom="16dp" />

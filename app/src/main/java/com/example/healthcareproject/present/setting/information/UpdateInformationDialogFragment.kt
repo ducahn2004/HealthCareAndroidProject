@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
@@ -122,12 +123,12 @@ class UpdateInformationDialogFragment(
             }
         }
 
-        binding.spinnerGender.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: android.widget.AdapterView<*>, view: View?, position: Int, id: Long) {
+        binding.spinnerGender.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                 viewModel.setGender(genders[position])
             }
 
-            override fun onNothingSelected(parent: android.widget.AdapterView<*>) {}
+            override fun onNothingSelected(parent: AdapterView<*>) {}
         }
     }
 
@@ -144,13 +145,13 @@ class UpdateInformationDialogFragment(
             }
         }
 
-        binding.spinnerBloodType.setOnItemSelectedListener(object : android.widget.AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: android.widget.AdapterView<*>, view: View?, position: Int, id: Long) {
+        binding.spinnerBloodType.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                 viewModel.setBloodType(bloodTypes[position])
             }
 
-            override fun onNothingSelected(parent: android.widget.AdapterView<*>) {}
-        })
+            override fun onNothingSelected(parent: AdapterView<*>) {}
+        }
     }
 
     private fun showDatePicker() {

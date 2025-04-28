@@ -49,8 +49,14 @@ class UpdateInformationViewModel @Inject constructor(
     private val _gender = MutableLiveData<String>("")
     val gender: LiveData<String> get() = _gender
 
+    private val _genderLiveData = MutableLiveData<String>("")
+    val genderLiveData: LiveData<String> get() = _genderLiveData
+
     private val _bloodType = MutableLiveData<String>("")
     val bloodType: LiveData<String> get() = _bloodType
+
+    private val _bloodTypeLiveData = MutableLiveData<String>("")
+    val bloodTypeLiveData: LiveData<String> get() = _bloodTypeLiveData
 
     private val _phone = MutableLiveData<String>("")
     val phone: LiveData<String> get() = _phone
@@ -73,10 +79,12 @@ class UpdateInformationViewModel @Inject constructor(
 
     fun setGender(value: String) {
         _gender.value = value
+        _genderLiveData.value = value
     }
 
     fun setBloodType(value: String) {
         _bloodType.value = value
+        _bloodTypeLiveData.value = value
     }
 
     fun setPhone(value: String) {
@@ -99,8 +107,15 @@ class UpdateInformationViewModel @Inject constructor(
                     _name.value = it.name
                     _address.value = it.address ?: ""
                     _dateOfBirth.value = formatDateForDisplay(it.dateOfBirth)
-                    _gender.value = formatGenderForDisplay(it.gender)
-                    _bloodType.value = formatBloodTypeForDisplay(it.bloodType)
+
+                    val formattedGender = formatGenderForDisplay(it.gender)
+                    _gender.value = formattedGender
+                    _genderLiveData.value = formattedGender
+
+                    val formattedBloodType = formatBloodTypeForDisplay(it.bloodType)
+                    _bloodType.value = formattedBloodType
+                    _bloodTypeLiveData.value = formattedBloodType
+
                     _phone.value = it.phone
                     _email.value = it.userId
                 }

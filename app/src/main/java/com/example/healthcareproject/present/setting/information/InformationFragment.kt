@@ -18,7 +18,7 @@ class InformationFragment : Fragment() {
     private var _binding: FragmentInformationBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel: UpdateInformationViewModel by viewModels()
+    private val viewModel: InformationViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

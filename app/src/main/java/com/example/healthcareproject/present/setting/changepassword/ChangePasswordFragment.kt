@@ -1,4 +1,4 @@
-package com.example.healthcareproject.present.setting
+package com.example.healthcareproject.present.setting.changepassword
 
 import android.os.Bundle
 import android.view.LayoutInflater
