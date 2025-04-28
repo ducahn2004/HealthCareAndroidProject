@@ -11,7 +11,6 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.example.healthcareproject.databinding.FragmentRegisterBinding
 import com.example.healthcareproject.present.auth.viewmodel.RegisterViewModel
-import com.example.healthcareproject.present.auth.viewmodel.VerifyCodeViewModel
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.LocalDate
@@ -23,7 +22,6 @@ class RegisterFragment : Fragment() {
     private var _binding: FragmentRegisterBinding? = null
     private val binding get() = _binding!!
     private val viewModel: RegisterViewModel by viewModels()
-    private val verifyCodeViewModel: VerifyCodeViewModel by viewModels()
     private lateinit var navigator: AuthNavigator
 
     override fun onCreateView(
@@ -96,37 +94,35 @@ class RegisterFragment : Fragment() {
                 }
             }
 
-        // Observe authentication success
-        viewModel.isAuthenticated.observe(viewLifecycleOwner) { isAuthenticated ->
-            if (isAuthenticated) {
-                verifyCodeViewModel.setEmail(viewModel.email.value ?: "")
-                verifyCodeViewModel.setAuthFlow(VerifyCodeViewModel.AuthFlow.REGISTRATION)
-                navigator.fromRegisterToVerifyCode()
-                viewModel.resetNavigationStates()
+        // Observe navigation to VerifyCode
+        viewModel.navigateToVerifyCode.observe(viewLifecycleOwner) { navigate ->
+            if (navigate) {
+                val email = viewModel.email.value
+                if (!email.isNullOrBlank()) {
+                    val action = RegisterFragmentDirections.actionRegisterFragmentToVerifyCodeFragment(
+                        email = email,
+                        authFlow = "REGISTRATION"
+                    )
+                    findNavController().navigate(action)
+                    viewModel.resetNavigationStates()
+                } else {
+                    Snackbar.make(binding.root, "Email is required", Snackbar.LENGTH_LONG).show()
+                }
             }
         }
 
         // Observe errors
         viewModel.error.observe(viewLifecycleOwner) { error ->
-            if (error != null) {
-                Snackbar.make(binding.root, error, Snackbar.LENGTH_LONG).show()
+            if (!error.isNullOrEmpty()) {
+                Snackbar.make(binding.root, error, Snackbar.LENGTH_LONG)
+                    .setAction("Retry") { viewModel.onRegisterClicked() }
+                    .show()
             }
         }
 
         // Observe loading state
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             binding.btnCreateAccount.isEnabled = !isLoading
-        }
-
-        viewModel.navigateToVerifyCode.observe(viewLifecycleOwner) { navigate ->
-            if (navigate) {
-                val action = RegisterFragmentDirections.actionRegisterFragmentToVerifyCodeFragment(
-                    email = viewModel.email.value, // Giả sử RegisterViewModel có email
-                    authFlow = "REGISTRATION"
-                )
-                findNavController().navigate(action)
-                viewModel.resetNavigationStates()
-            }
         }
     }
 
@@ -135,5 +131,4 @@ class RegisterFragment : Fragment() {
         _binding = null
     }
 }
-
 

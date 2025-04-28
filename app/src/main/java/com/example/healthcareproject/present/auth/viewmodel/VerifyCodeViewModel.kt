@@ -1,5 +1,6 @@
 package com.example.healthcareproject.present.auth.viewmodel
 
+import android.text.Editable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -25,6 +26,9 @@ class VerifyCodeViewModel @Inject constructor(
     private val _authFlow = MutableLiveData<AuthFlow>()
     val authFlow: LiveData<AuthFlow> get() = _authFlow
 
+    private val _verificationCode = MutableLiveData<String>()
+    val verificationCode: LiveData<String> get() = _verificationCode
+
     private val _isVerified = MutableLiveData<Boolean>()
     val isVerified: LiveData<Boolean> get() = _isVerified
 
@@ -47,6 +51,9 @@ class VerifyCodeViewModel @Inject constructor(
     private val _timerCount = MutableLiveData<Int>()
     val timerCount: LiveData<Int> get() = _timerCount
 
+    private val _timerText = MutableLiveData<String>()
+    val timerText: LiveData<String> get() = _timerText
+
     private var timerJob: Job? = null
 
     // Khởi tạo email và authFlow từ Fragment
@@ -55,7 +62,13 @@ class VerifyCodeViewModel @Inject constructor(
         _authFlow.value = authFlow
     }
 
-    fun verifyCode(code: String) {
+    fun afterVerificationCodeChange(code: Editable) {
+        _verificationCode.value = code.toString()
+        _verificationCodeError.value = null
+    }
+
+    fun verifyCode() {
+        val code = _verificationCode.value ?: ""
         if (code.isEmpty()) {
             _verificationCodeError.value = "Verification code cannot be empty"
             return
@@ -110,10 +123,12 @@ class VerifyCodeViewModel @Inject constructor(
     fun startTimer(duration: Int = 60) {
         stopTimer()
         _timerCount.value = duration
+        _timerText.value = "Resend in $duration s"
         timerJob = viewModelScope.launch {
             while (_timerCount.value!! > 0) {
                 delay(1000)
                 _timerCount.value = _timerCount.value!! - 1
+                _timerText.value = if (_timerCount.value!! > 0) "Resend in ${_timerCount.value} s" else "Resend Code"
             }
         }
     }
@@ -122,6 +137,7 @@ class VerifyCodeViewModel @Inject constructor(
         timerJob?.cancel()
         timerJob = null
         _timerCount.value = 0
+        _timerText.value = "Resend Code"
     }
 
     fun resetNavigationStates() {
@@ -135,5 +151,9 @@ class VerifyCodeViewModel @Inject constructor(
 
     enum class AuthFlow {
         REGISTRATION, FORGOT_PASSWORD
+    }
+
+    fun clearError() {
+        _error.value = null
     }
 }

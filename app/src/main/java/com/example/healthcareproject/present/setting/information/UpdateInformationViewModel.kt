@@ -1,12 +1,9 @@
 package com.example.healthcareproject.present.setting.information
 
-import androidx.databinding.BaseObservable
-import androidx.databinding.Bindable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.healthcareproject.BR
 import com.example.healthcareproject.domain.model.BloodType
 import com.example.healthcareproject.domain.model.Gender
 import com.example.healthcareproject.domain.model.User
@@ -15,21 +12,17 @@ import com.example.healthcareproject.domain.usecase.GetUserUseCase
 import com.example.healthcareproject.domain.usecase.UpdateUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
 import javax.inject.Inject
-
 
 @HiltViewModel
 class UpdateInformationViewModel @Inject constructor(
     private val getUserUseCase: GetUserUseCase,
     private val updateUserUseCase: UpdateUserUseCase,
-    private val userRepository: UserRepository // Inject UserRepository to fetch email if needed
+    private val userRepository: UserRepository
 ) : ViewModel() {
-
 
     private val _userInfo = MutableLiveData<User?>()
     val userInfo: LiveData<User?> get() = _userInfo
@@ -43,91 +36,58 @@ class UpdateInformationViewModel @Inject constructor(
     private val _isLoading = MutableLiveData<Boolean>(false)
     val isLoading: LiveData<Boolean> get() = _isLoading
 
-    // Data class for two-way binding
-    inner class UserForm : BaseObservable() {
-        @get:Bindable
-        var name: String = ""
-            set(value) {
-                if (field != value) {
-                    field = value
-                    _name.value = value
-                    notifyPropertyChanged(BR.name)
-                }
-            }
-
-        @get:Bindable
-        var address: String = ""
-            set(value) {
-                if (field != value) {
-                    field = value
-                    _address.value = value
-                    notifyPropertyChanged(BR.address)
-                }
-            }
-
-        @get:Bindable
-        var dateOfBirth: String = ""
-            set(value) {
-                if (field != value) {
-                    field = value
-                    _dateOfBirth.value = value
-                    notifyPropertyChanged(BR.dateOfBirth)
-                }
-            }
-
-        @get:Bindable
-        var phone: String = ""
-            set(value) {
-                if (field != value) {
-                    field = value
-                    _phone.value = value
-                    notifyPropertyChanged(BR.phone)
-                }
-            }
-    }
-
-    // Instance of UserForm for binding
-    val userForm = UserForm()
-
-    // MutableLiveData for fields
-    private val _name = MutableLiveData<String>()
+    // LiveData for form fields
+    private val _name = MutableLiveData<String>("")
     val name: LiveData<String> get() = _name
 
-    private val _address = MutableLiveData<String>()
+    private val _address = MutableLiveData<String>("")
     val address: LiveData<String> get() = _address
 
-    private val _dateOfBirth = MutableLiveData<String>()
+    private val _dateOfBirth = MutableLiveData<String>("")
     val dateOfBirth: LiveData<String> get() = _dateOfBirth
 
-    private val _genderLiveData = MutableLiveData<String>()
-    val genderLiveData: LiveData<String> get() = _genderLiveData
+    private val _gender = MutableLiveData<String>("")
+    val gender: LiveData<String> get() = _gender
 
-    private val _bloodTypeLiveData = MutableLiveData<String>()
-    val bloodTypeLiveData: LiveData<String> get() = _bloodTypeLiveData
+    private val _bloodType = MutableLiveData<String>("")
+    val bloodType: LiveData<String> get() = _bloodType
 
-    private val _phone = MutableLiveData<String>()
+    private val _phone = MutableLiveData<String>("")
     val phone: LiveData<String> get() = _phone
 
-    private val _email = MutableLiveData<String>()
+    private val _email = MutableLiveData<String>("")
     val email: LiveData<String> get() = _email
 
-    fun getDateOfBirth(): String? = userForm.dateOfBirth
-
-    fun setDateOfBirth(date: String) {
-        userForm.dateOfBirth = date
+    // Update methods
+    fun setName(value: String) {
+        _name.value = value
     }
 
-    fun getGender(): String? = _genderLiveData.value
-
-    fun setGender(gender: String) {
-        _genderLiveData.value = gender
+    fun setAddress(value: String) {
+        _address.value = value
     }
 
-    fun getBloodType(): String? = _bloodTypeLiveData.value
-
-    fun setBloodType(bloodType: String) {
-        _bloodTypeLiveData.value = bloodType
+    fun setDateOfBirth(value: String) {
+        _dateOfBirth.value = value
     }
+
+    fun setGender(value: String) {
+        _gender.value = value
+    }
+
+    fun setBloodType(value: String) {
+        _bloodType.value = value
+    }
+
+    fun setPhone(value: String) {
+        _phone.value = value
+    }
+
+    fun getDateOfBirth(): String? = _dateOfBirth.value
+
+    fun getGender(): String? = _gender.value
+
+    fun getBloodType(): String? = _bloodType.value
 
     fun loadUserInfoByUid(uid: String) {
         viewModelScope.launch {
@@ -136,12 +96,12 @@ class UpdateInformationViewModel @Inject constructor(
                 val user = getUserUseCase.invoke(identifier = uid, forceUpdate = true, isUid = true)
                 _userInfo.value = user
                 user?.let {
-                    userForm.name = it.name
-                    userForm.address = it.address ?: ""
-                    userForm.dateOfBirth = formatDateForDisplay(it.dateOfBirth)
-                    _genderLiveData.value = formatGenderForDisplay(it.gender)
-                    _bloodTypeLiveData.value = formatBloodTypeForDisplay(it.bloodType)
-                    userForm.phone = it.phone
+                    _name.value = it.name
+                    _address.value = it.address ?: ""
+                    _dateOfBirth.value = formatDateForDisplay(it.dateOfBirth)
+                    _gender.value = formatGenderForDisplay(it.gender)
+                    _bloodType.value = formatBloodTypeForDisplay(it.bloodType)
+                    _phone.value = it.phone
                     _email.value = it.userId
                 }
                 _error.value = null
@@ -157,12 +117,12 @@ class UpdateInformationViewModel @Inject constructor(
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                val nameValue = userForm.name
-                val addressValue = userForm.address
-                val dateOfBirthValue = userForm.dateOfBirth
-                val genderValue = _genderLiveData.value ?: ""
-                val bloodTypeValue = _bloodTypeLiveData.value ?: ""
-                val phoneValue = userForm.phone
+                val nameValue = _name.value ?: ""
+                val addressValue = _address.value ?: ""
+                val dateOfBirthValue = _dateOfBirth.value ?: ""
+                val genderValue = _gender.value ?: ""
+                val bloodTypeValue = _bloodType.value ?: ""
+                val phoneValue = _phone.value ?: ""
 
                 if (nameValue.trim().isEmpty()) {
                     _error.value = "Name is required"
@@ -179,7 +139,6 @@ class UpdateInformationViewModel @Inject constructor(
                     _error.value = "Invalid blood type. Must be one of: A, B, AB, O, None"
                     return@launch
                 }
-
 
                 // Fetch the user's email (userId) from the stored email or user data
                 val userId = _email.value ?: throw Exception("User email not found")
@@ -206,13 +165,11 @@ class UpdateInformationViewModel @Inject constructor(
         }
     }
 
-
     fun formatDateForDisplay(date: LocalDate?): String {
         if (date == null) return ""
         val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy").withLocale(Locale.US)
         return date.format(formatter)
     }
-
 
     fun formatGenderForDisplay(gender: Gender?): String {
         if (gender == null) return ""
@@ -246,12 +203,12 @@ class UpdateInformationViewModel @Inject constructor(
 
     fun getUpdatedUserInfo(): Map<String, String> {
         return mapOf(
-            "name" to userForm.name,
-            "address" to userForm.address,
-            "dob" to userForm.dateOfBirth,
-            "gender" to (_genderLiveData.value ?: ""),
-            "blood_type" to (_bloodTypeLiveData.value ?: ""),
-            "phone" to userForm.phone
+            "name" to (_name.value ?: ""),
+            "address" to (_address.value ?: ""),
+            "dob" to (_dateOfBirth.value ?: ""),
+            "gender" to (_gender.value ?: ""),
+            "blood_type" to (_bloodType.value ?: ""),
+            "phone" to (_phone.value ?: "")
         )
     }
 
@@ -261,5 +218,4 @@ class UpdateInformationViewModel @Inject constructor(
         _isSaved.value = false
         super.onCleared()
     }
-
 }

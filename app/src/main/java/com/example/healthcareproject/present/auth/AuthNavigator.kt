@@ -41,6 +41,10 @@ class AuthNavigator(private val navController: NavController) {
         navController.navigate(R.id.action_forgotPasswordFragment_to_loginMethodFragment)
     }
 
+    fun fromVerifyCodeToLogin() {
+        navController.navigate(R.id.action_verifyCodeFragment_to_loginFragment)
+    }
+
     fun fromForgotPasswordToVerifyCode() {
         navController.navigate(R.id.action_forgotPasswordFragment_to_verifyCodeFragment)
     }
