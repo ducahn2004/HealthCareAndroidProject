@@ -22,7 +22,8 @@ class SettingsFragment : Fragment() {
         SettingItem(3, "Notifications", R.drawable.ic_notification),
         SettingItem(4, "Privacy", R.drawable.ic_privacy),
         SettingItem(5, "Emergency Contacts", R.drawable.ic_emergency),
-        SettingItem(6, "Logout", R.drawable.ic_logout)
+        SettingItem(6, "Change Password", R.drawable.ic_password),
+        SettingItem(7, "Logout", R.drawable.ic_logout)
     )
 
     override fun onCreateView(
@@ -49,7 +50,8 @@ class SettingsFragment : Fragment() {
                 }
 
                 5 -> findNavController().navigate(R.id.action_settingsFragment_to_emergencyFragment)
-                6 -> showLogoutConfirmationDialog()
+                6 -> findNavController().navigate(R.id.action_settingsFragment_to_changePasswordFragment)
+                7 -> showLogoutConfirmationDialog()
             }
         }
     }
