@@ -5,6 +5,7 @@ import com.example.healthcareproject.data.mapper.toLocal
 import com.example.healthcareproject.data.mapper.toNetwork
 import com.example.healthcareproject.data.source.local.dao.UserDao
 import com.example.healthcareproject.data.source.network.datasource.UserDataSource
+import com.example.healthcareproject.data.source.network.model.FirebaseUser
 import com.example.healthcareproject.di.DefaultDispatcher
 import com.example.healthcareproject.domain.model.User
 import com.example.healthcareproject.domain.repository.UserRepository
@@ -97,6 +98,17 @@ class DefaultUserRepository @Inject constructor(
     override suspend fun deleteUser(userId: String) {
         localDataSource.deleteById(userId)
         networkDataSource.deleteUser(userId)
+    }
+
+    override suspend fun resetPassword(email: String, newPassword: String){
+
+    }
+    override  suspend fun sendVerificationCode(email: String){
+
+    }
+
+    override suspend fun verifyCode(email: String, code: String){
+
     }
 
    override suspend fun refresh(userId: String) {

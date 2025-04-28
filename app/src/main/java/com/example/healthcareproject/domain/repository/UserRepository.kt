@@ -39,4 +39,10 @@ interface UserRepository {
     suspend fun refreshUser(userId: String)
 
     suspend fun deleteUser(userId: String)
+
+    suspend fun resetPassword(email: String, newPassword: String)
+
+    suspend fun verifyCode(email: String, code: String)
+
+    suspend fun sendVerificationCode(string: String)
 }
