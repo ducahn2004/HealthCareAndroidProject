@@ -1,7 +1,5 @@
 package com.example.healthcareproject.present.setting
 
-import androidx.databinding.BaseObservable
-import androidx.databinding.Bindable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -16,45 +14,37 @@ class ChangePasswordViewModel @Inject constructor(
     private val userFirebaseDataSource: UserFirebaseDataSource
 ) : ViewModel() {
 
-    // Data class for two-way binding
-    inner class PasswordForm : BaseObservable() {
-        @get:Bindable
-        var currentPassword: String = ""
-            set(value) {
-                if (field != value) {
-                    field = value
-                    notifyPropertyChanged(androidx.databinding.library.baseAdapters.BR.currentPassword)
-                }
-            }
+    // Use LiveData for form fields
+    private val _currentPassword = MutableLiveData("")
+    val currentPassword: LiveData<String> = _currentPassword
 
-        @get:Bindable
-        var newPassword: String = ""
-            set(value) {
-                if (field != value) {
-                    field = value
-                    notifyPropertyChanged(androidx.databinding.library.baseAdapters.BR.newPassword)
-                }
-            }
+    private val _newPassword = MutableLiveData("")
+    val newPassword: LiveData<String> = _newPassword
+
+    // For updating values (two-way binding)
+    fun setCurrentPassword(value: String) {
+        _currentPassword.value = value
     }
 
-    // Instance of PasswordForm for binding
-    val passwordForm = PasswordForm()
+    fun setNewPassword(value: String) {
+        _newPassword.value = value
+    }
 
     private val _error = MutableLiveData<String?>()
-    val error: LiveData<String?> get() = _error
+    val error: LiveData<String?> = _error
 
     private val _isLoading = MutableLiveData<Boolean>(false)
-    val isLoading: LiveData<Boolean> get() = _isLoading
+    val isLoading: LiveData<Boolean> = _isLoading
 
     private val _isPasswordChanged = MutableLiveData<Boolean>(false)
-    val isPasswordChanged: LiveData<Boolean> get() = _isPasswordChanged
+    val isPasswordChanged: LiveData<Boolean> = _isPasswordChanged
 
     fun changePassword(userId: String) {
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                val currentPassword = passwordForm.currentPassword.trim()
-                val newPassword = passwordForm.newPassword.trim()
+                val currentPassword = _currentPassword.value?.trim() ?: ""
+                val newPassword = _newPassword.value?.trim() ?: ""
 
                 // Validate inputs
                 if (currentPassword.isEmpty()) {

@@ -52,4 +52,6 @@ interface UserRepository {
 
     suspend fun loginUser(userId: String, password: String)
 
+    suspend fun sendVerificationCode(email: String)
+
 }

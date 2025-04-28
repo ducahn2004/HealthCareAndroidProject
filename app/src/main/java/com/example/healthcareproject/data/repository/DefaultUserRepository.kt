@@ -192,6 +192,10 @@ class DefaultUserRepository @Inject constructor(
         networkDataSource.loginUser(userId, password)
     }
 
+    override suspend fun sendVerificationCode(email: String) {
+
+    }
+
     override suspend fun refresh(userId: String) {
         withContext(dispatcher) {
             val uid = networkDataSource.getUidByEmail(userId)

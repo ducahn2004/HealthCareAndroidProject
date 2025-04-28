@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.healthcareproject.BR
 import com.example.healthcareproject.domain.model.BloodType
 import com.example.healthcareproject.domain.model.Gender
 import com.example.healthcareproject.domain.model.User
@@ -21,12 +22,14 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 import javax.inject.Inject
 
+
 @HiltViewModel
 class UpdateInformationViewModel @Inject constructor(
     private val getUserUseCase: GetUserUseCase,
     private val updateUserUseCase: UpdateUserUseCase,
     private val userRepository: UserRepository // Inject UserRepository to fetch email if needed
 ) : ViewModel() {
+
 
     private val _userInfo = MutableLiveData<User?>()
     val userInfo: LiveData<User?> get() = _userInfo
@@ -48,7 +51,7 @@ class UpdateInformationViewModel @Inject constructor(
                 if (field != value) {
                     field = value
                     _name.value = value
-                    notifyPropertyChanged(androidx.databinding.library.baseAdapters.BR.name)
+                    notifyPropertyChanged(BR.name)
                 }
             }
 
@@ -58,7 +61,7 @@ class UpdateInformationViewModel @Inject constructor(
                 if (field != value) {
                     field = value
                     _address.value = value
-                    notifyPropertyChanged(androidx.databinding.library.baseAdapters.BR.address)
+                    notifyPropertyChanged(BR.address)
                 }
             }
 
@@ -68,7 +71,7 @@ class UpdateInformationViewModel @Inject constructor(
                 if (field != value) {
                     field = value
                     _dateOfBirth.value = value
-                    notifyPropertyChanged(androidx.databinding.library.baseAdapters.BR.dateOfBirth)
+                    notifyPropertyChanged(BR.dateOfBirth)
                 }
             }
 
@@ -78,7 +81,7 @@ class UpdateInformationViewModel @Inject constructor(
                 if (field != value) {
                     field = value
                     _phone.value = value
-                    notifyPropertyChanged(androidx.databinding.library.baseAdapters.BR.phone)
+                    notifyPropertyChanged(BR.phone)
                 }
             }
     }

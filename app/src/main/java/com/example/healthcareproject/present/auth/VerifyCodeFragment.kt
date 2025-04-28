@@ -1,15 +1,14 @@
 package com.example.healthcareproject.present.auth
 
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.edit
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.example.healthcareproject.databinding.FragmentVerifyCodeBinding
 import com.example.healthcareproject.present.MainActivity
 import com.example.healthcareproject.present.auth.viewmodel.VerifyCodeViewModel
@@ -24,6 +23,7 @@ class VerifyCodeFragment : Fragment() {
     private val binding get() = _binding!!
     private val viewModel: VerifyCodeViewModel by viewModels()
     private lateinit var navigator: AuthNavigator
+    private val args: VerifyCodeFragmentArgs by navArgs()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -39,25 +39,26 @@ class VerifyCodeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        Timber.d("VerifyCodeFragment: onViewCreated, authFlow=${viewModel.authFlow.value}")
+        // Lấy email và authFlow từ arguments
+        val email = args.email
+        val authFlow = when (args.authFlow) {
+            "REGISTRATION" -> VerifyCodeViewModel.AuthFlow.REGISTRATION
+            "FORGOT_PASSWORD" -> VerifyCodeViewModel.AuthFlow.FORGOT_PASSWORD
+            else -> null
+        }
 
-        // Ensure email is available to prevent null binding errors
-        if (viewModel.email.value.isNullOrEmpty()) {
-            Timber.e("Email is null or empty in VerifyCodeFragment")
-            Snackbar.make(binding.root, "Email is required for verification", Snackbar.LENGTH_LONG).show()
+        if (email.isNullOrEmpty() || authFlow == null) {
+            Timber.e("Email or authFlow is missing: email=$email, authFlow=$authFlow")
+            Snackbar.make(binding.root, "Invalid verification data", Snackbar.LENGTH_LONG).show()
             navigator.navigateUp()
             return
         }
 
-        binding.btnBackVerifyCode.setOnClickListener {
-            when (viewModel.authFlow.value) {
-                VerifyCodeViewModel.AuthFlow.REGISTRATION -> navigator.fromRegisterToLoginMethod()
-                VerifyCodeViewModel.AuthFlow.FORGOT_PASSWORD -> navigator.fromForgotPasswordToLoginMethod()
-                null -> navigator.navigateUp()
-            }
-        }
+        // Khởi tạo ViewModel với email và authFlow
+        viewModel.setEmailAndAuthFlow(email, authFlow)
+        Timber.d("VerifyCodeFragment: email=$email, authFlow=$authFlow")
 
-        // Start timer for code verification
+        // Bắt đầu timer
         viewModel.startTimer()
 
         setupClickListeners()
@@ -65,98 +66,73 @@ class VerifyCodeFragment : Fragment() {
     }
 
     private fun setupClickListeners() {
-        // Handle resend code click
+        // Xử lý nút back
+        binding.btnBackVerifyCode.setOnClickListener {
+            navigator.navigateUp()
+        }
+
+        // Xử lý gửi lại mã xác nhận
         binding.tvResend.setOnClickListener {
-            val email = viewModel.email.value
-            if (!email.isNullOrBlank()) {
-                try {
-                    viewModel.sendVerificationCode()
-                    viewModel.startTimer() // Restart timer after resending
-                    Snackbar.make(binding.root, "Code resent to $email", Snackbar.LENGTH_SHORT).show()
-                } catch (e: Exception) {
-                    Timber.e(e, "Error resending code")
-                    Snackbar.make(binding.root, "Failed to resend code: ${e.message}", Snackbar.LENGTH_SHORT).show()
-                }
+            if (viewModel.timerCount.value == 0) {
+                viewModel.sendVerificationCode()
+                Snackbar.make(binding.root, "Code resent to ${viewModel.email.value}", Snackbar.LENGTH_SHORT).show()
             } else {
-                Snackbar.make(binding.root, "Email not found", Snackbar.LENGTH_SHORT).show()
+                Snackbar.make(binding.root, "Please wait ${viewModel.timerCount.value}s to resend", Snackbar.LENGTH_SHORT).show()
             }
         }
     }
 
     private fun observeViewModelState() {
-        // Observe code verification success
-        viewModel.isCodeVerified.observe(viewLifecycleOwner) { isVerified ->
+        // Quan sát trạng thái xác minh
+        viewModel.isVerified.observe(viewLifecycleOwner) { isVerified ->
             if (isVerified) {
-                Timber.d("Code verified, current authFlow=${viewModel.authFlow.value}")
-
-                try {
-                    when (viewModel.authFlow.value) {
-                        VerifyCodeViewModel.AuthFlow.REGISTRATION -> {
-                            saveLoginState(true)
-                            startActivity(Intent(requireContext(), MainActivity::class.java).apply {
-                                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                            })
-                            requireActivity().finish()
-                        }
-                        VerifyCodeViewModel.AuthFlow.FORGOT_PASSWORD -> {
-                            navigator.fromVerifyCodeToCreateNewPassword()
-                        }
-                        null -> {
-                            Timber.e("AuthFlow is null")
-                            Snackbar.make(binding.root, "Invalid authentication flow", Snackbar.LENGTH_LONG).show()
-                        }
+                Timber.d("Code verified, authFlow=${viewModel.authFlow.value}")
+                when (viewModel.authFlow.value) {
+                    VerifyCodeViewModel.AuthFlow.REGISTRATION -> {
+                        navigator.fromVerifyCodeToLogin()
                     }
-                    viewModel.resetNavigationStates()
-                } catch (e: Exception) {
-                    Timber.e(e, "Error handling verified code")
-                    Snackbar.make(binding.root, "Error: ${e.message}", Snackbar.LENGTH_LONG).show()
+                    VerifyCodeViewModel.AuthFlow.FORGOT_PASSWORD -> {
+                        navigator.fromVerifyCodeToCreateNewPassword()
+                    }
+                    null -> {
+                        Timber.e("AuthFlow is null")
+                        Snackbar.make(binding.root, "Invalid authentication flow", Snackbar.LENGTH_LONG).show()
+                    }
                 }
+                viewModel.resetNavigationStates()
             }
         }
 
-        // Observe errors
+        // Quan sát lỗi
         viewModel.error.observe(viewLifecycleOwner) { error ->
             if (!error.isNullOrEmpty()) {
                 Timber.e("Error in VerifyCodeFragment: $error")
                 Snackbar.make(binding.root, error, Snackbar.LENGTH_LONG).show()
-                // Clear the error after showing it
-                viewModel.setError("")
+                viewModel.setError(null)
             }
         }
 
-        // Observe verification code errors
+        // Quan sát lỗi mã xác nhận
         viewModel.verificationCodeError.observe(viewLifecycleOwner) { error ->
-            if (!error.isNullOrEmpty()) {
-                Timber.e("Verification code error: $error")
-                // Error is handled by data binding in XML
-            }
+            binding.etVerificationCode.error = error
         }
 
-        // Observe loading state
+        // Quan sát trạng thái tải
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             binding.btnVerify.isEnabled = !isLoading
+            binding.tvResend.isEnabled = !isLoading
         }
-    }
 
-    private fun saveLoginState(isLoggedIn: Boolean) {
-        try {
-            val sharedPreferences = requireContext().getSharedPreferences("user_prefs", 0)
-            sharedPreferences.edit {
-                putBoolean("is_logged_in", isLoggedIn)
-            }
-            Timber.d("Login state saved: $isLoggedIn")
-        } catch (e: Exception) {
-            Timber.e(e, "Error saving login state")
+        // Quan sát timer
+        viewModel.timerCount.observe(viewLifecycleOwner) { count ->
+            binding.tvResend.isEnabled = count == 0
+            binding.tvResend.text = if (count > 0) "Resend in ${count}s" else "Resend Code"
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        try {
-            viewModel.stopTimer()
-        } catch (e: Exception) {
-            Timber.e(e, "Error stopping timer")
-        }
+        viewModel.stopTimer()
         _binding = null
     }
 }

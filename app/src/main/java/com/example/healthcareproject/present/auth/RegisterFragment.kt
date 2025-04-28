@@ -63,7 +63,12 @@ class RegisterFragment : Fragment() {
 
         // Gender spinner
         binding.spinnerGender.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+            override fun onItemSelected(
+                parent: AdapterView<*>,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
                 val selectedGender = parent.getItemAtPosition(position).toString()
                 viewModel.setGender(selectedGender)
             }
@@ -74,16 +79,22 @@ class RegisterFragment : Fragment() {
         }
 
         // Blood type spinner
-        binding.spinnerBloodType.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
-                val selectedBloodType = parent.getItemAtPosition(position).toString()
-                viewModel.setBloodType(selectedBloodType)
-            }
+        binding.spinnerBloodType.onItemSelectedListener =
+            object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(
+                    parent: AdapterView<*>,
+                    view: View?,
+                    position: Int,
+                    id: Long
+                ) {
+                    val selectedBloodType = parent.getItemAtPosition(position).toString()
+                    viewModel.setBloodType(selectedBloodType)
+                }
 
-            override fun onNothingSelected(parent: AdapterView<*>) {
-                viewModel.setBloodType("")
+                override fun onNothingSelected(parent: AdapterView<*>) {
+                    viewModel.setBloodType("")
+                }
             }
-        }
 
         // Observe authentication success
         viewModel.isAuthenticated.observe(viewLifecycleOwner) { isAuthenticated ->
@@ -105,6 +116,17 @@ class RegisterFragment : Fragment() {
         // Observe loading state
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             binding.btnCreateAccount.isEnabled = !isLoading
+        }
+
+        viewModel.navigateToVerifyCode.observe(viewLifecycleOwner) { navigate ->
+            if (navigate) {
+                val action = RegisterFragmentDirections.actionRegisterFragmentToVerifyCodeFragment(
+                    email = viewModel.email.value, // Giả sử RegisterViewModel có email
+                    authFlow = "REGISTRATION"
+                )
+                findNavController().navigate(action)
+                viewModel.resetNavigationStates()
+            }
         }
     }
 

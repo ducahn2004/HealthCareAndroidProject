@@ -5,13 +5,14 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.healthcareproject.data.source.network.datasource.UserFirebaseDataSource
+import com.example.healthcareproject.domain.usecase.auth.GoogleSignInUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class GoogleLoginViewModel @Inject constructor(
-    private val userFirebaseDataSource: UserFirebaseDataSource
+    private val googleSignInUseCase: GoogleSignInUseCase
 ) : ViewModel() {
 
     private val _isAuthenticated = MutableLiveData<Boolean>()
@@ -32,7 +33,7 @@ class GoogleLoginViewModel @Inject constructor(
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                userFirebaseDataSource.googleSignIn(idToken)
+                googleSignInUseCase(idToken)
                 _isAuthenticated.value = true
             } catch (e: Exception) {
                 _error.value = e.message ?: "Google Sign-In failed"

@@ -9,7 +9,6 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.example.healthcareproject.databinding.FragmentForgotPasswordBinding
 import com.example.healthcareproject.present.auth.viewmodel.ForgotPasswordViewModel
-import com.example.healthcareproject.present.auth.viewmodel.VerifyCodeViewModel
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
@@ -19,8 +18,7 @@ class ForgotPasswordFragment : Fragment() {
 
     private var _binding: FragmentForgotPasswordBinding? = null
     private val binding get() = _binding!!
-    private val forgotPasswordViewModel: ForgotPasswordViewModel by viewModels()
-    private val verifyCodeViewModel: VerifyCodeViewModel by viewModels()
+    private val viewModel: ForgotPasswordViewModel by viewModels()
     private lateinit var navigator: AuthNavigator
 
     override fun onCreateView(
@@ -28,7 +26,7 @@ class ForgotPasswordFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentForgotPasswordBinding.inflate(inflater, container, false)
-        binding.viewModel = forgotPasswordViewModel
+        binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
         navigator = AuthNavigator(findNavController())
         return binding.root
@@ -45,34 +43,42 @@ class ForgotPasswordFragment : Fragment() {
         }
 
         // Observe navigation to VerifyCode
-        forgotPasswordViewModel.navigateToVerifyCode.observe(viewLifecycleOwner) { navigate ->
+        viewModel.navigateToVerifyCode.observe(viewLifecycleOwner) { navigate ->
             if (navigate) {
-                Timber.d("Navigating to VerifyCodeFragment with email=${forgotPasswordViewModel.email.value}")
-                verifyCodeViewModel.setEmail(forgotPasswordViewModel.email.value ?: "")
-                verifyCodeViewModel.setAuthFlow(VerifyCodeViewModel.AuthFlow.FORGOT_PASSWORD)
-                navigator.fromForgotPasswordToVerifyCode()
-                forgotPasswordViewModel.resetNavigationStates()
+                val email = viewModel.email.value
+                if (!email.isNullOrBlank()) {
+                    val action = ForgotPasswordFragmentDirections.actionForgotPasswordFragmentToVerifyCodeFragment(
+                        email = email,
+                        authFlow = "FORGOT_PASSWORD"
+                    )
+                    findNavController().navigate(action)
+                    viewModel.resetNavigationStates()
+                } else {
+                    Timber.e("Email is null or blank, cannot navigate to VerifyCodeFragment")
+                    Snackbar.make(binding.root, "Email is required", Snackbar.LENGTH_LONG).show()
+                }
             }
         }
 
         // Observe errors
-        forgotPasswordViewModel.error.observe(viewLifecycleOwner) { error ->
+        viewModel.error.observe(viewLifecycleOwner) { error ->
             if (!error.isNullOrEmpty()) {
                 Timber.e("Error in ForgotPasswordFragment: $error")
-                Snackbar.make(binding.root, error, Snackbar.LENGTH_LONG).show()
+                Snackbar.make(binding.root, error, Snackbar.LENGTH_LONG)
+                    .setAction("Retry") { viewModel.onResetPasswordClicked() }
+                    .show()
+                viewModel.clearError()
             }
         }
 
         // Observe loading state
-        forgotPasswordViewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             binding.btnResetPassword.isEnabled = !isLoading
         }
 
         // Observe email errors
-        forgotPasswordViewModel.emailError.observe(viewLifecycleOwner) { error ->
-            if (!error.isNullOrEmpty()) {
-                binding.etEmail.error = error
-            }
+        viewModel.emailError.observe(viewLifecycleOwner) { error ->
+            binding.etEmail.error = error
         }
     }
 

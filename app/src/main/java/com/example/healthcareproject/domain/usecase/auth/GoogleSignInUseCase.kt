@@ -1,4 +1,4 @@
-package com.example.healthcareproject.domain.usecase
+package com.example.healthcareproject.domain.usecase.auth
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider

@@ -1,4 +1,4 @@
-package com.example.healthcareproject.domain.usecase
+package com.example.healthcareproject.domain.usecase.auth
 
 import com.example.healthcareproject.domain.repository.UserRepository
 import javax.inject.Inject

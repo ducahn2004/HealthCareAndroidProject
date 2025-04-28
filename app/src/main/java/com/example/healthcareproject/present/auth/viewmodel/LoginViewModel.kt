@@ -1,12 +1,11 @@
 package com.example.healthcareproject.present.auth.viewmodel
 
 import android.text.Editable
-import androidx.databinding.ObservableField
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.healthcareproject.domain.usecase.LoginUserUseCase
+import com.example.healthcareproject.domain.usecase.auth.LoginUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -92,9 +91,6 @@ class LoginViewModel @Inject constructor(
         _navigateToForgotPassword.value = true
     }
 
-    fun navigateToRegister() {
-        _navigateToRegister.value = true
-    }
 
     private fun login(email: String, password: String) {
         _error.value = null
@@ -102,10 +98,14 @@ class LoginViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                val uid = loginUserUseCase(email, password)
+                loginUserUseCase(email, password)
                 _isAuthenticated.value = true
+                _error.value = null
+                _emailError.value = null
+                _passwordError.value = null
             } catch (e: Exception) {
                 _error.value = e.message ?: "Login failed"
+                _isAuthenticated.value = false
             } finally {
                 _isLoading.value = false
             }

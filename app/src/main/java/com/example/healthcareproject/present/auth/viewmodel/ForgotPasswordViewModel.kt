@@ -6,14 +6,18 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.healthcareproject.data.source.network.datasource.UserFirebaseDataSource
+import com.example.healthcareproject.domain.usecase.auth.SendVerificationCodeUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ForgotPasswordViewModel @Inject constructor(
-    private val userFirebaseDataSource: UserFirebaseDataSource
+    private val sendVerificationCodeUseCase: SendVerificationCodeUseCase
 ) : ViewModel() {
+
+    private val _isCodeSent = MutableLiveData<Boolean>()
+    val isCodeSent: LiveData<Boolean> get() = _isCodeSent
 
     private val _email = MutableLiveData<String>()
     val email: LiveData<String> = _email
@@ -52,8 +56,10 @@ class ForgotPasswordViewModel @Inject constructor(
         _isLoading.value = true
         viewModelScope.launch {
             try {
-                userFirebaseDataSource.sendVerificationCode(emailValue)
+                sendVerificationCodeUseCase(emailValue)
+                _isCodeSent.value = true
                 _navigateToVerifyCode.value = true
+                _error.value = null
             } catch (e: Exception) {
                 _error.value = e.message ?: "Failed to send verification code"
             } finally {
@@ -64,5 +70,9 @@ class ForgotPasswordViewModel @Inject constructor(
 
     fun resetNavigationStates() {
         _navigateToVerifyCode.value = false
+    }
+
+    fun clearError() {
+        _error.value = null
     }
 }

@@ -73,9 +73,20 @@
         android:id="@+id/verifyCodeFragment"
         android:name="com.example.healthcareproject.present.auth.VerifyCodeFragment"
         android:label="VerifyCodeFragment">
+        <argument
+            android:name="email"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="authFlow"
+            app:argType="string"
+            app:nullable="true" />
         <action
             android:id="@+id/action_verifyCodeFragment_to_createNewPasswordFragment"
             app:destination="@id/createNewPasswordFragment" />
+        <action
+            android:id="@+id/action_verifyCodeFragment_to_loginFragment"
+            app:destination="@id/loginFragment" />
     </fragment>
 
     <fragment

@@ -7,14 +7,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.healthcareproject.data.source.network.datasource.UserFirebaseDataSource
 import com.example.healthcareproject.domain.usecase.CreateUserUseCase
+import com.example.healthcareproject.domain.usecase.auth.RegisterUserUseCase
+import com.example.healthcareproject.domain.usecase.auth.SendVerificationCodeUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class RegisterViewModel @Inject constructor(
-    private val createUserUseCase: CreateUserUseCase,
-    private val userFirebaseDataSource: UserFirebaseDataSource
+    private val registerUserUseCase: RegisterUserUseCase,
+    private val sendVerificationCodeUseCase: SendVerificationCodeUseCase
 ) : ViewModel() {
 
     private val _name = MutableLiveData<String>("")
@@ -80,9 +82,9 @@ class RegisterViewModel @Inject constructor(
     private val _isAuthenticated = MutableLiveData<Boolean>()
     val isAuthenticated: LiveData<Boolean> = _isAuthenticated
 
-    fun setName(value: String) {
-        _name.value = value
-    }
+    private val _navigateToVerifyCode = MutableLiveData<Boolean>()
+    val navigateToVerifyCode: LiveData<Boolean> get() = _navigateToVerifyCode
+
 
     fun afterNameChange(value: Editable){
         _name.value = value.toString()
@@ -218,7 +220,7 @@ class RegisterViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                createUserUseCase(
+                registerUserUseCase(
                     userId = email,
                     password = password,
                     name = name,
@@ -228,9 +230,10 @@ class RegisterViewModel @Inject constructor(
                     bloodType = bloodType,
                     phone = phone
                 )
-                val uid = userFirebaseDataSource.getUidByEmail(email)
-                userFirebaseDataSource.sendVerificationCode(email)
+                sendVerificationCodeUseCase(email)
                 _isAuthenticated.value = true
+                _navigateToVerifyCode.value = true
+                _error.value = null
             } catch (e: Exception) {
                 _error.value = e.message ?: "Registration failed"
             } finally {

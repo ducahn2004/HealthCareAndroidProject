@@ -4,7 +4,7 @@ plugins {
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
-    id("com.google.devtools.ksp")
+    id("androidx.navigation.safeargs.kotlin") version "2.7.7"
     id("com.google.relay")
     id("com.google.gms.google-services")
     id("androidx.room")
@@ -21,7 +21,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.healthcareproject"
-        minSdk = 26
+        minSdk = 24
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -75,6 +75,9 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.cardview)
 
+    // Add Firebase Functions
+    implementation(libs.firebase.functions)
+
     // Material Design
     implementation(libs.material)
 
@@ -92,7 +95,7 @@ dependencies {
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.database)
     implementation(libs.firebase.common.ktx)
-    implementation(libs.firebase.functions.ktx)
+
     // Room (Database)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
@@ -101,13 +104,6 @@ dependencies {
     implementation(libs.androidx.room.paging)
     ksp(libs.androidx.room.compiler)
     testImplementation(libs.androidx.room.testing)
-
-    // Data Binding
-    implementation(libs.androidx.databinding.runtime)
-
-    // ViewModel and LiveData
-    implementation(libs.androidx.lifecycle.viewmodel.ktx)
-    implementation(libs.androidx.lifecycle.livedata.ktx)
 
     // Dependency Injection (Hilt)
     implementation(libs.hilt.android.core)
@@ -118,7 +114,6 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
-
     // JavaX
     implementation(libs.javax.inject)
 
