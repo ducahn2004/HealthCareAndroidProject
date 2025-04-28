@@ -93,6 +93,17 @@
     <string name="add_information">Add Information</string>
     <string name="default_web_client_id">YOUR_WEB_CLIENT_ID</string>
     <string name="enter_email_to_reset_password">Enter Email to reset</string>
+    <string name="update_information_title">Update Information</string>
+    <string name="name_hint">Name</string>
+    <string name="address_label">Address:</string>
+    <string name="address_hint">Address</string>
+    <string name="dob_label">Date of Birth:</string>
+    <string name="dob_hint">Date of Birth (dd/mm/yyyy)</string>
+    <string name="gender_label">Gender:</string>
+    <string name="blood_type_label">Blood Type:</string>
+    <string name="phone_label">Phone:</string>
+    <string name="phone_hint">Phone</string>
+    <string name="user_not_logged_in">User not logged in</string>
     <string-array name="gender_options">
         <item>Male</item>
         <item>Female</item>

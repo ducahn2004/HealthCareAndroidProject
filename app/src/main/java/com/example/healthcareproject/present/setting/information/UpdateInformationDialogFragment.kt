@@ -7,12 +7,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.Spinner
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.LiveData
+import com.example.healthcareproject.R
 import com.example.healthcareproject.databinding.DialogUpdateInformationBinding
 import com.google.firebase.auth.FirebaseAuth
-import com.example.healthcareproject.R
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 
@@ -23,7 +25,6 @@ class UpdateInformationDialogFragment(
 
     private var _binding: DialogUpdateInformationBinding? = null
     private val binding get() = _binding!!
-
     private val viewModel: UpdateInformationViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,140 +45,127 @@ class UpdateInformationDialogFragment(
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Load user info using UID
+        setupObservers()
+        setupListeners()
+        loadUserInfo()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        dialog?.window?.setLayout(
+            (resources.displayMetrics.widthPixels * 0.9).toInt(),
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+    }
+
+    private fun loadUserInfo() {
         val uid = FirebaseAuth.getInstance().currentUser?.uid
         if (uid != null) {
             viewModel.loadUserInfoByUid(uid)
         } else {
-            Toast.makeText(requireContext(), "User not logged in", Toast.LENGTH_SHORT).show()
+            showToast(getString(R.string.user_not_logged_in))
             dismiss()
         }
+    }
 
-        // Thiết lập Spinner cho Gender
-        setupGenderSpinner()
-
-        // Thiết lập Spinner cho Blood Type
-        setupBloodTypeSpinner()
-
-        // Xử lý DatePicker cho Date of Birth
-        binding.tvDob.setOnClickListener {
-            showDatePicker()
-        }
-
-        // Observe ViewModel states
+    private fun setupObservers() {
         viewModel.error.observe(viewLifecycleOwner) { error ->
-            if (error != null) {
-                Toast.makeText(requireContext(), error, Toast.LENGTH_SHORT).show()
-            }
+            error?.let { showToast(it) }
         }
 
         viewModel.isSaved.observe(viewLifecycleOwner) { isSaved ->
             if (isSaved) {
-                val updatedInfo = viewModel.getUpdatedUserInfo()
-                onSave(updatedInfo)
+                onSave(viewModel.getUpdatedUserInfo())
                 dismiss()
             }
         }
 
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
-            // Optionally show a progress bar
+            // Show progress bar if needed
         }
+    }
 
-        // Xử lý nút Cancel
-        binding.btnCancel.setOnClickListener {
-            dismiss()
-        }
+    private fun setupListeners() {
+        // Date of Birth Picker
+        binding.etDob.setOnClickListener { showDatePicker() }
 
-        // Xử lý nút Save
+        // Gender Spinner
+        setupSpinner(
+            binding.spinnerGender,
+            arrayOf("Male", "Female"),
+            viewModel.genderLiveData
+        ) { viewModel.setGender(it) }
+
+        // Blood Type Spinner
+        setupSpinner(
+            binding.spinnerBloodType,
+            arrayOf("A", "B", "AB", "O", "None"),
+            viewModel.bloodTypeLiveData
+        ) { viewModel.setBloodType(it) }
+
+        // Buttons
+        binding.btnCancel.setOnClickListener { dismiss() }
         binding.btnSave.setOnClickListener {
-            val uid = FirebaseAuth.getInstance().currentUser?.uid
-            if (uid != null) {
+            FirebaseAuth.getInstance().currentUser?.uid?.let { uid ->
                 viewModel.saveUserInfoByUid(uid)
-            } else {
-                Toast.makeText(requireContext(), "User not logged in", Toast.LENGTH_SHORT).show()
+            } ?: run {
+                showToast(getString(R.string.user_not_logged_in))
                 dismiss()
             }
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-        dialog?.window?.let { window ->
-            val params = window.attributes
-            val width = (resources.displayMetrics.widthPixels * 0.9).toInt()
-            params.width = width
-            window.attributes = params
-        }
-    }
-
-    private fun setupGenderSpinner() {
-        val genders = arrayOf("Male", "Female")
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, genders)
+    private fun setupSpinner(
+        spinner: Spinner,
+        items: Array<String>,
+        liveData: LiveData<String>,
+        onItemSelected: (String) -> Unit
+    ) {
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, items)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        binding.spinnerGender.adapter = adapter
+        spinner.adapter = adapter
 
-        viewModel.genderLiveData.observe(viewLifecycleOwner) { gender ->
-            val index = genders.indexOf(gender)
-            if (index >= 0) {
-                binding.spinnerGender.setSelection(index)
-            }
+        liveData.observe(viewLifecycleOwner) { value ->
+            val index = items.indexOf(value)
+            if (index >= 0) spinner.setSelection(index)
         }
 
-        binding.spinnerGender.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
-                viewModel.setGender(genders[position])
+                onItemSelected(items[position])
             }
-
-            override fun onNothingSelected(parent: AdapterView<*>) {}
-        }
-    }
-
-    private fun setupBloodTypeSpinner() {
-        val bloodTypes = arrayOf("A", "B", "AB", "O", "None")
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, bloodTypes)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        binding.spinnerBloodType.adapter = adapter
-
-        viewModel.bloodTypeLiveData.observe(viewLifecycleOwner) { bloodType ->
-            val index = bloodTypes.indexOf(bloodType)
-            if (index >= 0) {
-                binding.spinnerBloodType.setSelection(index)
-            }
-        }
-
-        binding.spinnerBloodType.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
-                viewModel.setBloodType(bloodTypes[position])
-            }
-
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
     }
 
     private fun showDatePicker() {
         val calendar = Calendar.getInstance()
-        val currentDob = viewModel.getDateOfBirth() ?: ""
-        if (currentDob.isNotEmpty() && currentDob.matches(Regex("\\d{2}/\\d{2}/\\d{4}"))) {
+        viewModel.dateOfBirth.value?.takeIf { it.matches(Regex("\\d{2}/\\d{2}/\\d{4}")) }?.let { dob ->
             try {
-                val parts = currentDob.split("/")
+                val parts = dob.split("/")
                 calendar.set(parts[2].toInt(), parts[1].toInt() - 1, parts[0].toInt())
             } catch (e: Exception) {
-                calendar.time = Date()
+                // Use current date as fallback
             }
         }
 
-        val datePicker = DatePickerDialog(
+        DatePickerDialog(
             requireContext(),
-            { _, year, month, dayOfMonth ->
-                val selectedDate = String.format(Locale.US, "%02d/%02d/%04d", dayOfMonth, month + 1, year)
+            { _, year, month, day ->
+                val selectedDate = String.format(Locale.US, "%02d/%02d/%04d", day, month + 1, year)
                 viewModel.setDateOfBirth(selectedDate)
             },
             calendar.get(Calendar.YEAR),
             calendar.get(Calendar.MONTH),
             calendar.get(Calendar.DAY_OF_MONTH)
-        )
-        datePicker.datePicker.maxDate = System.currentTimeMillis()
-        datePicker.show()
+        ).apply {
+            datePicker.maxDate = System.currentTimeMillis()
+            show()
+        }
+    }
+
+    private fun showToast(message: String) {
+        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
     }
 
     override fun onDestroyView() {

@@ -5,7 +5,6 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
     id("androidx.navigation.safeargs.kotlin") version "2.7.7"
-    id("kotlin-kapt")
     id("com.google.relay")
     id("com.google.gms.google-services")
     id("androidx.room")
@@ -33,7 +32,7 @@ android {
         viewBinding = true
         compose = true
         buildConfig = true
-        dataBinding = false
+        dataBinding = true
     }
 
     buildTypes {
