@@ -163,6 +163,15 @@ class DefaultUserRepository @Inject constructor(
     override suspend fun sendVerificationCode(email: String) {
 
     }
+
+    override suspend fun logoutUser() {
+        TODO("Not yet implemented")
+    }
+
+    override fun getCurrentUserId(): String? {
+        TODO("Not yet implemented")
+    }
+
     override suspend fun refresh(userId: String) {
         val firebaseUser = networkDataSource.loadUser(userId)
         if (firebaseUser != null && firebaseUser.userId.isNotEmpty() && firebaseUser.name.isNotEmpty()) {
@@ -170,31 +179,18 @@ class DefaultUserRepository @Inject constructor(
         } else {
             // Log or handle invalid data case
             throw IllegalArgumentException("Invalid user data received from network")
-    override suspend fun refresh(userId: String) {
-        withContext(dispatcher) {
-            val uid = networkDataSource.getUidByEmail(userId)
-                ?: throw Exception("Failed to retrieve UID for user $userId")
-            val firebaseUser = networkDataSource.loadUser(uid)
-            if (firebaseUser != null && firebaseUser.userId.isNotEmpty() && firebaseUser.name.isNotEmpty()) {
-                localDataSource.upsert(firebaseUser.toLocal())
-            } else {
-                throw IllegalArgumentException("Invalid user data received from network")
+            override suspend fun refresh(userId: String) {
+                withContext(dispatcher) {
+                    val uid = networkDataSource.getUidByEmail(userId)
+                        ?: throw Exception("Failed to retrieve UID for user $userId")
+                    val firebaseUser = networkDataSource.loadUser(uid)
+                    if (firebaseUser != null && firebaseUser.userId.isNotEmpty() && firebaseUser.name.isNotEmpty()) {
+                        localDataSource.upsert(firebaseUser.toLocal())
+                    } else {
+                        throw IllegalArgumentException("Invalid user data received from network")
+                    }
+                }
             }
-        }
-    }
-
-    private fun isValidDateFormat(date: String): Boolean {
-        return date.matches(Regex("\\d{2}/\\d{2}/\\d{4}"))
-    }
-
-    private fun isValidDate(date: String): Boolean {
-        return try {
-            val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.US)
-            sdf.isLenient = false
-            val parsedDate = sdf.parse(date)
-            parsedDate != null && parsedDate.before(Date())
-        } catch (e: Exception) {
-            false
         }
     }
 }
