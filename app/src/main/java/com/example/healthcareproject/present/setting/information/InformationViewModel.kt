@@ -42,7 +42,7 @@ class InformationViewModel @Inject constructor(
     val dateOfBirth: LiveData<String> get() = _dateOfBirth
 
     private val _gender = MutableLiveData<String>("")
-    val gender: LiveData<String?> get() = _gender
+    val gender: LiveData<String> get() = _gender  // Changed from String? to String
 
     private val _bloodType = MutableLiveData<String>("")
     val bloodType: LiveData<String> get() = _bloodType
