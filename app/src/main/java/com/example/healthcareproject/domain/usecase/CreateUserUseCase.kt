@@ -49,7 +49,7 @@ class CreateUserUseCase @Inject constructor(
             )
             println("FirebaseUser created with userId: ${user.userId}")
             // Save user to Realtime Database using the retrieved UID
-            userFirebaseDataSource.saveUser(user, uid)
+            userFirebaseDataSource.saveUser(uid.toString(),user)
             println("User data saved for: $userId")
         } catch (e: Exception) {
             println("Error in CreateUserUseCase: ${e.message}")
