@@ -29,7 +29,7 @@ class AuthNavigator(private val navController: NavController) {
         navController.navigate(R.id.action_loginFragment_to_loginMethodFragment)
     }
 
-    internal fun fromRegisterToLoginMethod() {
+    fun fromRegisterToLoginMethod() {
         navController.navigate(R.id.action_registerFragment_to_loginMethodFragment)
     }
 

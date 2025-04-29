@@ -2,6 +2,7 @@ package com.example.healthcareproject.present.auth
 
 import android.app.DatePickerDialog
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,6 +14,7 @@ import com.example.healthcareproject.databinding.FragmentRegisterBinding
 import com.example.healthcareproject.present.auth.viewmodel.RegisterViewModel
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -40,7 +42,13 @@ class RegisterFragment : Fragment() {
 
         // Back button
         binding.btnBackRegisterToLoginMethod.setOnClickListener {
-            navigator.fromRegisterToLoginMethod()
+            Timber.tag("RegisterFragment").d("Back button clicked")
+            try {
+                navigator.fromRegisterToLoginMethod()
+            } catch (e: Exception) {
+                Timber.tag("RegisterFragment").e("Navigation failed: ${e.message}")
+                Snackbar.make(binding.root, "Navigation failed: ${e.message}", Snackbar.LENGTH_LONG).show()
+            }
         }
 
         // Date picker for date of birth
