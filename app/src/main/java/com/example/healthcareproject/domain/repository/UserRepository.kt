@@ -2,10 +2,8 @@ package com.example.healthcareproject.domain.repository
 
 import com.example.healthcareproject.domain.model.User
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDateTime
 
-/**
- * Interface to the data layer for users.
- */
 interface UserRepository {
 
     suspend fun createUser(
@@ -17,11 +15,10 @@ interface UserRepository {
         gender: String,
         bloodType: String,
         phone: String
-    )
+    ): String
 
     suspend fun updateUser(
         userId: String,
-        password: String,
         name: String,
         address: String?,
         dateOfBirth: String,
@@ -38,7 +35,7 @@ interface UserRepository {
 
     suspend fun getUser(userId: String, forceUpdate: Boolean = false): User?
 
-    suspend fun getUserByUid(uid: String, forceUpdate: Boolean): User?
+    suspend fun getUserByUid(uid: String, forceUpdate: Boolean = false): User?
 
     suspend fun refreshUser(userId: String)
 
@@ -50,14 +47,11 @@ interface UserRepository {
 
     suspend fun resetPassword(email: String, newPassword: String)
 
-    suspend fun loginUser(userId: String, password: String)
+    suspend fun loginUser(userId: String, password: String): String
 
     suspend fun sendVerificationCode(email: String)
 
     suspend fun logoutUser()
 
     fun getCurrentUserId(): String?
-
-    suspend fun sendVerificationEmail(email: String)
-
 }
