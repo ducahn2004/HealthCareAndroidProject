@@ -82,7 +82,7 @@ class AuthFirebaseDataSource @Inject constructor(
     override suspend fun sendVerificationCode(email: String) {
         try {
             withContext(Dispatchers.IO) {
-                
+
                 val methods = firebaseAuth.fetchSignInMethodsForEmail(email).await()
                 if (methods.signInMethods.isNullOrEmpty()) {
                     Timber.tag("FirebaseAuth").e("No user found for email $email")
