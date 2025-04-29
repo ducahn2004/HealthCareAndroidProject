@@ -7,8 +7,6 @@ import com.example.healthcareproject.data.source.local.dao.UserDao
 import com.example.healthcareproject.data.source.network.datasource.AuthDataSource
 import com.example.healthcareproject.data.source.network.datasource.UserDataSource
 import com.example.healthcareproject.di.DefaultDispatcher
-import com.example.healthcareproject.domain.model.BloodType
-import com.example.healthcareproject.domain.model.Gender
 import com.example.healthcareproject.domain.model.User
 import com.example.healthcareproject.domain.repository.UserRepository
 import kotlinx.coroutines.CoroutineDispatcher
@@ -16,10 +14,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
-import java.text.SimpleDateFormat
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -43,7 +37,7 @@ class DefaultUserRepository @Inject constructor(
         gender: String,
         bloodType: String,
         phone: String
-    ) {
+    ): String {
         val generatedUserId = withContext(dispatcher) {
             userId.ifEmpty { java.util.UUID.randomUUID().toString() }
         }
@@ -59,8 +53,15 @@ class DefaultUserRepository @Inject constructor(
             createdAt = java.time.LocalDateTime.now(),
             updatedAt = java.time.LocalDateTime.now()
         )
-        networkDataSource.saveUser(user.toNetwork())
+
+        // Đăng ký người dùng với auth service trước để lấy UID
+        val uid = authDataSource.registerUser(generatedUserId, password)
+
+        // Sau đó lưu thông tin chi tiết với UID đã nhận
+        networkDataSource.saveUser(uid.toString(), user.toNetwork())
         localDataSource.upsert(user.toLocal())
+
+        return generatedUserId
     }
 
     override suspend fun updateUser(
@@ -84,8 +85,11 @@ class DefaultUserRepository @Inject constructor(
             updatedAt = java.time.LocalDateTime.now()
         ) ?: throw Exception("User (id $userId) not found")
 
+        val uid = networkDataSource.getUidByEmail(userId)
+            ?: throw Exception("Failed to retrieve UID for user $userId")
+
         localDataSource.upsert(user.toLocal())
-        networkDataSource.updateUser(userId, user.toNetwork())
+        networkDataSource.updateUser(uid, user.toNetwork())
     }
 
     override suspend fun refreshUser(userId: String) {
@@ -161,35 +165,26 @@ class DefaultUserRepository @Inject constructor(
     }
 
     override suspend fun sendVerificationCode(email: String) {
-
+        networkDataSource.sendVerificationCode(email)
     }
 
     override suspend fun logoutUser() {
-        TODO("Not yet implemented")
+        authDataSource.logout()
     }
 
     override fun getCurrentUserId(): String? {
-        TODO("Not yet implemented")
+        return authDataSource.getCurrentUserId()
     }
 
     override suspend fun refresh(userId: String) {
-        val firebaseUser = networkDataSource.loadUser(userId)
-        if (firebaseUser != null && firebaseUser.userId.isNotEmpty() && firebaseUser.name.isNotEmpty()) {
-            localDataSource.upsert(firebaseUser.toLocal())
-        } else {
-            // Log or handle invalid data case
-            throw IllegalArgumentException("Invalid user data received from network")
-            override suspend fun refresh(userId: String) {
-                withContext(dispatcher) {
-                    val uid = networkDataSource.getUidByEmail(userId)
-                        ?: throw Exception("Failed to retrieve UID for user $userId")
-                    val firebaseUser = networkDataSource.loadUser(uid)
-                    if (firebaseUser != null && firebaseUser.userId.isNotEmpty() && firebaseUser.name.isNotEmpty()) {
-                        localDataSource.upsert(firebaseUser.toLocal())
-                    } else {
-                        throw IllegalArgumentException("Invalid user data received from network")
-                    }
-                }
+        withContext(dispatcher) {
+            val uid = networkDataSource.getUidByEmail(userId)
+                ?: throw Exception("Failed to retrieve UID for user $userId")
+            val firebaseUser = networkDataSource.loadUser(uid)
+            if (firebaseUser != null && firebaseUser.userId.isNotEmpty() && firebaseUser.name.isNotEmpty()) {
+                localDataSource.upsert(firebaseUser.toLocal())
+            } else {
+                throw IllegalArgumentException("Invalid user data received from network")
             }
         }
     }
