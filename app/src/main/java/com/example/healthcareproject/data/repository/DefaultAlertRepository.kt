@@ -5,6 +5,7 @@ import com.example.healthcareproject.data.mapper.toLocal
 import com.example.healthcareproject.data.mapper.toNetwork
 import com.example.healthcareproject.data.source.local.dao.AlertDao
 import com.example.healthcareproject.data.source.network.datasource.AlertDataSource
+import com.example.healthcareproject.data.source.network.datasource.AuthDataSource
 import com.example.healthcareproject.di.ApplicationScope
 import com.example.healthcareproject.di.DefaultDispatcher
 import com.example.healthcareproject.domain.model.Alert
@@ -27,9 +28,13 @@ import javax.inject.Singleton
 class DefaultAlertRepository @Inject constructor(
     private val networkDataSource: AlertDataSource,
     private val localDataSource: AlertDao,
+    private val authDataSource: AuthDataSource,
     @DefaultDispatcher private val dispatcher: CoroutineDispatcher,
     @ApplicationScope private val scope: CoroutineScope,
 ) : AlertRepository {
+
+    private val userId: String
+        get() = authDataSource.getCurrentUserId() ?: throw Exception("User not logged in")
 
     override suspend fun createAlert(
         title: String,
@@ -43,7 +48,7 @@ class DefaultAlertRepository @Inject constructor(
         }
         val alert = Alert(
             alertId = alertId,
-            userId = "", // Replace with actual userId logic
+            userId = userId,
             title = title,
             message = message,
             alertTime = alertTime,
@@ -112,7 +117,7 @@ class DefaultAlertRepository @Inject constructor(
 
     override suspend fun refresh() {
         withContext(dispatcher) {
-            val remoteAlerts = networkDataSource.loadAlerts("") // Pass userId if required
+            val remoteAlerts = networkDataSource.loadAlerts(userId)
             localDataSource.deleteAll()
             localDataSource.upsertAll(remoteAlerts.toLocal())
         }

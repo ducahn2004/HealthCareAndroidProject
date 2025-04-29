@@ -1,13 +1,15 @@
 package com.example.healthcareproject.data.source.network.datasource
 
-import com.example.healthcareproject.data.source.network.firebase.FirebaseService
 import com.example.healthcareproject.data.source.network.model.FirebaseEmergencyInfo
+import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
-class EmergencyInfoFirebaseDataSource @Inject constructor() : EmergencyInfoDataSource {
+class EmergencyInfoFirebaseDataSource @Inject constructor(
+    private val firebaseDatabase: FirebaseDatabase
+) : EmergencyInfoDataSource {
 
-    private val emergencyInfosRef = FirebaseService.getReference("emergency_infos")
+    private val emergencyInfosRef = firebaseDatabase.getReference("emergency_infos")
 
     override suspend fun loadEmergencyInfos(userId: String): List<FirebaseEmergencyInfo> = try {
         emergencyInfosRef

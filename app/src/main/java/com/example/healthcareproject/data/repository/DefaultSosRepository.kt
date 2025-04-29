@@ -4,6 +4,7 @@ import com.example.healthcareproject.data.mapper.toExternal
 import com.example.healthcareproject.data.mapper.toLocal
 import com.example.healthcareproject.data.mapper.toNetwork
 import com.example.healthcareproject.data.source.local.dao.SosDao
+import com.example.healthcareproject.data.source.network.datasource.AuthDataSource
 import com.example.healthcareproject.data.source.network.datasource.SosDataSource
 import com.example.healthcareproject.di.ApplicationScope
 import com.example.healthcareproject.di.DefaultDispatcher
@@ -25,9 +26,13 @@ import javax.inject.Singleton
 class DefaultSosRepository @Inject constructor(
     private val networkDataSource: SosDataSource,
     private val localDataSource: SosDao,
+    private val authDataSource: AuthDataSource,
     @DefaultDispatcher private val dispatcher: CoroutineDispatcher,
     @ApplicationScope private val scope: CoroutineScope,
 ) : SosRepository {
+
+    private val userId: String
+        get() = authDataSource.getCurrentUserId() ?: throw Exception("User not logged in")
 
     override suspend fun createSos(
         measurementId: String?,
@@ -41,7 +46,7 @@ class DefaultSosRepository @Inject constructor(
         }
         val sos = Sos(
             sosId = sosId,
-            userId = "", // Replace with actual userId logic
+            userId = userId,
             measurementId = measurementId,
             emergencyId = emergencyId,
             triggerReason = triggerReason,
@@ -81,7 +86,7 @@ class DefaultSosRepository @Inject constructor(
 
     override fun getSosStream(sosId: String, forceUpdate: Boolean): Flow<Sos?> {
         return localDataSource.observeById(sosId)
-            .map { it?.toExternal() }
+            .map { it.toExternal() }
             .flowOn(dispatcher)
     }
 
@@ -96,7 +101,7 @@ class DefaultSosRepository @Inject constructor(
 
     override suspend fun refresh() {
         withContext(dispatcher) {
-            val remoteSos = networkDataSource.loadSos("") // Pass userId if required
+            val remoteSos = networkDataSource.loadSos(userId)
             localDataSource.deleteAll()
             localDataSource.upsertAll(remoteSos.toLocal())
         }
@@ -128,7 +133,7 @@ class DefaultSosRepository @Inject constructor(
     }
 
     override suspend fun clearInactiveSos() {
-        localDataSource.deleteByUserId("") // Adjust logic to delete inactive SOS
+        localDataSource.deleteByUserId(userId)
         saveSosToNetwork()
     }
 

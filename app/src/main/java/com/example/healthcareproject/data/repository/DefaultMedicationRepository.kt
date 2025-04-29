@@ -4,6 +4,7 @@ import com.example.healthcareproject.data.mapper.toExternal
 import com.example.healthcareproject.data.mapper.toLocal
 import com.example.healthcareproject.data.mapper.toNetwork
 import com.example.healthcareproject.data.source.local.dao.MedicationDao
+import com.example.healthcareproject.data.source.network.datasource.AuthDataSource
 import com.example.healthcareproject.data.source.network.datasource.MedicationDataSource
 import com.example.healthcareproject.di.ApplicationScope
 import com.example.healthcareproject.di.DefaultDispatcher
@@ -27,9 +28,13 @@ import javax.inject.Singleton
 class DefaultMedicationRepository @Inject constructor(
     private val networkDataSource: MedicationDataSource,
     private val localDataSource: MedicationDao,
+    private val authDataSource: AuthDataSource,
     @DefaultDispatcher private val dispatcher: CoroutineDispatcher,
     @ApplicationScope private val scope: CoroutineScope,
 ) : MedicationRepository {
+
+    private val userId: String
+        get() = authDataSource.getCurrentUserId() ?: throw Exception("User not logged in")
 
     override suspend fun createMedication(
         name: String,
@@ -47,7 +52,7 @@ class DefaultMedicationRepository @Inject constructor(
         }
         val medication = Medication(
             medicationId = medicationId,
-            userId = "", // Replace with actual userId logic
+            userId = userId,
             visitId = null, // Replace with actual visitId logic if needed
             name = name,
             dosageUnit = dosageUnit,
@@ -115,7 +120,7 @@ class DefaultMedicationRepository @Inject constructor(
 
     override suspend fun refresh() {
         withContext(dispatcher) {
-            val remoteMedications = networkDataSource.loadMedications("") // Pass userId if required
+            val remoteMedications = networkDataSource.loadMedications(userId)
             localDataSource.deleteAll()
             localDataSource.upsertAll(remoteMedications.toLocal())
         }
@@ -147,7 +152,7 @@ class DefaultMedicationRepository @Inject constructor(
     }
 
     override suspend fun clearInactiveMedications() {
-        localDataSource.deleteByUserId("") // Adjust logic to delete inactive medications
+        localDataSource.deleteByUserId(userId)
         saveMedicationsToNetwork()
     }
 

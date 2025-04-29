@@ -4,6 +4,7 @@ import com.example.healthcareproject.data.mapper.toExternal
 import com.example.healthcareproject.data.mapper.toLocal
 import com.example.healthcareproject.data.mapper.toNetwork
 import com.example.healthcareproject.data.source.local.dao.NotificationDao
+import com.example.healthcareproject.data.source.network.datasource.AuthDataSource
 import com.example.healthcareproject.data.source.network.datasource.NotificationDataSource
 import com.example.healthcareproject.di.ApplicationScope
 import com.example.healthcareproject.di.DefaultDispatcher
@@ -27,9 +28,13 @@ import javax.inject.Singleton
 class DefaultNotificationRepository @Inject constructor(
     private val networkDataSource: NotificationDataSource,
     private val localDataSource: NotificationDao,
+    private val authDataSource: AuthDataSource,
     @DefaultDispatcher private val dispatcher: CoroutineDispatcher,
     @ApplicationScope private val scope: CoroutineScope,
 ) : NotificationRepository {
+
+    private val userId: String
+        get() = authDataSource.getCurrentUserId() ?: throw Exception("User not logged in")
 
     override suspend fun createNotification(
         type: NotificationType,
@@ -43,7 +48,7 @@ class DefaultNotificationRepository @Inject constructor(
         }
         val notification = Notification(
             notificationId = notificationId,
-            userId = "", // Replace with actual userId logic
+            userId = userId,
             type = type,
             relatedTable = relatedTable,
             relatedId = relatedId,
@@ -98,7 +103,7 @@ class DefaultNotificationRepository @Inject constructor(
 
     override suspend fun refresh() {
         withContext(dispatcher) {
-            val remoteNotifications = networkDataSource.loadNotifications("") // Pass userId if required
+            val remoteNotifications = networkDataSource.loadNotifications(userId)
             localDataSource.deleteAll()
             localDataSource.upsertAll(remoteNotifications.toLocal())
         }

@@ -4,6 +4,7 @@ import com.example.healthcareproject.data.mapper.toExternal
 import com.example.healthcareproject.data.mapper.toLocal
 import com.example.healthcareproject.data.mapper.toNetwork
 import com.example.healthcareproject.data.source.local.dao.UserDao
+import com.example.healthcareproject.data.source.network.datasource.AuthDataSource
 import com.example.healthcareproject.data.source.network.datasource.UserDataSource
 import com.example.healthcareproject.di.DefaultDispatcher
 import com.example.healthcareproject.domain.model.BloodType
@@ -26,8 +27,12 @@ import javax.inject.Singleton
 class DefaultUserRepository @Inject constructor(
     private val networkDataSource: UserDataSource,
     private val localDataSource: UserDao,
+    private val authDataSource: AuthDataSource,
     @DefaultDispatcher private val dispatcher: CoroutineDispatcher
 ) : UserRepository {
+
+    private val userId: String
+        get() = authDataSource.getCurrentUserId() ?: throw Exception("User not logged in")
 
     override suspend fun createUser(
         userId: String,
@@ -38,45 +43,24 @@ class DefaultUserRepository @Inject constructor(
         gender: String,
         bloodType: String,
         phone: String
-    ): String {
-        return withContext(dispatcher) {
-            val uid = networkDataSource.createUser(userId, password)
-            println("User created in Authentication: $userId with UID: $uid")
-
-            val genderEnum = try {
-                Gender.valueOf(gender.replace(" ", "").replaceFirstChar { it.uppercase() })
-            } catch (e: IllegalArgumentException) {
-                throw Exception("Invalid gender value: $gender")
-            }
-
-            val bloodTypeEnum = try {
-                BloodType.valueOf(bloodType.replace(" ", "").replaceFirstChar { it.uppercase() })
-            } catch (e: IllegalArgumentException) {
-                throw Exception("Invalid blood type value: $bloodType")
-            }
-
-            if (!isValidDateFormat(dateOfBirth) || !isValidDate(dateOfBirth)) {
-                throw Exception("Invalid date of birth. Use dd/MM/yyyy and ensure it's a valid date.")
-            }
-
-            val user = User(
-                userId = userId,
-                password = password,
-                name = name,
-                address = address,
-                dateOfBirth = LocalDate.parse(dateOfBirth, DateTimeFormatter.ofPattern("dd/MM/yyyy").withLocale(Locale.US)),
-                gender = genderEnum,
-                bloodType = bloodTypeEnum,
-                phone = phone,
-                createdAt = java.time.LocalDateTime.now(),
-                updatedAt = java.time.LocalDateTime.now()
-            )
-
-            networkDataSource.saveUser(user.toNetwork(), uid)
-            localDataSource.upsert(user.toLocal())
-            networkDataSource.sendVerificationCode(userId)
-            uid
+    ) {
+        val generatedUserId = withContext(dispatcher) {
+            userId.ifEmpty { java.util.UUID.randomUUID().toString() }
         }
+        val user = User(
+            userId = generatedUserId,
+            password = password,
+            name = name,
+            address = address,
+            dateOfBirth = java.time.LocalDate.parse(dateOfBirth),
+            gender = com.example.healthcareproject.domain.model.Gender.valueOf(gender),
+            bloodType = com.example.healthcareproject.domain.model.BloodType.valueOf(bloodType),
+            phone = phone,
+            createdAt = java.time.LocalDateTime.now(),
+            updatedAt = java.time.LocalDateTime.now()
+        )
+        networkDataSource.saveUser(user.toNetwork())
+        localDataSource.upsert(user.toLocal())
     }
 
     override suspend fun updateUser(
@@ -89,35 +73,19 @@ class DefaultUserRepository @Inject constructor(
         bloodType: String,
         phone: String
     ) {
-        withContext(dispatcher) {
-            if (!isValidDateFormat(dateOfBirth) || !isValidDate(dateOfBirth)) {
-                throw Exception("Invalid date of birth. Use dd/MM/yyyy and ensure it's a valid date.")
-            }
+        val user = getUser(userId)?.copy(
+            password = password,
+            name = name,
+            address = address,
+            dateOfBirth = java.time.LocalDate.parse(dateOfBirth),
+            gender = com.example.healthcareproject.domain.model.Gender.valueOf(gender),
+            bloodType = com.example.healthcareproject.domain.model.BloodType.valueOf(bloodType),
+            phone = phone,
+            updatedAt = java.time.LocalDateTime.now()
+        ) ?: throw Exception("User (id $userId) not found")
 
-            try {
-                val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy").withLocale(Locale.US)
-                val localDate = LocalDate.parse(dateOfBirth, formatter)
-
-                val user = getUser(userId)?.copy(
-                    password = password,
-                    name = name,
-                    address = address,
-                    dateOfBirth = localDate,
-                    gender = Gender.valueOf(gender.replace(" ", "").replaceFirstChar { it.uppercase() }),
-                    bloodType = BloodType.valueOf(bloodType.replace(" ", "").replaceFirstChar { it.uppercase() }),
-                    phone = phone,
-                    updatedAt = java.time.LocalDateTime.now()
-                ) ?: throw Exception("User (id $userId) not found")
-
-                val uid = networkDataSource.getUidByEmail(userId)
-                    ?: throw Exception("Failed to retrieve UID for user $userId")
-
-                localDataSource.upsert(user.toLocal())
-                networkDataSource.updateUser(uid, user.toNetwork())
-            } catch (e: Exception) {
-                throw Exception("Failed to update user: ${e.message}")
-            }
-        }
+        localDataSource.upsert(user.toLocal())
+        networkDataSource.updateUser(userId, user.toNetwork())
     }
 
     override suspend fun refreshUser(userId: String) {
@@ -195,7 +163,13 @@ class DefaultUserRepository @Inject constructor(
     override suspend fun sendVerificationCode(email: String) {
 
     }
-
+    override suspend fun refresh(userId: String) {
+        val firebaseUser = networkDataSource.loadUser(userId)
+        if (firebaseUser != null && firebaseUser.userId.isNotEmpty() && firebaseUser.name.isNotEmpty()) {
+            localDataSource.upsert(firebaseUser.toLocal())
+        } else {
+            // Log or handle invalid data case
+            throw IllegalArgumentException("Invalid user data received from network")
     override suspend fun refresh(userId: String) {
         withContext(dispatcher) {
             val uid = networkDataSource.getUidByEmail(userId)

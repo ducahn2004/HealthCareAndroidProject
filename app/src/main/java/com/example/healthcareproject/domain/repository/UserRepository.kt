@@ -17,7 +17,7 @@ interface UserRepository {
         gender: String,
         bloodType: String,
         phone: String
-    ): String
+    )
 
     suspend fun updateUser(
         userId: String,
@@ -53,5 +53,11 @@ interface UserRepository {
     suspend fun loginUser(userId: String, password: String)
 
     suspend fun sendVerificationCode(email: String)
+
+    suspend fun logoutUser()
+
+    fun getCurrentUserId(): String?
+
+    suspend fun sendVerificationEmail(email: String)
 
 }

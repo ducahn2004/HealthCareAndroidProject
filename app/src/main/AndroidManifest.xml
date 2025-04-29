@@ -2,6 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <uses-feature
+        android:name="android.hardware.telephony"
+        android:required="false" />
+
     <application
         android:name=".HealthCareProjectApplication"
         android:allowBackup="true"
@@ -33,16 +38,13 @@
         <activity
             android:name=".present.AuthActivity"
             android:exported="false" />
-
-        <activity
-            android:name=".present.TestDatabaseActivity"
-            android:windowSoftInputMode="adjustResize"
-            android:exported="true" >
-        </activity>
-
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
     </application>
+
+    <!-- Permissions -->
+    <uses-permission android:name="android.permission.CALL_PHONE"
+        tools:ignore="ManifestOrder" />
 
 </manifest>

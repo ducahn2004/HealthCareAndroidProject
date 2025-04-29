@@ -4,6 +4,7 @@ import com.example.healthcareproject.data.mapper.toExternal
 import com.example.healthcareproject.data.mapper.toLocal
 import com.example.healthcareproject.data.mapper.toNetwork
 import com.example.healthcareproject.data.source.local.dao.MeasurementDao
+import com.example.healthcareproject.data.source.network.datasource.AuthDataSource
 import com.example.healthcareproject.data.source.network.datasource.MeasurementDataSource
 import com.example.healthcareproject.di.ApplicationScope
 import com.example.healthcareproject.di.DefaultDispatcher
@@ -25,9 +26,13 @@ import javax.inject.Singleton
 class DefaultMeasurementRepository @Inject constructor(
     private val networkDataSource: MeasurementDataSource,
     private val localDataSource: MeasurementDao,
+    private val authDataSource: AuthDataSource,
     @DefaultDispatcher private val dispatcher: CoroutineDispatcher,
     @ApplicationScope private val scope: CoroutineScope,
 ) : MeasurementRepository {
+
+    private val userId: String
+        get() = authDataSource.getCurrentUserId() ?: throw Exception("User not logged in")
 
     override suspend fun createMeasurement(
         type: MeasurementType,
@@ -41,7 +46,7 @@ class DefaultMeasurementRepository @Inject constructor(
         }
         val measurement = Measurement(
             measurementId = measurementId,
-            userId = "", // Replace with actual userId logic
+            userId = userId,
             type = type,
             value = value,
             valueList = valueList,
@@ -110,7 +115,7 @@ class DefaultMeasurementRepository @Inject constructor(
 
     override suspend fun refresh() {
         withContext(dispatcher) {
-            val remoteMeasurements = networkDataSource.loadMeasurements("") // Pass userId if required
+            val remoteMeasurements = networkDataSource.loadMeasurements(userId)
             localDataSource.deleteAll()
             localDataSource.upsertAll(remoteMeasurements.toLocal())
         }
@@ -128,7 +133,7 @@ class DefaultMeasurementRepository @Inject constructor(
     }
 
     override suspend fun activateMeasurement(measurementId: String) {
-        val measurement = getMeasurement(measurementId)?.copy(value = 1f) // Example logic
+        val measurement = getMeasurement(measurementId)?.copy(value = 1f)
             ?: throw Exception("Measurement (id $measurementId) not found")
         localDataSource.upsert(measurement.toLocal())
         saveMeasurementsToNetwork()
