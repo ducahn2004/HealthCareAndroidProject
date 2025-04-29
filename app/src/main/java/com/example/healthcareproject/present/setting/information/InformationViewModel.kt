@@ -42,7 +42,7 @@ class InformationViewModel @Inject constructor(
     val dateOfBirth: LiveData<String> get() = _dateOfBirth
 
     private val _gender = MutableLiveData<String>("")
-    val gender: LiveData<String> get() = _gender
+    val gender: LiveData<String?> get() = _gender
 
     private val _bloodType = MutableLiveData<String>("")
     val bloodType: LiveData<String> get() = _bloodType
@@ -53,11 +53,6 @@ class InformationViewModel @Inject constructor(
     private val _email = MutableLiveData<String>("")
     val email: LiveData<String> get() = _email
 
-    fun getDateOfBirth(): String? = _dateOfBirth.value
-
-    fun getGender(): String? = _gender.value
-
-    fun getBloodType(): String? = _bloodType.value
 
     fun loadUserInfoByUid(uid: String) {
         viewModelScope.launch {

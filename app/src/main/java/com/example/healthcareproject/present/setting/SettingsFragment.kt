@@ -14,7 +14,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.healthcareproject.R
 import com.example.healthcareproject.SettingsAdapter
 import com.example.healthcareproject.present.AuthActivity
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class SettingsFragment : Fragment() {
     private val SETTINGS = listOf(
         SettingItem(1, "Change Theme", R.drawable.ic_theme),
