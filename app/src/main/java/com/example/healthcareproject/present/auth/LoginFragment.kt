@@ -36,11 +36,12 @@ class LoginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Observe authentication state
-        viewModel.isAuthenticated.observe(viewLifecycleOwner) { isAuthenticated: Boolean ->
-            if (isAuthenticated) {
+        // Observe login result (UID)
+        viewModel.loginResult.observe(viewLifecycleOwner) { uid: String? ->
+            if (uid != null) {
                 val intent = Intent(requireContext(), MainActivity::class.java)
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                intent.putExtra("user_uid", uid)
                 startActivity(intent)
                 requireActivity().finish()
                 viewModel.resetNavigationStates()

@@ -33,8 +33,8 @@ class LoginViewModel @Inject constructor(
     private val _error = MutableLiveData<String?>()
     val error: LiveData<String?> = _error
 
-    private val _isAuthenticated = MutableLiveData<Boolean>()
-    val isAuthenticated: LiveData<Boolean> = _isAuthenticated
+    private val _loginResult = MutableLiveData<String?>()
+    val loginResult: LiveData<String?> = _loginResult
 
     private val _navigateToForgotPassword = MutableLiveData<Boolean>()
     val navigateToForgotPassword: LiveData<Boolean> = _navigateToForgotPassword
@@ -60,6 +60,7 @@ class LoginViewModel @Inject constructor(
     fun resetNavigationStates() {
         _navigateToForgotPassword.value = false
         _navigateToRegister.value = false
+        _navigateToGoogleLogin.value = false
     }
 
     fun onLoginClicked() {
@@ -91,21 +92,20 @@ class LoginViewModel @Inject constructor(
         _navigateToForgotPassword.value = true
     }
 
-
     private fun login(email: String, password: String) {
         _error.value = null
         _isLoading.value = true
 
         viewModelScope.launch {
             try {
-                loginUserUseCase(email, password)
-                _isAuthenticated.value = true
+                val uid = loginUserUseCase(email, password)
+                _loginResult.value = uid // Lưu UID
                 _error.value = null
                 _emailError.value = null
                 _passwordError.value = null
             } catch (e: Exception) {
                 _error.value = e.message ?: "Login failed"
-                _isAuthenticated.value = false
+                _loginResult.value = null
             } finally {
                 _isLoading.value = false
             }
