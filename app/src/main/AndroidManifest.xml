@@ -2,6 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-feature
+        android:name="android.hardware.telephony"
+        android:required="false" />
+
     <application
         android:name=".HealthCareProjectApplication"
         android:allowBackup="true"
@@ -16,7 +20,7 @@
 
         <!-- SplashActivity: Launcher activity -->
         <activity
-            android:name=".present.SplashActivity"
+            android:name=".presentation.SplashActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -26,23 +30,21 @@
 
         <!-- MainActivity -->
         <activity
-            android:name=".present.MainActivity"
+            android:name=".presentation.MainActivity"
             android:exported="false" />
 
         <!-- AuthActivity -->
         <activity
-            android:name=".present.AuthActivity"
+            android:name=".presentation.AuthActivity"
             android:exported="false" />
-
-        <activity
-            android:name=".present.TestDatabaseActivity"
-            android:windowSoftInputMode="adjustResize"
-            android:exported="true" >
-        </activity>
 
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
     </application>
+
+    <!-- Permissions -->
+    <uses-permission android:name="android.permission.CALL_PHONE"
+        tools:ignore="ManifestOrder" />
 
 </manifest>

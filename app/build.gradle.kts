@@ -132,4 +132,15 @@ dependencies {
 
     // Metadata
     implementation(libs.kotlin.metadata.jvm)
+
+    // Gmail
+    implementation(libs.google.api.client)
+    implementation(libs.google.api.client.android)
+    implementation(libs.google.oauth.client.jetty)
+    implementation(libs.google.api.services.gmail)
+    implementation(libs.javax.mail)
+    implementation(libs.slf4j.api)
+    implementation(libs.slf4j.simple)
+    implementation(libs.google.auth.library.oauth2.http)
+
 }
