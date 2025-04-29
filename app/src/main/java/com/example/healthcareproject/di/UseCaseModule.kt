@@ -43,7 +43,7 @@ object UseCaseModule {
             deleteUser = DeleteUserUseCase(userRepository),
             updateUser = UpdateUserUseCase(userRepository),
             getUser = GetUserUseCase(userRepository),
-            login = LoginUseCase(userRepository),
+            login = LoginUserUseCase(userRepository),
             logout = LogoutUseCase(userRepository)
         )
     }

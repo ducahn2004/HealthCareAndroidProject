@@ -1,13 +1,15 @@
 package com.example.healthcareproject.data.source.network.datasource
 
-import com.example.healthcareproject.data.source.network.firebase.FirebaseService
 import com.example.healthcareproject.data.source.network.model.FirebaseNotification
+import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
-class NotificationFirebaseDataSource @Inject constructor() : NotificationDataSource {
+class NotificationFirebaseDataSource @Inject constructor(
+    private val firebaseDatabase: FirebaseDatabase
+) : NotificationDataSource {
 
-    private val notificationRef = FirebaseService.getReference("notifications")
+    private val notificationRef = firebaseDatabase.getReference("notifications")
 
     override suspend fun loadNotifications(userId: String): List<FirebaseNotification> = try {
         notificationRef

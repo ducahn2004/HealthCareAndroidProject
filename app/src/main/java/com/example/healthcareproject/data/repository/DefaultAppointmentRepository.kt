@@ -5,6 +5,7 @@ import com.example.healthcareproject.data.mapper.toLocal
 import com.example.healthcareproject.data.mapper.toNetwork
 import com.example.healthcareproject.data.source.local.dao.AppointmentDao
 import com.example.healthcareproject.data.source.network.datasource.AppointmentDataSource
+import com.example.healthcareproject.data.source.network.datasource.AuthDataSource
 import com.example.healthcareproject.di.ApplicationScope
 import com.example.healthcareproject.di.DefaultDispatcher
 import com.example.healthcareproject.domain.model.Appointment
@@ -25,9 +26,13 @@ import javax.inject.Singleton
 class DefaultAppointmentRepository @Inject constructor(
     private val networkDataSource: AppointmentDataSource,
     private val localDataSource: AppointmentDao,
+    private val authDataSource: AuthDataSource,
     @DefaultDispatcher private val dispatcher: CoroutineDispatcher,
     @ApplicationScope private val scope: CoroutineScope,
 ) : AppointmentRepository {
+
+    private val userId: String
+        get() = authDataSource.getCurrentUserId() ?: throw Exception("User not logged in")
 
     override suspend fun createAppointment(
         doctorName: String,
@@ -40,7 +45,7 @@ class DefaultAppointmentRepository @Inject constructor(
         }
         val appointment = Appointment(
             appointmentId = appointmentId,
-            userId = "", // Replace with actual userId logic
+            userId = userId,
             visitId = null, // Set visitId if applicable
             doctorName = doctorName,
             location = location,
@@ -110,7 +115,7 @@ class DefaultAppointmentRepository @Inject constructor(
 
     override suspend fun refresh() {
         withContext(dispatcher) {
-            val remoteAppointments = networkDataSource.loadAppointments("") // Pass userId if required
+            val remoteAppointments = networkDataSource.loadAppointments(userId)
             localDataSource.deleteAll()
             localDataSource.upsertAll(remoteAppointments.toLocal())
         }

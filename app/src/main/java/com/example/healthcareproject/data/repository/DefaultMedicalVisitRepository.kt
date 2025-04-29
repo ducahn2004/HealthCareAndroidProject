@@ -4,6 +4,7 @@ import com.example.healthcareproject.data.mapper.toExternal
 import com.example.healthcareproject.data.mapper.toLocal
 import com.example.healthcareproject.data.mapper.toNetwork
 import com.example.healthcareproject.data.source.local.dao.MedicalVisitDao
+import com.example.healthcareproject.data.source.network.datasource.AuthDataSource
 import com.example.healthcareproject.data.source.network.datasource.MedicalVisitDataSource
 import com.example.healthcareproject.di.ApplicationScope
 import com.example.healthcareproject.di.DefaultDispatcher
@@ -25,9 +26,13 @@ import javax.inject.Singleton
 class DefaultMedicalVisitRepository @Inject constructor(
     private val networkDataSource: MedicalVisitDataSource,
     private val localDataSource: MedicalVisitDao,
+    private val authDataSource: AuthDataSource,
     @DefaultDispatcher private val dispatcher: CoroutineDispatcher,
     @ApplicationScope private val scope: CoroutineScope,
 ) : MedicalVisitRepository {
+
+    private val userId: String
+        get() = authDataSource.getCurrentUserId() ?: throw Exception("User not logged in")
 
     override suspend fun createMedicalVisit(
         patientName: String,
@@ -42,7 +47,7 @@ class DefaultMedicalVisitRepository @Inject constructor(
         }
         val medicalVisit = MedicalVisit(
             visitId = visitId,
-            userId = "", // Replace with actual userId logic
+            userId = userId,
             visitDate = visitDate,
             clinicName = visitReason,
             doctorName = doctorName,
@@ -99,7 +104,7 @@ class DefaultMedicalVisitRepository @Inject constructor(
 
     override suspend fun refresh() {
         withContext(dispatcher) {
-            val remoteVisits = networkDataSource.loadMedicalVisits("") // Pass userId if required
+            val remoteVisits = networkDataSource.loadMedicalVisits(userId)
             localDataSource.deleteAll()
             localDataSource.upsertAll(remoteVisits.toLocal())
         }
@@ -131,7 +136,7 @@ class DefaultMedicalVisitRepository @Inject constructor(
     }
 
     override suspend fun clearInactiveMedicalVisits() {
-        localDataSource.deleteByUserId("") // Adjust logic to delete inactive visits
+        localDataSource.deleteByUserId(userId)
         saveMedicalVisitsToNetwork()
     }
 

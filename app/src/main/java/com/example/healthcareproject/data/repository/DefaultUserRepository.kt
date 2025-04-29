@@ -4,6 +4,7 @@ import com.example.healthcareproject.data.mapper.toExternal
 import com.example.healthcareproject.data.mapper.toLocal
 import com.example.healthcareproject.data.mapper.toNetwork
 import com.example.healthcareproject.data.source.local.dao.UserDao
+import com.example.healthcareproject.data.source.network.datasource.AuthDataSource
 import com.example.healthcareproject.data.source.network.datasource.UserDataSource
 import com.example.healthcareproject.di.DefaultDispatcher
 import com.example.healthcareproject.domain.model.User
@@ -20,8 +21,12 @@ import javax.inject.Singleton
 class DefaultUserRepository @Inject constructor(
     private val networkDataSource: UserDataSource,
     private val localDataSource: UserDao,
+    private val authDataSource: AuthDataSource,
     @DefaultDispatcher private val dispatcher: CoroutineDispatcher
 ) : UserRepository {
+
+    private val userId: String
+        get() = authDataSource.getCurrentUserId() ?: throw Exception("User not logged in")
 
     override suspend fun createUser(
         userId: String,
@@ -99,7 +104,27 @@ class DefaultUserRepository @Inject constructor(
         networkDataSource.deleteUser(userId)
     }
 
-   override suspend fun refresh(userId: String) {
+    override suspend fun loginUser(email: String, password: String) {
+        authDataSource.loginUser(email, password)
+    }
+
+    override suspend fun logoutUser() {
+        authDataSource.logout()
+    }
+
+    override suspend fun resetPassword(email: String) {
+        authDataSource.resetPassword(email)
+    }
+
+    override fun getCurrentUserId(): String? {
+        return authDataSource.getCurrentUserId()
+    }
+
+    override suspend fun sendVerificationEmail(email: String) {
+        authDataSource.sendVerificationCode(email)
+    }
+
+    override suspend fun refresh(userId: String) {
         val firebaseUser = networkDataSource.loadUser(userId)
         if (firebaseUser != null && firebaseUser.userId.isNotEmpty() && firebaseUser.name.isNotEmpty()) {
             localDataSource.upsert(firebaseUser.toLocal())

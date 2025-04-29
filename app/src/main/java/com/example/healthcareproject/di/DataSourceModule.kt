@@ -46,4 +46,8 @@ abstract class DataSourceModule {
     @Singleton
     @Binds
     abstract fun bindNotificationDataSource(dataSource: NotificationFirebaseDataSource): NotificationDataSource
+
+    @Singleton
+    @Binds
+    abstract fun bindAuthDataSource(dataSource: AuthFirebaseDataSource): AuthDataSource
 }

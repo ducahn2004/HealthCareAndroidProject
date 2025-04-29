@@ -1,9 +1,9 @@
 package com.example.healthcareproject.data.source.network.datasource
 
-import com.example.healthcareproject.data.source.network.firebase.FirebaseService
 import com.example.healthcareproject.data.source.network.model.FirebaseMeasurement
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -12,9 +12,11 @@ import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 
-class MeasurementFirebaseDataSource @Inject constructor() : MeasurementDataSource {
+class MeasurementFirebaseDataSource @Inject constructor(
+    private val firebaseDatabase: FirebaseDatabase
+) : MeasurementDataSource {
 
-    private val measurementsRef = FirebaseService.getReference("measurements")
+    private val measurementsRef = firebaseDatabase.getReference("measurements")
 
     override fun getMeasurementsFirebaseRealtime(userId: String): Flow<List<FirebaseMeasurement>>
             = callbackFlow {

@@ -106,4 +106,16 @@
     <string name="appointments">APPOINTMENTS</string>
     <string name="history">HISTORY</string>
     <string name="add_information">Add Information</string>
+    <string-array name="gender_options">
+        <item>Male</item>
+        <item>Female</item>
+        <item>Other</item>
+    </string-array>
+
+    <string-array name="blood_type_options">
+        <item>A</item>
+        <item>B</item>
+        <item>AB</item>
+        <item>O</item>
+    </string-array>
 </resources>

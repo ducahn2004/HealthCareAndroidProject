@@ -1,14 +1,16 @@
 package com.example.healthcareproject.data.source.network.datasource
 
-import com.example.healthcareproject.data.source.network.firebase.FirebaseService
 import com.example.healthcareproject.data.source.network.model.FirebaseUser
+import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.tasks.await
 import timber.log.Timber
 import javax.inject.Inject
 
-class UserFirebaseDataSource @Inject constructor() : UserDataSource {
+class UserFirebaseDataSource @Inject constructor(
+    private val firebaseDatabase: FirebaseDatabase
+) : UserDataSource {
 
-    private val usersRef = FirebaseService.getReference("users")
+    private val usersRef = firebaseDatabase.getReference("users")
 
     override suspend fun saveUser(user: FirebaseUser) {
         try {

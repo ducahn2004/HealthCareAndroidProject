@@ -4,6 +4,7 @@ import com.example.healthcareproject.data.mapper.toExternal
 import com.example.healthcareproject.data.mapper.toLocal
 import com.example.healthcareproject.data.mapper.toNetwork
 import com.example.healthcareproject.data.source.local.dao.EmergencyInfoDao
+import com.example.healthcareproject.data.source.network.datasource.AuthDataSource
 import com.example.healthcareproject.data.source.network.datasource.EmergencyInfoDataSource
 import com.example.healthcareproject.di.ApplicationScope
 import com.example.healthcareproject.di.DefaultDispatcher
@@ -25,9 +26,13 @@ import javax.inject.Singleton
 class DefaultEmergencyInfoRepository @Inject constructor(
     private val networkDataSource: EmergencyInfoDataSource,
     private val localDataSource: EmergencyInfoDao,
+    private val authDataSource: AuthDataSource,
     @DefaultDispatcher private val dispatcher: CoroutineDispatcher,
     @ApplicationScope private val scope: CoroutineScope,
 ) : EmergencyInfoRepository {
+
+    private val userId: String
+        get() = authDataSource.getCurrentUserId() ?: throw Exception("User not logged in")
 
     override suspend fun createEmergencyInfo(
         contactName: String,
@@ -41,7 +46,7 @@ class DefaultEmergencyInfoRepository @Inject constructor(
         }
         val emergencyInfo = EmergencyInfo(
             emergencyId = emergencyId,
-            userId = "", // Replace with actual userId logic
+            userId = userId,
             emergencyName = contactName,
             emergencyPhone = contactNumber,
             relationship = relationship,
@@ -82,7 +87,7 @@ class DefaultEmergencyInfoRepository @Inject constructor(
 
     override suspend fun refresh() {
         withContext(dispatcher) {
-            val remoteEmergencyInfos = networkDataSource.loadEmergencyInfos("") // Pass userId if required
+            val remoteEmergencyInfos = networkDataSource.loadEmergencyInfos(userId)
             localDataSource.deleteAll()
             localDataSource.upsertAll(remoteEmergencyInfos.toLocal())
         }
@@ -129,7 +134,7 @@ class DefaultEmergencyInfoRepository @Inject constructor(
     }
 
     override suspend fun clearInactiveEmergencyInfos() {
-        localDataSource.deleteByUserId("") // Adjust logic to delete inactive emergency infos
+        localDataSource.deleteByUserId(userId)
         saveEmergencyInfosToNetwork()
     }
 
