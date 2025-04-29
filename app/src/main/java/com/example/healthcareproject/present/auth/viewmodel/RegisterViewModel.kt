@@ -5,9 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.healthcareproject.data.source.network.datasource.UserFirebaseDataSource
 import com.example.healthcareproject.domain.usecase.CreateUserUseCase
-import com.example.healthcareproject.domain.usecase.auth.RegisterUserUseCase
 import com.example.healthcareproject.domain.usecase.auth.SendVerificationCodeUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -15,7 +13,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RegisterViewModel @Inject constructor(
-    private val registerUserUseCase: RegisterUserUseCase,
+    private val createUserUseCase: CreateUserUseCase,
     private val sendVerificationCodeUseCase: SendVerificationCodeUseCase
 ) : ViewModel() {
 
@@ -79,53 +77,82 @@ class RegisterViewModel @Inject constructor(
     private val _error = MutableLiveData<String?>()
     val error: LiveData<String?> = _error
 
-    private val _isAuthenticated = MutableLiveData<Boolean>()
-    val isAuthenticated: LiveData<Boolean> = _isAuthenticated
+    private val _registerResult = MutableLiveData<String?>() // Lưu UID
+    val registerResult: LiveData<String?> = _registerResult
 
-    private val _navigateToVerifyCode = MutableLiveData<Boolean>()
-    val navigateToVerifyCode: LiveData<Boolean> get() = _navigateToVerifyCode
-
-
-    fun afterNameChange(value: Editable){
+    /**
+     * Updates the name field.
+     */
+    fun afterNameChange(value: Editable) {
         _name.value = value.toString()
     }
 
-    fun afterEmailChange(value: Editable){
+    /**
+     * Updates the email field.
+     */
+    fun afterEmailChange(value: Editable) {
         _email.value = value.toString()
     }
 
-    fun afterPasswordChange(value: Editable){
+    /**
+     * Updates the password field.
+     */
+    fun afterPasswordChange(value: Editable) {
         _password.value = value.toString()
     }
 
-    fun afterConfirmPasswordChange(value: Editable){
+    /**
+     * Updates the confirm password field.
+     */
+    fun afterConfirmPasswordChange(value: Editable) {
         _confirmPassword.value = value.toString()
     }
 
-    fun afterPhoneChange(value: Editable){
+    /**
+     * Updates the phone field.
+     */
+    fun afterPhoneChange(value: Editable) {
         _phone.value = value.toString()
     }
 
-    fun afterAddressChange(value: Editable){
+    /**
+     * Updates the address field.
+     */
+    fun afterAddressChange(value: Editable) {
         _address.value = value.toString()
     }
 
-    fun afterDateOfBirthChange(value: Editable){
+    /**
+     * Updates the date of birth field.
+     */
+    fun afterDateOfBirthChange(value: Editable) {
         _dateOfBirth.value = value.toString()
     }
+
+    /**
+     * Sets the date of birth from DatePicker.
+     */
     fun setDateOfBirth(value: String) {
         _dateOfBirth.value = value
     }
 
+    /**
+     * Sets the gender from spinner.
+     */
     fun setGender(value: String) {
         _gender.value = value
     }
 
+    /**
+     * Sets the blood type from spinner.
+     */
     fun setBloodType(value: String) {
         _bloodType.value = value
     }
 
-
+    /**
+     * Validates input fields and initiates registration.
+     */
     fun onRegisterClicked() {
         val nameValue = name.value ?: ""
         val emailValue = email.value ?: ""
@@ -173,6 +200,14 @@ class RegisterViewModel @Inject constructor(
         if (dateOfBirthValue.isBlank()) {
             _dateOfBirthError.value = "Date of birth is required"
             isValid = false
+        } else {
+            try {
+                val formatter = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")
+                java.time.LocalDate.parse(dateOfBirthValue, formatter)
+            } catch (e: Exception) {
+                _dateOfBirthError.value = "Invalid date format (dd/MM/yyyy)"
+                isValid = false
+            }
         }
         if (genderValue.isBlank()) {
             _genderError.value = "Gender is required"
@@ -189,22 +224,24 @@ class RegisterViewModel @Inject constructor(
             _phoneError.value = "Invalid phone number format"
             isValid = false
         }
-        if (!isValid) {
-            return
-        }
 
-        register(
-            email = emailValue,
-            password = passwordValue,
-            name = nameValue,
-            address = addressValue,
-            dateOfBirth = dateOfBirthValue,
-            gender = genderValue,
-            bloodType = bloodTypeValue,
-            phone = phoneValue
-        )
+        if (isValid) {
+            register(
+                email = emailValue,
+                password = passwordValue,
+                name = nameValue,
+                address = addressValue,
+                dateOfBirth = dateOfBirthValue,
+                gender = genderValue,
+                bloodType = bloodTypeValue,
+                phone = phoneValue
+            )
+        }
     }
 
+    /**
+     * Registers a new user and sends a verification code.
+     */
     private fun register(
         email: String,
         password: String,
@@ -220,7 +257,7 @@ class RegisterViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                registerUserUseCase(
+                val uid = createUserUseCase(
                     userId = email,
                     password = password,
                     name = name,
@@ -231,18 +268,21 @@ class RegisterViewModel @Inject constructor(
                     phone = phone
                 )
                 sendVerificationCodeUseCase(email)
-                _isAuthenticated.value = true
-                _navigateToVerifyCode.value = true
+                _registerResult.value = uid.toString()
                 _error.value = null
             } catch (e: Exception) {
                 _error.value = e.message ?: "Registration failed"
+                _registerResult.value = null
             } finally {
                 _isLoading.value = false
             }
         }
     }
 
+    /**
+     * Resets navigation states.
+     */
     fun resetNavigationStates() {
-        _isAuthenticated.value = false
+        _registerResult.value = null
     }
 }

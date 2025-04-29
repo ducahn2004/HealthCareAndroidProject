@@ -19,7 +19,6 @@ class VerifyCodeViewModel @Inject constructor(
     private val sendVerificationCodeUseCase: SendVerificationCodeUseCase
 ) : ViewModel() {
 
-    // Lưu trữ email và luồng xác thực
     private val _email = MutableLiveData<String>()
     val email: LiveData<String> get() = _email
 
@@ -47,7 +46,6 @@ class VerifyCodeViewModel @Inject constructor(
     private val _navigateToLogin = MutableLiveData<Boolean>()
     val navigateToLogin: LiveData<Boolean> get() = _navigateToLogin
 
-    // Timer để giới hạn thời gian gửi lại mã
     private val _timerCount = MutableLiveData<Int>()
     val timerCount: LiveData<Int> get() = _timerCount
 
@@ -56,17 +54,25 @@ class VerifyCodeViewModel @Inject constructor(
 
     private var timerJob: Job? = null
 
-    // Khởi tạo email và authFlow từ Fragment
+    /**
+     * Sets the email and authentication flow for verification.
+     */
     fun setEmailAndAuthFlow(email: String, authFlow: AuthFlow) {
         _email.value = email
         _authFlow.value = authFlow
     }
 
+    /**
+     * Updates the verification code input.
+     */
     fun afterVerificationCodeChange(code: Editable) {
         _verificationCode.value = code.toString()
         _verificationCodeError.value = null
     }
 
+    /**
+     * Verifies the entered code for the email.
+     */
     fun verifyCode() {
         val code = _verificationCode.value ?: ""
         if (code.isEmpty()) {
@@ -92,7 +98,7 @@ class VerifyCodeViewModel @Inject constructor(
                     _navigateToLogin.value = true
                 }
             } catch (e: Exception) {
-                _error.value = e.message
+                _error.value = e.message ?: "Invalid verification code"
                 _isVerified.value = false
             } finally {
                 _isLoading.value = false
@@ -100,6 +106,9 @@ class VerifyCodeViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Sends a new verification code to the email.
+     */
     fun sendVerificationCode() {
         val email = _email.value ?: run {
             _error.value = "Email is missing"
@@ -113,13 +122,17 @@ class VerifyCodeViewModel @Inject constructor(
                 _error.value = null
                 startTimer()
             } catch (e: Exception) {
-                _error.value = e.message
+                _error.value = e.message ?: "Failed to send verification code"
             } finally {
                 _isLoading.value = false
             }
         }
     }
 
+    /**
+     * Starts a timer to limit resending verification codes.
+     * @param duration The timer duration in seconds (default: 60).
+     */
     fun startTimer(duration: Int = 60) {
         stopTimer()
         _timerCount.value = duration
@@ -133,6 +146,9 @@ class VerifyCodeViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Stops the resend timer.
+     */
     fun stopTimer() {
         timerJob?.cancel()
         timerJob = null
@@ -140,20 +156,29 @@ class VerifyCodeViewModel @Inject constructor(
         _timerText.value = "Resend Code"
     }
 
+    /**
+     * Resets navigation states.
+     */
     fun resetNavigationStates() {
         _navigateToCreateNewPassword.value = false
         _navigateToLogin.value = false
     }
 
+    /**
+     * Sets an error message.
+     */
     fun setError(error: String?) {
         _error.value = error
     }
 
-    enum class AuthFlow {
-        REGISTRATION, FORGOT_PASSWORD
-    }
-
+    /**
+     * Clears the error message.
+     */
     fun clearError() {
         _error.value = null
+    }
+
+    enum class AuthFlow {
+        REGISTRATION, FORGOT_PASSWORD
     }
 }

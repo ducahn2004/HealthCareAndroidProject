@@ -18,7 +18,6 @@ class UpdateUserUseCase @Inject constructor(
     ) {
         userRepository.updateUser(
             userId = userId,
-            password = password,
             name = name,
             address = address,
             dateOfBirth = dateOfBirth,

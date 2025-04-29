@@ -57,7 +57,7 @@ class DefaultUserRepository @Inject constructor(
 
         try {
             val uid = authDataSource.registerUser(userId, password)
-            networkDataSource.saveUser(uid, user.toNetwork())
+            networkDataSource.createUser(uid, user.toNetwork())
             localDataSource.upsert(user.toLocal())
             uid
         } catch (e: Exception) {

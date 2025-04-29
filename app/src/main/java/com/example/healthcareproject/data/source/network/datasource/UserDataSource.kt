@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface UserDataSource {
 
-    suspend fun saveUser(uid: String, user: FirebaseUser)
+    suspend fun createUser(uid: String, user: FirebaseUser)
 
     suspend fun loadUser(uid: String): FirebaseUser?
 

@@ -10,6 +10,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * ViewModel for handling password reset logic in the Forgot Password flow.
+ */
 @HiltViewModel
 class CreateNewPasswordViewModel @Inject constructor(
     private val resetPasswordUseCase: ResetPasswordUseCase
@@ -30,23 +33,36 @@ class CreateNewPasswordViewModel @Inject constructor(
     private val _error = MutableLiveData<String?>()
     val error: LiveData<String?> = _error
 
+    private val _success = MutableLiveData<String?>()
+    val success: LiveData<String?> = _success
+
     private val _navigateToLogin = MutableLiveData<Boolean>()
     val navigateToLogin: LiveData<Boolean> = _navigateToLogin
 
+    /**
+     * Sets the email for password reset.
+     */
     fun setEmail(value: String) {
         _email.value = value
     }
 
-
-
-    fun afterNewPasswordChange(value: Editable){
+    /**
+     * Updates the new password input.
+     */
+    fun afterNewPasswordChange(value: Editable) {
         _newPassword.value = value.toString()
     }
 
-    fun afterConfirmPassword(value: Editable){
+    /**
+     * Updates the confirm password input.
+     */
+    fun afterConfirmPassword(value: Editable) {
         _confirmPassword.value = value.toString()
     }
 
+    /**
+     * Handles the reset password button click, validates inputs, and initiates password reset.
+     */
     fun onResetPasswordClicked() {
         val emailValue = email.value ?: ""
         val newPasswordValue = newPassword.value ?: ""
@@ -70,8 +86,8 @@ class CreateNewPasswordViewModel @Inject constructor(
             _error.value = "Passwords do not match"
             return
         }
-        if (newPasswordValue.length < 8) {
-            _error.value = "Password must be at least 8 characters"
+        if (!isStrongPassword(newPasswordValue)) {
+            _error.value = "Password must be at least 8 characters, including uppercase, lowercase, number, and special character"
             return
         }
 
@@ -79,6 +95,7 @@ class CreateNewPasswordViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 resetPasswordUseCase(emailValue, newPasswordValue)
+                _success.value = "Password reset successfully"
                 _navigateToLogin.value = true
             } catch (e: Exception) {
                 _error.value = e.message ?: "Failed to reset password"
@@ -88,7 +105,20 @@ class CreateNewPasswordViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Checks if the password meets strength requirements.
+     */
+    private fun isStrongPassword(password: String): Boolean {
+        val regex = Regex("^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$")
+        return regex.matches(password)
+    }
+
+    /**
+     * Resets navigation states.
+     */
     fun resetNavigationStates() {
         _navigateToLogin.value = false
+        _success.value = null
+        _error.value = null
     }
 }

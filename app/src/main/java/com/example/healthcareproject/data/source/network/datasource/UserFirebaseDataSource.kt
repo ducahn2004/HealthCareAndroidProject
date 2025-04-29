@@ -14,7 +14,7 @@ class UserFirebaseDataSource @Inject constructor(
 
     private val usersRef = firebaseDatabase.getReference("users")
 
-    override suspend fun saveUser(uid: String, user: FirebaseUser) {
+    override suspend fun createUser(uid: String, user: FirebaseUser) {
         try {
             withContext(Dispatchers.IO) {
                 usersRef.child(uid).setValue(user).await()

@@ -2,7 +2,6 @@ package com.example.healthcareproject.present.auth
 
 import android.app.DatePickerDialog
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -42,11 +41,11 @@ class RegisterFragment : Fragment() {
 
         // Back button
         binding.btnBackRegisterToLoginMethod.setOnClickListener {
-            Timber.tag("RegisterFragment").d("Back button clicked")
+            Timber.d("Back button clicked")
             try {
                 navigator.fromRegisterToLoginMethod()
             } catch (e: Exception) {
-                Timber.tag("RegisterFragment").e("Navigation failed: ${e.message}")
+                Timber.e("Navigation failed: ${e.message}")
                 Snackbar.make(binding.root, "Navigation failed: ${e.message}", Snackbar.LENGTH_LONG).show()
             }
         }
@@ -102,9 +101,9 @@ class RegisterFragment : Fragment() {
                 }
             }
 
-        // Observe navigation to VerifyCode
-        viewModel.navigateToVerifyCode.observe(viewLifecycleOwner) { navigate ->
-            if (navigate) {
+        // Observe registration result
+        viewModel.registerResult.observe(viewLifecycleOwner) { uid ->
+            if (uid != null) {
                 val email = viewModel.email.value
                 if (!email.isNullOrBlank()) {
                     val action = RegisterFragmentDirections.actionRegisterFragmentToVerifyCodeFragment(
@@ -139,4 +138,3 @@ class RegisterFragment : Fragment() {
         _binding = null
     }
 }
-

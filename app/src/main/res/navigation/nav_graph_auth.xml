@@ -25,7 +25,16 @@
         android:label="RegisterFragment">
         <action
             android:id="@+id/action_registerFragment_to_verifyCodeFragment"
-            app:destination="@id/verifyCodeFragment" />
+            app:destination="@id/verifyCodeFragment">
+            <argument
+                android:name="email"
+                app:argType="string"
+                app:nullable="true" />
+            <argument
+                android:name="authFlow"
+                app:argType="string"
+                app:nullable="true" />
+        </action>
         <action
             android:id="@+id/action_registerFragment_to_loginMethodFragment"
             app:destination="@id/loginMethodFragment" />
@@ -66,7 +75,16 @@
             android:id="@+id/action_forgotPasswordFragment_to_verifyCodeFragment"
             app:destination="@id/verifyCodeFragment"
             app:popUpTo="@id/forgotPasswordFragment"
-            app:popUpToInclusive="true" />
+            app:popUpToInclusive="true">
+            <argument
+                android:name="email"
+                app:argType="string"
+                app:nullable="true" />
+            <argument
+                android:name="authFlow"
+                app:argType="string"
+                app:nullable="true" />
+        </action>
     </fragment>
 
     <fragment
@@ -93,6 +111,10 @@
         android:id="@+id/createNewPasswordFragment"
         android:name="com.example.healthcareproject.present.auth.CreateNewPasswordFragment"
         android:label="CreateNewPasswordFragment">
+        <argument
+            android:name="email"
+            app:argType="string"
+            app:nullable="true" />
         <action
             android:id="@+id/action_createNewPasswordFragment_to_loginFragment"
             app:destination="@id/loginFragment" />
