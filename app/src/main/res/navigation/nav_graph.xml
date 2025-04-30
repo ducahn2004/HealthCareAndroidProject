@@ -60,17 +60,36 @@
         android:name="com.example.healthcareproject.present.home.WeightFragment"
         android:label="Weight" />
 
-    <!-- Explore Fragment -->
+    <!-- Pill Fragment -->
     <fragment
         android:id="@+id/pillFragment"
         android:name="com.example.healthcareproject.present.pill.PillFragment"
         android:label="Pill"
-        tools:layout="@layout/fragment_pill" />
+        tools:layout="@layout/fragment_pill">
+        <action
+            android:id="@+id/action_pillFragment_to_medicalHistoryDetailFragment"
+            app:destination="@id/medicalHistoryDetailFragment" />
+        <action
+            android:id="@+id/action_pillFragment_to_addMedicationFragment"
+            app:destination="@id/addMedicationFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/addMedicationFragment"
+        android:name="com.example.healthcareproject.AddMedicationFragment"
+        android:label="Add Medication"
+        tools:layout="@layout/dialog_add_medication">
+        <action
+            android:id="@+id/action_addMedicationFragment_to_pillFragment"
+            app:destination="@id/pillFragment"
+            app:popUpTo="@id/pillFragment"
+            app:popUpToInclusive="false" />
+    </fragment>
 
     <!-- Medicine Fragment -->
     <fragment
         android:id="@+id/medicineFragment"
-        android:name="com.example.healthcareproject.present.medicine.MedicineFragment"
+        android:name="com.example.healthcareproject.MedicineFragment"
         android:label="Medicine">
         <action
             android:id="@+id/action_medicineFragment_to_medicalHistoryDetailFragment"
@@ -87,7 +106,7 @@
     <!-- Add Appointment Fragment -->
     <fragment
         android:id="@+id/addAppointmentFragment"
-        android:name="com.example.healthcareproject.AddAppointmentFragment"
+        android:name="com.example.healthcareproject.present.medicine.AddAppointmentFragment"
         android:label="Add Appointment"
         tools:layout="@layout/fragment_add_appointment">
         <action
@@ -141,9 +160,6 @@
         <action
             android:id="@+id/action_settingsFragment_to_informationFragment"
             app:destination="@id/informationFragment" />
-        <action
-            android:id="@+id/action_settingsFragment_to_changePasswordFragment"
-            app:destination="@id/changePasswordFragment" />
     </fragment>
 
     <!-- Theme Fragment -->
@@ -163,7 +179,7 @@
     <!-- Information Fragment -->
     <fragment
         android:id="@+id/informationFragment"
-        android:name="com.example.healthcareproject.present.setting.information.InformationFragment"
+        android:name="com.example.healthcareproject.InformationFragment"
         android:label="Information"
         tools:layout="@layout/fragment_information">
         <action
@@ -185,17 +201,5 @@
             app:destination="@id/settingsFragment"
             app:popUpTo="@id/settingsFragment"
             app:popUpToInclusive="false" />
-    </fragment>
-
-    <!-- Update Password Fragment -->
-    <fragment
-        android:id="@+id/changePasswordFragment"
-        android:name="com.example.healthcareproject.present.setting.ChangePasswordFragment"
-        tools:layout="@layout/fragment_change_password">
-        <action
-            android:id="@+id/action_changePasswordFragment_to_settingsFragment"
-            app:destination="@id/settingsFragment"
-            app:popUpTo="@id/settingsFragment"
-            app:popUpToInclusive="true" />
     </fragment>
 </navigation>
