@@ -1,7 +1,10 @@
 package com.example.healthcareproject.domain.model
 
-import java.time.LocalDate
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 
+import java.time.LocalDate
+@Parcelize
 data class Medication(
     val medicationId: String,
     val userId: String,
@@ -15,4 +18,4 @@ data class Medication(
     val startDate: LocalDate,
     val endDate: LocalDate,
     val notes: String
-)
+) : Parcelable

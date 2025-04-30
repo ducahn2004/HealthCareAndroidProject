@@ -8,6 +8,7 @@ plugins {
     id("com.google.relay")
     id("com.google.gms.google-services")
     id("androidx.room")
+    id("kotlin-parcelize")
 }
 
 ksp {

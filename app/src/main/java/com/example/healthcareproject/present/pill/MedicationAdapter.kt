@@ -8,14 +8,13 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.healthcareproject.R
-import java.text.SimpleDateFormat
-import java.util.*
+import com.example.healthcareproject.domain.model.Medication
+import java.time.format.DateTimeFormatter
 
 class MedicationAdapter(
     private val onItemClick: (Medication) -> Unit
 ) : ListAdapter<Medication, MedicationAdapter.MedicationViewHolder>(MedicationDiffCallback()) {
-
-    private val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+    private val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
 
     class MedicationViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val tvName: TextView = itemView.findViewById(R.id.tv_medication_name)
@@ -36,13 +35,12 @@ class MedicationAdapter(
     override fun onBindViewHolder(holder: MedicationViewHolder, position: Int) {
         val medication = getItem(position)
         holder.tvName.text = medication.name
-        holder.tvDosage.text = medication.dosage
-        holder.tvFrequency.text = medication.frequency
-        holder.tvTimeOfDay.text = medication.timeOfDay
-        holder.tvStartDate.text = dateFormat.format(Date(medication.startTimestamp))
-        holder.tvEndDate.text = medication.endTimestamp?.let { dateFormat.format(Date(it)) } ?: "Not specified"
-        holder.tvNote.text = medication.note
-
+        holder.tvDosage.text = "${medication.dosageAmount} ${medication.dosageUnit}"
+        holder.tvFrequency.text = medication.frequency.toString()
+        holder.tvTimeOfDay.text = medication.timeOfDay.joinToString(", ")
+        holder.tvStartDate.text = medication.startDate.format(dateFormatter)
+        holder.tvEndDate.text = medication.endDate?.format(dateFormatter) ?: "Not specified"
+        holder.tvNote.text = medication.notes ?: "None"
         holder.itemView.setOnClickListener {
             onItemClick(medication)
         }
@@ -51,7 +49,7 @@ class MedicationAdapter(
 
 class MedicationDiffCallback : DiffUtil.ItemCallback<Medication>() {
     override fun areItemsTheSame(oldItem: Medication, newItem: Medication): Boolean {
-        return oldItem.visitId == newItem.visitId
+        return oldItem.medicationId == newItem.medicationId
     }
 
     override fun areContentsTheSame(oldItem: Medication, newItem: Medication): Boolean {

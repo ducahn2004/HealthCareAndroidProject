@@ -1,9 +1,8 @@
 package com.example.healthcareproject.present.navigation
 
-import android.os.Bundle
 import androidx.navigation.NavController
 import com.example.healthcareproject.R
-import com.example.healthcareproject.present.medicine.MedicalVisit
+import com.example.healthcareproject.present.pill.PillFragmentDirections
 import javax.inject.Inject
 
 class MainNavigatorImpl @Inject constructor(
@@ -42,11 +41,13 @@ class MainNavigatorImpl @Inject constructor(
         navController.navigate(R.id.action_back_oxygen_to_notification)
     }
 
-    override fun navigateToMedicalHistoryDetail(medicalVisit: MedicalVisit) {
-        val bundle = Bundle().apply {
-            putParcelable("medicalVisit", medicalVisit)
-        }
-        navController.navigate(R.id.action_medicineFragment_to_medicalHistoryDetailFragment, bundle)
+    override fun navigateToAddMedication() {
+        navController.navigate(R.id.action_pillFragment_to_addMedicationFragment)
+    }
+
+    override fun navigateToMedicalHistoryDetail(visitId: String) {
+        val action = PillFragmentDirections.actionPillFragmentToMedicalHistoryDetailFragment(visitId)
+        navController.navigate(action)
     }
 
     override fun navigateToAddAppointment() {

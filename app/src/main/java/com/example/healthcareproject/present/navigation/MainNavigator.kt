@@ -1,7 +1,5 @@
 package com.example.healthcareproject.present.navigation
 
-import com.example.healthcareproject.present.medicine.MedicalVisit
-
 interface MainNavigator {
 
     fun navigateToHeartRate()
@@ -16,7 +14,8 @@ interface MainNavigator {
     fun navigateBackToHomeFromOxygen()
     fun navigateToNotificationFromOxygen()
 
-    fun navigateToMedicalHistoryDetail(medicalVisit: MedicalVisit)
+    fun navigateToAddMedication()
+    fun navigateToMedicalHistoryDetail(visitId: String)
     fun navigateToAddAppointment()
 
     fun navigateBackToMedicineFromAddAppointment()

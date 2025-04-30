@@ -1,5 +1,6 @@
 package com.example.healthcareproject.domain.usecase.medicalvisit
 
+import com.example.healthcareproject.domain.model.Result
 import com.example.healthcareproject.domain.repository.MedicalVisitRepository
 import java.time.LocalDate
 import javax.inject.Inject
@@ -12,16 +13,36 @@ class CreateMedicalVisitUseCase @Inject constructor(
         visitReason: String,
         visitDate: LocalDate,
         doctorName: String,
-        notes: String?,
-        status: Boolean
-    ): String {
-        return medicalVisitRepository.createMedicalVisit(
-            patientName = patientName,
-            visitReason = visitReason,
-            visitDate = visitDate,
-            doctorName = doctorName,
-            notes = notes,
-            status = status
-        )
+        diagnosis: String?,
+        treatment: String?,
+        status: Boolean = true
+    ): Result<String> {
+        return try {
+            // Validate inputs
+            if (patientName.isBlank()) throw IllegalArgumentException("Patient name cannot be empty")
+            if (visitReason.isBlank()) throw IllegalArgumentException("Visit reason cannot be empty")
+            if (doctorName.isBlank()) throw IllegalArgumentException("Doctor name cannot be empty")
+            if (visitDate.isBefore(LocalDate.now())) throw IllegalArgumentException("Visit date cannot худщд cannot be in the past")
+
+            // Combine diagnosis and treatment into notes
+            val notes = buildString {
+                if (!diagnosis.isNullOrBlank()) append("Diagnosis: $diagnosis\n")
+                if (!treatment.isNullOrBlank()) append("Treatment: $treatment")
+            }.takeIf { it.isNotBlank() }
+
+            // Call repository to create medical visit
+            val visitId = medicalVisitRepository.createMedicalVisit(
+                patientName = patientName,
+                visitReason = visitReason,
+                visitDate = visitDate,
+                doctorName = doctorName,
+                notes = notes,
+                status = status
+            )
+
+            Result.Success(visitId)
+        } catch (e: Exception) {
+            Result.Error(e)
+        }
     }
 }

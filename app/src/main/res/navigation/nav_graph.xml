@@ -68,7 +68,11 @@
         tools:layout="@layout/fragment_pill">
         <action
             android:id="@+id/action_pillFragment_to_medicalHistoryDetailFragment"
-            app:destination="@id/medicalHistoryDetailFragment" />
+            app:destination="@id/medicalHistoryDetailFragment" >
+            <argument
+                android:name="visitId"
+                app:argType="string" />
+        </action>
         <action
             android:id="@+id/action_pillFragment_to_addMedicationFragment"
             app:destination="@id/addMedicationFragment" />
@@ -76,7 +80,7 @@
 
     <fragment
         android:id="@+id/addMedicationFragment"
-        android:name="com.example.healthcareproject.AddMedicationFragment"
+        android:name="com.example.healthcareproject.present.pill.AddMedicationFragment"
         android:label="Add Medication"
         tools:layout="@layout/dialog_add_medication">
         <action
@@ -89,7 +93,7 @@
     <!-- Medicine Fragment -->
     <fragment
         android:id="@+id/medicineFragment"
-        android:name="com.example.healthcareproject.MedicineFragment"
+        android:name="com.example.healthcareproject.present.medicine.MedicineFragment"
         android:label="Medicine">
         <action
             android:id="@+id/action_medicineFragment_to_medicalHistoryDetailFragment"
@@ -160,6 +164,9 @@
         <action
             android:id="@+id/action_settingsFragment_to_informationFragment"
             app:destination="@id/informationFragment" />
+        <action
+            android:id="@+id/action_settingsFragment_to_changePasswordFragment"
+            app:destination="@id/changePasswordFragment" />
     </fragment>
 
     <!-- Theme Fragment -->
@@ -179,7 +186,7 @@
     <!-- Information Fragment -->
     <fragment
         android:id="@+id/informationFragment"
-        android:name="com.example.healthcareproject.InformationFragment"
+        android:name="com.example.healthcareproject.present.setting.information.InformationFragment"
         android:label="Information"
         tools:layout="@layout/fragment_information">
         <action
@@ -198,6 +205,19 @@
         tools:layout="@layout/fragment_emergency">
         <action
             android:id="@+id/action_emergencyFragment_to_settingsFragment"
+            app:destination="@id/settingsFragment"
+            app:popUpTo="@id/settingsFragment"
+            app:popUpToInclusive="false" />
+    </fragment>
+
+    <!-- Change Password In Fragment -->
+    <fragment
+        android:id="@+id/changePasswordFragment"
+        android:name="com.example.healthcareproject.present.setting.EmergencyFragment"
+        android:label="Change Password"
+        tools:layout="@layout/fragment_change_password">
+        <action
+            android:id="@+id/action_changePasswordFragment_to_settingsFragment"
             app:destination="@id/settingsFragment"
             app:popUpTo="@id/settingsFragment"
             app:popUpToInclusive="false" />

@@ -8,15 +8,14 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.healthcareproject.R
-import java.text.SimpleDateFormat
-import java.util.*
+import com.example.healthcareproject.domain.model.MedicalVisit
+import java.time.format.DateTimeFormatter
 
 class MedicalVisitAdapter(
     private val onItemClick: (MedicalVisit) -> Unit
 ) : ListAdapter<MedicalVisit, MedicalVisitAdapter.MedicalVisitViewHolder>(MedicalVisitDiffCallback()) {
-
-    private val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-    private val timeFormat = SimpleDateFormat("hh:mm a", Locale.getDefault())
+    private val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+    private val timeFormatter = DateTimeFormatter.ofPattern("hh:mm a")
 
     class MedicalVisitViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val tvFacility: TextView = itemView.findViewById(R.id.tv_facility)
@@ -33,14 +32,10 @@ class MedicalVisitAdapter(
 
     override fun onBindViewHolder(holder: MedicalVisitViewHolder, position: Int) {
         val visit = getItem(position)
-        holder.tvFacility.text = visit.facility
-        holder.tvDoctor.text = visit.doctor
-
-        // Chuyển đổi timestamp thành định dạng ngày và giờ
-        val dateTime = Date(visit.timestamp)
-        holder.tvDate.text = dateFormat.format(dateTime)
-        holder.tvTime.text = timeFormat.format(dateTime)
-
+        holder.tvFacility.text = visit.clinicName
+        holder.tvDoctor.text = visit.doctorName
+        holder.tvDate.text = visit.visitDate.format(dateFormatter)
+        holder.tvTime.text = visit.createdAt.format(timeFormatter)
         holder.itemView.setOnClickListener {
             onItemClick(visit)
         }
@@ -49,7 +44,7 @@ class MedicalVisitAdapter(
 
 class MedicalVisitDiffCallback : DiffUtil.ItemCallback<MedicalVisit>() {
     override fun areItemsTheSame(oldItem: MedicalVisit, newItem: MedicalVisit): Boolean {
-        return oldItem.id == newItem.id
+        return oldItem.visitId == newItem.visitId
     }
 
     override fun areContentsTheSame(oldItem: MedicalVisit, newItem: MedicalVisit): Boolean {

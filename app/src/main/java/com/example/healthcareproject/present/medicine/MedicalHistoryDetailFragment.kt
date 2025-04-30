@@ -1,6 +1,5 @@
 package com.example.healthcareproject.present.medicine
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,22 +7,24 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
+import androidx.fragment.app.viewModels
 import com.example.healthcareproject.R
 import com.example.healthcareproject.databinding.FragmentMedicalHistoryDetailBinding
-import com.example.healthcareproject.present.pill.Medication
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import java.text.SimpleDateFormat
-import java.util.*
+import com.example.healthcareproject.domain.model.MedicalVisit
+import com.example.healthcareproject.present.navigation.MainNavigator
+import dagger.hilt.android.AndroidEntryPoint
+import java.time.format.DateTimeFormatter
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class MedicalHistoryDetailFragment : Fragment() {
-
     private var _binding: FragmentMedicalHistoryDetailBinding? = null
     private val binding get() = _binding!!
+    private val viewModel: MedicalHistoryDetailViewModel by viewModels()
+    @Inject lateinit var mainNavigator: MainNavigator
 
-    private val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-    private val timeFormat = SimpleDateFormat("hh:mm a", Locale.getDefault())
+    private val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+    private val timeFormatter = DateTimeFormatter.ofPattern("hh:mm a")
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -36,44 +37,31 @@ class MedicalHistoryDetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Xử lý nút Back
         binding.ivBack.setOnClickListener {
-            findNavController().navigateUp()
+            mainNavigator.navigateBack()
         }
 
-        // Lấy MedicalVisit từ Bundle
-        val medicalVisit = arguments?.getParcelable<MedicalVisit>("medicalVisit")
-        if (medicalVisit != null) {
-            // Hiển thị thông tin MedicalVisit
-            binding.tvCondition.text = medicalVisit.condition
-            binding.tvDoctor.text = medicalVisit.doctor
-            binding.tvFacility.text = medicalVisit.facility
-            binding.tvDate.text = dateFormat.format(Date(medicalVisit.timestamp))
-            binding.tvTime.text = timeFormat.format(Date(medicalVisit.timestamp))
-            binding.tvLocation.text = medicalVisit.location ?: "Not specified"
-            binding.tvDiagnosis.text = medicalVisit.diagnosis ?: "Not specified"
-            binding.tvDoctorRemarks.text = medicalVisit.doctorRemarks ?: "Not specified"
+        val visitId = arguments?.getString("visitId")
+        visitId?.let { viewModel.loadDetails(it) }
 
-            // Load và hiển thị danh sách Medication
-            val medications = loadMedications(medicalVisit.id)
-            displayMedications(medications)
-        }
-    }
-
-    private fun loadMedications(visitId: Long): List<Medication> {
-        val sharedPrefs = requireActivity().getSharedPreferences("medications", Context.MODE_PRIVATE)
-        val medicationsJson = sharedPrefs.getString("medication_list", null)
-        return if (medicationsJson != null) {
-            val type = object : TypeToken<List<Medication>>() {}.type
-            val allMedications: List<Medication> = Gson().fromJson(medicationsJson, type)
-            allMedications.filter { it.visitId == visitId }
-        } else {
-            emptyList()
+        viewModel.uiState.observe(viewLifecycleOwner) { state ->
+            state.medicalVisit?.let { visit ->
+                binding.tvCondition.text = visit.diagnosis
+                binding.tvDoctor.text = visit.doctorName
+                binding.tvFacility.text = visit.clinicName
+                binding.tvDate.text = visit.visitDate.format(dateFormatter)
+                binding.tvTime.text = visit.createdAt.format(timeFormatter)
+                binding.tvLocation.text = visit.clinicName
+                binding.tvDiagnosis.text = visit.diagnosis
+                binding.tvDoctorRemarks.text = visit.treatment
+                displayMedications(state.medications)
+            }
         }
     }
 
     private fun displayMedications(medications: List<Medication>) {
         val container = binding.llMedications
+        container.removeAllViews()
         if (medications.isEmpty()) {
             val textView = TextView(context).apply {
                 text = "No medications available"
@@ -83,7 +71,6 @@ class MedicalHistoryDetailFragment : Fragment() {
             container.addView(textView)
         } else {
             medications.forEach { medication ->
-                // Tạo CardView cho từng Medication
                 val cardView = androidx.cardview.widget.CardView(requireContext()).apply {
                     layoutParams = LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.MATCH_PARENT,
@@ -105,7 +92,6 @@ class MedicalHistoryDetailFragment : Fragment() {
                     setPadding(12, 12, 12, 12)
                 }
 
-                // Name
                 val nameLayout = LinearLayout(context).apply {
                     layoutParams = LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.MATCH_PARENT,
@@ -130,7 +116,6 @@ class MedicalHistoryDetailFragment : Fragment() {
                 nameLayout.addView(nameLabel)
                 nameLayout.addView(nameValue)
 
-                // Dosage
                 val dosageLayout = LinearLayout(context).apply {
                     layoutParams = LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.MATCH_PARENT,
@@ -149,7 +134,7 @@ class MedicalHistoryDetailFragment : Fragment() {
                     isAllCaps = true
                 }
                 val dosageValue = TextView(context).apply {
-                    text = medication.dosage
+                    text = "${medication.dosageAmount} ${medication.dosageUnit}"
                     textSize = 16f
                     setTextColor(resources.getColor(R.color.secondary_text_color, null))
                     layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 2f)
@@ -157,7 +142,6 @@ class MedicalHistoryDetailFragment : Fragment() {
                 dosageLayout.addView(dosageLabel)
                 dosageLayout.addView(dosageValue)
 
-                // Frequency
                 val frequencyLayout = LinearLayout(context).apply {
                     layoutParams = LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.MATCH_PARENT,
@@ -176,7 +160,7 @@ class MedicalHistoryDetailFragment : Fragment() {
                     isAllCaps = true
                 }
                 val frequencyValue = TextView(context).apply {
-                    text = medication.frequency
+                    text = medication.frequency.toString()
                     textSize = 16f
                     setTextColor(resources.getColor(R.color.secondary_text_color, null))
                     layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 2f)

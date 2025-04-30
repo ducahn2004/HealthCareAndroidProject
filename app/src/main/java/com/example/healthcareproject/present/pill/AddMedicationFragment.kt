@@ -1,39 +1,40 @@
-package com.example.healthcareproject
+package com.example.healthcareproject.present.pill
 
 import android.app.DatePickerDialog
 import android.app.Dialog
-import android.app.TimePickerDialog
 import android.os.Bundle
-import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.healthcareproject.databinding.DialogAddMedicationBinding
 import com.example.healthcareproject.databinding.FragmentAddMedicationBinding
-import com.example.healthcareproject.present.medicine.MedicalVisit
-import com.example.healthcareproject.present.pill.Medication
-import com.example.healthcareproject.present.pill.MedicationAdapter
-import java.text.SimpleDateFormat
+import com.example.healthcareproject.domain.model.DosageUnit
+import com.example.healthcareproject.domain.model.MealRelation
+import com.example.healthcareproject.domain.model.Medication
+import com.example.healthcareproject.present.navigation.MainNavigator
+import dagger.hilt.android.AndroidEntryPoint
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.*
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class AddMedicationFragment : Fragment() {
-
     private var _binding: FragmentAddMedicationBinding? = null
     private val binding get() = _binding!!
+    private val viewModel: AddMedicationViewModel by viewModels()
+    @Inject lateinit var mainNavigator: MainNavigator
 
-    private val medications = mutableListOf<Medication>()
     private lateinit var medicationAdapter: MedicationAdapter
-    private val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-    private val timeFormat = SimpleDateFormat("hh:mm a", Locale.getDefault())
-    private var selectedDate: Calendar? = null
-    private var selectedTime: Calendar? = null
-    private var selectedStartDate: Calendar? = null
-    private var selectedEndDate: Calendar? = null
+    private val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -46,50 +47,47 @@ class AddMedicationFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Thiết lập RecyclerView cho danh sách thuốc
-        medicationAdapter = MedicationAdapter { medication ->
-            val bundle = Bundle().apply {
-                putParcelable("medication", medication)
+        setupRecyclerView()
+        setupClickListeners()
+        observeUiState()
+    }
+
+    private fun setupRecyclerView() {
+        medicationAdapter = MedicationAdapter { med ->
+            med.visitId?.let { visitId ->
+                mainNavigator.navigateToMedicalHistoryDetail(visitId) // Pass visitId as String
             }
-            findNavController().navigate(R.id.action_pillFragment_to_medicalHistoryDetailFragment, bundle)
         }
         binding.rvMedications.layoutManager = LinearLayoutManager(context)
         binding.rvMedications.adapter = medicationAdapter
+    }
 
-        // Sự kiện click nút Back
+    private fun setupClickListeners() {
         binding.ivBack.setOnClickListener {
             findNavController().navigateUp()
         }
 
-        // Sự kiện click chọn ngày
         binding.tvDate.setOnClickListener {
             showDatePicker { calendar ->
-                selectedDate = calendar
-                binding.tvDate.text = dateFormat.format(calendar.time)
+                viewModel.setVisitDate(calendar)
+                binding.tvDate.text = calendar.time.toLocalDate().format(dateFormatter)
             }
         }
 
-        // Sự kiện click chọn giờ
         binding.tvTime.setOnClickListener {
             showTimePicker { calendar ->
-                selectedTime = calendar
-                binding.tvTime.text = timeFormat.format(calendar.time)
+                viewModel.setVisitTime(calendar)
+                binding.tvTime.text = java.text.SimpleDateFormat("hh:mm a", Locale.getDefault()).format(calendar.time)
             }
         }
 
-        // Sự kiện click nút Add Medication
-        binding.btnAddMedication.setOnClickListener {
-            showAddMedicationDialog()
-        }
-
-        // Sự kiện click nút Save
+        // Save MedicalVisit
         binding.btnSave.setOnClickListener {
             val condition = binding.etCondition.text.toString().trim()
             val doctor = binding.etDoctor.text.toString().trim()
             val facility = binding.etFacility.text.toString().trim()
             val location = binding.etLocation.text.toString().trim()
 
-            // Validate Appointment Fields
             if (condition.isEmpty()) {
                 binding.etCondition.error = "Required"
                 return@setOnClickListener
@@ -102,48 +100,57 @@ class AddMedicationFragment : Fragment() {
                 binding.etFacility.error = "Required"
                 return@setOnClickListener
             }
-            if (selectedDate == null) {
+            if (viewModel.uiState.value?.visitDate == null) {
                 binding.tvDate.error = "Required"
                 return@setOnClickListener
             }
-            if (selectedTime == null) {
+            if (viewModel.uiState.value?.visitTime == null) {
                 binding.tvTime.error = "Required"
                 return@setOnClickListener
             }
-            if (medications.isEmpty()) {
-                binding.btnAddMedication.error = "Please add at least one medication"
-                return@setOnClickListener
+
+            viewModel.saveMedicalVisit(
+                diagnosis = condition,
+                doctorName = doctor,
+                clinicName = facility,
+                location = location.takeIf { it.isNotEmpty() }
+            )
+        }
+
+        // Add Medication and Finalize
+        binding.btnAddMedication.setOnClickListener {
+            if (viewModel.uiState.value?.isVisitSaved == true) {
+                showAddMedicationDialog()
+            } else {
+                Toast.makeText(context, "Please save the visit first", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun observeUiState() {
+        viewModel.uiState.observe(viewLifecycleOwner) { state ->
+            // Enable/disable buttons
+            binding.btnAddMedication.isEnabled = state.isVisitSaved
+            binding.btnSave.isEnabled = !state.isVisitSaved
+
+            // Update RecyclerView
+            state.medication?.let { medication ->
+                medicationAdapter.submitList(listOf(medication))
             }
 
-            // Kết hợp ngày và giờ thành timestamp
-            val calendar = Calendar.getInstance()
-            calendar.time = selectedDate!!.time
-            calendar.set(Calendar.HOUR_OF_DAY, selectedTime!!.get(Calendar.HOUR_OF_DAY))
-            calendar.set(Calendar.MINUTE, selectedTime!!.get(Calendar.MINUTE))
-            val timestamp = calendar.timeInMillis
+            // Handle completion
+            if (state.isFinished && state.medication != null) {
+                setFragmentResult("medicationKey", Bundle().apply {
+                    putString("visitId", state.visitId)
+                    putParcelable("medication", state.medication)
+                })
+                findNavController().navigateUp()
+            }
 
-            // Create MedicalVisit object
-            val newVisit = MedicalVisit(
-                condition = condition,
-                doctor = doctor,
-                facility = facility,
-                timestamp = timestamp,
-                location = if (location.isNotEmpty()) location else null,
-                diagnosis = null,
-                doctorRemarks = null
-            )
-
-            // Gán visitId cho các Medication
-            val updatedMedications = medications.map { it.copy(visitId = newVisit.id) }
-
-            // Truyền dữ liệu về thông qua setFragmentResult
-            setFragmentResult("medicationKey", Bundle().apply {
-                putParcelable("newVisit", newVisit)
-                putParcelableArrayList("newMedications", ArrayList(updatedMedications))
-            })
-
-            // Quay lại PillFragment
-            findNavController().navigateUp()
+            // Show errors
+            state.error?.let {
+                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -152,32 +159,29 @@ class AddMedicationFragment : Fragment() {
         val dialogBinding = DialogAddMedicationBinding.inflate(layoutInflater)
         dialog.setContentView(dialogBinding.root)
 
-        // Điều chỉnh kích thước dialog
         val window = dialog.window
         if (window != null) {
-            val displayMetrics = DisplayMetrics()
-            requireActivity().windowManager.defaultDisplay.getMetrics(displayMetrics)
-            val width = (displayMetrics.widthPixels * 0.9).toInt()
-            val layoutParams = WindowManager.LayoutParams()
-            layoutParams.copyFrom(window.attributes)
-            layoutParams.width = width
-            layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT
-            window.attributes = layoutParams
+            val width = (requireActivity().resources.displayMetrics.widthPixels * 0.9).toInt()
+            window.setLayout(width, WindowManager.LayoutParams.WRAP_CONTENT)
         }
 
-        // Sự kiện click chọn ngày bắt đầu
+        // Set default start date to today
+        val today = LocalDate.now()
+        dialogBinding.tvStartDate.text = today.format(dateFormatter)
+
+        // Set default end date to 1 month later
+        val defaultEndDate = today.plusMonths(1)
+        dialogBinding.tvEndDate.text = defaultEndDate.format(dateFormatter)
+
         dialogBinding.tvStartDate.setOnClickListener {
             showDatePicker { calendar ->
-                selectedStartDate = calendar
-                dialogBinding.tvStartDate.text = dateFormat.format(calendar.time)
+                dialogBinding.tvStartDate.text = calendar.time.toLocalDate().format(dateFormatter)
             }
         }
 
-        // Sự kiện click chọn ngày kết thúc
         dialogBinding.tvEndDate.setOnClickListener {
             showDatePicker { calendar ->
-                selectedEndDate = calendar
-                dialogBinding.tvEndDate.text = dateFormat.format(calendar.time)
+                dialogBinding.tvEndDate.text = calendar.time.toLocalDate().format(dateFormatter)
             }
         }
 
@@ -192,7 +196,6 @@ class AddMedicationFragment : Fragment() {
             val timeOfDay = dialogBinding.etTimeOfDay.text.toString().trim()
             val note = dialogBinding.etNote.text.toString().trim()
 
-            // Validate Medication Fields
             if (medicationName.isEmpty()) {
                 dialogBinding.etMedicationName.error = "Required"
                 return@setOnClickListener
@@ -209,32 +212,62 @@ class AddMedicationFragment : Fragment() {
                 dialogBinding.etTimeOfDay.error = "Required"
                 return@setOnClickListener
             }
-            if (selectedStartDate == null) {
-                dialogBinding.tvStartDate.error = "Required"
+
+            // Parse dates
+            val startDateStr = dialogBinding.tvStartDate.text.toString()
+            val endDateStr = dialogBinding.tvEndDate.text.toString()
+
+            val startDate = try {
+                LocalDate.parse(startDateStr, dateFormatter)
+            } catch (e: Exception) {
+                LocalDate.now()
+            }
+
+            val endDate = try {
+                if (endDateStr.isNotEmpty()) LocalDate.parse(endDateStr, dateFormatter) else null
+            } catch (e: Exception) {
+                null
+            }
+
+            if (endDate != null && endDate.isBefore(startDate)) {
+                dialogBinding.tvEndDate.error = "End date must be after start date"
                 return@setOnClickListener
             }
-            if (selectedEndDate != null && selectedStartDate != null) {
-                if (selectedEndDate!!.before(selectedStartDate)) {
-                    dialogBinding.tvEndDate.error = "End date must be after start date"
-                    return@setOnClickListener
-                }
+
+            // Parse dosage amount from string
+            val dosageAmount = try {
+                dosage.toFloatOrNull() ?: 1.0f
+            } catch (e: Exception) {
+                1.0f
             }
 
-            // Create Medication object
+            // Default to PILL if dosage unit can't be determined
+            val dosageUnit = try {
+                DosageUnit.valueOf(dosage.uppercase())
+            } catch (e: Exception) {
+                DosageUnit.None
+            }
+
+            // Default to BEFORE_MEAL if meal relation can't be determined
+            val mealRelation = MealRelation.None
+
+            // Create medication object
             val newMedication = Medication(
+                medicationId = "",  // Will be filled by ViewModel
+                userId = "",        // Will be filled by ViewModel
+                visitId = null,     // Will be filled by ViewModel
                 name = medicationName,
-                dosage = dosage,
-                frequency = frequency,
-                timeOfDay = timeOfDay,
-                startTimestamp = selectedStartDate!!.timeInMillis,
-                endTimestamp = selectedEndDate?.timeInMillis,
-                note = note
+                dosageUnit = dosageUnit,
+                dosageAmount = dosageAmount.toFloat(),
+                frequency = frequency.toIntOrNull() ?: 1,
+                timeOfDay = timeOfDay.split(",").map { it.trim() },
+                mealRelation = mealRelation,
+                startDate = startDate,
+                endDate = endDate ?: startDate.plusMonths(1),
+                notes = note
             )
 
-            // Thêm vào danh sách và cập nhật RecyclerView
-            medications.add(newMedication)
-            medicationAdapter.notifyDataSetChanged()
-
+            viewModel.saveMedicationAndFinish(newMedication)
             dialog.dismiss()
         }
 
@@ -257,7 +290,7 @@ class AddMedicationFragment : Fragment() {
 
     private fun showTimePicker(onTimeSelected: (Calendar) -> Unit) {
         val calendar = Calendar.getInstance()
-        TimePickerDialog(
+        android.app.TimePickerDialog(
             requireContext(),
             { _, hourOfDay, minute ->
                 calendar.set(Calendar.HOUR_OF_DAY, hourOfDay)
@@ -273,5 +306,10 @@ class AddMedicationFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    // Extension function to convert Date to LocalDate
+    private fun Date.toLocalDate(): LocalDate {
+        return toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
     }
 }
