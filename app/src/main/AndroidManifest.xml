@@ -20,7 +20,7 @@
 
         <!-- SplashActivity: Launcher activity -->
         <activity
-            android:name=".presentation.SplashActivity"
+            android:name=".present.SplashActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -30,17 +30,27 @@
 
         <!-- MainActivity -->
         <activity
-            android:name=".presentation.MainActivity"
+            android:name=".present.MainActivity"
             android:exported="false" />
+
+        <activity android:name=".present.UserActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
 
         <!-- AuthActivity -->
         <activity
-            android:name=".presentation.AuthActivity"
+            android:name=".present.AuthActivity"
             android:exported="false" />
 
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
+        
+
     </application>
 
     <!-- Permissions -->

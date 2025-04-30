@@ -62,6 +62,12 @@ android {
             assets.srcDirs("src/main/assets")
         }
     }
+
+    packaging {
+        resources {
+            excludes += "META-INF/DEPENDENCIES"
+        }
+    }
 }
 
 dependencies {
