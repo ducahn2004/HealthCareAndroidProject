@@ -29,7 +29,7 @@ android {
     }
 
     buildFeatures {
-        viewBinding = false
+        viewBinding = true
         compose = false
         buildConfig = true
         dataBinding = true
