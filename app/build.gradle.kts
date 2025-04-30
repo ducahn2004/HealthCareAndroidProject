@@ -29,18 +29,12 @@ android {
     }
 
     buildFeatures {
-        viewBinding = true
-        compose = true
+        viewBinding = false
+        compose = false
         buildConfig = true
         dataBinding = true
     }
 
-    packagingOptions {
-        resources {
-            excludes.add("META-INF/DEPENDENCIES")
-        }
-    }
-    
     buildTypes {
         release {
             isMinifyEnabled = false
