@@ -3,42 +3,36 @@ package com.example.healthcareproject.present.medicine
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.healthcareproject.R
+import com.example.healthcareproject.databinding.ItemMedicalVisitBinding
 import com.example.healthcareproject.domain.model.MedicalVisit
-import java.time.format.DateTimeFormatter
 
 class MedicalVisitAdapter(
     private val onItemClick: (MedicalVisit) -> Unit
 ) : ListAdapter<MedicalVisit, MedicalVisitAdapter.MedicalVisitViewHolder>(MedicalVisitDiffCallback()) {
-    private val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
-    private val timeFormatter = DateTimeFormatter.ofPattern("hh:mm a")
 
-    class MedicalVisitViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val tvFacility: TextView = itemView.findViewById(R.id.tv_facility)
-        val tvDoctor: TextView = itemView.findViewById(R.id.tv_doctor)
-        val tvDate: TextView = itemView.findViewById(R.id.tv_date)
-        val tvTime: TextView = itemView.findViewById(R.id.tv_time)
+    class MedicalVisitViewHolder(
+        private val binding: ItemMedicalVisitBinding
+    ) : RecyclerView.ViewHolder(binding.root) {
+        fun bind(visit: MedicalVisit, clickListener: (MedicalVisit) -> Unit) {
+            binding.visit = visit
+            binding.clickListener = View.OnClickListener { clickListener(visit) }
+            binding.executePendingBindings()
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MedicalVisitViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_medical_visit, parent, false)
-        return MedicalVisitViewHolder(view)
+        val binding = ItemMedicalVisitBinding.inflate(
+            LayoutInflater.from(parent.context), parent, false
+        )
+        return MedicalVisitViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: MedicalVisitViewHolder, position: Int) {
         val visit = getItem(position)
-        holder.tvFacility.text = visit.clinicName
-        holder.tvDoctor.text = visit.doctorName
-        holder.tvDate.text = visit.visitDate.format(dateFormatter)
-        holder.tvTime.text = visit.createdAt.format(timeFormatter)
-        holder.itemView.setOnClickListener {
-            onItemClick(visit)
-        }
+        holder.bind(visit, onItemClick)
     }
 }
 

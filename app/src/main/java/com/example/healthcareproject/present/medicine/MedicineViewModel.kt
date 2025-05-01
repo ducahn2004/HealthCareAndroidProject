@@ -21,6 +21,10 @@ class MedicineViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(MedicineUiState())
     val uiState: StateFlow<MedicineUiState> = _uiState.asStateFlow()
 
+    // Cache for unfiltered lists
+    private var allVisitsBefore: List<MedicalVisit> = emptyList()
+    private var allVisitsAfter: List<MedicalVisit> = emptyList()
+
     init {
         loadMedicalVisits()
     }
@@ -28,62 +32,67 @@ class MedicineViewModel @Inject constructor(
     fun loadMedicalVisits() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
-            medicalVisitUseCases.getMedicalVisitsUseCase().collect { result ->
+
+            try {
+                // Get visits from use case
+                val visits = medicalVisitUseCases.getMedicalVisitsUseCase()
+
+                // Partition visits into before and after current date
+                val (before, after) = visits.partition { visit ->
+                    visit.visitDate.isBefore(LocalDate.now())
+                }
+
+                // Store in cache
+                allVisitsBefore = before
+                allVisitsAfter = after
+
                 _uiState.update { state ->
-                    when (result) {
-                        is Result.Success -> {
-                            val (before, after) = result.data.partition { visit ->
-                                visit.visitDate.isBefore(LocalDate.now())
-                            }
-                            state.copy(
-                                visitsBefore = before,
-                                visitsAfter = after,
-                                isLoading = false,
-                                error = null
-                            )
-                        }
-                        is Result.Error -> state.copy(
-                            isLoading = false,
-                            error = result.exception.message
-                        )
-                        is Result.Loading -> state.copy(isLoading = true)
-                    }
+                    state.copy(
+                        visitsBefore = before,
+                        visitsAfter = after,
+                        isLoading = false,
+                        error = null
+                    )
+                }
+            } catch (e: Exception) {
+                _uiState.update { state ->
+                    state.copy(
+                        isLoading = false,
+                        error = e.message
+                    )
                 }
             }
         }
     }
 
     fun onSearchQueryChanged(query: String) {
-        _uiState.update { state ->
+        viewModelScope.launch {
             val filteredBefore = if (query.isBlank()) {
-                state.visitsBefore
+                allVisitsBefore
             } else {
-                state.visitsBefore.filter {
-                    it.diagnosis.contains(query, ignoreCase = true) ||
-                            it.doctorName.contains(query, ignoreCase = true) ||
-                            it.clinicName.contains(query, ignoreCase = true)
+                allVisitsBefore.filter { visit ->
+                    visit.diagnosis.contains(query, ignoreCase = true) ||
+                            visit.doctorName.contains(query, ignoreCase = true) ||
+                            visit.clinicName.contains(query, ignoreCase = true)
                 }
             }
+
             val filteredAfter = if (query.isBlank()) {
-                state.visitsAfter
+                allVisitsAfter
             } else {
-                state.visitsAfter.filter {
-                    it.diagnosis.contains(query, ignoreCase = true) ||
-                            it.doctorName.contains(query, ignoreCase = true) ||
-                            it.clinicName.contains(query, ignoreCase = true)
+                allVisitsAfter.filter { visit ->
+                    visit.diagnosis.contains(query, ignoreCase = true) ||
+                            visit.doctorName.contains(query, ignoreCase = true) ||
+                            visit.clinicName.contains(query, ignoreCase = true)
                 }
             }
-            state.copy(
-                visitsBefore = filteredBefore,
-                visitsAfter = filteredAfter
-            )
+
+            _uiState.update { state ->
+                state.copy(
+                    visitsBefore = filteredBefore,
+                    visitsAfter = filteredAfter
+                )
+            }
         }
     }
 }
-
-data class MedicineUiState(
-    val visitsBefore: List<MedicalVisit> = emptyList(),
-    val visitsAfter: List<MedicalVisit> = emptyList(),
-    val isLoading: Boolean = false,
-    val error: String? = null
-)

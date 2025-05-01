@@ -42,6 +42,8 @@ interface MedicationRepository {
 
     suspend fun getMedications(forceUpdate: Boolean = false): List<Medication>
 
+    suspend fun getMedicationsByVisitId(visitId: String, forceUpdate: Boolean = false): List<Medication>
+
     suspend fun refresh()
 
     suspend fun getMedication(medicationId: String, forceUpdate: Boolean = false): Medication?

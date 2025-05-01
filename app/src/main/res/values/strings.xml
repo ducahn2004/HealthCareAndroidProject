@@ -122,6 +122,29 @@
     <string name="phone_label">Phone:</string>
     <string name="phone_hint">Phone</string>
     <string name="user_not_logged_in">User not logged in</string>
+    <string name="no_medications">NO MEDICATION</string>
+    <string name="none">None</string>
+    <string name="medical_visit_details">Medical Visit Details</string>
+    <string name="information">Information</string>
+    <string name="doctor_remarks">Doctor Remarks</string>
+    <string name="medications">Medications</string>
+    <string name="condition">CONDITION:</string>
+    <string name="doctor">DOCTOR:</string>
+    <string name="facility">FACILITY:</string>
+    <string name="date">DATE:</string>
+    <string name="time">TIME:</string>
+    <string name="location">LOCATION:</string>
+    <string name="diagnosis">DIAGNOSIS:</string>
+    <string name="back_button">Back button</string>
+    <string name="add_appointment">Add Appointment</string>
+    <string name="clinic">CLINIC:</string>
+    <string name="treatment">TREATMENT:</string>
+    <string name="enter_diagnosis">Enter diagnosis</string>
+    <string name="enter_doctor_name">Enter doctor\'s name</string>
+    <string name="enter_clinic_name">Enter clinic name</string>
+    <string name="enter_treatment">Enter treatment</string>
+    <string name="enter_date">Enter date (dd/MM/yyyy)</string>
+    <string name="enter_time">Enter time (HH:mm)</string>
     <string-array name="gender_options">
         <item>Male</item>
         <item>Female</item>

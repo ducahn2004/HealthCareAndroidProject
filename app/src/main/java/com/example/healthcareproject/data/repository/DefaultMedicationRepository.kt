@@ -118,6 +118,15 @@ class DefaultMedicationRepository @Inject constructor(
         }
     }
 
+    override suspend fun getMedicationsByVisitId(visitId: String, forceUpdate: Boolean): List<Medication> {
+        if (forceUpdate) {
+            refresh()
+        }
+        return withContext(dispatcher) {
+            localDataSource.getAll().toExternal().filter { it.visitId == visitId }
+        }
+    }
+
     override suspend fun refresh() {
         withContext(dispatcher) {
             val remoteMedications = networkDataSource.loadMedications(userId)

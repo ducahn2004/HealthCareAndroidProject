@@ -15,11 +15,20 @@ class CreateAppointmentUseCase @Inject constructor(
         note: String?
     ): Result<String> {
         return try {
+            // Validate inputs
             if (doctorName.isBlank()) throw IllegalArgumentException("Doctor name cannot be empty")
             if (location.isBlank()) throw IllegalArgumentException("Location cannot be empty")
-            Result.Success(
-                appointmentRepository.createAppointment(doctorName, location, appointmentTime, note)
+            if (appointmentTime.isBefore(LocalDateTime.now())) throw IllegalArgumentException("Appointment time cannot be in the past")
+
+            // Call repository to create appointment
+            val appointmentId = appointmentRepository.createAppointment(
+                doctorName = doctorName,
+                location = location,
+                appointmentTime = appointmentTime,
+                note = note
             )
+
+            Result.Success(appointmentId)
         } catch (e: Exception) {
             Result.Error(e)
         }

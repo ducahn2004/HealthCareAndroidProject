@@ -58,6 +58,10 @@ class MainNavigatorImpl @Inject constructor(
         navController.navigate(R.id.action_addAppointmentFragment_to_medicineFragment)
     }
 
+    override fun navigateBackToMedicineFromMedicalHistoryDetail() {
+        navController.navigate(R.id.action_back_medical_history_detail_to_medicine)
+    }
+
     override fun navigateToHeartRateFromNotification() {
         navController.navigate(R.id.action_notificationFragment_to_heartRateFragment)
     }

@@ -19,6 +19,7 @@ interface MainNavigator {
     fun navigateToAddAppointment()
 
     fun navigateBackToMedicineFromAddAppointment()
+    fun navigateBackToMedicineFromMedicalHistoryDetail()
 
     fun navigateToHeartRateFromNotification()
     fun navigateToOxygenFromNotification()

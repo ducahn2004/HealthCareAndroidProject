@@ -9,10 +9,14 @@ import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.healthcareproject.databinding.FragmentMedicineBinding
+import com.example.healthcareproject.domain.model.MedicalVisit
 import com.example.healthcareproject.present.navigation.MainNavigator
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -68,11 +72,13 @@ class MedicineFragment : Fragment() {
     }
 
     private fun observeUiState() {
-        viewModel.uiState.observe(viewLifecycleOwner) { state ->
-            adapterBefore.submitList(state.visitsBefore)
-            adapterAfter.submitList(state.visitsAfter)
-            state.error?.let {
-                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.uiState.collectLatest { state ->
+                adapterBefore.submitList(state.visitsBefore)
+                adapterAfter.submitList(state.visitsAfter)
+                state.error?.let {
+                    Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
@@ -81,7 +87,7 @@ class MedicineFragment : Fragment() {
         setFragmentResultListener("requestKey") { _, bundle ->
             val newVisit = bundle.getParcelable<MedicalVisit>("newVisit")
             newVisit?.let {
-                viewModel.loadMedicalVisits() // Refresh data
+                viewModel.loadMedicalVisits()
             }
         }
     }

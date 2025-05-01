@@ -1,182 +1,221 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/background"
-    android:padding="16dp">
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <LinearLayout
+    <data>
+        <variable
+            name="viewModel"
+            type="com.example.healthcareproject.present.medicine.AddAppointmentViewModel" />
+    </data>
+
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="match_parent"
+        android:background="@color/background"
+        android:padding="16dp">
 
-        <!-- Back Button -->
-        <ImageView
-            android:id="@+id/iv_back"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:src="@drawable/ic_back"
-            app:tint="@color/primary_text_color"
-            android:contentDescription="Back" />
-
-        <!-- Title -->
-        <TextView
-            android:id="@+id/tv_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="ADD APPOINTMENT"
-            android:textColor="@color/primary_text_color"
-            android:textSize="24sp"
-            android:textStyle="bold" />
-
-        <!-- Form -->
-        <androidx.cardview.widget.CardView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            app:cardBackgroundColor="@color/surface_alternate"
-            app:cardCornerRadius="8dp"
-            app:cardElevation="2dp">
+            android:orientation="vertical">
 
-            <LinearLayout
+            <!-- Back Button -->
+            <ImageView
+                android:id="@+id/iv_back"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_back"
+                app:tint="@color/primary_text_color"
+                android:contentDescription="@string/back_button" />
+
+            <!-- Title -->
+            <TextView
+                android:id="@+id/tv_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/add_appointment"
+                android:textColor="@color/primary_text_color"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+            <!-- Error Message -->
+            <TextView
+                android:id="@+id/tv_error"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="12dp">
+                android:layout_marginTop="8dp"
+                android:textColor="@color/alert_text_color"
+                android:background="@color/alert_background"
+                android:padding="12dp"
+                android:textSize="16sp"
+                android:visibility="gone"
+                tools:text="Error saving appointment"
+                tools:visibility="visible" />
 
-                <!-- Condition -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Condition"
-                    android:textColor="@color/secondary_text_color"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
+            <!-- Form -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:cardBackgroundColor="@color/surface_alternate"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="2dp">
 
-                <EditText
-                    android:id="@+id/et_condition"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:hint="Enter condition"
-                    android:inputType="text"
-                    android:textColor="@color/secondary_text_color"
-                    android:textSize="18sp" />
+                    android:orientation="vertical"
+                    android:padding="12dp">
 
-                <!-- Doctor -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:text="Doctor"
-                    android:textColor="@color/secondary_text_color"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
+                    <!-- Diagnosis -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/diagnosis"
+                        android:textColor="@color/secondary_text_color"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
 
-                <EditText
-                    android:id="@+id/et_doctor"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:hint="Enter doctor's name"
-                    android:inputType="textPersonName"
-                    android:textColor="@color/secondary_text_color"
-                    android:textSize="18sp" />
+                    <EditText
+                        android:id="@+id/et_diagnosis"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:hint="@string/enter_diagnosis"
+                        android:inputType="text"
+                        android:text="@={viewModel.uiState.diagnosis}"
+                        android:error="@{viewModel.uiState.diagnosisError}"
+                        android:textColor="@color/secondary_text_color"
+                        android:textSize="18sp" />
 
-                <!-- Facility -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:text="Facility"
-                    android:textColor="@color/secondary_text_color"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
+                    <!-- Doctor -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="@string/doctor"
+                        android:textColor="@color/secondary_text_color"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
 
-                <EditText
-                    android:id="@+id/et_facility"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:hint="Enter facility name"
-                    android:inputType="text"
-                    android:textColor="@color/secondary_text_color"
-                    android:textSize="18sp" />
+                    <EditText
+                        android:id="@+id/et_doctor"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:hint="@string/enter_doctor_name"
+                        android:inputType="textPersonName"
+                        android:text="@={viewModel.uiState.doctorName}"
+                        android:error="@{viewModel.uiState.doctorNameError}"
+                        android:textColor="@color/secondary_text_color"
+                        android:textSize="18sp" />
 
-                <!-- Date -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:text="Date (dd/MM/yyyy)"
-                    android:textColor="@color/secondary_text_color"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
+                    <!-- Clinic -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="@string/clinic"
+                        android:textColor="@color/secondary_text_color"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
 
-                <EditText
-                    android:id="@+id/et_date"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:hint="Enter date (dd/MM/yyyy)"
-                    android:inputType="date"
-                    android:textColor="@color/secondary_text_color"
-                    android:textSize="18sp" />
+                    <EditText
+                        android:id="@+id/et_clinic"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:hint="@string/enter_clinic_name"
+                        android:inputType="text"
+                        android:text="@={viewModel.uiState.clinicName}"
+                        android:error="@{viewModel.uiState.clinicNameError}"
+                        android:textColor="@color/secondary_text_color"
+                        android:textSize="18sp" />
 
-                <!-- Time -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:text="Time (HH:mm)"
-                    android:textColor="@color/secondary_text_color"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
+                    <!-- Treatment -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="@string/treatment"
+                        android:textColor="@color/secondary_text_color"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
 
-                <EditText
-                    android:id="@+id/et_time"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:hint="Enter time (HH:mm)"
-                    android:inputType="time"
-                    android:textColor="@color/secondary_text_color"
-                    android:textSize="18sp" />
+                    <EditText
+                        android:id="@+id/et_treatment"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:hint="@string/enter_treatment"
+                        android:inputType="text"
+                        android:text="@={viewModel.uiState.treatment}"
+                        android:error="@{viewModel.uiState.treatmentError}"
+                        android:textColor="@color/secondary_text_color"
+                        android:textSize="18sp" />
 
-                <!-- Location -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:text="Location (Optional)"
-                    android:textColor="@color/secondary_text_color"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
+                    <!-- Date -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="@string/date"
+                        android:textColor="@color/secondary_text_color"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
 
-                <EditText
-                    android:id="@+id/et_location"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:hint="Enter location (optional)"
-                    android:inputType="text"
-                    android:textColor="@color/secondary_text_color"
-                    android:textSize="18sp" />
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
+                    <EditText
+                        android:id="@+id/et_date"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:hint="@string/enter_date"
+                        android:inputType="none"
+                        android:text="@{viewModel.uiState.visitDate != null ? viewModel.uiState.visitDate.toString() : ``}"
+                        android:error="@{viewModel.uiState.dateError}"
+                        android:textColor="@color/secondary_text_color"
+                        android:textSize="18sp"
+                        android:focusable="false"
+                        android:clickable="true" />
 
-        <!-- Save Button -->
-        <Button
-            android:id="@+id/btn_save"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:backgroundTint="@color/primary_text_color"
-            android:text="Save"
-            android:textColor="@android:color/white"
-            android:textSize="18sp" />
-    </LinearLayout>
-</androidx.core.widget.NestedScrollView>
+                    <!-- Time -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="@string/time"
+                        android:textColor="@color/secondary_text_color"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <EditText
+                        android:id="@+id/et_time"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:hint="@string/enter_time"
+                        android:inputType="none"
+                        android:text="@{viewModel.uiState.time != null ? viewModel.uiState.time.toString() : ``}"
+                        android:error="@{viewModel.uiState.timeError}"
+                        android:textColor="@color/secondary_text_color"
+                        android:textSize="18sp"
+                        android:focusable="false"
+                        android:clickable="true" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Save Button -->
+            <Button
+                android:id="@+id/btn_save"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:backgroundTint="@color/primary_text_color"
+                android:text="@string/save"
+                android:textColor="@android:color/white"
+                android:textSize="18sp" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</layout>

@@ -8,13 +8,7 @@ import javax.inject.Inject
 class GetMedicationsByVisitIdUseCase @Inject constructor(
     private val medicationRepository: MedicationRepository
 ) {
-    suspend operator fun invoke(visitId: String): Result<List<Medication>> {
-        return try {
-            val medications = medicationRepository.getMedications()
-                .filter { it.visitId == visitId }
-            Result.Success(medications)
-        } catch (e: Exception) {
-            Result.Error(e)
-        }
+    suspend operator fun invoke(visitId: String, forceUpdate: Boolean = false): List<Medication> {
+        return medicationRepository.getMedicationsByVisitId(visitId, forceUpdate)
     }
 }

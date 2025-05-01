@@ -81,9 +81,9 @@ class PillFragment : Fragment() {
                 binding.progressBar.visibility = if (state.isLoading) View.VISIBLE else View.GONE
 
                 // Handle empty states
-                binding.tvCurrentMedicationsEmpty.visibility =
+                binding.tvNoCurrentMedications.visibility =
                     if (state.currentMedications.isEmpty() && !state.isLoading) View.VISIBLE else View.GONE
-                binding.tvPastMedicationsEmpty.visibility =
+                binding.tvNoPastMedications.visibility =
                     if (state.pastMedications.isEmpty() && !state.isLoading) View.VISIBLE else View.GONE
 
                 // Update adapters

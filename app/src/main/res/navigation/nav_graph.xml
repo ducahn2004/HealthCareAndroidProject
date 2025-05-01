@@ -125,10 +125,12 @@
         android:name="com.example.healthcareproject.present.medicine.MedicalHistoryDetailFragment"
         android:label="Medical History Detail">
         <argument
-            android:name="medicalVisit"
-            app:argType="com.example.healthcareproject.present.medicine.MedicalVisit" />
+            android:name="visitId"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_back_medical_history_detail_to_medicine"
+            app:destination="@id/medicineFragment"/>
     </fragment>
-
     <!-- Notification Fragment -->
     <fragment
         android:id="@+id/notificationFragment"

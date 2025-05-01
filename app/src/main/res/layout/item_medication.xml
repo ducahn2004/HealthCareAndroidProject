@@ -1,17 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginVertical="4dp"
-    app:cardBackgroundColor="@color/surface_alternate"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="2dp">
-
-    <RelativeLayout
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <import type="java.time.format.DateTimeFormatter" />
+        <variable
+            name="medication"
+            type="com.example.healthcareproject.domain.model.Medication" />
+        <variable
+            name="dateFormatter"
+            type="java.time.format.DateTimeFormatter" />
+    </data>
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="4dp"
+        app:cardBackgroundColor="@color/surface_alternate"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="2dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -19,7 +24,7 @@
             android:orientation="vertical"
             android:padding="12dp">
 
-            <!-- Card nhỏ chứa tên thuốc để làm nổi bật -->
+            <!-- Card for Medication Name -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -33,6 +38,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="8dp"
+                    android:text="@{medication.name}"
                     android:textAlignment="center"
                     android:textColor="@color/primary_text_color"
                     android:textSize="18sp"
@@ -61,6 +67,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="2"
+                    android:text="@{String.valueOf(medication.dosageAmount) + ` ` + medication.dosageUnit}"
                     android:textColor="@color/secondary_text_color"
                     android:textSize="16sp" />
             </LinearLayout>
@@ -88,6 +95,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="2"
+                    android:text="@{String.valueOf(medication.frequency) + ` times/day`}"
                     android:textColor="@color/secondary_text_color"
                     android:textSize="16sp" />
             </LinearLayout>
@@ -115,6 +123,35 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="2"
+                    android:text="@{medication.timeOfDay.isEmpty() ? `N/A` : medication.timeOfDay}"
+                    android:textColor="@color/secondary_text_color"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <!-- Meal Relation -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tv_meal_relation_label"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="MEAL RELATION:"
+                    android:textAllCaps="true"
+                    android:textColor="@color/secondary_text_color"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tv_meal_relation"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:text="@{medication.mealRelation.toString()}"
                     android:textColor="@color/secondary_text_color"
                     android:textSize="16sp" />
             </LinearLayout>
@@ -129,7 +166,7 @@
                 <TextView
                     android:id="@+id/tv_start_date_label"
                     android:layout_width="0dp"
-                    android:layout_height="22dp"
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="START DATE:"
                     android:textAllCaps="true"
@@ -142,6 +179,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="2"
+                    android:text="@{medication.startDate.format(dateFormatter)}"
                     android:textColor="@color/secondary_text_color"
                     android:textSize="16sp" />
             </LinearLayout>
@@ -169,11 +207,12 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="2"
+                    android:text="@{medication.endDate.format(dateFormatter)}"
                     android:textColor="@color/secondary_text_color"
                     android:textSize="16sp" />
             </LinearLayout>
 
-            <!-- Note -->
+            <!-- Notes -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -185,7 +224,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="NOTE:"
+                    android:text="NOTES:"
                     android:textAllCaps="true"
                     android:textColor="@color/secondary_text_color"
                     android:textSize="14sp"
@@ -196,9 +235,10 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="2"
+                    android:text="@{medication.notes.isEmpty() ? `None` : medication.notes}"
                     android:textColor="@color/secondary_text_color"
                     android:textSize="16sp" />
             </LinearLayout>
         </LinearLayout>
-    </RelativeLayout>
-</androidx.cardview.widget.CardView>
+    </androidx.cardview.widget.CardView>
+</layout>
