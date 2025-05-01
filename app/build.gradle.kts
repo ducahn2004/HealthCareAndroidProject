@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.internal.resolve.sam.SamConstructorDescriptorKindExclude.excludes
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -28,7 +30,6 @@ android {
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
-
     buildFeatures {
         viewBinding = true
         compose = false
@@ -43,6 +44,12 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+        }
+    }
+
+    packaging {
+        resources {
+            excludes += "META-INF/DEPENDENCIES"
         }
     }
 
@@ -142,7 +149,6 @@ dependencies {
 
     // Gmail
     implementation(libs.google.api.client)
-    implementation(libs.google.api.client.android)
     implementation(libs.google.oauth.client.jetty)
     implementation(libs.google.api.services.gmail)
     implementation(libs.javax.mail)
