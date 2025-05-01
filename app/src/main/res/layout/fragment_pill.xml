@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
     <data>
+        <import type="android.view.View" />
         <variable
             name="viewModel"
             type="com.example.healthcareproject.present.pill.PillViewModel" />
     </data>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -30,7 +34,7 @@
             android:id="@+id/progress_bar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:visibility="@{viewModel.uiState.isLoading ? View.VISIBLE : View.GONE}"
+            android:visibility="@{viewModel.isLoading ? View.VISIBLE : View.GONE}"
             android:contentDescription="Loading medications"
             app:layout_constraintTop_toBottomOf="@id/tv_title"
             app:layout_constraintStart_toStartOf="parent"
@@ -58,7 +62,7 @@
             android:text="No current medications available"
             android:textColor="@color/secondary_text_color"
             android:textSize="16sp"
-            android:visibility="@{viewModel.uiState.currentMedications.empty &amp; !viewModel.uiState.isLoading ? View.VISIBLE : View.GONE}"
+            android:visibility="@{viewModel.noCurrentMedicationsVisibility}"
             app:layout_constraintTop_toBottomOf="@id/tv_current_medications"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -76,7 +80,8 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHeight_percent="0.35"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginBottom="16dp"
+            tools:listitem="@layout/item_medication" />
 
         <!-- Past Medications Title -->
         <TextView
@@ -100,7 +105,7 @@
             android:text="No past medications available"
             android:textColor="@color/secondary_text_color"
             android:textSize="16sp"
-            android:visibility="@{viewModel.uiState.pastMedications.empty &amp; !viewModel.uiState.isLoading ? View.VISIBLE : View.GONE}"
+            android:visibility="@{viewModel.noPastMedicationsVisibility}"
             app:layout_constraintTop_toBottomOf="@id/tv_past_medications"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -116,7 +121,8 @@
             app:layout_constraintTop_toBottomOf="@id/tv_no_past_medications"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:listitem="@layout/item_medication" />
 
         <!-- Floating Action Button to Add Medication -->
         <com.google.android.material.floatingactionbutton.FloatingActionButton

@@ -1,15 +1,11 @@
 package com.example.healthcareproject.present.medicine
 
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.healthcareproject.domain.model.MedicalVisit
-import com.example.healthcareproject.domain.model.Result
 import com.example.healthcareproject.domain.usecase.medicalvisit.MedicalVisitUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
@@ -18,8 +14,15 @@ import javax.inject.Inject
 class MedicineViewModel @Inject constructor(
     private val medicalVisitUseCases: MedicalVisitUseCases
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(MedicineUiState())
-    val uiState: StateFlow<MedicineUiState> = _uiState.asStateFlow()
+    // LiveData objects for binding
+    val isLoading = MutableLiveData(false)
+    val visitsBefore = MutableLiveData<List<MedicalVisit>>(emptyList())
+    val visitsAfter = MutableLiveData<List<MedicalVisit>>(emptyList())
+    val error = MutableLiveData<String?>(null)
+
+    // Visibility helpers for data binding
+    val isVisitsBeforeEmpty = MutableLiveData(true)
+    val isVisitsAfterEmpty = MutableLiveData(true)
 
     // Cache for unfiltered lists
     private var allVisitsBefore: List<MedicalVisit> = emptyList()
@@ -31,7 +34,7 @@ class MedicineViewModel @Inject constructor(
 
     fun loadMedicalVisits() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
+            isLoading.value = true
 
             try {
                 // Get visits from use case
@@ -46,21 +49,13 @@ class MedicineViewModel @Inject constructor(
                 allVisitsBefore = before
                 allVisitsAfter = after
 
-                _uiState.update { state ->
-                    state.copy(
-                        visitsBefore = before,
-                        visitsAfter = after,
-                        isLoading = false,
-                        error = null
-                    )
-                }
+                // Update LiveData
+                updateVisitsLists(before, after)
+                isLoading.value = false
+                error.value = null
             } catch (e: Exception) {
-                _uiState.update { state ->
-                    state.copy(
-                        isLoading = false,
-                        error = e.message
-                    )
-                }
+                isLoading.value = false
+                error.value = e.message
             }
         }
     }
@@ -87,12 +82,35 @@ class MedicineViewModel @Inject constructor(
                 }
             }
 
-            _uiState.update { state ->
-                state.copy(
-                    visitsBefore = filteredBefore,
-                    visitsAfter = filteredAfter
-                )
-            }
+            updateVisitsLists(filteredBefore, filteredAfter)
         }
+    }
+
+    private fun updateVisitsLists(before: List<MedicalVisit>, after: List<MedicalVisit>) {
+        visitsBefore.value = before
+        visitsAfter.value = after
+
+        // Update visibility helpers
+        isVisitsBeforeEmpty.value = before.isEmpty()
+        isVisitsAfterEmpty.value = after.isEmpty()
+    }
+
+    fun navigateToAddAppointment() {
+        // This will be implemented to navigate to add appointment screen
+        // Implementation would depend on your navigation strategy
+    }
+
+    // Helper method to get loading visibility (1=VISIBLE, 8=GONE)
+    fun getLoadingVisibility(): Int {
+        return if (isLoading.value == true) 0 else 8
+    }
+
+    // Helper method for empty list visibility
+    fun getBeforeEmptyVisibility(): Int {
+        return if (isVisitsBeforeEmpty.value == true) 0 else 8
+    }
+
+    fun getAfterEmptyVisibility(): Int {
+        return if (isVisitsAfterEmpty.value == true) 0 else 8
     }
 }

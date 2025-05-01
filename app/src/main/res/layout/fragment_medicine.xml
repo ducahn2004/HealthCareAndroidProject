@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
     <data>
         <variable
             name="viewModel"
@@ -46,10 +47,11 @@
             android:id="@+id/progress_bar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:visibility="@{viewModel.uiState.isLoading ? View.VISIBLE : View.GONE}"
+            android:visibility="@{viewModel.getLoadingVisibility()}"
             app:layout_constraintTop_toBottomOf="@id/et_search"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="16dp" />
 
         <!-- Future Visits Section -->
         <TextView
@@ -72,7 +74,7 @@
             android:text="No upcoming visits available"
             android:textColor="@color/secondary_text_color"
             android:textSize="16sp"
-            android:visibility="@{viewModel.uiState.visitsAfter.isEmpty() ? View.VISIBLE : View.GONE}"
+            android:visibility="@{viewModel.getAfterEmptyVisibility()}"
             app:layout_constraintTop_toBottomOf="@id/tv_future_visits_title"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -87,7 +89,9 @@
             app:layout_constraintTop_toBottomOf="@id/tv_no_future_visits"
             app:layout_constraintBottom_toTopOf="@id/tv_past_visits_title"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="8dp"
+            tools:listitem="@layout/item_medical_visit" />
 
         <!-- Past Visits Section -->
         <TextView
@@ -110,7 +114,7 @@
             android:text="No past visits available"
             android:textColor="@color/secondary_text_color"
             android:textSize="16sp"
-            android:visibility="@{viewModel.uiState.visitsBefore.isEmpty() ? View.VISIBLE : View.GONE}"
+            android:visibility="@{viewModel.getBeforeEmptyVisibility()}"
             app:layout_constraintTop_toBottomOf="@id/tv_past_visits_title"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -125,7 +129,9 @@
             app:layout_constraintTop_toBottomOf="@id/tv_no_past_visits"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="8dp"
+            tools:listitem="@layout/item_medical_visit" />
 
         <!-- Floating Action Button to Add Appointment -->
         <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -134,10 +140,8 @@
             android:layout_height="wrap_content"
             android:src="@android:drawable/ic_input_add"
             app:backgroundTint="@color/fab_background"
-            app:tint="@color/fab_icon_color"
-            android:onClick="@{() -> viewModel.navigateToAddAppointment()}"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             android:layout_margin="16dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

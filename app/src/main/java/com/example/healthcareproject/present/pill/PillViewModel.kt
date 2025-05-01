@@ -1,15 +1,14 @@
 package com.example.healthcareproject.present.pill
 
+import android.view.View
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.healthcareproject.domain.model.Medication
 import com.example.healthcareproject.domain.model.Result
 import com.example.healthcareproject.domain.usecase.medication.MedicationUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
@@ -18,41 +17,70 @@ import javax.inject.Inject
 class PillViewModel @Inject constructor(
     private val medicationUseCases: MedicationUseCases
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(PillUiState())
-    val uiState: StateFlow<PillUiState> = _uiState.asStateFlow()
+    // LiveData for directly binding to views
+    private val _isLoading = MutableLiveData<Boolean>(false)
+    val isLoading: LiveData<Boolean> = _isLoading
+
+    private val _currentMedications = MutableLiveData<List<Medication>>(emptyList())
+    val currentMedications: LiveData<List<Medication>> = _currentMedications
+
+    private val _pastMedications = MutableLiveData<List<Medication>>(emptyList())
+    val pastMedications: LiveData<List<Medication>> = _pastMedications
+
+    private val _error = MutableLiveData<String?>(null)
+    val error: LiveData<String?> = _error
+
+    // Visibility helpers for data binding
+    private val _noCurrentMedicationsVisible = MutableLiveData<Boolean>(false)
+    val noCurrentMedicationsVisible: LiveData<Boolean> = _noCurrentMedicationsVisible
+
+    private val _noPastMedicationsVisible = MutableLiveData<Boolean>(false)
+    val noPastMedicationsVisible: LiveData<Boolean> = _noPastMedicationsVisible
+
+    // Convenience properties for direct binding in layout
+    val loadingVisibility: Int
+        get() = if (_isLoading.value == true) View.VISIBLE else View.GONE
+
+    val noCurrentMedicationsVisibility: Int
+        get() = if (_noCurrentMedicationsVisible.value == true) View.VISIBLE else View.GONE
+
+    val noPastMedicationsVisibility: Int
+        get() = if (_noPastMedicationsVisible.value == true) View.VISIBLE else View.GONE
 
     init {
         loadMedications()
     }
 
-    fun navigateToAddMedication() {
-        // Handled in PillFragment via MainNavigator
-    }
-
     fun loadMedications() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
+            _isLoading.value = true
+            _error.value = null
+
             val result = medicationUseCases.getMedications()
-            _uiState.update { state ->
-                when (result) {
-                    is Result.Success -> {
-                        val (current, past) = result.data.partition { medication ->
-                            val today = LocalDate.now()
-                            val endDate = medication.endDate ?: LocalDate.now().plusYears(1)
-                            today in medication.startDate..endDate
-                        }
-                        state.copy(
-                            currentMedications = current,
-                            pastMedications = past,
-                            isLoading = false,
-                            error = null
-                        )
+
+            when (result) {
+                is Result.Success -> {
+                    val (current, past) = result.data.partition { medication ->
+                        val today = LocalDate.now()
+                        val endDate = medication.endDate ?: LocalDate.now().plusYears(1)
+                        today in medication.startDate..endDate
                     }
-                    is Result.Error -> state.copy(
-                        isLoading = false,
-                        error = result.exception.message
-                    )
-                    is Result.Loading -> state.copy(isLoading = true)
+
+                    _currentMedications.value = current
+                    _pastMedications.value = past
+
+                    // Update empty state indicators
+                    _noCurrentMedicationsVisible.value = current.isEmpty()
+                    _noPastMedicationsVisible.value = past.isEmpty()
+
+                    _isLoading.value = false
+                }
+                is Result.Error -> {
+                    _error.value = result.exception.message
+                    _isLoading.value = false
+                }
+                is Result.Loading -> {
+                    _isLoading.value = true
                 }
             }
         }
@@ -60,6 +88,8 @@ class PillViewModel @Inject constructor(
 
     fun addMedication(medication: Medication) {
         viewModelScope.launch {
+            _isLoading.value = true
+
             val result = medicationUseCases.createMedication(
                 name = medication.name,
                 dosageUnit = medication.dosageUnit.toString(),
@@ -71,20 +101,17 @@ class PillViewModel @Inject constructor(
                 endDate = medication.endDate,
                 notes = medication.notes
             )
+
             when (result) {
                 is Result.Success -> loadMedications()
-                is Result.Error -> _uiState.update {
-                    it.copy(error = result.exception.message)
+                is Result.Error -> {
+                    _error.value = result.exception.message
+                    _isLoading.value = false
                 }
-                is Result.Loading -> _uiState.update { it.copy(isLoading = true) }
+                is Result.Loading -> {
+                    _isLoading.value = true
+                }
             }
         }
     }
 }
-
-data class PillUiState(
-    val currentMedications: List<Medication> = emptyList(),
-    val pastMedications: List<Medication> = emptyList(),
-    val isLoading: Boolean = false,
-    val error: String? = null
-)

@@ -9,14 +9,11 @@ import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.healthcareproject.databinding.FragmentMedicineBinding
 import com.example.healthcareproject.domain.model.MedicalVisit
 import com.example.healthcareproject.present.navigation.MainNavigator
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -24,7 +21,9 @@ class MedicineFragment : Fragment() {
     private var _binding: FragmentMedicineBinding? = null
     private val binding get() = _binding!!
     private val viewModel: MedicineViewModel by viewModels()
-    @Inject lateinit var mainNavigator: MainNavigator
+
+    @Inject
+    lateinit var mainNavigator: MainNavigator
 
     private lateinit var adapterBefore: MedicalVisitAdapter
     private lateinit var adapterAfter: MedicalVisitAdapter
@@ -44,8 +43,9 @@ class MedicineFragment : Fragment() {
 
         setupRecyclerViews()
         setupSearch()
-        observeUiState()
+        setupObservers()
         setupFragmentResultListener()
+        setupFab()
     }
 
     private fun setupRecyclerViews() {
@@ -55,10 +55,12 @@ class MedicineFragment : Fragment() {
         adapterAfter = MedicalVisitAdapter { visit ->
             mainNavigator.navigateToMedicalHistoryDetail(visit.visitId)
         }
+
         binding.recyclerViewBefore.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = adapterBefore
         }
+
         binding.recyclerViewAfter.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = adapterAfter
@@ -71,14 +73,31 @@ class MedicineFragment : Fragment() {
         }
     }
 
-    private fun observeUiState() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.uiState.collectLatest { state ->
-                adapterBefore.submitList(state.visitsBefore)
-                adapterAfter.submitList(state.visitsAfter)
-                state.error?.let {
-                    Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
-                }
+    private fun setupObservers() {
+        // Observe visitsBefore LiveData
+        viewModel.visitsBefore.observe(viewLifecycleOwner) { visits ->
+            adapterBefore.submitList(visits)
+            // Update visibility for no data message directly if needed
+            binding.tvNoPastVisits.visibility = if (visits.isEmpty()) View.VISIBLE else View.GONE
+        }
+
+        // Observe visitsAfter LiveData
+        viewModel.visitsAfter.observe(viewLifecycleOwner) { visits ->
+            adapterAfter.submitList(visits)
+            // Update visibility for no data message directly if needed
+            binding.tvNoFutureVisits.visibility = if (visits.isEmpty()) View.VISIBLE else View.GONE
+        }
+
+        // Observe loading state
+        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+        }
+
+        // Observe error LiveData
+        viewModel.error.observe(viewLifecycleOwner) { errorMsg ->
+            errorMsg?.let {
+                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+                viewModel.error.value = null // Reset after showing
             }
         }
     }
@@ -89,6 +108,12 @@ class MedicineFragment : Fragment() {
             newVisit?.let {
                 viewModel.loadMedicalVisits()
             }
+        }
+    }
+
+    private fun setupFab() {
+        binding.fabAddVisit.setOnClickListener {
+            viewModel.navigateToAddAppointment()
         }
     }
 

@@ -1,20 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
     <data>
-        <import type="java.time.format.DateTimeFormatter" />
+        <import type="android.view.View" />
+        <!-- Declare the medication variable -->
         <variable
             name="medication"
             type="com.example.healthcareproject.domain.model.Medication" />
+
+        <!-- Declare the dateFormatter variable -->
         <variable
             name="dateFormatter"
             type="java.time.format.DateTimeFormatter" />
     </data>
+
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginVertical="4dp"
-        app:cardBackgroundColor="@color/surface_alternate"
+        android:layout_marginHorizontal="8dp"
         app:cardCornerRadius="8dp"
         app:cardElevation="2dp">
 
@@ -22,222 +28,174 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="12dp">
+            android:padding="16dp">
 
-            <!-- Card for Medication Name -->
-            <androidx.cardview.widget.CardView
+            <!-- Medication Name -->
+            <TextView
+                android:id="@+id/tv_medication_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                app:cardBackgroundColor="@android:color/white"
-                app:cardCornerRadius="4dp"
-                app:cardElevation="1dp">
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/primary_text_color"
+                android:text="@{medication.name}"
+                tools:text="Medication Name" />
 
-                <TextView
-                    android:id="@+id/tv_medication_name"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="8dp"
-                    android:text="@{medication.name}"
-                    android:textAlignment="center"
-                    android:textColor="@color/primary_text_color"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-            </androidx.cardview.widget.CardView>
-
-            <!-- Dosage -->
+            <!-- Dosage Information -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:layout_marginTop="8dp">
 
                 <TextView
-                    android:id="@+id/tv_dosage_label"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="DOSAGE:"
-                    android:textAllCaps="true"
-                    android:textColor="@color/secondary_text_color"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
+                    android:text="Dosage: "
+                    android:textStyle="bold"
+                    android:textColor="@color/secondary_text_color" />
 
                 <TextView
                     android:id="@+id/tv_dosage"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:text="@{String.valueOf(medication.dosageAmount) + ` ` + medication.dosageUnit}"
                     android:textColor="@color/secondary_text_color"
-                    android:textSize="16sp" />
+                    android:text="@{String.valueOf(medication.dosageAmount) + ` ` + medication.dosageUnit.name}"
+                    tools:text="20 mg" />
             </LinearLayout>
 
-            <!-- Frequency -->
+            <!-- Frequency Information -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:layout_marginTop="4dp">
 
                 <TextView
-                    android:id="@+id/tv_frequency_label"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="FREQUENCY:"
-                    android:textAllCaps="true"
-                    android:textColor="@color/secondary_text_color"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
+                    android:text="Frequency: "
+                    android:textStyle="bold"
+                    android:textColor="@color/secondary_text_color" />
 
                 <TextView
                     android:id="@+id/tv_frequency"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:text="@{String.valueOf(medication.frequency) + ` times/day`}"
                     android:textColor="@color/secondary_text_color"
-                    android:textSize="16sp" />
+                    android:text="@{medication.frequency == 1 ? `Once daily` : medication.frequency == 2 ? `Twice daily` : String.valueOf(medication.frequency) + ` times daily`}"
+                    tools:text="Twice daily" />
             </LinearLayout>
 
-            <!-- Time of Day -->
+            <!-- Date Range Information -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:layout_marginTop="4dp">
 
                 <TextView
-                    android:id="@+id/tv_time_of_day_label"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="TIME OF DAY:"
-                    android:textAllCaps="true"
-                    android:textColor="@color/secondary_text_color"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/tv_time_of_day"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:text="@{medication.timeOfDay.isEmpty() ? `N/A` : medication.timeOfDay}"
-                    android:textColor="@color/secondary_text_color"
-                    android:textSize="16sp" />
-            </LinearLayout>
-
-            <!-- Meal Relation -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/tv_meal_relation_label"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="MEAL RELATION:"
-                    android:textAllCaps="true"
-                    android:textColor="@color/secondary_text_color"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/tv_meal_relation"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:text="@{medication.mealRelation.toString()}"
-                    android:textColor="@color/secondary_text_color"
-                    android:textSize="16sp" />
-            </LinearLayout>
-
-            <!-- Start Date -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/tv_start_date_label"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="START DATE:"
-                    android:textAllCaps="true"
-                    android:textColor="@color/secondary_text_color"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
+                    android:text="From: "
+                    android:textStyle="bold"
+                    android:textColor="@color/secondary_text_color" />
 
                 <TextView
                     android:id="@+id/tv_start_date"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:text="@{medication.startDate.format(dateFormatter)}"
                     android:textColor="@color/secondary_text_color"
-                    android:textSize="16sp" />
-            </LinearLayout>
-
-            <!-- End Date -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:orientation="horizontal">
+                    android:text="@{medication.startDate.format(dateFormatter)}"
+                    tools:text="01/05/2025" />
 
                 <TextView
-                    android:id="@+id/tv_end_date_label"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="END DATE:"
-                    android:textAllCaps="true"
+                    android:text=" To: "
+                    android:textStyle="bold"
                     android:textColor="@color/secondary_text_color"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
+                    android:layout_marginStart="8dp" />
 
                 <TextView
                     android:id="@+id/tv_end_date"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:text="@{medication.endDate.format(dateFormatter)}"
                     android:textColor="@color/secondary_text_color"
-                    android:textSize="16sp" />
+                    android:text="@{medication.endDate.format(dateFormatter)}"
+                    tools:text="31/05/2025" />
             </LinearLayout>
 
-            <!-- Notes -->
+            <!-- Time of Day Information -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:layout_marginTop="4dp">
 
                 <TextView
-                    android:id="@+id/tv_note_label"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="NOTES:"
-                    android:textAllCaps="true"
-                    android:textColor="@color/secondary_text_color"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
+                    android:text="Time of Day: "
+                    android:textStyle="bold"
+                    android:textColor="@color/secondary_text_color" />
 
                 <TextView
-                    android:id="@+id/tv_note"
-                    android:layout_width="0dp"
+                    android:id="@+id/tv_time_of_day"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:text="@{medication.notes.isEmpty() ? `None` : medication.notes}"
                     android:textColor="@color/secondary_text_color"
-                    android:textSize="16sp" />
+                    app:joinListToString="@{medication.timeOfDay}"
+                    tools:text="Morning, Evening" />
+            </LinearLayout>
+
+            <!-- Meal Relation Information -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="4dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Meal Relation: "
+                    android:textStyle="bold"
+                    android:textColor="@color/secondary_text_color" />
+
+                <TextView
+                    android:id="@+id/tv_meal_relation"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/secondary_text_color"
+                    android:text="@{medication.mealRelation.name}"
+                    tools:text="With Food" />
+            </LinearLayout>
+
+            <!-- Notes (Optional) -->
+            <LinearLayout
+                android:id="@+id/notes_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="8dp"
+                android:visibility="@{medication.notes.isEmpty() ? View.GONE : View.VISIBLE}">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Notes:"
+                    android:textStyle="bold"
+                    android:textColor="@color/secondary_text_color" />
+
+                <TextView
+                    android:id="@+id/tv_notes"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/secondary_text_color"
+                    android:layout_marginTop="2dp"
+                    android:text="@{medication.notes}"
+                    tools:text="Take with food" />
             </LinearLayout>
         </LinearLayout>
     </androidx.cardview.widget.CardView>

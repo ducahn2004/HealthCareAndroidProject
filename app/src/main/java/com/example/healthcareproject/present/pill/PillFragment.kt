@@ -5,24 +5,25 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.healthcareproject.R
 import com.example.healthcareproject.databinding.FragmentPillBinding
 import com.example.healthcareproject.domain.model.Medication
 import com.example.healthcareproject.present.navigation.MainNavigator
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class PillFragment : Fragment() {
-    private var _binding: FragmentPillBinding? = null
-    private val binding get() = _binding!!
+    private lateinit var binding: FragmentPillBinding
     private val viewModel: PillViewModel by viewModels()
-    @Inject lateinit var mainNavigator: MainNavigator
+
+    @Inject
+    lateinit var mainNavigator: MainNavigator
 
     private lateinit var currentMedicationAdapter: MedicationAdapter
     private lateinit var pastMedicationAdapter: MedicationAdapter
@@ -31,9 +32,18 @@ class PillFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentPillBinding.inflate(inflater, container, false)
+        // Use DataBindingUtil for inflation to properly set up data binding
+        binding = DataBindingUtil.inflate(
+            inflater,
+            R.layout.fragment_pill,
+            container,
+            false
+        )
+
+        // Set up data binding variables
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
+
         return binding.root
     }
 
@@ -42,7 +52,7 @@ class PillFragment : Fragment() {
 
         setupRecyclerViews()
         setupClickListeners()
-        observeUiState()
+        observeMedications()
         setupFragmentResultListener()
     }
 
@@ -74,26 +84,21 @@ class PillFragment : Fragment() {
         }
     }
 
-    private fun observeUiState() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.uiState.collect { state ->
-                // Update UI state
-                binding.progressBar.visibility = if (state.isLoading) View.VISIBLE else View.GONE
+    private fun observeMedications() {
+        // Observe current medications
+        viewModel.currentMedications.observe(viewLifecycleOwner) { medications ->
+            currentMedicationAdapter.submitList(medications)
+        }
 
-                // Handle empty states
-                binding.tvNoCurrentMedications.visibility =
-                    if (state.currentMedications.isEmpty() && !state.isLoading) View.VISIBLE else View.GONE
-                binding.tvNoPastMedications.visibility =
-                    if (state.pastMedications.isEmpty() && !state.isLoading) View.VISIBLE else View.GONE
+        // Observe past medications
+        viewModel.pastMedications.observe(viewLifecycleOwner) { medications ->
+            pastMedicationAdapter.submitList(medications)
+        }
 
-                // Update adapters
-                currentMedicationAdapter.submitList(state.currentMedications)
-                pastMedicationAdapter.submitList(state.pastMedications)
-
-                // Show errors if any
-                state.error?.let {
-                    Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
-                }
+        // Observe errors
+        viewModel.error.observe(viewLifecycleOwner) { errorMessage ->
+            errorMessage?.let {
+                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -118,10 +123,5 @@ class PillFragment : Fragment() {
         super.onResume()
         // Refresh medications when returning to this fragment
         viewModel.loadMedications()
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 }
