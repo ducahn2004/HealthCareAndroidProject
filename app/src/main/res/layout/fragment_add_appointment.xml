@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+        <import type="android.view.View" />
         <variable
             name="viewModel"
             type="com.example.healthcareproject.present.medicine.AddAppointmentViewModel" />
@@ -27,7 +28,8 @@
                 android:layout_height="32dp"
                 android:src="@drawable/ic_back"
                 app:tint="@color/primary_text_color"
-                android:contentDescription="@string/back_button" />
+                android:contentDescription="@string/back_button"
+                android:onClick="@{() -> viewModel.onBackClicked()}" />
 
             <!-- Title -->
             <TextView
@@ -50,7 +52,9 @@
                 android:background="@color/alert_background"
                 android:padding="12dp"
                 android:textSize="16sp"
-                android:visibility="gone"
+                android:visibility="@{viewModel.errorMessage != null ? View.VISIBLE : View.GONE}"
+                android:text="@{viewModel.errorMessage}"
+                android:onClick="@{() -> viewModel.clearError()}"
                 tools:text="Error saving appointment"
                 tools:visibility="visible" />
 
@@ -85,10 +89,19 @@
                         android:layout_marginTop="4dp"
                         android:hint="@string/enter_diagnosis"
                         android:inputType="text"
-                        android:text="@={viewModel.uiState.diagnosis}"
-                        android:error="@{viewModel.uiState.diagnosisError}"
                         android:textColor="@color/secondary_text_color"
-                        android:textSize="18sp" />
+                        android:textSize="18sp"
+                        android:text="@={viewModel.diagnosis}" />
+
+                    <!-- Diagnosis Error -->
+                    <TextView
+                        android:id="@+id/tv_diagnosis_error"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@{viewModel.diagnosisError}"
+                        android:textColor="@color/alert_text_color"
+                        android:textSize="12sp"
+                        android:visibility="@{viewModel.diagnosisError != null ? View.VISIBLE : View.GONE}" />
 
                     <!-- Doctor -->
                     <TextView
@@ -107,10 +120,19 @@
                         android:layout_marginTop="4dp"
                         android:hint="@string/enter_doctor_name"
                         android:inputType="textPersonName"
-                        android:text="@={viewModel.uiState.doctorName}"
-                        android:error="@{viewModel.uiState.doctorNameError}"
                         android:textColor="@color/secondary_text_color"
-                        android:textSize="18sp" />
+                        android:textSize="18sp"
+                        android:text="@={viewModel.doctorName}" />
+
+                    <!-- Doctor Error -->
+                    <TextView
+                        android:id="@+id/tv_doctor_error"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@{viewModel.doctorNameError}"
+                        android:textColor="@color/alert_text_color"
+                        android:textSize="12sp"
+                        android:visibility="@{viewModel.doctorNameError != null ? View.VISIBLE : View.GONE}" />
 
                     <!-- Clinic -->
                     <TextView
@@ -129,10 +151,19 @@
                         android:layout_marginTop="4dp"
                         android:hint="@string/enter_clinic_name"
                         android:inputType="text"
-                        android:text="@={viewModel.uiState.clinicName}"
-                        android:error="@{viewModel.uiState.clinicNameError}"
                         android:textColor="@color/secondary_text_color"
-                        android:textSize="18sp" />
+                        android:textSize="18sp"
+                        android:text="@={viewModel.clinicName}" />
+
+                    <!-- Clinic Error -->
+                    <TextView
+                        android:id="@+id/tv_clinic_error"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@{viewModel.clinicNameError}"
+                        android:textColor="@color/alert_text_color"
+                        android:textSize="12sp"
+                        android:visibility="@{viewModel.clinicNameError != null ? View.VISIBLE : View.GONE}" />
 
                     <!-- Treatment -->
                     <TextView
@@ -151,10 +182,19 @@
                         android:layout_marginTop="4dp"
                         android:hint="@string/enter_treatment"
                         android:inputType="text"
-                        android:text="@={viewModel.uiState.treatment}"
-                        android:error="@{viewModel.uiState.treatmentError}"
                         android:textColor="@color/secondary_text_color"
-                        android:textSize="18sp" />
+                        android:textSize="18sp"
+                        android:text="@={viewModel.treatment}" />
+
+                    <!-- Treatment Error -->
+                    <TextView
+                        android:id="@+id/tv_treatment_error"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@{viewModel.treatmentError}"
+                        android:textColor="@color/alert_text_color"
+                        android:textSize="12sp"
+                        android:visibility="@{viewModel.treatmentError != null ? View.VISIBLE : View.GONE}" />
 
                     <!-- Date -->
                     <TextView
@@ -173,12 +213,22 @@
                         android:layout_marginTop="4dp"
                         android:hint="@string/enter_date"
                         android:inputType="none"
-                        android:text="@{viewModel.uiState.visitDate != null ? viewModel.uiState.visitDate.toString() : ``}"
-                        android:error="@{viewModel.uiState.dateError}"
                         android:textColor="@color/secondary_text_color"
                         android:textSize="18sp"
                         android:focusable="false"
-                        android:clickable="true" />
+                        android:clickable="true"
+                        android:text="@{viewModel.visitDate != null ? viewModel.visitDate.toString() : ``}"
+                        android:onClick="@{() -> viewModel.onDateClicked()}" />
+
+                    <!-- Date Error -->
+                    <TextView
+                        android:id="@+id/tv_date_error"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@{viewModel.dateError}"
+                        android:textColor="@color/alert_text_color"
+                        android:textSize="12sp"
+                        android:visibility="@{viewModel.dateError != null ? View.VISIBLE : View.GONE}" />
 
                     <!-- Time -->
                     <TextView
@@ -197,12 +247,22 @@
                         android:layout_marginTop="4dp"
                         android:hint="@string/enter_time"
                         android:inputType="none"
-                        android:text="@{viewModel.uiState.time != null ? viewModel.uiState.time.toString() : ``}"
-                        android:error="@{viewModel.uiState.timeError}"
                         android:textColor="@color/secondary_text_color"
                         android:textSize="18sp"
                         android:focusable="false"
-                        android:clickable="true" />
+                        android:clickable="true"
+                        android:text="@{viewModel.time != null ? viewModel.time.toString() : ``}"
+                        android:onClick="@{() -> viewModel.onTimeClicked()}" />
+
+                    <!-- Time Error -->
+                    <TextView
+                        android:id="@+id/tv_time_error"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@{viewModel.timeError}"
+                        android:textColor="@color/alert_text_color"
+                        android:textSize="12sp"
+                        android:visibility="@{viewModel.timeError != null ? View.VISIBLE : View.GONE}" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
@@ -215,7 +275,9 @@
                 android:backgroundTint="@color/primary_text_color"
                 android:text="@string/save"
                 android:textColor="@android:color/white"
-                android:textSize="18sp" />
+                android:textSize="18sp"
+                android:enabled="@{!viewModel.isLoading}"
+                android:onClick="@{() -> viewModel.saveAppointment()}" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 </layout>

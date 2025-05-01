@@ -1,130 +1,200 @@
 package com.example.healthcareproject.present.medicine
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.healthcareproject.domain.model.MedicalVisit
 import com.example.healthcareproject.domain.model.Result
 import com.example.healthcareproject.domain.usecase.appointment.AppointmentUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import javax.inject.Inject
 
-
-
 @HiltViewModel
 class AddAppointmentViewModel @Inject constructor(
     private val appointmentUseCases: AppointmentUseCases
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(AppointmentUiState())
-    val uiState: StateFlow<AppointmentUiState> = _uiState.asStateFlow()
 
-    fun updateDiagnosis(diagnosis: String) {
-        _uiState.update { it.copy(diagnosis = diagnosis, diagnosisError = null) }
-    }
+    // Error handling
+    private val _errorMessage = MutableLiveData<String?>(null)
+    val errorMessage: LiveData<String?> = _errorMessage
 
-    fun updateDoctorName(doctorName: String) {
-        _uiState.update { it.copy(doctorName = doctorName, doctorNameError = null) }
-    }
+    // Loading state
+    private val _isLoading = MutableLiveData(false)
+    val isLoading: LiveData<Boolean> = _isLoading
 
-    fun updateClinicName(clinicName: String) {
-        _uiState.update { it.copy(clinicName = clinicName, clinicNameError = null) }
-    }
+    // Success state
+    private val _isSuccess = MutableLiveData(false)
+    val isSuccess: LiveData<Boolean> = _isSuccess
 
-    fun updateTreatment(treatment: String) {
-        _uiState.update { it.copy(treatment = treatment, treatmentError = null) }
-    }
+    // Form fields - Đã chuyển thành MutableLiveData công khai
+    val diagnosis = MutableLiveData("")
+    val doctorName = MutableLiveData("")
+    val clinicName = MutableLiveData("")
+    val treatment = MutableLiveData("")
+
+    // These can't be directly two-way bound due to complex types
+    private val _visitDate = MutableLiveData<LocalDate?>(null)
+    val visitDate: LiveData<LocalDate?> = _visitDate
+
+    private val _time = MutableLiveData<LocalTime?>(null)
+    val time: LiveData<LocalTime?> = _time
+
+    // Field errors
+    private val _diagnosisError = MutableLiveData<String?>(null)
+    val diagnosisError: LiveData<String?> = _diagnosisError
+
+    private val _doctorNameError = MutableLiveData<String?>(null)
+    val doctorNameError: LiveData<String?> = _doctorNameError
+
+    private val _clinicNameError = MutableLiveData<String?>(null)
+    val clinicNameError: LiveData<String?> = _clinicNameError
+
+    private val _treatmentError = MutableLiveData<String?>(null)
+    val treatmentError: LiveData<String?> = _treatmentError
+
+    private val _dateError = MutableLiveData<String?>(null)
+    val dateError: LiveData<String?> = _dateError
+
+    private val _timeError = MutableLiveData<String?>(null)
+    val timeError: LiveData<String?> = _timeError
+
+    // Navigation trigger
+    private val _navigateBack = MutableLiveData<Boolean>(false)
+    val navigateBack: LiveData<Boolean> = _navigateBack
+
+    // Date/Time picker triggers
+    private val _showDatePicker = MutableLiveData<Boolean>(false)
+    val showDatePicker: LiveData<Boolean> = _showDatePicker
+
+    private val _showTimePicker = MutableLiveData<Boolean>(false)
+    val showTimePicker: LiveData<Boolean> = _showTimePicker
 
     fun updateVisitDate(visitDate: LocalDate) {
-        _uiState.update { it.copy(visitDate = visitDate, dateError = null) }
+        _visitDate.value = visitDate
+        _dateError.value = null
     }
 
     fun updateTime(time: LocalTime) {
-        _uiState.update { it.copy(time = time, timeError = null) }
+        _time.value = time
+        _timeError.value = null
+    }
+
+    fun onBackClicked() {
+        _navigateBack.value = true
+    }
+
+    fun onDateClicked() {
+        _showDatePicker.value = true
+    }
+
+    fun onTimeClicked() {
+        _showTimePicker.value = true
+    }
+
+    // Methods to reset picker triggers
+    fun resetDatePicker() {
+        _showDatePicker.value = false
+    }
+
+    fun resetTimePicker() {
+        _showTimePicker.value = false
     }
 
     fun saveAppointment() {
-        val state = _uiState.value
         var hasError = false
 
         // Validation
-        if (state.diagnosis.isBlank()) {
-            _uiState.update { it.copy(diagnosisError = "Required") }
+        if (diagnosis.value.isNullOrBlank()) {
+            _diagnosisError.value = "Required"
             hasError = true
+        } else {
+            _diagnosisError.value = null
         }
-        if (state.doctorName.isBlank()) {
-            _uiState.update { it.copy(doctorNameError = "Required") }
+
+        if (doctorName.value.isNullOrBlank()) {
+            _doctorNameError.value = "Required"
             hasError = true
+        } else {
+            _doctorNameError.value = null
         }
-        if (state.clinicName.isBlank()) {
-            _uiState.update { it.copy(clinicNameError = "Required") }
+
+        if (clinicName.value.isNullOrBlank()) {
+            _clinicNameError.value = "Required"
             hasError = true
+        } else {
+            _clinicNameError.value = null
         }
-        if (state.treatment.isBlank()) {
-            _uiState.update { it.copy(treatmentError = "Required") }
+
+        if (treatment.value.isNullOrBlank()) {
+            _treatmentError.value = "Required"
             hasError = true
+        } else {
+            _treatmentError.value = null
         }
-        if (state.visitDate == null) {
-            _uiState.update { it.copy(dateError = "Required") }
+
+        if (_visitDate.value == null) {
+            _dateError.value = "Required"
             hasError = true
+        } else {
+            _dateError.value = null
         }
-        if (state.time == null) {
-            _uiState.update { it.copy(timeError = "Required") }
+
+        if (_time.value == null) {
+            _timeError.value = "Required"
             hasError = true
+        } else {
+            _timeError.value = null
         }
 
         if (hasError) return
 
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
+            _isLoading.value = true
+            _errorMessage.value = null
 
             // Combine date and time
-            val createdAt = LocalDateTime.of(state.visitDate, state.time)
+            val createdAt = LocalDateTime.of(_visitDate.value, _time.value)
 
-            val medicalVisit = MedicalVisit(
-                visitId = "", // Assume repository generates
-                userId = "",  // Assume repository sets
-                visitDate = state.visitDate!!,
-                clinicName = state.clinicName,
-                doctorName = state.doctorName,
-                diagnosis = state.diagnosis,
-                treatment = state.treatment,
-                createdAt = createdAt
-            )
-
-            // Call use case (adjust based on your actual use case)
+            // Call use case
             val result = appointmentUseCases.createAppointment(
-                doctorName = state.doctorName,
-                location = "", // Not in MedicalVisit, pass empty
+                doctorName = doctorName.value ?: "",
+                location = clinicName.value ?: "",
                 appointmentTime = createdAt,
-                note = state.diagnosis
+                note = "${diagnosis.value} - ${treatment.value}"
             )
 
-            _uiState.update { state ->
-                when (result) {
-                    is Result.Success -> state.copy(
-                        isLoading = false,
-                        isSuccess = true,
-                        error = null
-                    )
-                    is Result.Error -> state.copy(
-                        isLoading = false,
-                        isSuccess = false,
-                        error = result.exception.message
-                    )
-                    is Result.Loading -> state.copy(isLoading = true)
+            when (result) {
+                is Result.Success -> {
+                    _isLoading.value = false
+                    _isSuccess.value = true
+                }
+                is Result.Error -> {
+                    _isLoading.value = false
+                    _errorMessage.value = result.exception.message
+                }
+                is Result.Loading -> {
+                    _isLoading.value = true
                 }
             }
         }
     }
 
     fun clearError() {
-        _uiState.update { it.copy(error = null) }
+        _errorMessage.value = null
+    }
+
+    fun getAppointmentData(): Map<String, Any?> {
+        return mapOf(
+            "diagnosis" to diagnosis.value,
+            "doctorName" to doctorName.value,
+            "clinicName" to clinicName.value,
+            "treatment" to treatment.value,
+            "visitDate" to _visitDate.value,
+            "time" to _time.value
+        )
     }
 }

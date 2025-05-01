@@ -9,13 +9,10 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.healthcareproject.databinding.FragmentAddAppointmentBinding
 import com.example.healthcareproject.domain.model.MedicalVisit
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -39,63 +36,64 @@ class AddAppointmentFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        observeViewModel()
+    }
 
-        // Back button
-        binding.ivBack.setOnClickListener {
-            findNavController().navigateUp()
-        }
-
-        // Date picker
-        binding.etDate.setOnClickListener {
-            showDatePicker { year, month, dayOfMonth ->
-                viewModel.updateVisitDate(LocalDate.of(year, month + 1, dayOfMonth))
+    private fun observeViewModel() {
+        // Observe navigation
+        viewModel.navigateBack.observe(viewLifecycleOwner) { shouldNavigate ->
+            if (shouldNavigate) {
+                findNavController().navigateUp()
             }
         }
 
-        // Time picker
-        binding.etTime.setOnClickListener {
-            showTimePicker { hour, minute ->
-                viewModel.updateTime(LocalTime.of(hour, minute))
+        // Observe date picker trigger
+        viewModel.showDatePicker.observe(viewLifecycleOwner) { show ->
+            if (show) {
+                showDatePicker { year, month, dayOfMonth ->
+                    viewModel.updateVisitDate(LocalDate.of(year, month + 1, dayOfMonth))
+                }
+                viewModel.resetDatePicker() // Use reset method
             }
         }
 
-        // Save button
-        binding.btnSave.setOnClickListener {
-            viewModel.saveAppointment()
+        // Observe time picker trigger
+        viewModel.showTimePicker.observe(viewLifecycleOwner) { show ->
+            if (show) {
+                showTimePicker { hour, minute ->
+                    viewModel.updateTime(LocalTime.of(hour, minute))
+                }
+                viewModel.resetTimePicker() // Use reset method
+            }
         }
 
-        // Observe UI state
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.uiState.collectLatest { state ->
-                if (state.isSuccess) {
-                    // Create MedicalVisit for setFragmentResult
-                    val medicalVisit = MedicalVisit(
-                        visitId = "", // Assume repository sets
-                        userId = "",  // Assume repository sets
-                        visitDate = state.visitDate!!,
-                        clinicName = state.clinicName,
-                        doctorName = state.doctorName,
-                        diagnosis = state.diagnosis,
-                        treatment = state.treatment,
-                        createdAt = LocalDateTime.of(state.visitDate, state.time!!)
+        // Observe success state
+        viewModel.isSuccess.observe(viewLifecycleOwner) { isSuccess ->
+            if (isSuccess) {
+                // Get all appointment data
+                val appointmentData = viewModel.getAppointmentData()
+
+                // Create MedicalVisit for result
+                val medicalVisit = MedicalVisit(
+                    visitId = "", // Repository will set this
+                    userId = "", // Repository will set this
+                    visitDate = appointmentData["visitDate"] as LocalDate,
+                    clinicName = appointmentData["clinicName"] as String,
+                    doctorName = appointmentData["doctorName"] as String,
+                    diagnosis = appointmentData["diagnosis"] as String,
+                    treatment = appointmentData["treatment"] as String,
+                    createdAt = LocalDateTime.of(
+                        appointmentData["visitDate"] as LocalDate,
+                        appointmentData["time"] as LocalTime
                     )
-                    setFragmentResult("requestKey", Bundle().apply {
-                        putParcelable("newVisit", medicalVisit)
-                    })
-                    findNavController().navigateUp()
-                }
-                if (state.error != null) {
-                    binding.tvError.text = state.error
-                    binding.tvError.visibility = View.VISIBLE
-                } else {
-                    binding.tvError.visibility = View.GONE
-                }
-            }
-        }
+                )
 
-        // Clear error
-        binding.tvError.setOnClickListener {
-            viewModel.clearError()
+                // Set fragment result and navigate back
+                setFragmentResult("requestKey", Bundle().apply {
+                    putParcelable("newVisit", medicalVisit)
+                })
+                findNavController().navigateUp()
+            }
         }
     }
 
