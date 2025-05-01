@@ -9,8 +9,6 @@
         <variable
             name="medication"
             type="com.example.healthcareproject.domain.model.Medication" />
-
-        <!-- Declare the dateFormatter variable -->
         <variable
             name="dateFormatter"
             type="java.time.format.DateTimeFormatter" />
@@ -60,7 +58,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@color/secondary_text_color"
-                    android:text="@{String.valueOf(medication.dosageAmount) + ` ` + medication.dosageUnit.name}"
                     tools:text="20 mg" />
             </LinearLayout>
 
@@ -83,7 +80,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@color/secondary_text_color"
-                    android:text="@{medication.frequency == 1 ? `Once daily` : medication.frequency == 2 ? `Twice daily` : String.valueOf(medication.frequency) + ` times daily`}"
                     tools:text="Twice daily" />
             </LinearLayout>
 
@@ -106,7 +102,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@color/secondary_text_color"
-                    android:text="@{medication.startDate.format(dateFormatter)}"
                     tools:text="01/05/2025" />
 
                 <TextView
@@ -122,7 +117,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@color/secondary_text_color"
-                    android:text="@{medication.endDate.format(dateFormatter)}"
                     tools:text="31/05/2025" />
             </LinearLayout>
 
@@ -145,7 +139,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@color/secondary_text_color"
-                    app:joinListToString="@{medication.timeOfDay}"
                     tools:text="Morning, Evening" />
             </LinearLayout>
 
@@ -168,7 +161,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@color/secondary_text_color"
-                    android:text="@{medication.mealRelation.name}"
                     tools:text="With Food" />
             </LinearLayout>
 
@@ -178,8 +170,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:layout_marginTop="8dp"
-                android:visibility="@{medication.notes.isEmpty() ? View.GONE : View.VISIBLE}">
+                android:layout_marginTop="8dp">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -194,7 +185,6 @@
                     android:layout_height="wrap_content"
                     android:textColor="@color/secondary_text_color"
                     android:layout_marginTop="2dp"
-                    android:text="@{medication.notes}"
                     tools:text="Take with food" />
             </LinearLayout>
         </LinearLayout>

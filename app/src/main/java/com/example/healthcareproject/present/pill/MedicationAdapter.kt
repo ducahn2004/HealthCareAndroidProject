@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.healthcareproject.databinding.ItemMedicationBinding
+import com.example.healthcareproject.domain.model.DosageUnit
 import com.example.healthcareproject.domain.model.Medication
 import java.time.format.DateTimeFormatter
 
@@ -41,12 +42,31 @@ class MedicationAdapter(
         }
 
         fun bind(medication: Medication) {
-            // Set data directly to views through data binding
-            binding.tvMedicationName.text = medication.name
-            binding.tvDosage.text = "${medication.dosageAmount} ${medication.dosageUnit}"
-            binding.tvFrequency.text = medication.frequency.toString()
+            // Set the medication object for basic bindings
+            binding.medication = medication
+
+            // Handle items that need custom formatting
+            binding.tvDosage.text = "${medication.dosageAmount} ${medication.dosageUnit.name}"
+
+            // Handle frequency text formatting
+            binding.tvFrequency.text = when (medication.frequency) {
+                1 -> "Once daily"
+                2 -> "Twice daily"
+                else -> "${medication.frequency} times daily"
+            }
+
+            // Format dates
             binding.tvStartDate.text = medication.startDate.format(dateFormatter)
             binding.tvEndDate.text = medication.endDate?.format(dateFormatter) ?: "Ongoing"
+
+            // Format time of day
+            binding.tvTimeOfDay.text = medication.timeOfDay.joinToString(", ") { medication.dosageUnit.toString() }
+
+            // Format meal relation
+            binding.tvMealRelation.text = medication.mealRelation.name
+                .replace("_", " ")
+                .lowercase()
+                .replaceFirstChar { it.uppercase() }
 
             // Handle notes visibility
             if (medication.notes.isNullOrEmpty()) {
@@ -70,4 +90,10 @@ class MedicationAdapter(
             return oldItem == newItem
         }
     }
+
+}
+fun DosageUnit.toDisplayString(): String {
+    return name
+        .replace("PerDay", " per day")
+        .replaceFirstChar { it.uppercase() }
 }
