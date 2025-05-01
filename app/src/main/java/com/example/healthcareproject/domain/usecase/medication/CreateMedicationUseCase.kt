@@ -10,6 +10,7 @@ class CreateMedicationUseCase @Inject constructor(
     private val medicationRepository: MedicationRepository
 ) {
     suspend operator fun invoke(
+        visitId: String,
         name: String,
         dosageUnit: DosageUnit,
         dosageAmount: Float,
@@ -21,6 +22,7 @@ class CreateMedicationUseCase @Inject constructor(
         notes: String
     ): String {
         return medicationRepository.createMedication(
+            visitId = visitId,
             name = name,
             dosageUnit = dosageUnit,
             dosageAmount = dosageAmount,

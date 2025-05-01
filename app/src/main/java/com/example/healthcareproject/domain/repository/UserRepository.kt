@@ -34,7 +34,7 @@ interface UserRepository {
 
     fun getUserStream(userId: String): Flow<User?>
 
-    suspend fun getUser(userId: String, forceUpdate: Boolean = false): User?
+    suspend fun getUser(forceUpdate: Boolean = false): User?
 
     suspend fun refreshUser(userId: String)
 

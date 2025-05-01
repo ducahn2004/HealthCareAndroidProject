@@ -67,7 +67,7 @@ class DefaultUserRepository @Inject constructor(
         bloodType: String,
         phone: String
     ) {
-        val user = getUser(userId)?.copy(
+        val user = getUser()?.copy(
             password = password,
             name = name,
             address = address,
@@ -92,7 +92,7 @@ class DefaultUserRepository @Inject constructor(
             .flowOn(dispatcher)
     }
 
-    override suspend fun getUser(userId: String, forceUpdate: Boolean): User? {
+    override suspend fun getUser(forceUpdate: Boolean): User? {
         if (forceUpdate) {
             refresh(userId)
         }

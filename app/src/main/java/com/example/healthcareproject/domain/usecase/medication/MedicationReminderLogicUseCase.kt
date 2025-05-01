@@ -11,11 +11,11 @@ class MedicationReminderLogicUseCase @Inject constructor(
     private val medicationRepository: MedicationRepository,
     private val alertRepository: AlertRepository
 ) {
-    suspend fun execute(userId: String) {
+    suspend fun execute() {
         val medications = medicationRepository.getMedications()
         val today = LocalDate.now()
 
-        medications.filter { it.userId == userId && today in it.startDate..it.endDate }
+        medications.filter {today in it.startDate..it.endDate }
             .forEach { medication ->
                 medication.timeOfDay.forEach { time ->
                     val alertTime = LocalTime.parse(time)
