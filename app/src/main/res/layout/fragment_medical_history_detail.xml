@@ -87,7 +87,7 @@
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="2"
-                                android:text="@{viewModel.uiState.medicalVisit != null &amp; viewModel.uiState.medicalVisit.diagnosis != null ? viewModel.uiState.medicalVisit.diagnosis : ``}"
+                                android:text="@{viewModel.medicalVisit.diagnosis}"
                                 android:textColor="@color/secondary_text_color"
                                 android:textSize="16sp"
                                 tools:text="Hypertension" />
@@ -112,7 +112,7 @@
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="2"
-                                android:text="@{viewModel.uiState.medicalVisit != null &amp; viewModel.uiState.medicalVisit.doctorName != null ? viewModel.uiState.medicalVisit.doctorName : ``}"
+                                android:text="@{viewModel.medicalVisit.doctorName}"
                                 android:textColor="@color/secondary_text_color"
                                 android:textSize="16sp"
                                 tools:text="Dr. John Smith" />
@@ -137,7 +137,7 @@
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="2"
-                                android:text="@{viewModel.uiState.medicalVisit != null &amp; viewModel.uiState.medicalVisit.clinicName != null ? viewModel.uiState.medicalVisit.clinicName : ``}"
+                                android:text="@{viewModel.medicalVisit.clinicName}"
                                 android:textColor="@color/secondary_text_color"
                                 android:textSize="16sp"
                                 tools:text="City Hospital" />
@@ -162,7 +162,7 @@
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="2"
-                                android:text="@{viewModel.uiState.formattedDate != null ? viewModel.uiState.formattedDate : ``}"
+                                android:text="@{viewModel.formattedDate}"
                                 android:textColor="@color/secondary_text_color"
                                 android:textSize="16sp"
                                 tools:text="01/05/2025" />
@@ -187,7 +187,7 @@
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="2"
-                                android:text="@{viewModel.uiState.formattedTime != null ? viewModel.uiState.formattedTime : ``}"
+                                android:text="@{viewModel.formattedTime}"
                                 android:textColor="@color/secondary_text_color"
                                 android:textSize="16sp"
                                 tools:text="10:00 AM" />
@@ -212,7 +212,7 @@
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="2"
-                                android:text="@{viewModel.uiState.medicalVisit != null &amp; viewModel.uiState.medicalVisit.clinicName != null ? viewModel.uiState.medicalVisit.clinicName : ``}"
+                                android:text="@{viewModel.medicalVisit.clinicName}"
                                 android:textColor="@color/secondary_text_color"
                                 android:textSize="16sp"
                                 tools:text="City Hospital" />
@@ -237,7 +237,7 @@
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="2"
-                                android:text="@{viewModel.uiState.medicalVisit != null &amp; viewModel.uiState.medicalVisit.diagnosis != null ? viewModel.uiState.medicalVisit.diagnosis : ``}"
+                                android:text="@{viewModel.medicalVisit.diagnosis}"
                                 android:textColor="@color/secondary_text_color"
                                 android:textSize="16sp"
                                 tools:text="Hypertension" />
@@ -267,7 +267,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:padding="12dp"
-                        android:text="@{viewModel.uiState.medicalVisit != null &amp; viewModel.uiState.medicalVisit.treatment != null ? viewModel.uiState.medicalVisit.treatment : `None`}"
+                        android:text="@{viewModel.medicalVisit.treatment ?? `None`}"
                         android:textColor="@color/secondary_text_color"
                         android:textSize="16sp"
                         tools:text="Rest and medication prescribed" />
@@ -309,7 +309,7 @@
                             android:textColor="@color/secondary_text_color"
                             android:textSize="16sp"
                             android:padding="12dp"
-                            android:visibility="@{viewModel.uiState.medications.isEmpty() ? View.VISIBLE : View.GONE}"
+                            android:visibility="@{viewModel.medications.isEmpty() ? View.VISIBLE : View.GONE}"
                             tools:visibility="visible" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
@@ -321,7 +321,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
-                android:visibility="@{viewModel.uiState.isLoading ? View.VISIBLE : View.GONE}"
+                android:visibility="@{viewModel.isLoading ? View.VISIBLE : View.GONE}"
                 tools:visibility="gone" />
 
             <!-- Error Message -->
@@ -329,11 +329,11 @@
                 android:id="@+id/tv_error"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@{viewModel.uiState.error}"
+                android:text="@{viewModel.error}"
                 android:textColor="@color/alert_text_color"
                 android:textSize="16sp"
                 android:padding="12dp"
-                android:visibility="@{viewModel.uiState.error != null ? View.VISIBLE : View.GONE}"
+                android:visibility="@{viewModel.error != null ? View.VISIBLE : View.GONE}"
                 tools:text="Error loading data" />
         </RelativeLayout>
     </ScrollView>

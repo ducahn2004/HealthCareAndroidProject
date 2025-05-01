@@ -7,15 +7,13 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.healthcareproject.databinding.FragmentMedicalHistoryDetailBinding
 import com.example.healthcareproject.databinding.ItemMedicationBinding
 import com.example.healthcareproject.domain.model.Medication
 import com.example.healthcareproject.present.navigation.MainNavigator
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
@@ -54,15 +52,17 @@ class MedicalHistoryDetailFragment : Fragment() {
             this.adapter = adapter
         }
 
-        // Collect UI state
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.uiState.collectLatest { state ->
-                adapter.submitList(state.medications)
-                state.error?.let {
-                    Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
-                }
+        // Observe medications list
+        viewModel.medications.observe(viewLifecycleOwner, Observer { medications ->
+            adapter.submitList(medications)
+        })
+
+        // Observe error messages
+        viewModel.error.observe(viewLifecycleOwner, Observer { errorMessage ->
+            errorMessage?.let {
+                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
             }
-        }
+        })
 
         // Load data
         val visitId = arguments?.getString("visitId")
