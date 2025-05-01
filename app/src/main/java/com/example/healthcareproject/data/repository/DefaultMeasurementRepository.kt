@@ -76,7 +76,7 @@ class DefaultMeasurementRepository @Inject constructor(
         saveMeasurementsToNetwork()
     }
 
-    override fun getMeasurementsRealtime(userId: String): Flow<List<Measurement>> {
+    override fun getMeasurementsRealtime(): Flow<List<Measurement>> {
         return networkDataSource.getMeasurementsFirebaseRealtime(userId)
             .map { firebaseMeasurements ->
                 val localMeasurements = firebaseMeasurements.toLocal()

@@ -37,6 +37,7 @@ class DefaultMedicationRepository @Inject constructor(
         get() = authDataSource.getCurrentUserId() ?: throw Exception("User not logged in")
 
     override suspend fun createMedication(
+        visitId: String,
         name: String,
         dosageUnit: DosageUnit,
         dosageAmount: Float,
@@ -53,7 +54,7 @@ class DefaultMedicationRepository @Inject constructor(
         val medication = Medication(
             medicationId = medicationId,
             userId = userId,
-            visitId = null, // Replace with actual visitId logic if needed
+            visitId = visitId,
             name = name,
             dosageUnit = dosageUnit,
             dosageAmount = dosageAmount,

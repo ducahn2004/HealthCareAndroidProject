@@ -12,6 +12,7 @@ import java.time.LocalDate
 interface MedicationRepository {
 
     suspend fun createMedication(
+        visitId: String,
         name: String,
         dosageUnit: DosageUnit,
         dosageAmount: Float,
