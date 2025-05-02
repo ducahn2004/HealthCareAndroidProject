@@ -4,7 +4,6 @@ plugins {
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
-    //id("androidx.navigation.safeargs.kotlin") version "2.8.9"
     id("com.google.relay")
     id("com.google.gms.google-services")
     id("androidx.room")

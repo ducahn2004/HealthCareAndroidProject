@@ -62,7 +62,7 @@ class DefaultUserRepository @Inject constructor(
 
         try {
             val uid = authDataSource.registerUser(userId, password)
-            networkDataSource.createUser(userId, user.toNetwork())
+            networkDataSource.saveUser(user.toNetwork())
             localDataSource.upsert(user.toLocal())
             uid
         } catch (e: Exception) {
@@ -73,7 +73,6 @@ class DefaultUserRepository @Inject constructor(
 
     override suspend fun updateUser(
         userId: String,
-        password: String,
         name: String,
         address: String?,
         dateOfBirth: String,
@@ -83,7 +82,6 @@ class DefaultUserRepository @Inject constructor(
     ) = withContext(dispatcher) {
         Timber.d("Updating user with ID: $userId")
         val user = getUser()?.copy(
-            password = password,
             name = name,
             address = address,
             dateOfBirth = LocalDate.parse(dateOfBirth),

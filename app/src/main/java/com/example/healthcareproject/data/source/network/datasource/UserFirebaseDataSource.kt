@@ -14,15 +14,15 @@ class UserFirebaseDataSource @Inject constructor(
 
     private val usersRef = firebaseDatabase.getReference("users")
 
-    override suspend fun createUser(uid: String, user: FirebaseUser) {
+    override suspend fun saveUser(user: FirebaseUser) {
         try {
             withContext(Dispatchers.IO) {
-                usersRef.child(uid).setValue(user).await()
-                Timber.tag("Firebase").d("Saved user with UID $uid: $user")
+                usersRef.child(user.userId).setValue(user).await()
+                Timber.tag("Firebase").d("Saved user with UID ${user.userId}: $user")
             }
         } catch (e: Exception) {
-            Timber.tag("Firebase").e(e, "Failed to save user with UID $uid")
-            throw Exception("Cannot save user with UID $uid: ${e.message}")
+            Timber.tag("Firebase").e(e, "Failed to save user with UID ${user.userId}")
+            throw Exception("Cannot save user with UID ${user.userId}: ${e.message}")
         }
     }
 

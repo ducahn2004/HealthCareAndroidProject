@@ -22,7 +22,6 @@ interface UserRepository {
 
     suspend fun updateUser(
         userId: String,
-        password: String,
         name: String,
         address: String?,
         dateOfBirth: String,

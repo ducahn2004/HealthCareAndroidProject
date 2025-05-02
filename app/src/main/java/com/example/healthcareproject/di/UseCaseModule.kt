@@ -91,9 +91,9 @@ object UseCaseModule {
             updateMedication = UpdateMedicationUseCase(medicationRepository),
             deleteMedication = DeleteMedicationUseCase(medicationRepository),
             getMedicationById = GetMedicationByIdUseCase(medicationRepository),
-            medicationReminderLogicUseCase = MedicationReminderLogicUseCase(
-                medicationRepository,
-                alertRepository)
+            getMedicationsByVisitId = GetMedicationsByVisitIdUseCase(medicationRepository),
+            medicationLogic =  MedicationLogicUseCase(medicationRepository, alertRepository),
+            medicationReminderLogic = MedicationReminderLogicUseCase(medicationRepository, alertRepository)
         )
     }
 

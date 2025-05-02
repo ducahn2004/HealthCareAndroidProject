@@ -92,11 +92,11 @@ class PillViewModel @Inject constructor(
 
             val result = medicationUseCases.createMedication(
                 name = medication.name,
-                dosageUnit = medication.dosageUnit.toString(),
+                dosageUnit = medication.dosageUnit,
                 dosageAmount = medication.dosageAmount,
                 frequency = medication.frequency,
                 timeOfDay = medication.timeOfDay,
-                mealRelation = medication.mealRelation.toString(),
+                mealRelation = medication.mealRelation,
                 startDate = medication.startDate,
                 endDate = medication.endDate,
                 notes = medication.notes

@@ -83,7 +83,7 @@ class UpdateInformationViewModel @Inject constructor(
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                val user = getUserUseCase.invoke(identifier = uid, forceUpdate = true, isUid = true)
+                val user = getUserUseCase.invoke(forceUpdate = true)
                 _userInfo.value = user
                 user?.let {
                     _name.value = it.name
