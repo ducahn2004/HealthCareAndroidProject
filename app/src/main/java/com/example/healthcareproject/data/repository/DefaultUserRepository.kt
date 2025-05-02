@@ -44,7 +44,9 @@ class DefaultUserRepository @Inject constructor(
         Timber.d("Creating user with ID: $userId")
         if (userId.isBlank()) throw Exception("User ID cannot be empty")
         if (password.length < 6) throw Exception("Password must be at least 6 characters")
-
+        val generatedUserId = withContext(dispatcher) {
+            userId.ifEmpty { java.util.UUID.randomUUID().toString() }
+        }
         val user = User(
             userId = generatedUserId,
             password = password,
