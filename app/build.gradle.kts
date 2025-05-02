@@ -1,12 +1,10 @@
-import org.jetbrains.kotlin.gradle.internal.resolve.sam.SamConstructorDescriptorKindExclude.excludes
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
-    id("androidx.navigation.safeargs.kotlin") version "2.7.7"
+    //id("androidx.navigation.safeargs.kotlin") version "2.8.9"
     id("com.google.relay")
     id("com.google.gms.google-services")
     id("androidx.room")
@@ -30,6 +28,7 @@ android {
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
+
     buildFeatures {
         viewBinding = true
         compose = false
@@ -44,12 +43,6 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-        }
-    }
-
-    packaging {
-        resources {
-            excludes += "META-INF/DEPENDENCIES"
         }
     }
 
@@ -72,6 +65,12 @@ android {
             assets.srcDirs("src/main/assets")
         }
     }
+
+    packaging {
+        resources {
+            excludes += "META-INF/DEPENDENCIES"
+        }
+    }
 }
 
 dependencies {
@@ -82,9 +81,6 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.cardview)
-
-    // Add Firebase Functions
-    implementation(libs.firebase.functions)
 
     // Material Design
     implementation(libs.material)
@@ -124,6 +120,7 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
+
     // JavaX
     implementation(libs.javax.inject)
 
@@ -149,6 +146,7 @@ dependencies {
 
     // Gmail
     implementation(libs.google.api.client)
+    implementation(libs.google.api.client.android)
     implementation(libs.google.oauth.client.jetty)
     implementation(libs.google.api.services.gmail)
     implementation(libs.javax.mail)
