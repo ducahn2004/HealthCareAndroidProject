@@ -5,5 +5,6 @@ data class SosUseCases(
     val getSosEvents: GetSosEventsUseCase,
     val updateSos: UpdateSosUseCase,
     val deleteSos: DeleteSosUseCase,
-    val emergencyCall: SosEmergencyCallUseCase
+    val emergencyCall: SosEmergencyCallUseCase,
+    val sendSos: SendSosUseCase
 )

@@ -5,5 +5,6 @@ data class MedicalVisitUseCases(
     val getMedicalVisitUseCase: GetMedicalVisitUseCase,
     val createMedicalVisitUseCase: CreateMedicalVisitUseCase,
     val updateMedicalVisitUseCase: UpdateMedicalVisitUseCase,
-    val deleteMedicalVisitUseCase: DeleteMedicalVisitUseCase
+    val deleteMedicalVisitUseCase: DeleteMedicalVisitUseCase,
+    val addMedicalVisitWithMedicationsUseCase: AddMedicalVisitWithMedicationsUseCase
 )

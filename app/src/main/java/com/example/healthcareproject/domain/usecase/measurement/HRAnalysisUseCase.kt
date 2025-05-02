@@ -2,8 +2,8 @@ package com.example.healthcareproject.domain.usecase.measurement
 
 import com.example.healthcareproject.domain.model.MeasurementType
 import com.example.healthcareproject.domain.repository.MeasurementRepository
-import com.example.healthcareproject.domain.usecase.GetUserUseCase
 import com.example.healthcareproject.domain.usecase.sos.SendSosUseCase
+import com.example.healthcareproject.domain.usecase.user.GetUserUseCase
 import kotlinx.coroutines.flow.mapNotNull
 import java.util.Calendar
 import javax.inject.Inject

@@ -22,7 +22,6 @@ object UseCaseModule {
     @Provides
     fun provideAlertUseCases(
         alertRepository: AlertRepository,
-        medicationRepository: MedicationRepository
     ): AlertUseCases {
         return AlertUseCases(
             createAlert = CreateAlertUseCase(alertRepository),
@@ -30,7 +29,7 @@ object UseCaseModule {
             updateAlert = UpdateAlertUseCase(alertRepository),
             getAlerts = GetAlertsUseCase(alertRepository),
             getAlertById = GetAlertByIdUseCase(alertRepository),
-            alertLogic = AlertLogicUseCase(alertRepository, medicationRepository)
+            alertLogic = AlertLogicUseCase(alertRepository)
         )
     }
 
@@ -64,14 +63,20 @@ object UseCaseModule {
 
     @Provides
     fun provideMedicalVisitUseCases(
-        medicalVisitRepository: MedicalVisitRepository
+        medicalVisitRepository: MedicalVisitRepository,
+        createMedicalVisitUseCase: CreateMedicalVisitUseCase,
+        createMedicationUseCase: CreateMedicationUseCase
     ): MedicalVisitUseCases {
         return MedicalVisitUseCases(
             getMedicalVisitsUseCase = GetMedicalVisitsUseCase(medicalVisitRepository),
             getMedicalVisitUseCase = GetMedicalVisitUseCase(medicalVisitRepository),
             createMedicalVisitUseCase = CreateMedicalVisitUseCase(medicalVisitRepository),
             updateMedicalVisitUseCase = UpdateMedicalVisitUseCase(medicalVisitRepository),
-            deleteMedicalVisitUseCase = DeleteMedicalVisitUseCase(medicalVisitRepository)
+            deleteMedicalVisitUseCase = DeleteMedicalVisitUseCase(medicalVisitRepository),
+            addMedicalVisitWithMedicationsUseCase = AddMedicalVisitWithMedicationsUseCase(
+                createMedicalVisitUseCase,
+                createMedicationUseCase
+            )
         )
     }
 
@@ -86,19 +91,33 @@ object UseCaseModule {
             updateMedication = UpdateMedicationUseCase(medicationRepository),
             deleteMedication = DeleteMedicationUseCase(medicationRepository),
             getMedicationById = GetMedicationByIdUseCase(medicationRepository),
-            medicationReminderLogicUseCase = MedicationReminderLogicUseCase(medicationRepository, alertRepository)
+            medicationReminderLogicUseCase = MedicationReminderLogicUseCase(
+                medicationRepository,
+                alertRepository)
         )
     }
 
     @Provides
     fun provideMeasurementUseCases(
-        measurementRepository: MeasurementRepository
+        measurementRepository: MeasurementRepository,
+        getUserUseCase: GetUserUseCase,
+        sendSosUseCase: SendSosUseCase
+
     ): MeasurementUseCases {
         return MeasurementUseCases(
             getMeasurementsUseCase = GetMeasurementsUseCase(measurementRepository),
             createMeasurementUseCase = CreateMeasurementUseCase(measurementRepository),
             deleteMeasurementUseCase = DeleteMeasurementUseCase(measurementRepository),
-            updateMeasurementUseCase = UpdateMeasurementUseCase(measurementRepository)
+            updateMeasurementUseCase = UpdateMeasurementUseCase(measurementRepository),
+            hRAnalysisUseCase = HRAnalysisUseCase(
+                measurementRepository,
+                getUserUseCase,
+                sendSosUseCase
+            ),
+            spO2AnalysisUseCase = SpO2AnalysisUseCase(
+                measurementRepository,
+                sendSosUseCase
+            )
         )
     }
 
@@ -118,14 +137,22 @@ object UseCaseModule {
     @Provides
     fun provideSosUseCases(
         sosRepository: SosRepository,
-        context: Context
+        context: Context,
+        emergencyInfoRepository: EmergencyInfoRepository,
+        createSosUseCase: CreateSosUseCase,
+        sosEmergencyCallUseCase: SosEmergencyCallUseCase
     ): SosUseCases {
         return SosUseCases(
             createSos = CreateSosUseCase(sosRepository),
             getSosEvents = GetSosEventsUseCase(sosRepository),
             updateSos = UpdateSosUseCase(sosRepository),
             deleteSos = DeleteSosUseCase(sosRepository),
-            emergencyCall = SosEmergencyCallUseCase(context)
+            emergencyCall = SosEmergencyCallUseCase(context),
+            sendSos = SendSosUseCase(
+                emergencyInfoRepository,
+                createSosUseCase,
+                sosEmergencyCallUseCase
+            )
         )
     }
 }
