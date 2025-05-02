@@ -25,7 +25,6 @@ class DefaultUserRepository @Inject constructor(
     private val networkDataSource: UserDataSource,
     private val localDataSource: UserDao,
     private val authDataSource: AuthDataSource,
-    private val localDataSource: UserDao,
     @DefaultDispatcher private val dispatcher: CoroutineDispatcher
 ) : UserRepository {
 
@@ -61,7 +60,7 @@ class DefaultUserRepository @Inject constructor(
 
         try {
             val uid = authDataSource.registerUser(userId, password)
-            networkDataSource.saveUser(user.toNetwork())
+            networkDataSource.createUser(userId, user.toNetwork())
             localDataSource.upsert(user.toLocal())
             uid
         } catch (e: Exception) {
@@ -117,7 +116,26 @@ class DefaultUserRepository @Inject constructor(
             .flowOn(dispatcher)
     }
 
-    override suspend fun getUser(forceUpdate: Boolean): User? {
+    override suspend fun getUser(forceUpdate: Boolean): User? = withContext(dispatcher) {
+        Timber.d("Getting current user, forceUpdate: $forceUpdate")
+        val currentUserId = authDataSource.getCurrentUserId()
+            ?: return@withContext null
+
+        if (forceUpdate) {
+            try {
+                val uid = networkDataSource.getUidByEmail(currentUserId)
+                    ?: throw Exception("UID not found for user ID $currentUserId")
+                val networkUser = networkDataSource.loadUser(uid)
+                    ?: throw Exception("User not found for ID $currentUserId")
+                localDataSource.upsert(networkUser.toLocal())
+            } catch (e: Exception) {
+                Timber.e(e, "Failed to refresh current user: $currentUserId")
+                throw Exception("Cannot refresh current user with ID $currentUserId: ${e.message}")
+            }
+        }
+
+        return@withContext localDataSource.getById(currentUserId)?.toExternal()
+    }
     override suspend fun verifyCode(email: String, code: String) = withContext(dispatcher) {
         Timber.d("Verifying code for email: $email")
         try {
@@ -128,13 +146,6 @@ class DefaultUserRepository @Inject constructor(
         }
     }
 
-    override suspend fun getUser(userId: String, forceUpdate: Boolean): User? = withContext(dispatcher) {
-        Timber.d("Getting user with ID: $userId, forceUpdate: $forceUpdate")
-        if (forceUpdate) {
-            refresh(userId)
-        }
-        localDataSource.getById(userId)?.toExternal()
-    }
 
     override suspend fun getUserByUid(uid: String, forceUpdate: Boolean): User? = withContext(dispatcher) {
         Timber.d("Getting user by UID: $uid, forceUpdate: $forceUpdate")
@@ -230,6 +241,10 @@ class DefaultUserRepository @Inject constructor(
         }
     }
 
+    override suspend fun resetPassword(email: String) {
+        TODO("Not yet implemented")
+    }
+
     override fun getCurrentUserId(): String? {
         Timber.d("Getting current user ID")
         return authDataSource.getCurrentUserId()
@@ -237,15 +252,5 @@ class DefaultUserRepository @Inject constructor(
 
     override suspend fun sendVerificationEmail(email: String) {
         authDataSource.sendVerificationCode(email)
-    }
-
-    override suspend fun refresh(userId: String) {
-        val firebaseUser = networkDataSource.loadUser(userId)
-        if (firebaseUser != null && firebaseUser.userId.isNotEmpty() && firebaseUser.name.isNotEmpty()) {
-            localDataSource.upsert(firebaseUser.toLocal())
-        } else {
-            // Log or handle invalid data case
-            throw IllegalArgumentException("Invalid user data received from network")
-        }
     }
 }
