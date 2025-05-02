@@ -9,7 +9,6 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.healthcareproject.R
 import com.example.healthcareproject.databinding.FragmentPillBinding
@@ -47,9 +46,6 @@ class PillFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Set NavController for MainNavigator
-        mainNavigator.setNavController(findNavController())
-
         setupRecyclerViews()
         setupClickListeners()
         observeMedications()
@@ -58,14 +54,14 @@ class PillFragment : Fragment() {
 
     private fun setupRecyclerViews() {
         currentMedicationAdapter = MedicationAdapter { medication ->
-            medication.visitId?.let { visitId ->
+            medication.visitId?.takeIf { it.isNotEmpty() }?.let { visitId ->
                 mainNavigator.navigateToMedicalHistoryDetail(visitId)
-            } ?: Toast.makeText(context, "No visit ID available", Toast.LENGTH_SHORT).show()
+            } ?: Toast.makeText(context, "Invalid visit ID", Toast.LENGTH_SHORT).show()
         }
         pastMedicationAdapter = MedicationAdapter { medication ->
-            medication.visitId?.let { visitId ->
+            medication.visitId?.takeIf { it.isNotEmpty() }?.let { visitId ->
                 mainNavigator.navigateToMedicalHistoryDetail(visitId)
-            } ?: Toast.makeText(context, "No visit ID available", Toast.LENGTH_SHORT).show()
+            } ?: Toast.makeText(context, "Invalid visit ID", Toast.LENGTH_SHORT).show()
         }
 
         binding.rvCurrentMedications.apply {
