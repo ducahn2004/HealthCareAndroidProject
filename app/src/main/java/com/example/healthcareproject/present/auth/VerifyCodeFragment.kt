@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
+import com.example.healthcareproject.R
 import com.example.healthcareproject.databinding.FragmentVerifyCodeBinding
 import com.example.healthcareproject.present.auth.viewmodel.VerifyCodeViewModel
 import com.google.android.material.snackbar.Snackbar
@@ -19,7 +19,6 @@ class VerifyCodeFragment : Fragment() {
     private var _binding: FragmentVerifyCodeBinding? = null
     private val binding get() = _binding!!
     private val viewModel: VerifyCodeViewModel by viewModels()
-    private val args: VerifyCodeFragmentArgs by navArgs()
     private lateinit var navigator: AuthNavigator
 
     override fun onCreateView(
@@ -36,10 +35,12 @@ class VerifyCodeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Initialize ViewModel with email and authFlow from navigation arguments
+        // Initialize ViewModel with email and authFlow from arguments
+        val email = arguments?.getString("email") ?: ""
+        val authFlowString = arguments?.getString("authFlow") ?: "REGISTRATION"
         viewModel.setEmailAndAuthFlow(
-            email = args.email ?: "",
-            authFlow = when (args.authFlow) {
+            email = email,
+            authFlow = when (authFlowString) {
                 "REGISTRATION" -> VerifyCodeViewModel.AuthFlow.REGISTRATION
                 "FORGOT_PASSWORD" -> VerifyCodeViewModel.AuthFlow.FORGOT_PASSWORD
                 else -> VerifyCodeViewModel.AuthFlow.REGISTRATION

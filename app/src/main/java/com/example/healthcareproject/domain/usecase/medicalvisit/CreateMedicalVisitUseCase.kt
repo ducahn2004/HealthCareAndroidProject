@@ -14,7 +14,6 @@ class CreateMedicalVisitUseCase @Inject constructor(
         visitDate: LocalDate,
         doctorName: String,
         diagnosis: String?,
-        treatment: String?,
         status: Boolean = true
     ): Result<String> {
         return try {
@@ -27,7 +26,6 @@ class CreateMedicalVisitUseCase @Inject constructor(
             // Combine diagnosis and treatment into notes
             val notes = buildString {
                 if (!diagnosis.isNullOrBlank()) append("Diagnosis: $diagnosis\n")
-                if (!treatment.isNullOrBlank()) append("Treatment: $treatment")
             }.takeIf { it.isNotBlank() }
 
             // Call repository to create medical visit
@@ -36,7 +34,7 @@ class CreateMedicalVisitUseCase @Inject constructor(
                 visitReason = visitReason,
                 visitDate = visitDate,
                 doctorName = doctorName,
-                notes = notes,
+                notes = diagnosis,
                 status = status
             )
 

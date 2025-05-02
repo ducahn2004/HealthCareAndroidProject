@@ -2,7 +2,6 @@ package com.example.healthcareproject.present.navigation
 
 import androidx.navigation.NavController
 import com.example.healthcareproject.R
-import com.example.healthcareproject.present.pill.PillFragmentDirections
 import javax.inject.Inject
 
 class MainNavigatorImpl @Inject constructor(
@@ -46,7 +45,7 @@ class MainNavigatorImpl @Inject constructor(
     }
 
     override fun navigateToMedicalHistoryDetail(visitId: String) {
-        val action = PillFragmentDirections.actionPillFragmentToMedicalHistoryDetailFragment(visitId)
+        val action = actionPillFragmentToMedicalHistoryDetailFragment(visitId)
         navController.navigate(action)
     }
 

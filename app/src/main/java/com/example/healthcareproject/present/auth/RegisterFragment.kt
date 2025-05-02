@@ -9,6 +9,7 @@ import android.widget.AdapterView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import com.example.healthcareproject.R
 import com.example.healthcareproject.databinding.FragmentRegisterBinding
 import com.example.healthcareproject.present.auth.viewmodel.RegisterViewModel
 import com.google.android.material.snackbar.Snackbar
@@ -106,11 +107,11 @@ class RegisterFragment : Fragment() {
             if (uid != null) {
                 val email = viewModel.email.value
                 if (!email.isNullOrBlank()) {
-                    val action = RegisterFragmentDirections.actionRegisterFragmentToVerifyCodeFragment(
-                        email = email,
-                        authFlow = "REGISTRATION"
-                    )
-                    findNavController().navigate(action)
+                    val bundle = Bundle().apply {
+                        putString("email", email)
+                        putString("authFlow", "REGISTRATION")
+                    }
+                    findNavController().navigate(R.id.action_registerFragment_to_verifyCodeFragment, bundle)
                     viewModel.resetNavigationStates()
                 } else {
                     Snackbar.make(binding.root, "Email is required", Snackbar.LENGTH_LONG).show()

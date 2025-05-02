@@ -50,11 +50,10 @@ class AddMedicationViewModel @Inject constructor(
             val patientName = authDataSource.getCurrentUserId() ?: "Unknown Patient"
             val visitResult = medicalVisitUseCases.createMedicalVisitUseCase(
                 patientName = patientName,
-                visitReason = clinicName, // Map clinicName to visitReason
+                visitReason = clinicName,
                 visitDate = _uiState.value?.visitDate ?: LocalDate.now(),
                 doctorName = doctorName,
                 diagnosis = diagnosis,
-                treatment = location,
                 status = true
             )
             when (visitResult) {
@@ -77,49 +76,55 @@ class AddMedicationViewModel @Inject constructor(
         }
     }
 
-    fun saveMedicationAndFinish(medication: Medication) {
+    fun addMedicationToList(medication: Medication) {
+        val currentList = _uiState.value?.medications?.toMutableList() ?: mutableListOf()
+        currentList.add(medication.copy(medicationId = UUID.randomUUID().toString()))
+        _uiState.value = _uiState.value?.copy(medications = currentList)
+    }
+
+    fun saveAllMedications() {
         viewModelScope.launch {
             val visitId = _uiState.value?.visitId ?: return@launch
             val userId = authDataSource.getCurrentUserId() ?: return@launch
+            val medications = _uiState.value?.medications ?: return@launch
 
             _uiState.value = _uiState.value?.copy(isLoading = true)
 
-            // Create a complete medication with visitId
-            val completemedication = medication.copy(
-                medicationId = UUID.randomUUID().toString(),  // Generate a new ID
-                userId = userId,
-                visitId = visitId                            // Link to the current visit
-            )
-
-            val medicationResult = medicationUseCases.createMedication(
-                name = completemedication.name,
-                dosageUnit = completemedication.dosageUnit.toString(),
-                dosageAmount = completemedication.dosageAmount.toFloat(),
-                frequency = completemedication.frequency,
-                timeOfDay = completemedication.timeOfDay,
-                mealRelation = completemedication.mealRelation?.toString(),
-                startDate = completemedication.startDate,
-                endDate = completemedication.endDate ?: completemedication.startDate.plusMonths(1),
-                notes = completemedication.notes ?: ""
-            )
-
-            when (medicationResult) {
-                is Result.Success -> {
-                    _uiState.value = _uiState.value?.copy(
-                        medication = completemedication,  // Store the created medication in UI state
-                        isLoading = false,
-                        isFinished = true,                // Mark process as finished
-                        error = null
-                    )
+            medications.forEach { medication ->
+                val completeMedication = medication.copy(
+                    userId = userId,
+                    visitId = visitId
+                )
+                val medicationResult = medicationUseCases.createMedication(
+                    visitId = visitId,
+                    name = completeMedication.name,
+                    dosageUnit = completeMedication.dosageUnit,
+                    dosageAmount = completeMedication.dosageAmount,
+                    frequency = completeMedication.frequency,
+                    timeOfDay = completeMedication.timeOfDay,
+                    mealRelation = completeMedication.mealRelation,
+                    startDate = completeMedication.startDate,
+                    endDate = completeMedication.endDate ?: completeMedication.startDate.plusMonths(1),
+                    notes = completeMedication.notes ?: ""
+                )
+                when (medicationResult) {
+                    is Result.Success<String> -> Unit
+                    is Result.Error -> {
+                        _uiState.value = _uiState.value?.copy(
+                            isLoading = false,
+                            error = medicationResult.exception.message
+                        )
+                        return@launch
+                    }
+                    is Result.Loading -> Unit
                 }
-                is Result.Error -> {
-                    _uiState.value = _uiState.value?.copy(
-                        isLoading = false,
-                        error = medicationResult.exception.message
-                    )
-                }
-                is Result.Loading -> Unit
             }
+
+            _uiState.value = _uiState.value?.copy(
+                isLoading = false,
+                isFinished = true,
+                error = null
+            )
         }
     }
 }
@@ -129,7 +134,7 @@ data class AddMedicationUiState(
     val visitTime: Calendar? = null,
     val visitId: String? = null,
     val isVisitSaved: Boolean = false,
-    val medication: Medication? = null,
+    val medications: List<Medication> = emptyList(),
     val isLoading: Boolean = false,
     val error: String? = null,
     val isFinished: Boolean = false

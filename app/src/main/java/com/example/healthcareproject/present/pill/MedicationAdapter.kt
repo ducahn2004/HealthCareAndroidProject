@@ -1,6 +1,7 @@
 package com.example.healthcareproject.present.pill
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -11,7 +12,7 @@ import com.example.healthcareproject.domain.model.Medication
 import java.time.format.DateTimeFormatter
 
 class MedicationAdapter(
-    private val onItemClick: (Medication) -> Unit
+    private val onItemClick: (Medication) -> Unit = {}
 ) : ListAdapter<Medication, MedicationAdapter.MedicationViewHolder>(MedicationDiffCallback()) {
 
     private val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
@@ -42,42 +43,26 @@ class MedicationAdapter(
         }
 
         fun bind(medication: Medication) {
-            // Set the medication object for basic bindings
             binding.medication = medication
-
-            // Handle items that need custom formatting
-            binding.tvDosage.text = "${medication.dosageAmount} ${medication.dosageUnit.name}"
-
-            // Handle frequency text formatting
+            binding.tvDosage.text = "${medication.dosageAmount} ${medication.dosageUnit.toDisplayString()}"
             binding.tvFrequency.text = when (medication.frequency) {
                 1 -> "Once daily"
                 2 -> "Twice daily"
                 else -> "${medication.frequency} times daily"
             }
-
-            // Format dates
             binding.tvStartDate.text = medication.startDate.format(dateFormatter)
             binding.tvEndDate.text = medication.endDate?.format(dateFormatter) ?: "Ongoing"
-
-            // Format time of day
-            binding.tvTimeOfDay.text = medication.timeOfDay.joinToString(", ") { medication.dosageUnit.toString() }
-
-            // Format meal relation
-            binding.tvMealRelation.text = medication.mealRelation.name
-                .replace("_", " ")
-                .lowercase()
-                .replaceFirstChar { it.uppercase() }
-
-            // Handle notes visibility
+            binding.tvTimeOfDay.text = medication.timeOfDay.joinToString(", ")
+            binding.tvMealRelation.text = medication.mealRelation?.name
+                ?.replace("_", " ")
+                ?.lowercase()
+                ?.replaceFirstChar { it.uppercase() } ?: "Not specified"
             if (medication.notes.isNullOrEmpty()) {
-                binding.notesContainer.visibility = android.view.View.GONE
+                binding.notesContainer.visibility = View.GONE
             } else {
-                binding.notesContainer.visibility = android.view.View.VISIBLE
+                binding.notesContainer.visibility = View.VISIBLE
                 binding.tvNotes.text = medication.notes
             }
-
-            // Execute pending bindings to update the view immediately
-            binding.executePendingBindings()
         }
     }
 
@@ -90,10 +75,8 @@ class MedicationAdapter(
             return oldItem == newItem
         }
     }
-
 }
+
 fun DosageUnit.toDisplayString(): String {
-    return name
-        .replace("PerDay", " per day")
-        .replaceFirstChar { it.uppercase() }
+    return name.replace("PerDay", " per day").replaceFirstChar { it.uppercase() }
 }

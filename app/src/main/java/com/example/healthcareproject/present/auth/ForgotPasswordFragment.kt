@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import com.example.healthcareproject.R
 import com.example.healthcareproject.databinding.FragmentForgotPasswordBinding
 import com.example.healthcareproject.present.auth.viewmodel.ForgotPasswordViewModel
 import com.google.android.material.snackbar.Snackbar
@@ -47,11 +48,11 @@ class ForgotPasswordFragment : Fragment() {
             if (navigate) {
                 val email = viewModel.email.value
                 if (!email.isNullOrBlank()) {
-                    val action = ForgotPasswordFragmentDirections.actionForgotPasswordFragmentToVerifyCodeFragment(
-                        email = email,
-                        authFlow = "FORGOT_PASSWORD"
-                    )
-                    findNavController().navigate(action)
+                    val bundle = Bundle().apply {
+                        putString("email", email)
+                        putString("authFlow", "FORGOT_PASSWORD")
+                    }
+                    findNavController().navigate(R.id.action_forgotPasswordFragment_to_verifyCodeFragment, bundle)
                     viewModel.resetNavigationStates()
                 } else {
                     Timber.e("Email is null or blank, cannot navigate to VerifyCodeFragment")

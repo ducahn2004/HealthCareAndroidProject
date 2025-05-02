@@ -105,11 +105,8 @@ class PillFragment : Fragment() {
 
     private fun setupFragmentResultListener() {
         setFragmentResultListener("medicationKey") { _, bundle ->
-            // Get the returned medication from AddMedicationFragment
-            val medication = bundle.getParcelable<Medication>("medication")
-            medication?.let {
-                viewModel.addMedication(it)
-            }
+            // Refresh the medication list
+            viewModel.loadMedications()
 
             // Optionally navigate to the medical visit detail if requested
             val visitId = bundle.getString("visitId")

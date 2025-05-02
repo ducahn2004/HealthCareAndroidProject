@@ -86,32 +86,4 @@ class PillViewModel @Inject constructor(
         }
     }
 
-    fun addMedication(medication: Medication) {
-        viewModelScope.launch {
-            _isLoading.value = true
-
-            val result = medicationUseCases.createMedication(
-                name = medication.name,
-                dosageUnit = medication.dosageUnit,
-                dosageAmount = medication.dosageAmount,
-                frequency = medication.frequency,
-                timeOfDay = medication.timeOfDay,
-                mealRelation = medication.mealRelation,
-                startDate = medication.startDate,
-                endDate = medication.endDate,
-                notes = medication.notes
-            )
-
-            when (result) {
-                is Result.Success -> loadMedications()
-                is Result.Error -> {
-                    _error.value = result.exception.message
-                    _isLoading.value = false
-                }
-                is Result.Loading -> {
-                    _isLoading.value = true
-                }
-            }
-        }
-    }
 }

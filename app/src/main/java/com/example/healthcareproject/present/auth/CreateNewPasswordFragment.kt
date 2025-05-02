@@ -7,7 +7,9 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
+
+
+import com.example.healthcareproject.R
 import com.example.healthcareproject.databinding.FragmentCreateNewPasswordBinding
 import com.example.healthcareproject.present.auth.viewmodel.CreateNewPasswordViewModel
 import com.google.android.material.snackbar.Snackbar
@@ -23,8 +25,6 @@ class CreateNewPasswordFragment : Fragment() {
     private var _binding: FragmentCreateNewPasswordBinding? = null
     private val binding get() = _binding!!
     private val viewModel: CreateNewPasswordViewModel by viewModels()
-    private val args: CreateNewPasswordFragmentArgs by navArgs()
-    private lateinit var navigator: AuthNavigator
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -33,7 +33,6 @@ class CreateNewPasswordFragment : Fragment() {
         _binding = FragmentCreateNewPasswordBinding.inflate(inflater, container, false)
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
-        navigator = AuthNavigator(findNavController())
         return binding.root
     }
 
@@ -43,7 +42,7 @@ class CreateNewPasswordFragment : Fragment() {
         Timber.d("CreateNewPasswordFragment: onViewCreated")
 
         // Set email from navigation arguments
-        val email = args.email
+        val email = arguments?.getString("email")
         if (email.isNullOrEmpty()) {
             Timber.e("Email is null or empty in CreateNewPasswordFragment")
             Snackbar.make(
@@ -51,7 +50,7 @@ class CreateNewPasswordFragment : Fragment() {
                 "Email is required to reset password. Please try again.",
                 Snackbar.LENGTH_LONG
             )
-                .setAction("Back") { navigator.navigateUp() }
+                .setAction("Back") { findNavController().navigateUp() }
                 .show()
             return
         }
@@ -60,7 +59,7 @@ class CreateNewPasswordFragment : Fragment() {
 
         // Back button
         binding.btnBackCreateNewPassword.setOnClickListener {
-            navigator.navigateUp()
+            findNavController().navigateUp()
         }
 
         // Observe navigation to Login
@@ -72,7 +71,7 @@ class CreateNewPasswordFragment : Fragment() {
                     "Password reset successfully. Please log in.",
                     Snackbar.LENGTH_SHORT
                 ).show()
-                navigator.fromCreateNewPasswordToLogin()
+                findNavController().navigate(R.id.action_createNewPasswordFragment_to_loginFragment)
                 viewModel.resetNavigationStates()
             }
         }

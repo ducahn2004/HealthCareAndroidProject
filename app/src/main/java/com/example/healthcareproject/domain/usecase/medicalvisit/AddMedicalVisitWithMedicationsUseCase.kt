@@ -15,7 +15,7 @@ class AddMedicalVisitWithMedicationsUseCase @Inject constructor(
         visitReason: String,
         visitDate: LocalDate,
         doctorName: String,
-        notes: String?,
+        diagnosis: String?,
         status: Boolean,
         medications: List<Pair<String, Map<String, Any>>>
     ) {
@@ -25,14 +25,14 @@ class AddMedicalVisitWithMedicationsUseCase @Inject constructor(
             visitReason = visitReason,
             visitDate = visitDate,
             doctorName = doctorName,
-            notes = notes,
+            diagnosis = diagnosis,
             status = status
         )
 
         // Add related Medications
         medications.forEach { (name, details) ->
             createMedicationUseCase(
-                visitId = visitId,
+                visitId = visitId.toString(),
                 name = name,
                 dosageUnit = details["dosageUnit"] as? DosageUnit ?: throw IllegalArgumentException("Invalid dosageUnit"),
                 dosageAmount = details["dosageAmount"] as? Float ?: throw IllegalArgumentException("Invalid dosageAmount"),
