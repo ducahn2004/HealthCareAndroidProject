@@ -8,7 +8,7 @@ import com.example.healthcareproject.domain.model.BloodType
 import com.example.healthcareproject.domain.model.Gender
 import com.example.healthcareproject.domain.model.User
 import com.example.healthcareproject.domain.repository.UserRepository
-import com.example.healthcareproject.domain.usecase.GetUserUseCase
+import com.example.healthcareproject.domain.usecase.user.GetUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.time.LocalDate

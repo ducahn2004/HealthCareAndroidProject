@@ -5,10 +5,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.healthcareproject.domain.usecase.CreateUserUseCase
+import com.example.healthcareproject.domain.usecase.user.CreateUserUseCase
 import com.example.healthcareproject.domain.usecase.auth.SendVerificationCodeUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 @HiltViewModel
@@ -257,12 +259,18 @@ class RegisterViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
+
+                val inputFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+                val outputFormatter = DateTimeFormatter.ISO_LOCAL_DATE // yyyy-MM-dd
+                val parsedDate = LocalDate.parse(dateOfBirth, inputFormatter)
+                val formattedDate = parsedDate.format(outputFormatter)
+
                 val uid = createUserUseCase(
                     userId = email,
                     password = password,
                     name = name,
                     address = address,
-                    dateOfBirth = dateOfBirth,
+                    dateOfBirth = formattedDate,
                     gender = gender,
                     bloodType = bloodType,
                     phone = phone
