@@ -55,7 +55,7 @@ class UserViewModel @Inject constructor(
     fun getUser(userId: String, forceUpdate: Boolean = false) {
         viewModelScope.launch {
             try {
-                val fetchedUser = getUserUseCase(userId, forceUpdate)
+                val fetchedUser = getUserUseCase(forceUpdate)
                 _user.value = fetchedUser
                 _error.value = null
             } catch (e: Exception) {
