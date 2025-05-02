@@ -27,7 +27,7 @@ interface MeasurementRepository {
         status: Boolean
     )
 
-    fun getMeasurementsRealtime(userId: String): Flow<List<Measurement>>
+    fun getMeasurementsRealtime(): Flow<List<Measurement>>
 
     fun getMeasurementsStream(): Flow<List<Measurement>>
 

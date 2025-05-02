@@ -23,10 +23,14 @@ import javax.inject.Singleton
 @Singleton
 class DefaultUserRepository @Inject constructor(
     private val networkDataSource: UserDataSource,
+    private val localDataSource: UserDao,
     private val authDataSource: AuthDataSource,
     private val localDataSource: UserDao,
     @DefaultDispatcher private val dispatcher: CoroutineDispatcher
 ) : UserRepository {
+
+    private val userId: String
+        get() = authDataSource.getCurrentUserId() ?: throw Exception("User not logged in")
 
     override suspend fun createUser(
         userId: String,
@@ -43,7 +47,7 @@ class DefaultUserRepository @Inject constructor(
         if (password.length < 6) throw Exception("Password must be at least 6 characters")
 
         val user = User(
-            userId = userId,
+            userId = generatedUserId,
             password = password,
             name = name,
             address = address,
@@ -57,7 +61,7 @@ class DefaultUserRepository @Inject constructor(
 
         try {
             val uid = authDataSource.registerUser(userId, password)
-            networkDataSource.createUser(uid, user.toNetwork())
+            networkDataSource.saveUser(user.toNetwork())
             localDataSource.upsert(user.toLocal())
             uid
         } catch (e: Exception) {
@@ -68,6 +72,7 @@ class DefaultUserRepository @Inject constructor(
 
     override suspend fun updateUser(
         userId: String,
+        password: String,
         name: String,
         address: String?,
         dateOfBirth: String,
@@ -76,25 +81,19 @@ class DefaultUserRepository @Inject constructor(
         phone: String
     ) = withContext(dispatcher) {
         Timber.d("Updating user with ID: $userId")
-        val user = getUser(userId)?.copy(
+        val user = getUser()?.copy(
+            password = password,
             name = name,
             address = address,
             dateOfBirth = LocalDate.parse(dateOfBirth),
             gender = com.example.healthcareproject.domain.model.Gender.valueOf(gender),
             bloodType = com.example.healthcareproject.domain.model.BloodType.valueOf(bloodType),
             phone = phone,
-            updatedAt = LocalDateTime.now()
-        ) ?: throw Exception("User not found for ID $userId")
+            updatedAt = java.time.LocalDateTime.now()
+        ) ?: throw Exception("User (id $userId) not found")
 
-        try {
-            val uid = networkDataSource.getUidByEmail(userId)
-                ?: throw Exception("UID not found for user ID $userId")
-            localDataSource.upsert(user.toLocal())
-            networkDataSource.updateUser(uid, user.toNetwork())
-        } catch (e: Exception) {
-            Timber.e(e, "Failed to update user: $userId")
-            throw Exception("Cannot update user with ID $userId: ${e.message}")
-        }
+        localDataSource.upsert(user.toLocal())
+        networkDataSource.updateUser(userId, user.toNetwork())
     }
 
     override suspend fun refresh(userId: String) = withContext(dispatcher) {
@@ -118,6 +117,7 @@ class DefaultUserRepository @Inject constructor(
             .flowOn(dispatcher)
     }
 
+    override suspend fun getUser(forceUpdate: Boolean): User? {
     override suspend fun verifyCode(email: String, code: String) = withContext(dispatcher) {
         Timber.d("Verifying code for email: $email")
         try {
@@ -233,5 +233,19 @@ class DefaultUserRepository @Inject constructor(
     override fun getCurrentUserId(): String? {
         Timber.d("Getting current user ID")
         return authDataSource.getCurrentUserId()
+    }
+
+    override suspend fun sendVerificationEmail(email: String) {
+        authDataSource.sendVerificationCode(email)
+    }
+
+    override suspend fun refresh(userId: String) {
+        val firebaseUser = networkDataSource.loadUser(userId)
+        if (firebaseUser != null && firebaseUser.userId.isNotEmpty() && firebaseUser.name.isNotEmpty()) {
+            localDataSource.upsert(firebaseUser.toLocal())
+        } else {
+            // Log or handle invalid data case
+            throw IllegalArgumentException("Invalid user data received from network")
+        }
     }
 }
