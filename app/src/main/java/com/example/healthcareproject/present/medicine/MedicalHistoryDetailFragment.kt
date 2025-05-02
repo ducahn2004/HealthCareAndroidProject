@@ -40,6 +40,7 @@ class MedicalHistoryDetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+
         // Setup back button
         binding.ivBack.setOnClickListener {
             mainNavigator.navigateBackToMedicineFromMedicalHistoryDetail()

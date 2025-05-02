@@ -51,13 +51,13 @@ class MedicationAdapter(
                 else -> "${medication.frequency} times daily"
             }
             binding.tvStartDate.text = medication.startDate.format(dateFormatter)
-            binding.tvEndDate.text = medication.endDate?.format(dateFormatter) ?: "Ongoing"
+            binding.tvEndDate.text = medication.endDate.format(dateFormatter) // endDate is LocalDate
             binding.tvTimeOfDay.text = medication.timeOfDay.joinToString(", ")
-            binding.tvMealRelation.text = medication.mealRelation?.name
-                ?.replace("_", " ")
-                ?.lowercase()
-                ?.replaceFirstChar { it.uppercase() } ?: "Not specified"
-            if (medication.notes.isNullOrEmpty()) {
+            binding.tvMealRelation.text = medication.mealRelation.name
+                .replace("_", " ")
+                .lowercase()
+                .replaceFirstChar { it.uppercase() }
+            if (medication.notes.isEmpty()) {
                 binding.notesContainer.visibility = View.GONE
             } else {
                 binding.notesContainer.visibility = View.VISIBLE

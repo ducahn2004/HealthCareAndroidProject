@@ -9,6 +9,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.healthcareproject.R
 import com.example.healthcareproject.databinding.FragmentPillBinding
@@ -32,23 +33,22 @@ class PillFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        // Use DataBindingUtil for inflation to properly set up data binding
         binding = DataBindingUtil.inflate(
             inflater,
             R.layout.fragment_pill,
             container,
             false
         )
-
-        // Set up data binding variables
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
-
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // Set NavController for MainNavigator
+        mainNavigator.setNavController(findNavController())
 
         setupRecyclerViews()
         setupClickListeners()
@@ -60,12 +60,12 @@ class PillFragment : Fragment() {
         currentMedicationAdapter = MedicationAdapter { medication ->
             medication.visitId?.let { visitId ->
                 mainNavigator.navigateToMedicalHistoryDetail(visitId)
-            }
+            } ?: Toast.makeText(context, "No visit ID available", Toast.LENGTH_SHORT).show()
         }
         pastMedicationAdapter = MedicationAdapter { medication ->
             medication.visitId?.let { visitId ->
                 mainNavigator.navigateToMedicalHistoryDetail(visitId)
-            }
+            } ?: Toast.makeText(context, "No visit ID available", Toast.LENGTH_SHORT).show()
         }
 
         binding.rvCurrentMedications.apply {
@@ -85,17 +85,12 @@ class PillFragment : Fragment() {
     }
 
     private fun observeMedications() {
-        // Observe current medications
         viewModel.currentMedications.observe(viewLifecycleOwner) { medications ->
             currentMedicationAdapter.submitList(medications)
         }
-
-        // Observe past medications
         viewModel.pastMedications.observe(viewLifecycleOwner) { medications ->
             pastMedicationAdapter.submitList(medications)
         }
-
-        // Observe errors
         viewModel.error.observe(viewLifecycleOwner) { errorMessage ->
             errorMessage?.let {
                 Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
@@ -105,10 +100,7 @@ class PillFragment : Fragment() {
 
     private fun setupFragmentResultListener() {
         setFragmentResultListener("medicationKey") { _, bundle ->
-            // Refresh the medication list
             viewModel.loadMedications()
-
-            // Optionally navigate to the medical visit detail if requested
             val visitId = bundle.getString("visitId")
             if (visitId != null && bundle.getBoolean("navigateToVisit", false)) {
                 mainNavigator.navigateToMedicalHistoryDetail(visitId)
@@ -118,7 +110,6 @@ class PillFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        // Refresh medications when returning to this fragment
         viewModel.loadMedications()
     }
 }
