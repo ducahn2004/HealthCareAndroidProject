@@ -21,7 +21,6 @@
             android:layout_height="wrap_content"
             android:src="@drawable/ic_back"
             android:background="@null"
-            app:tint="@color/light_gray"
             android:contentDescription="@string/back"
             android:padding="16dp"
             app:layout_constraintTop_toTopOf="parent"

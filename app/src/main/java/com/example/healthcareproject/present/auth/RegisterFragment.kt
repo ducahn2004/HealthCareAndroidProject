@@ -42,7 +42,7 @@ class RegisterFragment : Fragment() {
 
         // Back button
         binding.btnBackRegisterToLoginMethod.setOnClickListener {
-            Timber.d("Back button clicked")
+            Timber.d("Back button clicked, current destination: ${findNavController().currentDestination?.id}")
             try {
                 navigator.fromRegisterToLoginMethod()
             } catch (e: Exception) {
