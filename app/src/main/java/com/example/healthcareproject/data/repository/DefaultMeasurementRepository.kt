@@ -9,7 +9,6 @@ import com.example.healthcareproject.data.source.network.datasource.MeasurementD
 import com.example.healthcareproject.di.ApplicationScope
 import com.example.healthcareproject.di.DefaultDispatcher
 import com.example.healthcareproject.domain.model.Measurement
-import com.example.healthcareproject.domain.model.MeasurementType
 import com.example.healthcareproject.domain.repository.MeasurementRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -35,10 +34,8 @@ class DefaultMeasurementRepository @Inject constructor(
         get() = authDataSource.getCurrentUserId() ?: throw Exception("User not logged in")
 
     override suspend fun createMeasurement(
-        type: MeasurementType,
-        value: Float?,
-        valueList: List<Float>?,
-        measurementTime: LocalDateTime,
+        bpm: Float,
+        spO2: Float,
         status: Boolean
     ): String {
         val measurementId = withContext(dispatcher) {
@@ -47,10 +44,8 @@ class DefaultMeasurementRepository @Inject constructor(
         val measurement = Measurement(
             measurementId = measurementId,
             userId = userId,
-            type = type,
-            value = value,
-            valueList = valueList,
-            timestamp = measurementTime
+            bpm = bpm,
+            spO2 = spO2,
         )
         localDataSource.upsert(measurement.toLocal())
         saveMeasurementsToNetwork()
@@ -59,17 +54,13 @@ class DefaultMeasurementRepository @Inject constructor(
 
     override suspend fun updateMeasurement(
         measurementId: String,
-        type: MeasurementType,
-        value: Float?,
-        valueList: List<Float>?,
-        measurementTime: LocalDateTime,
+        bpm: Float,
+        spO2: Float,
         status: Boolean
     ) {
         val measurement = getMeasurement(measurementId)?.copy(
-            type = type,
-            value = value,
-            valueList = valueList,
-            timestamp = measurementTime
+            bpm = bpm,
+            spO2 = spO2,
         ) ?: throw Exception("Measurement (id $measurementId) not found")
 
         localDataSource.upsert(measurement.toLocal())
@@ -130,20 +121,6 @@ class DefaultMeasurementRepository @Inject constructor(
 
     override suspend fun refreshMeasurement(measurementId: String) {
         refresh()
-    }
-
-    override suspend fun activateMeasurement(measurementId: String) {
-        val measurement = getMeasurement(measurementId)?.copy(value = 1f)
-            ?: throw Exception("Measurement (id $measurementId) not found")
-        localDataSource.upsert(measurement.toLocal())
-        saveMeasurementsToNetwork()
-    }
-
-    override suspend fun deactivateMeasurement(measurementId: String) {
-        val measurement = getMeasurement(measurementId)?.copy(value = 0f)
-            ?: throw Exception("Measurement (id $measurementId) not found")
-        localDataSource.upsert(measurement.toLocal())
-        saveMeasurementsToNetwork()
     }
 
     override suspend fun deleteAllMeasurements() {

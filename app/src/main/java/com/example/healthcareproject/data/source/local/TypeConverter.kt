@@ -4,7 +4,6 @@ import androidx.room.TypeConverter
 import com.example.healthcareproject.domain.model.BloodType
 import com.example.healthcareproject.domain.model.Gender
 import com.example.healthcareproject.domain.model.MealRelation
-import com.example.healthcareproject.domain.model.MeasurementType
 import com.example.healthcareproject.domain.model.NotificationType
 import com.example.healthcareproject.domain.model.RelatedTable
 import com.example.healthcareproject.domain.model.Relationship
@@ -92,16 +91,6 @@ class Converters {
     @TypeConverter
     fun toRelationship(relationship: String): Relationship {
         return Relationship.valueOf(relationship)
-    }
-
-    @TypeConverter
-    fun fromMeasurementType(type: MeasurementType): String {
-        return type.name
-    }
-
-    @TypeConverter
-    fun toMeasurementType(type: String): MeasurementType {
-        return MeasurementType.valueOf(type)
     }
 
     @TypeConverter

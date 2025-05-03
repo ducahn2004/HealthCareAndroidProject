@@ -3,17 +3,13 @@ package com.example.healthcareproject.data.mapper
 import com.example.healthcareproject.data.source.local.entity.RoomMeasurement
 import com.example.healthcareproject.data.source.network.model.FirebaseMeasurement
 import com.example.healthcareproject.domain.model.Measurement
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 // External to Local
 fun Measurement.toLocal() = RoomMeasurement(
     measurementId = measurementId,
     userId = userId,
-    type = type,
-    value = value,
-    valueList = valueList,
-    timestamp = timestamp
+    bpm = bpm,
+    spO2 = spO2
 )
 
 fun List<Measurement>.toLocal() = map(Measurement::toLocal)
@@ -22,10 +18,8 @@ fun List<Measurement>.toLocal() = map(Measurement::toLocal)
 fun RoomMeasurement.toExternal() = Measurement(
     measurementId = measurementId,
     userId = userId,
-    type = type,
-    value = value,
-    valueList = valueList,
-    timestamp = timestamp
+    bpm = bpm,
+    spO2 = spO2,
 )
 
 @JvmName("localToExternal")
@@ -35,10 +29,8 @@ fun List<RoomMeasurement>.toExternal() = map(RoomMeasurement::toExternal)
 fun FirebaseMeasurement.toLocal() = RoomMeasurement(
     measurementId = measurementId,
     userId = userId,
-    type = type,
-    value = value,
-    valueList = valueList,
-    timestamp = LocalDateTime.parse(timestamp, DateTimeFormatter.ISO_DATE_TIME)
+    bpm = bpm,
+    spO2 = spO2,
 )
 
 @JvmName("networkToLocal")
@@ -48,10 +40,8 @@ fun List<FirebaseMeasurement>.toLocal() = map(FirebaseMeasurement::toLocal)
 fun RoomMeasurement.toNetwork() = FirebaseMeasurement(
     measurementId = measurementId,
     userId = userId,
-    type = type,
-    value = value,
-    valueList = valueList,
-    timestamp = timestamp.format(DateTimeFormatter.ISO_DATE_TIME)
+    bpm = bpm,
+    spO2 = spO2,
 )
 
 fun List<RoomMeasurement>.toNetwork() = map(RoomMeasurement::toNetwork)

@@ -7,5 +7,4 @@ data class MeasurementUseCases(
     val updateMeasurementUseCase: UpdateMeasurementUseCase,
     val hRAnalysisUseCase: HRAnalysisUseCase,
     val spO2AnalysisUseCase: SpO2AnalysisUseCase
-
 )

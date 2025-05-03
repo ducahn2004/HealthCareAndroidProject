@@ -1,6 +1,5 @@
 package com.example.healthcareproject.domain.usecase.measurement
 
-import com.example.healthcareproject.domain.model.MeasurementType
 import com.example.healthcareproject.domain.repository.MeasurementRepository
 import com.example.healthcareproject.domain.usecase.sos.SendSosUseCase
 import kotlinx.coroutines.flow.mapNotNull
@@ -11,17 +10,16 @@ class SpO2AnalysisUseCase @Inject constructor(
     private val sendSosUseCase: SendSosUseCase
 ) {
     suspend operator fun invoke() {
-        // Observe real-time measurement stream
+//         Observe real-time measurement stream
         measurementRepository.getMeasurementsStream()
             .mapNotNull { measurements ->
                 measurements
-                    .filter { it.type == MeasurementType.SpO2 }
-                    .maxByOrNull { it.timestamp } // Get the latest SpO2 measurement
+                    .maxByOrNull { it.measurementId } // Get the latest SpO2 measurement
             }
             .collect { latestSpO2 ->
-                val spO2Value = latestSpO2.value ?: return@collect
+                val spO2Value = latestSpO2.spO2
 
-                // Analyze SpO2 levels and trigger SOS if necessary
+//                 Analyze SpO2 levels and trigger SOS if necessary
                 val triggerReason = when {
                     spO2Value < 90 -> "Critical Alert!!! Extremely low blood oxygen, seek emergency help."
                     spO2Value in 90.0..92.9 -> "Warning!!! Low blood oxygen, needs monitoring."
