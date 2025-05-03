@@ -259,14 +259,13 @@ class RegisterViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-
                 val inputFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
                 val outputFormatter = DateTimeFormatter.ISO_LOCAL_DATE // yyyy-MM-dd
                 val parsedDate = LocalDate.parse(dateOfBirth, inputFormatter)
                 val formattedDate = parsedDate.format(outputFormatter)
 
                 val uid = createUserUseCase(
-                    userId = email,
+                    email = email,
                     password = password,
                     name = name,
                     address = address,
@@ -276,10 +275,16 @@ class RegisterViewModel @Inject constructor(
                     phone = phone
                 )
                 sendVerificationCodeUseCase(email)
-                _registerResult.value = uid.toString()
+                _registerResult.value = uid
                 _error.value = null
             } catch (e: Exception) {
-                _error.value = e.message ?: "Registration failed"
+                _error.value = when {
+                    e.message?.contains("email address is already in use") == true ->
+                        "This email is already registered. Please use a different email or log in."
+                    e.message?.contains("Invalid Firebase Database path") == true ->
+                        "Failed to save user data. Please try again."
+                    else -> e.message ?: "Registration failed"
+                }
                 _registerResult.value = null
             } finally {
                 _isLoading.value = false

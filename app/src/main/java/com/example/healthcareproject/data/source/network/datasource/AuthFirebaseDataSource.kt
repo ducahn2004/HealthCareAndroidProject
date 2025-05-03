@@ -190,4 +190,21 @@ class AuthFirebaseDataSource @Inject constructor(
         Timber.tag("FirebaseAuth").d("Current user ID: $uid")
         return uid
     }
+
+    override suspend fun deleteUser(uid: String) {
+        try {
+            withContext(Dispatchers.IO) {
+                val user = firebaseAuth.currentUser
+                if (user != null && user.uid == uid) {
+                    user.delete().await()
+                    Timber.tag("FirebaseAuth").d("Deleted user with UID $uid")
+                } else {
+                    throw Exception("No user found with UID $uid or user not signed in")
+                }
+            }
+        } catch (e: Exception) {
+            Timber.tag("FirebaseAuth").e(e, "Failed to delete user with UID $uid")
+            throw Exception("Cannot delete user with UID $uid: ${e.message}")
+        }
+    }
 }

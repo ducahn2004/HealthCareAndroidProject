@@ -10,7 +10,7 @@ import java.time.LocalDateTime
 interface UserRepository {
 
     suspend fun createUser(
-        userId: String,
+        email: String,
         password: String,
         name: String,
         address: String?,

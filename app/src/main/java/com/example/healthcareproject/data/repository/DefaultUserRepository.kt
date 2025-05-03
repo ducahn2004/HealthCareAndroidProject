@@ -32,7 +32,7 @@ class DefaultUserRepository @Inject constructor(
         get() = authDataSource.getCurrentUserId() ?: throw Exception("User not logged in")
 
     override suspend fun createUser(
-        userId: String,
+        email: String,
         password: String,
         name: String,
         address: String?,
@@ -41,14 +41,13 @@ class DefaultUserRepository @Inject constructor(
         bloodType: String,
         phone: String
     ): String = withContext(dispatcher) {
-        Timber.d("Creating user with ID: $userId")
-        if (userId.isBlank()) throw Exception("User ID cannot be empty")
+        Timber.d("Creating user with email: $email")
+        if (email.isBlank()) throw Exception("Email cannot be empty")
         if (password.length < 6) throw Exception("Password must be at least 6 characters")
-        val generatedUserId = withContext(dispatcher) {
-            userId.ifEmpty { java.util.UUID.randomUUID().toString() }
-        }
+
+        val uid = authDataSource.registerUser(email, password)
         val user = User(
-            userId = generatedUserId,
+            userId = uid,
             password = password,
             name = name,
             address = address,
@@ -61,13 +60,19 @@ class DefaultUserRepository @Inject constructor(
         )
 
         try {
-            val uid = authDataSource.registerUser(userId, password)
             networkDataSource.saveUser(user.toNetwork())
             localDataSource.upsert(user.toLocal())
             uid
         } catch (e: Exception) {
-            Timber.e(e, "Failed to create user: $userId")
-            throw Exception("Cannot create user with ID $userId: ${e.message}")
+            Timber.e(e, "Failed to create user with email: $email")
+            // Clean up: Delete the user from Firebase Authentication
+            try {
+                authDataSource.deleteUser(uid)
+                Timber.d("Deleted user $uid from Authentication due to database failure")
+            } catch (deleteException: Exception) {
+                Timber.e(deleteException, "Failed to delete user $uid from Authentication")
+            }
+            throw Exception("Cannot create user with email $email: ${e.message}")
         }
     }
 
