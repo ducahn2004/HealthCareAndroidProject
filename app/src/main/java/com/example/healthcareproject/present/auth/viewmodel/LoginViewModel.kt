@@ -39,7 +39,6 @@ class LoginViewModel @Inject constructor(
     private val _navigateToForgotPassword = MutableLiveData<Boolean>()
     val navigateToForgotPassword: LiveData<Boolean> = _navigateToForgotPassword
 
-
     private val _navigateToGoogleLogin = MutableLiveData<Boolean>()
     val navigateToGoogleLogin: LiveData<Boolean> = _navigateToGoogleLogin
 
