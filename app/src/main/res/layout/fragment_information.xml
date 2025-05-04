@@ -24,7 +24,7 @@
             android:minHeight="48dp"
             android:contentDescription="Back"
             android:background="@null"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginBottom="20dp" />
 
         <!-- Title -->
         <TextView
@@ -32,9 +32,9 @@
             android:layout_height="wrap_content"
             android:text="User Information"
             android:textColor="@color/primary_text_color"
-            android:textSize="20sp"
+            android:textSize="24sp"
             android:textStyle="bold"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginBottom="20dp"  />
 
         <!-- Name -->
         <TextView
@@ -42,15 +42,16 @@
             android:layout_height="wrap_content"
             android:text="Name:"
             android:textColor="?android:textColorPrimary"
-            android:textSize="16sp" />
+            android:textSize="18sp" />
         <TextView
             android:id="@+id/tv_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@{viewModel.name}"
-            android:minHeight="48dp"
+            android:minHeight="56dp"
             android:textColor="@color/primary_text_color"
-            android:layout_marginBottom="8dp" />
+            android:textSize="20sp"
+            android:layout_marginBottom="12dp" />
 
         <!-- Address -->
         <TextView
@@ -58,15 +59,16 @@
             android:layout_height="wrap_content"
             android:text="Address:"
             android:textColor="?android:textColorPrimary"
-            android:textSize="16sp" />
+            android:textSize="18sp"  />
         <TextView
             android:id="@+id/tv_address"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@{viewModel.address}"
-            android:minHeight="48dp"
+            android:minHeight="56dp"
             android:textColor="@color/primary_text_color"
-            android:layout_marginBottom="8dp" />
+            android:textSize="20sp"
+            android:layout_marginBottom="12dp"  />
 
         <!-- Date of Birth -->
         <TextView
@@ -74,15 +76,16 @@
             android:layout_height="wrap_content"
             android:text="Date of Birth:"
             android:textColor="?android:textColorPrimary"
-            android:textSize="16sp" />
+            android:textSize="18sp"  />
         <TextView
             android:id="@+id/tv_dob"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@{viewModel.dateOfBirth}"
-            android:minHeight="48dp"
+            android:minHeight="56dp"
             android:textColor="@color/primary_text_color"
-            android:layout_marginBottom="8dp" />
+            android:textSize="20sp"
+            android:layout_marginBottom="12dp"  />
 
         <!-- Gender -->
         <TextView
@@ -90,15 +93,16 @@
             android:layout_height="wrap_content"
             android:text="Gender:"
             android:textColor="?android:textColorPrimary"
-            android:textSize="16sp" />
+            android:textSize="18sp" />
         <TextView
             android:id="@+id/tv_gender"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@{viewModel.gender}"
-            android:minHeight="48dp"
+            android:minHeight="56dp"
             android:textColor="@color/primary_text_color"
-            android:layout_marginBottom="8dp" />
+            android:textSize="20sp"
+            android:layout_marginBottom="12dp"  />
 
         <!-- Blood Type -->
         <TextView
@@ -106,15 +110,16 @@
             android:layout_height="wrap_content"
             android:text="Blood Type:"
             android:textColor="?android:textColorPrimary"
-            android:textSize="16sp" />
+            android:textSize="18sp" />
         <TextView
             android:id="@+id/tv_blood_type"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@{viewModel.bloodType}"
-            android:minHeight="48dp"
-            android:textColor="@color/primary_text_color"
-            android:layout_marginBottom="8dp" />
+            android:minHeight="56dp"
+        android:textColor="@color/primary_text_color"
+        android:textSize="20sp"
+        android:layout_marginBottom="12dp"  />
 
         <!-- Phone -->
         <TextView
@@ -122,15 +127,16 @@
             android:layout_height="wrap_content"
             android:text="Phone:"
             android:textColor="?android:textColorPrimary"
-            android:textSize="16sp" />
+            android:textSize="18sp"  />
         <TextView
             android:id="@+id/tv_phone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@{viewModel.phone}"
-            android:minHeight="48dp"
+            android:minHeight="56dp"
             android:textColor="@color/primary_text_color"
-            android:layout_marginBottom="16dp" />
+            android:textSize="20sp"
+            android:layout_marginBottom="20dp"  />
 
         <!-- Progress Bar -->
         <ProgressBar
@@ -139,7 +145,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:visibility="gone"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginBottom="20dp" />
 
         <!-- Update Button -->
         <Button
@@ -147,8 +153,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Update"
+            android:minHeight="50dp"
             android:backgroundTint="@color/button_accent_color"
             android:textColor="@color/button_text_color"
-            android:layout_gravity="end" />
+            android:textSize="18sp"
+        android:paddingHorizontal="16dp"
+        android:layout_gravity="end" />
     </LinearLayout>
 </layout>

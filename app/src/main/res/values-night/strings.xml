@@ -126,6 +126,13 @@
     <string name="enter_treatment">Enter treatment</string>
     <string name="enter_date">Enter date (dd/MM/yyyy)</string>
     <string name="enter_time">Enter time (HH:mm)</string>
+    <string name="error_no_id_token">No ID token received from Google Sign-In</string>
+    <string name="error_sign_in_cancelled">Sign-in cancelled by user</string>
+    <string name="error_developer_config">Developer configuration error. Please contact support.</string>
+    <string name="error_sign_in_failed">Sign-in failed: %1$s</string>
+    <string name="error_network">Network error. Please check your connection.</string>
+    <string name="error_unexpected">An unexpected error occurred. Please try again.</string>
+    <string name="error_saving_state">Error saving login state</string>
     <string-array name="gender_options">
         <item>Male</item>
         <item>Female</item>

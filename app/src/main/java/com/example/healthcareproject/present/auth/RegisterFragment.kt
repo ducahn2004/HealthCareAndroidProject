@@ -40,17 +40,6 @@ class RegisterFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Back button
-        binding.btnBackRegisterToLoginMethod.setOnClickListener {
-            Timber.d("Back button clicked, current destination: ${findNavController().currentDestination?.id}")
-            try {
-                navigator.fromRegisterToLoginMethod()
-            } catch (e: Exception) {
-                Timber.e("Navigation failed: ${e.message}")
-                Snackbar.make(binding.root, "Navigation failed: ${e.message}", Snackbar.LENGTH_LONG).show()
-            }
-        }
-
         // Date picker for date of birth
         binding.etDob.setOnClickListener {
             val today = LocalDate.now()
@@ -131,6 +120,17 @@ class RegisterFragment : Fragment() {
         // Observe loading state
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             binding.btnCreateAccount.isEnabled = !isLoading
+        }
+
+        // Back button
+        binding.btnBackRegisterToLoginMethod.setOnClickListener {
+            Timber.d("Back button clicked, current destination: ${findNavController().currentDestination?.id}")
+            try {
+                navigator.fromRegisterToLoginMethod()
+            } catch (e: Exception) {
+                Timber.e("Navigation failed: ${e.message}")
+                Snackbar.make(binding.root, "Navigation failed: ${e.message}", Snackbar.LENGTH_LONG).show()
+            }
         }
     }
 

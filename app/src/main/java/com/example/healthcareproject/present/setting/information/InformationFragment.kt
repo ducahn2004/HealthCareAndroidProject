@@ -11,6 +11,7 @@ import androidx.navigation.fragment.findNavController
 import com.example.healthcareproject.databinding.FragmentInformationBinding
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 
 @AndroidEntryPoint
 class InformationFragment : Fragment() {
@@ -33,7 +34,7 @@ class InformationFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Check if user is logged in and get UID
+        // Check if user is logged in
         val uid = FirebaseAuth.getInstance().currentUser?.uid
         if (uid == null) {
             Toast.makeText(requireContext(), "User not logged in", Toast.LENGTH_SHORT).show()
@@ -41,13 +42,15 @@ class InformationFragment : Fragment() {
             return
         }
 
-        // Load user info using UID
+        // Load user info initially
+        Timber.d("Loading user info for UID: $uid")
         viewModel.loadUserInfoByUid(uid)
 
         // Observe error
         viewModel.error.observe(viewLifecycleOwner) { error ->
-            if (error != null) {
-                Toast.makeText(requireContext(), error, Toast.LENGTH_SHORT).show()
+            error?.let {
+                Timber.e("Error in InformationFragment: $it")
+                Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
             }
         }
 
@@ -64,7 +67,9 @@ class InformationFragment : Fragment() {
         // Handle update button
         binding.btnUpdate.setOnClickListener {
             UpdateInformationDialogFragment { updatedInfo ->
-                // Optional: Handle updated info if needed
+                // Reload user info after update
+                Timber.d("Reloading user info after update for UID: $uid")
+                viewModel.loadUserInfoByUid(uid)
             }.show(parentFragmentManager, "UpdateInformationDialog")
         }
     }

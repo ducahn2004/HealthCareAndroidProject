@@ -9,7 +9,7 @@ class CreateUserUseCase @Inject constructor(
 ) {
 
     suspend operator fun invoke(
-        userId: String,
+        email: String,
         password: String,
         name: String,
         address: String?,
@@ -18,10 +18,10 @@ class CreateUserUseCase @Inject constructor(
         bloodType: String,
         phone: String
     ): String {
-        Timber.Forest.d("Creating user with userId: $userId")
+        Timber.Forest.d("Creating user with email: $email")
         try {
             // Validate inputs
-            if (userId.isBlank()) throw Exception("Email cannot be empty")
+            if (email.isBlank()) throw Exception("Email cannot be empty")
             if (password.length < 8) throw Exception("Password must be at least 8 characters")
             if (name.isBlank()) throw Exception("Name cannot be empty")
             if (dateOfBirth.isBlank()) throw Exception("Date of birth cannot be empty")
@@ -29,7 +29,7 @@ class CreateUserUseCase @Inject constructor(
 
             // Call UserRepository to create the user
             val uid = userRepository.createUser(
-                userId = userId,
+                email = email,
                 password = password,
                 name = name,
                 address = address,
@@ -41,7 +41,7 @@ class CreateUserUseCase @Inject constructor(
             Timber.Forest.d("User created successfully with UID: $uid")
             return uid
         } catch (e: Exception) {
-            Timber.Forest.e(e, "Failed to create user with userId: $userId")
+            Timber.Forest.e(e, "Failed to create user with email: $email")
             throw Exception("Failed to create user: ${e.message}", e)
         }
     }

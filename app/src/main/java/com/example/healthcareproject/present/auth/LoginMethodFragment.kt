@@ -37,7 +37,7 @@ class LoginMethodFragment : Fragment() {
         // Observe navigation events
         viewModel.navigateToGoogleLogin.observe(viewLifecycleOwner) { navigate: Boolean ->
             if (navigate) {
-                navigator.fromLoginToGoogleLogin()
+                navigator.fromLoginMethodToGoogleLogin()
                 viewModel.resetNavigationStates()
             }
         }

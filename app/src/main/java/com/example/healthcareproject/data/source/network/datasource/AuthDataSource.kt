@@ -74,4 +74,5 @@ interface AuthDataSource {
      * @return The UID of the current user, or null if no user is signed in.
      */
     fun getCurrentUserId(): String?
+    suspend fun deleteUser(string: String)
 }

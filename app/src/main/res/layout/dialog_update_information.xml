@@ -44,6 +44,7 @@
                 android:layout_height="wrap_content"
                 android:minHeight="48dp"
                 android:text="@{viewModel.name}"
+                android:afterTextChanged="@{viewModel::afterNameChange}"
                 android:textColor="@color/primary_text_color" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -74,6 +75,7 @@
                 android:layout_height="wrap_content"
                 android:minHeight="48dp"
                 android:text="@{viewModel.address}"
+                android:afterTextChanged="@{viewModel::afterAddressChange}"
                 android:textColor="@color/primary_text_color" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -176,6 +178,7 @@
                 android:minHeight="48dp"
                 android:inputType="phone"
                 android:text="@{viewModel.phone}"
+                android:afterTextChanged="@{viewModel::afterPhoneChange}"
                 android:textColor="@color/primary_text_color" />
         </com.google.android.material.textfield.TextInputLayout>
 
