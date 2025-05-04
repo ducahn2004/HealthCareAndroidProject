@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
         <import type="android.view.View" />
@@ -12,39 +13,77 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="16dp"
+        android:padding="24dp"
         android:background="?attr/android:windowBackground">
 
         <!-- Back Button -->
         <ImageButton
             android:id="@+id/btn_back_gg_login_to_login_method"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@null"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/back"
-            android:padding="16dp"
+            android:padding="12dp"
             android:src="@drawable/ic_back"
             app:tint="?attr/colorOnSurface"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="16dp" />
 
-        <!-- Google Login Button -->
-        <Button
-            android:id="@+id/btn_google_login"
+        <!-- Title -->
+        <TextView
+            android:id="@+id/tv_google_login_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/google_login_title"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="?attr/colorOnSurface"
+            android:layout_marginTop="32dp"
+            app:layout_constraintTop_toBottomOf="@id/btn_back_gg_login_to_login_method"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Google Login Container -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/google_login_container"
             android:layout_width="0dp"
             android:layout_height="48dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginHorizontal="32dp"
+            android:layout_marginBottom="32dp"
             android:background="@drawable/btn_google"
-            android:drawableStart="@drawable/ic_google_logo"
-            android:drawablePadding="8dp"
-            android:enabled="@{!viewModel.isLoading}"
             android:onClick="@{() -> viewModel.onGoogleLoginClicked()}"
-            android:text="@string/login_with_google"
-            android:textColor="?attr/colorOnPrimary"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:enabled="@{!viewModel.isLoading}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            tools:visibility="visible">
+
+            <ImageView
+                android:id="@+id/iv_google_logo"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:contentDescription="@string/google_logo"
+                android:src="@drawable/ic_google_logo"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:text="@string/login_with_google"
+                android:textAlignment="center"
+                android:textColor="@color/button_google_color"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/iv_google_logo"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <!-- ProgressBar -->
         <ProgressBar
@@ -52,10 +91,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:visibility="@{viewModel.isLoading ? View.VISIBLE : View.GONE}"
-            app:layout_constraintBottom_toTopOf="@id/btn_google_login"
+            app:layout_constraintBottom_toTopOf="@id/google_login_container"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/tv_google_login_title"
+            android:layout_marginBottom="32dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

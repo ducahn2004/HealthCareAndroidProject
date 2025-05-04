@@ -24,9 +24,12 @@ class GoogleLoginViewModel @Inject constructor(
     private val _error = MutableLiveData<String?>()
     val error: LiveData<String?> = _error
 
+    private val _googleSignInTrigger = MutableLiveData<Unit>()
+    val googleSignInTrigger: LiveData<Unit> = _googleSignInTrigger
+
     fun onGoogleLoginClicked() {
-        // Triggered by UI, actual sign-in handled by GoogleSignInClient
         _error.value = null
+        _googleSignInTrigger.value = Unit
     }
 
     fun handleGoogleSignIn(idToken: String) {

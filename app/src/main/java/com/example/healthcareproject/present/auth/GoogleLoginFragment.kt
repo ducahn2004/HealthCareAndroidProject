@@ -22,6 +22,7 @@ import com.google.android.gms.common.api.ApiException
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
+import java.net.UnknownHostException
 
 @AndroidEntryPoint
 class GoogleLoginFragment : Fragment() {
@@ -33,19 +34,30 @@ class GoogleLoginFragment : Fragment() {
     private lateinit var googleSignInClient: GoogleSignInClient
 
     private val signInLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
         try {
+            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
             val account = task.getResult(ApiException::class.java)
             account.idToken?.let { idToken ->
                 Timber.d("Google Sign-In: Received ID token")
                 viewModel.handleGoogleSignIn(idToken)
             } ?: run {
                 Timber.e("Google Sign-In failed: No ID token")
-                viewModel.setError("Google Sign-In failed: No ID token")
+                viewModel.setError(getString(R.string.error_no_id_token))
             }
         } catch (e: ApiException) {
-            Timber.e(e, "Google Sign-In failed")
-            viewModel.setError("Google Sign-In failed: ${e.message}")
+            Timber.e(e, "Google Sign-In failed with status code: ${e.statusCode}")
+            val errorMessage = when (e.statusCode) {
+                12501 -> getString(R.string.error_sign_in_cancelled)
+                10 -> getString(R.string.error_developer_config)
+                else -> getString(R.string.error_sign_in_failed, e.message)
+            }
+            viewModel.setError(errorMessage)
+        } catch (e: UnknownHostException) {
+            Timber.e(e, "Network error during Google Sign-In")
+            viewModel.setError(getString(R.string.error_network))
+        } catch (e: Exception) {
+            Timber.e(e, "Unexpected error during Google Sign-In")
+            viewModel.setError(getString(R.string.error_unexpected))
         }
     }
 
@@ -77,6 +89,12 @@ class GoogleLoginFragment : Fragment() {
             navigator.fromGoogleLoginToLoginMethod()
         }
 
+        // Observe ViewModel's Google Sign-In trigger
+        viewModel.googleSignInTrigger.observe(viewLifecycleOwner) {
+            Timber.d("Launching Google Sign-In intent")
+            signInLauncher.launch(googleSignInClient.signInIntent)
+        }
+
         // Observe authentication state
         viewModel.isAuthenticated.observe(viewLifecycleOwner) { isAuthenticated ->
             if (isAuthenticated) {
@@ -99,8 +117,6 @@ class GoogleLoginFragment : Fragment() {
                 viewModel.setError(null)
             }
         }
-
-        // Google login button click is handled via Data Binding
     }
 
     private fun saveLoginState(isLoggedIn: Boolean) {
@@ -112,6 +128,7 @@ class GoogleLoginFragment : Fragment() {
             Timber.d("Login state saved: $isLoggedIn")
         } catch (e: Exception) {
             Timber.e(e, "Error saving login state")
+            viewModel.setError(getString(R.string.error_saving_state))
         }
     }
 
