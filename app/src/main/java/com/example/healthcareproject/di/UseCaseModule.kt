@@ -101,6 +101,7 @@ object UseCaseModule {
     fun provideMeasurementUseCases(
         measurementRepository: MeasurementRepository,
         getUserUseCase: GetUserUseCase,
+        getMedicalVisitUseCase: GetMedicalVisitsUseCase,
         sendSosUseCase: SendSosUseCase
 
     ): MeasurementUseCases {
@@ -112,6 +113,7 @@ object UseCaseModule {
             hRAnalysisUseCase = HRAnalysisUseCase(
                 measurementRepository,
                 getUserUseCase,
+                getMedicalVisitUseCase,
                 sendSosUseCase
             ),
             spO2AnalysisUseCase = SpO2AnalysisUseCase(

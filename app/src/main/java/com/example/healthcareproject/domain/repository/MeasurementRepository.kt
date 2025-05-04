@@ -10,12 +10,14 @@ import java.time.LocalDateTime
 interface MeasurementRepository {
 
     suspend fun createMeasurement(
+        deviceId: String,
         bpm: Float,
         spO2: Float,
         status: Boolean
     ): String
 
     suspend fun updateMeasurement(
+        deviceId: String,
         measurementId: String,
         bpm: Float,
         spO2: Float,

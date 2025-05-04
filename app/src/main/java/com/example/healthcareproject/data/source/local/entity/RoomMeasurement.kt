@@ -22,6 +22,7 @@ import com.example.healthcareproject.data.source.local.Converters
 @TypeConverters(Converters::class)
 data class RoomMeasurement(
     @PrimaryKey val measurementId: String,
+    val deviceId: String,
     val userId: String,
     val bpm: Float,
     val spO2: Float,

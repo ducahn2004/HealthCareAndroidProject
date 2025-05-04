@@ -34,6 +34,7 @@ class DefaultMeasurementRepository @Inject constructor(
         get() = authDataSource.getCurrentUserId() ?: throw Exception("User not logged in")
 
     override suspend fun createMeasurement(
+        deviceId: String,
         bpm: Float,
         spO2: Float,
         status: Boolean
@@ -42,6 +43,7 @@ class DefaultMeasurementRepository @Inject constructor(
             UUID.randomUUID().toString()
         }
         val measurement = Measurement(
+            deviceId = deviceId,
             measurementId = measurementId,
             userId = userId,
             bpm = bpm,
@@ -53,6 +55,7 @@ class DefaultMeasurementRepository @Inject constructor(
     }
 
     override suspend fun updateMeasurement(
+        deviceId: String,
         measurementId: String,
         bpm: Float,
         spO2: Float,

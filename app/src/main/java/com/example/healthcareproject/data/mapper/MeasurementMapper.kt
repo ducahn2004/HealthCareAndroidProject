@@ -6,6 +6,7 @@ import com.example.healthcareproject.domain.model.Measurement
 
 // External to Local
 fun Measurement.toLocal() = RoomMeasurement(
+    deviceId = deviceId,
     measurementId = measurementId,
     userId = userId,
     bpm = bpm,
@@ -16,6 +17,7 @@ fun List<Measurement>.toLocal() = map(Measurement::toLocal)
 
 // Local to External
 fun RoomMeasurement.toExternal() = Measurement(
+    deviceId = deviceId,
     measurementId = measurementId,
     userId = userId,
     bpm = bpm,
@@ -27,6 +29,7 @@ fun List<RoomMeasurement>.toExternal() = map(RoomMeasurement::toExternal)
 
 // Network to Local
 fun FirebaseMeasurement.toLocal() = RoomMeasurement(
+    deviceId = deviceId,
     measurementId = measurementId,
     userId = userId,
     bpm = bpm,
@@ -38,6 +41,7 @@ fun List<FirebaseMeasurement>.toLocal() = map(FirebaseMeasurement::toLocal)
 
 // Local to Network
 fun RoomMeasurement.toNetwork() = FirebaseMeasurement(
+    deviceId = deviceId,
     measurementId = measurementId,
     userId = userId,
     bpm = bpm,
