@@ -36,7 +36,7 @@ interface UserRepository {
 
     suspend fun verifyCode(email: String, code: String)
 
-    suspend fun getUser(forceUpdate: Boolean = false): User?
+        suspend fun getUser(forceUpdate: Boolean = false): User?
 
     suspend fun getUserByUid(uid: String, forceUpdate: Boolean = false): User?
 
