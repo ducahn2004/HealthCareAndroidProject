@@ -37,7 +37,6 @@ class HomeFragment : Fragment() {
         binding.tvHeartRateValue.text = heartRate
         binding.tvOxygenLevelValue.text = oxygenLevel
         binding.tvEcgValue.text = ecgStatus
-        binding.tvWeightValue.text = weight
 
         binding.tvHeartRateCurrent.text = getString(R.string.default_heart_rate_current, heartRate)
         binding.tvOxygenLevelCurrent.text = getString(R.string.default_oxygen_level_current, oxygenLevel)
@@ -58,7 +57,7 @@ class HomeFragment : Fragment() {
         }
 
         binding.cvWeight.setOnClickListener {
-            findNavController().navigate(R.id.action_homeFragment_to_weightFragment)
+            findNavController().navigate(R.id.action_homeFragment_to_alarmFragment)
         }
     }
 

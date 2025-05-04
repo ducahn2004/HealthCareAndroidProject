@@ -40,7 +40,6 @@ class NotificationFragment : Fragment() {
             Notification(id = 2, title = "ECG ALERT", message = "ECG is not stable. Need to Emergency!", time = "10:24pm", iconResId = R.drawable.ic_ecg),
             Notification(id = 3, title = "OXYGEN LEVEL ALERT", message = "Oxygen Level is too high. Need to Emergency!", time = "10:24pm", iconResId = R.drawable.ic_oxygen),
             Notification(id = 4, title = "HEART RATE ALERT", message = "Heart rate is too high. Need to Emergency!", time = "10:24pm", iconResId = R.drawable.ic_heart_rate),
-            Notification(id = 5, title = "UPDATE WEIGHT", message = "Weight is 65KG. Keep yourself!", time = "10:24pm", iconResId = R.drawable.ic_weight),
             Notification(id = 6, title = "HEART RATE ALERT", message = "Heart rate is too high. Need to Emergency!", time = "10:24pm", iconResId = R.drawable.ic_heart_rate),
             Notification(id = 7, title = "ECG ALERT", message = "ECG is not stable. Need to Emergency!", time = "10:24pm", iconResId = R.drawable.ic_ecg),
             Notification(id = 8, title = "OXYGEN LEVEL ALERT", message = "Oxygen Level is too high. Need to Emergency!", time = "10:24pm", iconResId = R.drawable.ic_oxygen),
@@ -58,9 +57,6 @@ class NotificationFragment : Fragment() {
             Notification(id = 20, title = "OXYGEN LEVEL ALERT", message = "Oxygen Level is too high. Need to Emergency!", time = "10:24pm", iconResId = R.drawable.ic_oxygen),
             Notification(id = 21, title = "HEART RATE ALERT", message = "Heart rate is too high. Need to Emergency!", time = "10:24pm", iconResId = R.drawable.ic_heart_rate),
             // Thêm các thông báo UPDATE WEIGHT mới
-            Notification(id = 22, title = "UPDATE WEIGHT", message = "Weight increased to 66KG. Monitor your diet!", time = "09:15am", iconResId = R.drawable.ic_weight),
-            Notification(id = 23, title = "UPDATE WEIGHT", message = "Weight decreased to 64KG. Good progress!", time = "08:30am", iconResId = R.drawable.ic_weight),
-            Notification(id = 24, title = "UPDATE WEIGHT", message = "Weight is 65.5KG. Keep up the good work!", time = "07:45am", iconResId = R.drawable.ic_weight)
         )
 
         // Thiết lập RecyclerView
@@ -70,7 +66,6 @@ class NotificationFragment : Fragment() {
                 "HEART RATE ALERT" -> findNavController().navigate(R.id.action_notificationFragment_to_heartRateFragment)
                 "OXYGEN LEVEL ALERT" -> findNavController().navigate(R.id.action_notificationFragment_to_oxygenFragment)
                 "ECG ALERT" -> findNavController().navigate(R.id.action_notificationFragment_to_ecgFragment)
-                "UPDATE WEIGHT" -> findNavController().navigate(R.id.action_notificationFragment_to_weightFragment)
             }
         }
         binding.rvNotifications.layoutManager = LinearLayoutManager(requireContext())
