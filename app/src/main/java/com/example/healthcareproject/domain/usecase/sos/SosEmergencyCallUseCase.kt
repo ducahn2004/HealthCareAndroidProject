@@ -4,10 +4,11 @@ import android.content.Context
 import android.content.Intent
 import android.widget.Toast
 import androidx.core.net.toUri
+import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
 class SosEmergencyCallUseCase @Inject constructor(
-    private val context: Context
+    @ApplicationContext private val context: Context
 ) {
     fun call(phoneNumber: String) {
         try {

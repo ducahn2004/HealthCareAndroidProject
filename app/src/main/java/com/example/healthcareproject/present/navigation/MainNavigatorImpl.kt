@@ -22,7 +22,7 @@ class MainNavigatorImpl @Inject constructor(
     }
 
     override fun navigateToWeight() {
-        navController.navigate(R.id.action_homeFragment_to_weightFragment)
+        navController.navigate(R.id.action_homeFragment_to_alarmFragment)
     }
 
     override fun navigateBackToHomeFromHeartRate() {
@@ -77,7 +77,7 @@ class MainNavigatorImpl @Inject constructor(
     }
 
     override fun navigateToWeightFromNotification() {
-        navController.navigate(R.id.action_notificationFragment_to_weightFragment)
+        navController.navigate(R.id.action_notificationFragment_to_alarmFragment)
     }
 
     override fun navigateToTheme() {

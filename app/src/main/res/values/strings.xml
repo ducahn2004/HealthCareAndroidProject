@@ -167,4 +167,5 @@
     </string-array>
     <string name="information_icon">INFORMATION ICON HOME</string>
     <string name="set_alarm">Set Alarm</string>
+    <string name="refresh">Refesh</string>
 </resources>

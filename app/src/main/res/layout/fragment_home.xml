@@ -5,12 +5,20 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
-    android:background="@color/background">
+    android:background="@color/background_light">
+
+    <!-- ProgressBar for loading state -->
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <!-- Dashboard Title -->
-
-    <!-- Good Morning Text -->
-
     <TextView
         android:id="@+id/tv_dashboard_title"
         android:layout_width="wrap_content"
@@ -19,21 +27,43 @@
         android:text="@string/dashboard"
         android:textSize="34sp"
         android:textStyle="bold"
+        android:textColor="@color/primary_text_color"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <!-- Greeting Text -->
+    <TextView
+        android:id="@+id/tv_greeting"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="@string/good_morning"
+        android:textSize="20sp"
+        android:textColor="@color/secondary_text_color"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_dashboard_title" />
+
+    <!-- Refresh Button -->
+    <Button
+        android:id="@+id/btn_refresh"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/refresh"
+        android:textColor="@color/button_text_color"
+        android:backgroundTint="@color/button_background_color"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/tv_dashboard_title" />
+
+    <!-- Summary Row (Heart Rate, Oxygen Level, ECG) -->
     <LinearLayout
         android:id="@+id/ll_summary"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:background="@drawable/border_background_ll_summary"
-        android:baselineAligned="false"
-        android:foregroundTint="#ABA6A6"
         android:orientation="horizontal"
         android:padding="8dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_greeting">
 
@@ -50,13 +80,14 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:contentDescription="@string/heart_rate_icon"
-                android:src="@drawable/ic_heart_rate" />
+                android:src="@drawable/ic_heart_rate"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/heart_rate"
-                android:textSize="12sp" />
+                android:textSize="12sp"
+                android:textColor="@color/secondary_text_color" />
 
             <TextView
                 android:id="@+id/tv_heart_rate_value"
@@ -64,7 +95,16 @@
                 android:layout_height="wrap_content"
                 android:text="@string/default_heart_rate"
                 android:textSize="14sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:textColor="@color/primary_text_color" />
+
+            <TextView
+                android:id="@+id/tv_heart_rate_alert"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/alert_text_color"
+                android:textSize="12sp"
+                android:visibility="gone" />
         </LinearLayout>
 
         <!-- Oxygen Level -->
@@ -80,14 +120,14 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:contentDescription="@string/oxygen_level_icon"
-                android:src="@drawable/ic_oxygen" />
+                android:src="@drawable/ic_oxygen"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/oxygen_level"
-                android:textAlignment="center"
-                android:textSize="12sp" />
+                android:textSize="12sp"
+                android:textColor="@color/secondary_text_color" />
 
             <TextView
                 android:id="@+id/tv_oxygen_level_value"
@@ -95,7 +135,16 @@
                 android:layout_height="wrap_content"
                 android:text="@string/default_oxygen_level"
                 android:textSize="14sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:textColor="@color/primary_text_color" />
+
+            <TextView
+                android:id="@+id/tv_oxygen_level_alert"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/alert_text_color"
+                android:textSize="12sp"
+                android:visibility="gone" />
         </LinearLayout>
 
         <!-- ECG -->
@@ -111,13 +160,14 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:contentDescription="@string/ecg_icon"
-                android:src="@drawable/ic_ecg" />
+                android:src="@drawable/ic_ecg"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/ecg"
-                android:textSize="12sp" />
+                android:textSize="12sp"
+                android:textColor="@color/secondary_text_color" />
 
             <TextView
                 android:id="@+id/tv_ecg_value"
@@ -125,99 +175,12 @@
                 android:layout_height="wrap_content"
                 android:text="@string/default_ecg"
                 android:textSize="14sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:textColor="@color/primary_text_color" />
         </LinearLayout>
-
-
     </LinearLayout>
 
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cv_oxygen_level"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="24dp"
-        app:cardCornerRadius="8dp"
-        app:cardElevation="4dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/cv_heart_rate"
-        app:layout_constraintTop_toBottomOf="@id/ll_summary"
-        app:layout_constraintWidth_percent="0.48">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:padding="16dp">
-
-            <ImageView
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:contentDescription="@string/oxygen_level_icon"
-                android:src="@drawable/ic_oxygen" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="@string/check_oxygen_level"
-
-                android:textSize="16sp" />
-
-            <TextView
-                android:id="@+id/tv_oxygen_level_current"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/default_oxygen_level_current"
-                android:textSize="14sp"
-                android:textStyle="bold" />
-        </LinearLayout>
-    </androidx.cardview.widget.CardView>
-
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cv_weight"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        app:cardCornerRadius="8dp"
-        app:cardElevation="4dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/cv_ecg"
-        app:layout_constraintTop_toBottomOf="@id/cv_oxygen_level"
-        app:layout_constraintWidth_percent="0.48">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:padding="16dp">
-
-            <ImageView
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:contentDescription="@string/information_icon"
-                android:src="@drawable/ic_timer" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="@string/set_alarm"
-                android:textSize="16sp" />
-
-            <TextView
-                android:id="@+id/tv_weight_current"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Update"
-                android:textSize="14sp"
-                android:textStyle="bold" />
-        </LinearLayout>
-    </androidx.cardview.widget.CardView>
-
+    <!-- Heart Rate Card -->
     <androidx.cardview.widget.CardView
         android:id="@+id/cv_heart_rate"
         android:layout_width="0dp"
@@ -226,6 +189,7 @@
         android:layout_marginEnd="8dp"
         app:cardCornerRadius="8dp"
         app:cardElevation="4dp"
+        app:cardBackgroundColor="@color/surface_light"
         app:layout_constraintEnd_toStartOf="@id/cv_oxygen_level"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/ll_summary"
@@ -242,14 +206,15 @@
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:contentDescription="@string/heart_rate_icon"
-                android:src="@drawable/ic_heart_rate" />
+                android:src="@drawable/ic_heart_rate"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="@string/check_heart_rate"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                android:textColor="@color/primary_text_color" />
 
             <TextView
                 android:id="@+id/tv_heart_rate_current"
@@ -257,10 +222,59 @@
                 android:layout_height="wrap_content"
                 android:text="@string/default_heart_rate_current"
                 android:textSize="14sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:textColor="@color/primary_text_color" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
+    <!-- Oxygen Level Card -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cv_oxygen_level"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="24dp"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="4dp"
+        app:cardBackgroundColor="@color/surface_light"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/cv_heart_rate"
+        app:layout_constraintTop_toBottomOf="@id/ll_summary"
+        app:layout_constraintWidth_percent="0.48">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:contentDescription="@string/oxygen_level_icon"
+                android:src="@drawable/ic_oxygen"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/check_oxygen_level"
+                android:textSize="16sp"
+                android:textColor="@color/primary_text_color" />
+
+            <TextView
+                android:id="@+id/tv_oxygen_level_current"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/default_oxygen_level_current"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="@color/primary_text_color" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- ECG Card -->
     <androidx.cardview.widget.CardView
         android:id="@+id/cv_ecg"
         android:layout_width="0dp"
@@ -269,6 +283,7 @@
         android:layout_marginEnd="8dp"
         app:cardCornerRadius="8dp"
         app:cardElevation="4dp"
+        app:cardBackgroundColor="@color/surface_light"
         app:layout_constraintEnd_toStartOf="@id/cv_weight"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/cv_heart_rate"
@@ -285,14 +300,15 @@
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:contentDescription="@string/ecg_icon"
-                android:src="@drawable/ic_ecg" />
+                android:src="@drawable/ic_ecg"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="@string/check_ecg"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                android:textColor="@color/primary_text_color" />
 
             <TextView
                 android:id="@+id/tv_ecg_current"
@@ -300,28 +316,56 @@
                 android:layout_height="wrap_content"
                 android:text="@string/default_ecg_current"
                 android:textSize="14sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:textColor="@color/primary_text_color" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
-    <TextView
-        android:id="@+id/tv_greeting"
-        android:layout_width="wrap_content"
+    <!-- Weight Card -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cv_weight"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:text="@string/good_morning"
-        android:textSize="20sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_dashboard_title" />
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="4dp"
+        app:cardBackgroundColor="@color/surface_light"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/cv_ecg"
+        app:layout_constraintTop_toBottomOf="@id/cv_oxygen_level"
+        app:layout_constraintWidth_percent="0.48">
 
-    <!-- Summary Row (Heart Rate, Oxygen Level, ECG, Weight) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="16dp">
 
-    <!-- Check Heart Rate Card -->
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:contentDescription="@string/information_icon"
+                android:src="@drawable/ic_timer"/>
 
-    <!-- Check Oxygen Level Card -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/set_alarm"
+                android:textSize="16sp"
+                android:textColor="@color/primary_text_color" />
 
-    <!-- Check ECG Card -->
-
-    <!-- Enter Weight Card -->
+            <TextView
+                android:id="@+id/tv_weight_current"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/default_weight_current"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="@color/primary_text_color" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
