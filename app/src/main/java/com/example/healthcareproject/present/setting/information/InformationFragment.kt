@@ -33,7 +33,7 @@ class InformationFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Check if user is logged in and get UID
+        // Check if user is logged in
         val uid = FirebaseAuth.getInstance().currentUser?.uid
         if (uid == null) {
             Toast.makeText(requireContext(), "User not logged in", Toast.LENGTH_SHORT).show()
@@ -41,13 +41,13 @@ class InformationFragment : Fragment() {
             return
         }
 
-        // Load user info using UID
+        // Load user info
         viewModel.loadUserInfoByUid(uid)
 
         // Observe error
         viewModel.error.observe(viewLifecycleOwner) { error ->
-            if (error != null) {
-                Toast.makeText(requireContext(), error, Toast.LENGTH_SHORT).show()
+            error?.let {
+                Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -64,7 +64,7 @@ class InformationFragment : Fragment() {
         // Handle update button
         binding.btnUpdate.setOnClickListener {
             UpdateInformationDialogFragment { updatedInfo ->
-                // Optional: Handle updated info if needed
+                // Handle updated info if needed
             }.show(parentFragmentManager, "UpdateInformationDialog")
         }
     }

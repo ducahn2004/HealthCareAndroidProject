@@ -4,8 +4,10 @@ import com.example.healthcareproject.data.mapper.toExternal
 import com.example.healthcareproject.data.mapper.toLocal
 import com.example.healthcareproject.data.mapper.toNetwork
 import com.example.healthcareproject.data.source.local.dao.UserDao
+import com.example.healthcareproject.data.source.local.entity.RoomUser
 import com.example.healthcareproject.data.source.network.datasource.AuthDataSource
 import com.example.healthcareproject.data.source.network.datasource.UserDataSource
+import com.example.healthcareproject.data.source.network.model.FirebaseUser
 import com.example.healthcareproject.di.DefaultDispatcher
 import com.example.healthcareproject.domain.model.User
 import com.example.healthcareproject.domain.repository.UserRepository
@@ -17,6 +19,7 @@ import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -121,26 +124,24 @@ class DefaultUserRepository @Inject constructor(
             .flowOn(dispatcher)
     }
 
+
     override suspend fun getUser(forceUpdate: Boolean): User? = withContext(dispatcher) {
-        Timber.d("Getting current user, forceUpdate: $forceUpdate")
-        val currentUserId = authDataSource.getCurrentUserId()
-            ?: return@withContext null
+        val uid = authDataSource.getCurrentUserId() ?: return@withContext null
 
         if (forceUpdate) {
             try {
-                val uid = networkDataSource.getUidByEmail(currentUserId)
-                    ?: throw Exception("UID not found for user ID $currentUserId")
                 val networkUser = networkDataSource.loadUser(uid)
-                    ?: throw Exception("User not found for ID $currentUserId")
-                localDataSource.upsert(networkUser.toLocal())
+                    ?: throw Exception("User not found for UID $uid")
+                localDataSource.upsert(networkUser.toRoomUser(uid))
             } catch (e: Exception) {
-                Timber.e(e, "Failed to refresh current user: $currentUserId")
-                throw Exception("Cannot refresh current user with ID $currentUserId: ${e.message}")
+                Timber.e(e, "Failed to refresh user: $uid")
+                return@withContext localDataSource.getById(uid)?.toDomain()
             }
         }
 
-        return@withContext localDataSource.getById(currentUserId)?.toExternal()
+        localDataSource.getById(uid)?.toDomain()
     }
+
     override suspend fun verifyCode(email: String, code: String) = withContext(dispatcher) {
         Timber.d("Verifying code for email: $email")
         try {
@@ -258,4 +259,110 @@ class DefaultUserRepository @Inject constructor(
     override suspend fun sendVerificationEmail(email: String) {
         authDataSource.sendVerificationCode(email)
     }
+}
+
+fun FirebaseUser.toRoomUser(uid: String): RoomUser {
+    // Assume Firebase stores dates in ISO format; adjust if different
+    val dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE // e.g., "1990-01-01"
+    val dateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME // e.g., "2025-01-01T00:00:00"
+
+    return RoomUser(
+        userId = uid, // Firebase Auth UID
+        password = password,
+        name = name,
+        address = address,
+        dateOfBirth = if (dateOfBirth.isNotEmpty()) {
+            try {
+                LocalDate.parse(dateOfBirth, dateFormatter)
+            } catch (e: Exception) {
+                Timber.e(e, "Failed to parse dateOfBirth: $dateOfBirth")
+                LocalDate.now()
+            }
+        } else {
+            LocalDate.now()
+        },
+        gender = gender,
+        bloodType = bloodType,
+        phone = phone,
+        createdAt = if (createdAt.isNotEmpty()) {
+            try {
+                LocalDateTime.parse(createdAt, dateTimeFormatter)
+            } catch (e: Exception) {
+                Timber.e(e, "Failed to parse createdAt: $createdAt")
+                LocalDateTime.now()
+            }
+        } else {
+            LocalDateTime.now()
+        },
+        updatedAt = if (updatedAt.isNotEmpty()) {
+            try {
+                LocalDateTime.parse(updatedAt, dateTimeFormatter)
+            } catch (e: Exception) {
+                Timber.e(e, "Failed to parse updatedAt: $updatedAt")
+                LocalDateTime.now()
+            }
+        } else {
+            LocalDateTime.now()
+        }
+    )
+}
+
+fun FirebaseUser.toDomain(uid: String): User {
+    val dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE
+    val dateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
+
+    return User(
+        userId = userId, // Email
+        password = password,
+        name = name,
+        address = address,
+        dateOfBirth = if (dateOfBirth.isNotEmpty()) {
+            try {
+                LocalDate.parse(dateOfBirth, dateFormatter)
+            } catch (e: Exception) {
+                Timber.e(e, "Failed to parse dateOfBirth: $dateOfBirth")
+                LocalDate.now()
+            }
+        } else {
+            LocalDate.now()
+        },
+        gender = gender,
+        bloodType = bloodType,
+        phone = phone,
+        createdAt = if (createdAt.isNotEmpty()) {
+            try {
+                LocalDateTime.parse(createdAt, dateTimeFormatter)
+            } catch (e: Exception) {
+                Timber.e(e, "Failed to parse createdAt: $createdAt")
+                LocalDateTime.now()
+            }
+        } else {
+            LocalDateTime.now()
+        },
+        updatedAt = if (updatedAt.isNotEmpty()) {
+            try {
+                LocalDateTime.parse(updatedAt, dateTimeFormatter)
+            } catch (e: Exception) {
+                Timber.e(e, "Failed to parse updatedAt: $updatedAt")
+                LocalDateTime.now()
+            }
+        } else {
+            LocalDateTime.now()
+        }
+    )
+}
+
+fun RoomUser.toDomain(): User {
+    return User(
+        userId = userId, // Email from Firebase userId
+        password = password,
+        name = name,
+        address = address,
+        dateOfBirth = dateOfBirth,
+        gender = gender,
+        bloodType = bloodType,
+        phone = phone,
+        createdAt = createdAt,
+        updatedAt = updatedAt
+    )
 }
