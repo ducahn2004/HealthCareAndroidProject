@@ -44,7 +44,6 @@ class AddMedicationViewModel @Inject constructor(
         diagnosis: String,
         doctorName: String,
         clinicName: String,
-        location: String?
     ) {
         viewModelScope.launch {
             _uiState.value = _uiState.value?.copy(isLoading = true)
@@ -131,7 +130,7 @@ class AddMedicationViewModel @Inject constructor(
                     timeOfDay = completeMedication.timeOfDay,
                     mealRelation = completeMedication.mealRelation,
                     startDate = completeMedication.startDate,
-                    endDate = completeMedication.endDate ?: completeMedication.startDate.plusMonths(1),
+                    endDate = completeMedication.endDate,
                     notes = completeMedication.notes ?: ""
                 )
                 when (medicationResult) {

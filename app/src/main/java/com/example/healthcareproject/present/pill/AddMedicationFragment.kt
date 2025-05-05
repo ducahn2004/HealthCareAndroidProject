@@ -107,7 +107,6 @@ class AddMedicationFragment : Fragment() {
             val diagnosis = binding.etCondition.text.toString()
             val doctorName = binding.etDoctor.text.toString()
             val clinicName = binding.etFacility.text.toString()
-            val location = binding.etLocation.text.toString().takeIf { it.isNotBlank() }
 
             if (diagnosis.isBlank()) {
                 binding.etCondition.error = "Condition is required"
@@ -123,7 +122,7 @@ class AddMedicationFragment : Fragment() {
             }
 
             Timber.d("Save button clicked: Saving MedicalVisit")
-            viewModel.saveMedicalVisit(diagnosis, doctorName, clinicName, location)
+            viewModel.saveMedicalVisit(diagnosis, doctorName, clinicName)
         }
 
         // Add Medication
