@@ -79,7 +79,7 @@ class AddMedicationFragment : Fragment() {
                     })
                 },
                 today.year,
-                today.monthValue - 1,
+                today.monthValue - 12,
                 today.dayOfMonth
             ).show()
         }
