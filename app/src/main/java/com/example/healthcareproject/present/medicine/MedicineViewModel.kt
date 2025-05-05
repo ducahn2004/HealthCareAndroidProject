@@ -24,6 +24,8 @@ class MedicineViewModel @Inject constructor(
     val isVisitsBeforeEmpty = MutableLiveData(true)
     val isVisitsAfterEmpty = MutableLiveData(true)
 
+    val navigateToAddAppointmentEvent = MutableLiveData<Unit>()
+
     // Cache for unfiltered lists
     private var allVisitsBefore: List<MedicalVisit> = emptyList()
     private var allVisitsAfter: List<MedicalVisit> = emptyList()
@@ -98,6 +100,7 @@ class MedicineViewModel @Inject constructor(
     fun navigateToAddAppointment() {
         // This will be implemented to navigate to add appointment screen
         // Implementation would depend on your navigation strategy
+        navigateToAddAppointmentEvent.value = Unit
     }
 
     // Helper method to get loading visibility (1=VISIBLE, 8=GONE)
