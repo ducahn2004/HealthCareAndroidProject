@@ -9,7 +9,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingBottom="80dp">
 
         <!-- Back Button -->
         <ImageView
@@ -131,7 +132,9 @@
             android:layout_marginTop="8dp"
             android:backgroundTint="@color/button_accent_color"
             android:text="Add Medication"
-            android:textColor="@color/button_text_color" />
+            android:textColor="@color/button_text_color"
+            android:clickable="true"
+            android:focusable="true" />
 
         <!-- Save Button -->
         <Button
@@ -141,6 +144,8 @@
             android:layout_marginTop="16dp"
             android:backgroundTint="@color/button_accent_color"
             android:text="Save"
-            android:textColor="@color/button_text_color" />
+            android:textColor="@color/button_text_color"
+            android:clickable="true"
+            android:focusable="true" />
     </LinearLayout>
 </ScrollView>
