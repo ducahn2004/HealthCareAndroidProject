@@ -1,6 +1,9 @@
 package com.example.healthcareproject.domain.usecase.auth
 
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthException
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -9,13 +12,25 @@ class GoogleSignInUseCase @Inject constructor(
     private val firebaseAuth: FirebaseAuth
 ) {
 
-    suspend operator fun invoke(idToken: String) {
-        try {
+    suspend operator fun invoke(idToken: String): Result<FirebaseUser?> {
+        return try {
             val credential = GoogleAuthProvider.getCredential(idToken, null)
-            firebaseAuth.signInWithCredential(credential).await()
-            // Optionally save user data to your backend or database
+            val authResult = firebaseAuth.signInWithCredential(credential).await()
+            val user = authResult.user
+            // Log analytics event (optional)
+            Result.success(user)
+        } catch (e: FirebaseAuthException) {
+            when (e.errorCode) {
+                "ERROR_ACCOUNT_EXISTS_WITH_DIFFERENT_CREDENTIAL" -> {
+                    Result.failure(AccountExistsException(e))
+                }
+                else -> Result.failure(Exception("Google Sign-In failed: ${e.message}", e))
+            }
         } catch (e: Exception) {
-            throw Exception("Google Sign-In failed: ${e.message}")
+            Result.failure(Exception("Google Sign-In failed: ${e.message}", e))
         }
     }
 }
+
+// Custom exception for account linking scenarios
+class AccountExistsException(cause: Throwable) : Exception("Account exists with different credential", cause)

@@ -92,7 +92,9 @@ class GoogleLoginFragment : Fragment() {
         // Observe ViewModel's Google Sign-In trigger
         viewModel.googleSignInTrigger.observe(viewLifecycleOwner) {
             Timber.d("Launching Google Sign-In intent")
-            signInLauncher.launch(googleSignInClient.signInIntent)
+            googleSignInClient.signOut().addOnCompleteListener {
+                signInLauncher.launch(googleSignInClient.signInIntent)
+            }
         }
 
         // Observe authentication state
