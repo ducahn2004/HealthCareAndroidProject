@@ -153,8 +153,7 @@ dependencies {
     implementation(libs.slf4j.simple)
     implementation(libs.google.auth.library.oauth2.http)
     implementation(libs.google.play.services.auth)
-    implementation(libs.material)
-    implementation(libs.androidx.activity)
-    implementation(libs.timber)
 
+    // androidx.lifecycle
+    implementation(libs.androidx.lifecycle.runtime.ktx)
 }

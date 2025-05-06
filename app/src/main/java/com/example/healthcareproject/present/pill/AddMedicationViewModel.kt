@@ -108,7 +108,7 @@ class AddMedicationViewModel @Inject constructor(
                     notes = completeMedication.notes ?: ""
                 )
                 when (medicationResult) {
-                    is Result.Success<String> -> Unit
+                    is Result.Success<*> -> Unit
                     is Result.Error -> {
                         _uiState.value = _uiState.value?.copy(
                             isLoading = false,

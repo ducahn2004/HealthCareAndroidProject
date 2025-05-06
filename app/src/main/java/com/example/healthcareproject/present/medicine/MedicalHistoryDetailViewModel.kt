@@ -1,7 +1,6 @@
 package com.example.healthcareproject.present.medicine
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.example.healthcareproject.domain.model.MedicalVisit
 import com.example.healthcareproject.domain.model.Medication
 import com.example.healthcareproject.domain.usecase.medicalvisit.MedicalVisitUseCases
@@ -10,8 +9,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 
 @HiltViewModel
 class MedicalHistoryDetailViewModel @Inject constructor(
@@ -19,28 +16,23 @@ class MedicalHistoryDetailViewModel @Inject constructor(
     private val medicationUseCases: MedicationUseCases
 ) : ViewModel() {
 
-    // Medical Visit details
     private val _medicalVisit = MutableLiveData<MedicalVisit?>()
-    val medicalVisit: LiveData<MedicalVisit?> = _medicalVisit
+    val medicalVisit: LiveData<MedicalVisit?> get() = _medicalVisit
 
-    // Medications list
     private val _medications = MutableLiveData<List<Medication>>(emptyList())
-    val medications: LiveData<List<Medication>> = _medications
+    val medications: LiveData<List<Medication>> get() = _medications
 
-    // Loading state
     private val _isLoading = MutableLiveData(false)
-    val isLoading: LiveData<Boolean> = _isLoading
+    val isLoading: LiveData<Boolean> get() = _isLoading
 
-    // Error message
-    private val _error = MutableLiveData<String?>(null)
-    val error: LiveData<String?> = _error
+    private val _error = MutableLiveData<String?>()
+    val error: LiveData<String?> get() = _error
 
-    // Formatted date and time
-    private val _formattedDate = MutableLiveData<String>("")
-    val formattedDate: LiveData<String> = _formattedDate
+    private val _formattedDate = MutableLiveData("")
+    val formattedDate: LiveData<String> get() = _formattedDate
 
-    private val _formattedTime = MutableLiveData<String>("")
-    val formattedTime: LiveData<String> = _formattedTime
+    private val _formattedTime = MutableLiveData("")
+    val formattedTime: LiveData<String> get() = _formattedTime
 
     private val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
     private val timeFormatter = DateTimeFormatter.ofPattern("hh:mm a")
@@ -59,14 +51,18 @@ class MedicalHistoryDetailViewModel @Inject constructor(
                     _formattedTime.value = medicalVisit.createdAt.format(timeFormatter)
                     _error.value = null
                 } else {
-                    _error.value = "Medical visit not found"
-                    _medications.value = emptyList()
+                    handleError("Medical visit not found")
                 }
             } catch (e: Exception) {
-                _error.value = e.message ?: "An error occurred"
+                handleError(e.message ?: "An error occurred")
             } finally {
                 _isLoading.value = false
             }
         }
+    }
+
+    private fun handleError(message: String) {
+        _error.value = message
+        _medications.value = emptyList()
     }
 }

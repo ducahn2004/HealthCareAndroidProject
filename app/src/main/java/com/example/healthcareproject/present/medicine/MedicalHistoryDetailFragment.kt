@@ -7,11 +7,8 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.healthcareproject.databinding.FragmentMedicalHistoryDetailBinding
-import com.example.healthcareproject.databinding.ItemMedicationBinding
-import com.example.healthcareproject.domain.model.Medication
 import com.example.healthcareproject.present.navigation.MainNavigator
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.format.DateTimeFormatter
@@ -31,43 +28,47 @@ class MedicalHistoryDetailFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentMedicalHistoryDetailBinding.inflate(inflater, container, false)
-        binding.lifecycleOwner = viewLifecycleOwner
-        binding.viewModel = viewModel
+        _binding = FragmentMedicalHistoryDetailBinding.inflate(inflater, container, false).apply {
+            lifecycleOwner = viewLifecycleOwner
+            viewModel = this@MedicalHistoryDetailFragment.viewModel
+        }
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        setupUI()
+        observeViewModel()
+        loadVisitDetails()
+    }
 
-        // Setup back button
+    private fun setupUI() {
         binding.ivBack.setOnClickListener {
             mainNavigator.navigateBackToMedicineFromMedicalHistoryDetail()
         }
 
-        // Setup RecyclerView
-        val adapter = MedicationAdapter(dateFormatter)
         binding.rvMedications.apply {
             layoutManager = LinearLayoutManager(context)
-            this.adapter = adapter
+            adapter = MedicationAdapter(dateFormatter)
+        }
+    }
+
+    private fun observeViewModel() {
+        viewModel.medications.observe(viewLifecycleOwner) { medications ->
+            (binding.rvMedications.adapter as MedicationAdapter).submitList(medications)
         }
 
-        // Observe medications list
-        viewModel.medications.observe(viewLifecycleOwner, Observer { medications ->
-            adapter.submitList(medications)
-        })
+        viewModel.error.observe(viewLifecycleOwner) { errorMessage ->
+            errorMessage?.let { Toast.makeText(context, it, Toast.LENGTH_SHORT).show() }
+        }
+    }
 
-        // Observe error messages
-        viewModel.error.observe(viewLifecycleOwner, Observer { errorMessage ->
-            errorMessage?.let {
-                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
-            }
-        })
-
-        // Load data
+    private fun loadVisitDetails() {
         val visitId = arguments?.getString("visitId")
-        visitId?.let { viewModel.loadDetails(it) } ?: run {
+        if (visitId != null) {
+            viewModel.loadDetails(visitId)
+        } else {
             Toast.makeText(context, "Invalid visit ID", Toast.LENGTH_SHORT).show()
             mainNavigator.navigateBackToMedicineFromMedicalHistoryDetail()
         }
@@ -79,29 +80,3 @@ class MedicalHistoryDetailFragment : Fragment() {
     }
 }
 
-// RecyclerView Adapter for Medications
-class MedicationAdapter(
-    private val dateFormatter: DateTimeFormatter
-) : androidx.recyclerview.widget.ListAdapter<Medication, MedicationAdapter.MedicationViewHolder>(
-    object : androidx.recyclerview.widget.DiffUtil.ItemCallback<Medication>() {
-        override fun areItemsTheSame(oldItem: Medication, newItem: Medication): Boolean =
-            oldItem.medicationId == newItem.medicationId
-        override fun areContentsTheSame(oldItem: Medication, newItem: Medication): Boolean =
-            oldItem == newItem
-    }
-) {
-    class MedicationViewHolder(val binding: ItemMedicationBinding) :
-        androidx.recyclerview.widget.RecyclerView.ViewHolder(binding.root)
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MedicationViewHolder {
-        val binding = ItemMedicationBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return MedicationViewHolder(binding)
-    }
-
-    override fun onBindViewHolder(holder: MedicationViewHolder, position: Int) {
-        val medication = getItem(position)
-        holder.binding.medication = medication
-        holder.binding.dateFormatter = dateFormatter
-        holder.binding.executePendingBindings()
-    }
-}
