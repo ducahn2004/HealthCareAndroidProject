@@ -9,7 +9,7 @@ import timber.log.Timber
 import javax.inject.Inject
 
 class UserFirebaseDataSource @Inject constructor(
-    private val firebaseDatabase: FirebaseDatabase
+    firebaseDatabase: FirebaseDatabase
 ) : UserDataSource {
 
     private val usersRef = firebaseDatabase.getReference("users")
@@ -66,24 +66,6 @@ class UserFirebaseDataSource @Inject constructor(
         } catch (e: Exception) {
             Timber.tag("Firebase").e(e, "Failed to delete user with UID $uid")
             throw Exception("Cannot delete user with UID $uid: ${e.message}")
-        }
-    }
-
-    override suspend fun getUidByEmail(email: String): String? {
-        return try {
-            withContext(Dispatchers.IO) {
-                val snapshot = usersRef.orderByChild("userId").equalTo(email).get().await()
-                val uid = snapshot.children.firstOrNull()?.key
-                if (uid == null) {
-                    Timber.tag("Firebase").w("UID not found for email $email")
-                } else {
-                    Timber.tag("Firebase").d("Found UID $uid for email $email")
-                }
-                uid
-            }
-        } catch (e: Exception) {
-            Timber.tag("Firebase").e(e, "Failed to get UID for email $email")
-            throw Exception("Cannot get UID for email $email: ${e.message}")
         }
     }
 

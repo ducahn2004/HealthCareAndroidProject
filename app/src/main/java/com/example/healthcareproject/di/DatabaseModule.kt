@@ -2,6 +2,8 @@ package com.example.healthcareproject.di
 
 import android.content.Context
 import androidx.room.Room
+import androidx.room.RoomDatabase
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.healthcareproject.data.source.local.AppDatabase
 import com.example.healthcareproject.data.source.local.dao.*
 import dagger.Module
@@ -19,10 +21,17 @@ object DatabaseModule {
     @Provides
     fun provideDatabase(@ApplicationContext context: Context): AppDatabase {
         return Room.databaseBuilder(
-                context,
-                AppDatabase::class.java,
-                "AppDatabase.db"
-            ).fallbackToDestructiveMigration(false)
+            context,
+            AppDatabase::class.java,
+            "AppDatabase.db"
+        )
+            .fallbackToDestructiveMigration(false)
+            .addCallback(object : RoomDatabase.Callback() {
+                override fun onOpen(db: SupportSQLiteDatabase) {
+                    super.onOpen(db)
+                    db.execSQL("PRAGMA foreign_keys=ON;")
+                }
+            })
             .build()
     }
 

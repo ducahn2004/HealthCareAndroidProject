@@ -42,8 +42,6 @@ class DefaultUserRepository @Inject constructor(
         phone: String
     ): String = withContext(dispatcher) {
         Timber.d("Creating user with ID: $userId")
-        if (userId.isBlank()) throw Exception("User ID cannot be empty")
-        if (password.length < 6) throw Exception("Password must be at least 6 characters")
         val generatedUserId = withContext(dispatcher) {
             userId.ifEmpty { java.util.UUID.randomUUID().toString() }
         }
@@ -79,8 +77,7 @@ class DefaultUserRepository @Inject constructor(
         gender: String,
         bloodType: String,
         phone: String
-    ) = withContext(dispatcher) {
-        Timber.d("Updating user with ID: $userId")
+    ) {
         val user = getUser()?.copy(
             name = name,
             address = address,
@@ -88,54 +85,44 @@ class DefaultUserRepository @Inject constructor(
             gender = com.example.healthcareproject.domain.model.Gender.valueOf(gender),
             bloodType = com.example.healthcareproject.domain.model.BloodType.valueOf(bloodType),
             phone = phone,
-            updatedAt = java.time.LocalDateTime.now()
+            updatedAt = LocalDateTime.now()
         ) ?: throw Exception("User (id $userId) not found")
 
         localDataSource.upsert(user.toLocal())
         networkDataSource.updateUser(userId, user.toNetwork())
     }
 
-    override suspend fun refresh(userId: String) = withContext(dispatcher) {
-        Timber.d("Refreshing user with ID: $userId")
-        try {
-            val uid = networkDataSource.getUidByEmail(userId)
-                ?: throw Exception("UID not found for user ID $userId")
-            val networkUser = networkDataSource.loadUser(uid)
-                ?: throw Exception("User not found for ID $userId")
-            localDataSource.upsert(networkUser.toLocal())
-        } catch (e: Exception) {
-            Timber.e(e, "Failed to refresh user: $userId")
-            throw Exception("Cannot refresh user with ID $userId: ${e.message}")
+    override suspend fun refresh() {
+        withContext(dispatcher) {
+            try {
+                val remoteUser = networkDataSource.loadUser(userId)
+                if (remoteUser != null) {
+                    Timber.d("Loaded user from network: $remoteUser")
+                    localDataSource.upsert(remoteUser.toLocal())
+                    Timber.d("User saved to local database: $remoteUser")
+                } else {
+                    Timber.e("No user data found for ID: $userId")
+                }
+            } catch (e: Exception) {
+                Timber.e(e, "Failed to refresh user data")
+            }
         }
     }
 
-    override fun getUserStream(userId: String): Flow<User?> {
+    override fun getUserStream(): Flow<User?> {
         Timber.d("Streaming user with ID: $userId")
         return localDataSource.observeById(userId)
             .map { it.toExternal() }
             .flowOn(dispatcher)
     }
 
-    override suspend fun getUser(forceUpdate: Boolean): User? = withContext(dispatcher) {
-        Timber.d("Getting current user, forceUpdate: $forceUpdate")
-        val currentUserId = authDataSource.getCurrentUserId()
-            ?: return@withContext null
-
+    override suspend fun getUser(forceUpdate: Boolean): User? {
         if (forceUpdate) {
-            try {
-                val uid = networkDataSource.getUidByEmail(currentUserId)
-                    ?: throw Exception("UID not found for user ID $currentUserId")
-                val networkUser = networkDataSource.loadUser(uid)
-                    ?: throw Exception("User not found for ID $currentUserId")
-                localDataSource.upsert(networkUser.toLocal())
-            } catch (e: Exception) {
-                Timber.e(e, "Failed to refresh current user: $currentUserId")
-                throw Exception("Cannot refresh current user with ID $currentUserId: ${e.message}")
-            }
+            refresh()
         }
-
-        return@withContext localDataSource.getById(currentUserId)?.toExternal()
+        return localDataSource.getById(userId)?.toExternal()
     }
+
     override suspend fun verifyCode(email: String, code: String) = withContext(dispatcher) {
         Timber.d("Verifying code for email: $email")
         try {
@@ -146,42 +133,16 @@ class DefaultUserRepository @Inject constructor(
         }
     }
 
-
-    override suspend fun getUserByUid(uid: String, forceUpdate: Boolean): User? = withContext(dispatcher) {
-        Timber.d("Getting user by UID: $uid, forceUpdate: $forceUpdate")
-        if (forceUpdate) {
-            try {
-                val networkUser = networkDataSource.loadUser(uid)
-                    ?: throw Exception("User not found for UID $uid")
-                localDataSource.upsert(networkUser.toLocal())
-            } catch (e: Exception) {
-                Timber.e(e, "Failed to load user by UID: $uid")
-                throw Exception("Cannot load user with UID $uid: ${e.message}")
-            }
-        }
-        val email = networkDataSource.getEmailByUid(uid)
-            ?: throw Exception("Email not found for UID $uid")
-        localDataSource.getById(email)?.toExternal()
+    override suspend fun deleteUser() {
+        localDataSource.deleteById(userId)
+        networkDataSource.deleteUser(userId)
     }
 
-    override suspend fun refreshUser(userId: String) {
-        refresh(userId)
-    }
-
-    override suspend fun deleteUser(userId: String) = withContext(dispatcher) {
-        Timber.d("Deleting user with ID: $userId")
-        try {
-            val uid = networkDataSource.getUidByEmail(userId)
-                ?: throw Exception("UID not found for user ID $userId")
-            localDataSource.deleteById(userId)
-            networkDataSource.deleteUser(uid)
-        } catch (e: Exception) {
-            Timber.e(e, "Failed to delete user: $userId")
-            throw Exception("Cannot delete user with ID $userId: ${e.message}")
-        }
-    }
-
-    override suspend fun updatePassword(email: String, currentPassword: String, newPassword: String) = withContext(dispatcher) {
+    override suspend fun updatePassword(
+        email: String,
+        currentPassword: String,
+        newPassword: String
+    ) = withContext(dispatcher) {
         Timber.d("Updating password for email: $email")
         try {
             authDataSource.updatePassword(email, currentPassword, newPassword)
@@ -211,14 +172,12 @@ class DefaultUserRepository @Inject constructor(
         }
     }
 
-    override suspend fun loginUser(userId: String, password: String): String = withContext(dispatcher) {
+    override suspend fun loginUser(
+        userId: String,
+        password: String
+    ): String = withContext(dispatcher) {
         Timber.d("Logging in user with ID: $userId")
-        try {
-            authDataSource.loginUser(userId, password)
-        } catch (e: Exception) {
-            Timber.e(e, "Failed to login user: $userId")
-            throw Exception("Cannot login user with ID $userId: ${e.message}")
-        }
+        return@withContext authDataSource.loginUser(userId, password)
     }
 
     override suspend fun sendVerificationCode(email: String) = withContext(dispatcher) {

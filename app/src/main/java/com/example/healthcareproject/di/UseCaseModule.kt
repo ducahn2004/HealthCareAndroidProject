@@ -3,6 +3,8 @@ package com.example.healthcareproject.di
 import android.content.Context
 import com.example.healthcareproject.domain.repository.*
 import com.example.healthcareproject.domain.usecase.alert.*
+import com.example.healthcareproject.domain.usecase.appointment.*
+import com.example.healthcareproject.domain.usecase.user.LogoutUseCase
 import com.example.healthcareproject.domain.usecase.emergencyinfo.*
 import com.example.healthcareproject.domain.usecase.medicalvisit.*
 import com.example.healthcareproject.domain.usecase.medication.*
@@ -42,7 +44,6 @@ object UseCaseModule {
             deleteUser = DeleteUserUseCase(userRepository),
             updateUser = UpdateUserUseCase(userRepository),
             getUser = GetUserUseCase(userRepository),
-            login = LoginUserUseCase(userRepository),
             logout = LogoutUseCase(userRepository)
         )
     }
@@ -153,6 +154,22 @@ object UseCaseModule {
                 createSosUseCase,
                 sosEmergencyCallUseCase
             )
+        )
+    }
+
+    @Provides
+    fun provideAppointmentUseCases(
+        appointmentRepository: AppointmentRepository,
+        userRepository: UserRepository,
+        getAppointmentsUseCase: GetAppointmentsUseCase,
+        createAlertUseCase: CreateAlertUseCase
+    ): AppointmentUseCases {
+        return AppointmentUseCases(
+            reminderLogic = AppointmentReminderLogicUseCase(getAppointmentsUseCase, createAlertUseCase),
+            createAppointment = CreateAppointmentUseCase(appointmentRepository, userRepository),
+            getAppointments = GetAppointmentsUseCase(appointmentRepository),
+            updateAppointment = UpdateAppointmentUseCase(appointmentRepository),
+            deleteAppointment = DeleteAppointmentUseCase(appointmentRepository),
         )
     }
 }

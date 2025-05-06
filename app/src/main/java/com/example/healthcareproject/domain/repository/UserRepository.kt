@@ -30,19 +30,15 @@ interface UserRepository {
         phone: String
     )
 
-    suspend fun refresh(userId: String)
+    suspend fun refresh()
 
-    fun getUserStream(userId: String): Flow<User?>
+    fun getUserStream(): Flow<User?>
 
     suspend fun verifyCode(email: String, code: String)
 
-    suspend fun getUser(forceUpdate: Boolean = false): User?
+    suspend fun getUser(forceUpdate: Boolean = true): User?
 
-    suspend fun getUserByUid(uid: String, forceUpdate: Boolean = false): User?
-
-    suspend fun refreshUser(userId: String)
-
-    suspend fun deleteUser(userId: String)
+    suspend fun deleteUser()
 
     suspend fun updatePassword(email: String, currentPassword: String, newPassword: String)
 

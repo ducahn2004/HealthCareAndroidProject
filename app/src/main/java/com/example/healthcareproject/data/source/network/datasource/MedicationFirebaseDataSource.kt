@@ -6,7 +6,7 @@ import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 class MedicationFirebaseDataSource @Inject constructor(
-    private val firebaseDatabase: FirebaseDatabase
+    firebaseDatabase: FirebaseDatabase
 ) : MedicationDataSource {
 
     private val medicationRef = firebaseDatabase.getReference("medications")
