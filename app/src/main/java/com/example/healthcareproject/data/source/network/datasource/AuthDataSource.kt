@@ -75,4 +75,6 @@ interface AuthDataSource {
      */
     fun getCurrentUserId(): String?
     suspend fun deleteUser(string: String)
+
+    suspend fun linkGoogleCredential(idToken: String, email: String, password: String): Result<Unit>
 }

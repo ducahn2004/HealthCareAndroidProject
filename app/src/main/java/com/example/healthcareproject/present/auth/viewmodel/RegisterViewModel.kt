@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.healthcareproject.domain.usecase.auth.LinkGoogleCredentialUseCase
 import com.example.healthcareproject.domain.usecase.user.CreateUserUseCase
 import com.example.healthcareproject.domain.usecase.auth.SendVerificationCodeUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,7 +17,8 @@ import javax.inject.Inject
 @HiltViewModel
 class RegisterViewModel @Inject constructor(
     private val createUserUseCase: CreateUserUseCase,
-    private val sendVerificationCodeUseCase: SendVerificationCodeUseCase
+    private val sendVerificationCodeUseCase: SendVerificationCodeUseCase,
+    private val linkGoogleCredentialUseCase: LinkGoogleCredentialUseCase
 ) : ViewModel() {
 
     private val _name = MutableLiveData<String>("")
@@ -289,6 +291,19 @@ class RegisterViewModel @Inject constructor(
             } finally {
                 _isLoading.value = false
             }
+        }
+    }
+
+    fun linkGoogleAccount(idToken: String) {
+        _isLoading.value = true
+        viewModelScope.launch {
+            val result = linkGoogleCredentialUseCase(idToken, email.toString(), password.toString())
+            result.onSuccess {
+                _error.value = null
+            }.onFailure {
+                _error.value = "Failed to link Google account: ${it.message}"
+            }
+            _isLoading.value = false
         }
     }
 

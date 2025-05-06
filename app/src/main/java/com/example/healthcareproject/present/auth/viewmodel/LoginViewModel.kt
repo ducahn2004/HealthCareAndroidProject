@@ -6,13 +6,16 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.healthcareproject.domain.usecase.auth.LoginUserUseCase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.GoogleAuthProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val loginUserUseCase: LoginUserUseCase
+    private val loginUserUseCase: LoginUserUseCase,
+    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
 ) : ViewModel() {
 
     private val _email = MutableLiveData<String>()
@@ -95,16 +98,33 @@ class LoginViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val uid = loginUserUseCase(email, password)
-                _loginResult.value = uid // Lưu UID
-                _error.value = null
-                _emailError.value = null
-                _passwordError.value = null
+
+                val user = auth.currentUser
+                val providerData = user?.providerData
+
+                val isGoogleProviderLinked = providerData?.any { it.providerId == GoogleAuthProvider.PROVIDER_ID } == true
+
+                if (isGoogleProviderLinked) {
+                    // Show error message in English
+                    _error.value = "This account is linked with Google. Please log in using Google."
+                    _loginResult.value = null // Reset login result
+                } else {
+                    _loginResult.value = uid
+                    _error.value = null
+                    _emailError.value = null
+                    _passwordError.value = null
+                }
             } catch (e: Exception) {
+                // Handle error in case of failure
                 _error.value = e.message ?: "Login failed"
                 _loginResult.value = null
             } finally {
+                // Ensure loading state is updated
                 _isLoading.value = false
             }
         }
     }
+
+
+
 }

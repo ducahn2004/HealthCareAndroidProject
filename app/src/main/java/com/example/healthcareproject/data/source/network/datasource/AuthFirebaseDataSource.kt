@@ -1,5 +1,6 @@
 package com.example.healthcareproject.data.source.network.datasource
 
+import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.database.FirebaseDatabase
@@ -25,6 +26,11 @@ class AuthFirebaseDataSource @Inject constructor(
     private val codeExpirationMillis = TimeUnit.MINUTES.toMillis(5) // Mã hết hạn sau 5 phút
 
     override suspend fun loginUser(email: String, password: String): String {
+        if (email.isBlank() || password.isBlank()) {
+            Timber.tag("FirebaseAuth").e("Email or password is blank")
+            throw IllegalArgumentException("Email and password must not be empty")
+        }
+
         return try {
             withContext(Dispatchers.IO) {
                 val result = firebaseAuth.signInWithEmailAndPassword(email, password).await()
@@ -41,6 +47,7 @@ class AuthFirebaseDataSource @Inject constructor(
             throw Exception("Cannot login user with email $email: ${e.message}")
         }
     }
+
 
     override suspend fun registerUser(email: String, password: String): String {
         return try {
@@ -205,6 +212,23 @@ class AuthFirebaseDataSource @Inject constructor(
         } catch (e: Exception) {
             Timber.tag("FirebaseAuth").e(e, "Failed to delete user with UID $uid")
             throw Exception("Cannot delete user with UID $uid: ${e.message}")
+        }
+    }
+
+    override suspend fun linkGoogleCredential(idToken: String, email: String, password: String): Result<Unit> {
+        return try {
+            val googleCredential = GoogleAuthProvider.getCredential(idToken, null)
+            val emailCredential = EmailAuthProvider.getCredential(email, password)
+
+            // Sign in with email/password
+            firebaseAuth.signInWithCredential(emailCredential).await()
+
+            // Link Google to this account
+            firebaseAuth.currentUser?.linkWithCredential(googleCredential)?.await()
+
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
         }
     }
 }
