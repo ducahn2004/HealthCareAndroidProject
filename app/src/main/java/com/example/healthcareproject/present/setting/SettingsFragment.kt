@@ -14,6 +14,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.healthcareproject.R
 import com.example.healthcareproject.SettingsAdapter
 import com.example.healthcareproject.present.AuthActivity
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -73,6 +76,18 @@ class SettingsFragment : Fragment() {
     }
 
     private fun performLogout() {
+        // Sign out from Firebase
+        FirebaseAuth.getInstance().signOut()
+
+        // Sign out from Google
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(getString(R.string.default_web_client_id))
+            .requestEmail()
+            .build()
+        val googleSignInClient = GoogleSignIn.getClient(requireActivity(), gso)
+        googleSignInClient.signOut()
+
+        // Clear SharedPreferences
         requireActivity().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
             .edit()
             .clear()
