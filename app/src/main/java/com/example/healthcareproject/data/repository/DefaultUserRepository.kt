@@ -217,13 +217,13 @@ class DefaultUserRepository @Inject constructor(
         }
     }
 
-    override suspend fun loginUser(userId: String, password: String): String = withContext(dispatcher) {
-        Timber.d("Logging in user with ID: $userId")
+    override suspend fun loginUser(email: String, password: String): String = withContext(dispatcher) {
+        Timber.d("Logging in user with email: $email")
         try {
-            authDataSource.loginUser(userId, password)
+            authDataSource.loginUser(email, password)
         } catch (e: Exception) {
-            Timber.e(e, "Failed to login user: $userId")
-            throw Exception("Cannot login user with ID $userId: ${e.message}")
+            Timber.e(e, "Failed to login email: $email")
+            throw Exception("Cannot login user with email $email: ${e.message}")
         }
     }
 
