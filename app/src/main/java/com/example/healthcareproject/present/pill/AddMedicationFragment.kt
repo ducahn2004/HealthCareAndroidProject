@@ -22,7 +22,6 @@ import com.example.healthcareproject.domain.model.Medication
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
-import timber.log.Timber
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -46,19 +45,16 @@ class AddMedicationFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Setup RecyclerView with MedicationAdapter
-        medicationAdapter = MedicationAdapter() // onItemClick mặc định là rỗng
+        medicationAdapter = MedicationAdapter()
         binding.rvMedications.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = medicationAdapter
         }
 
-        // Back button
         binding.ivBack.setOnClickListener {
             findNavController().navigateUp()
         }
 
-        // Date picker for visit date
         binding.tvDate.setOnClickListener {
             val today = LocalDate.now()
             DatePickerDialog(
@@ -77,7 +73,6 @@ class AddMedicationFragment : Fragment() {
             ).show()
         }
 
-        // Time picker for visit time
         binding.tvTime.setOnClickListener {
             val calendar = Calendar.getInstance()
             TimePickerDialog(
@@ -95,7 +90,6 @@ class AddMedicationFragment : Fragment() {
             ).show()
         }
 
-        // Save MedicalVisit and Medications
         binding.btnSave.setOnClickListener {
             val diagnosis = binding.etCondition.text.toString()
             val doctorName = binding.etDoctor.text.toString()
@@ -110,23 +104,18 @@ class AddMedicationFragment : Fragment() {
             viewModel.saveMedicalVisit(diagnosis, doctorName, clinicName, location)
         }
 
-        // Add Medication
         binding.btnAddMedication.setOnClickListener {
             showAddMedicationDialog()
         }
 
-        // Observe UI state
         viewModel.uiState.observe(viewLifecycleOwner) { state ->
-            // Update RecyclerView
+
             medicationAdapter.submitList(state.medications)
 
-            // Enable/disable Add Medication button
             binding.btnAddMedication.isEnabled = state.isVisitSaved && !state.isLoading
 
-            // Handle loading
             binding.btnSave.isEnabled = !state.isLoading
 
-            // Handle errors
             state.error?.let { error ->
                 Snackbar.make(binding.root, error, Snackbar.LENGTH_LONG).show()
             }
@@ -141,22 +130,29 @@ class AddMedicationFragment : Fragment() {
     }
 
     private fun showAddMedicationDialog() {
-        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_add_medication, null)
+        val dialogView = LayoutInflater
+            .from(requireContext())
+            .inflate(R.layout.dialog_add_medication, null)
         val etMedicationName = dialogView.findViewById<EditText>(R.id.et_medication_name)
         val etDosageAmount = dialogView.findViewById<EditText>(R.id.et_dosage_amount)
         val spinnerDosageUnit = dialogView.findViewById<Spinner>(R.id.spinner_dosage_unit)
-        val dosageUnits = DosageUnit.values().map { it.toDisplayString() }
-        spinnerDosageUnit.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, dosageUnits)
+        val dosageUnits = DosageUnit.entries.map { it.toDisplayString() }
+        spinnerDosageUnit.adapter = ArrayAdapter(requireContext(),
+            android.R.layout.simple_spinner_item, dosageUnits)
         val etFrequency = dialogView.findViewById<EditText>(R.id.et_frequency)
         val etTimeOfDay = dialogView.findViewById<EditText>(R.id.et_time_of_day)
         val spinnerMealRelation = dialogView.findViewById<Spinner>(R.id.spinner_meal_relation)
-        val mealRelations = MealRelation.values().map { it.name.replace("_", " ").lowercase().replaceFirstChar { it.uppercase() } }
-        spinnerMealRelation.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, mealRelations)
+        val mealRelations = MealRelation.entries.map {
+            it.name.replace("_", " ")
+                .lowercase()
+                .replaceFirstChar { it.uppercase() }
+        }
+        spinnerMealRelation.adapter = ArrayAdapter(requireContext(),
+            android.R.layout.simple_spinner_item, mealRelations)
         val tvStartDate = dialogView.findViewById<TextView>(R.id.tv_start_date)
         val tvEndDate = dialogView.findViewById<TextView>(R.id.tv_end_date)
         val etNote = dialogView.findViewById<EditText>(R.id.et_note)
 
-        // Date picker for start date
         var startDate: LocalDate? = null
         tvStartDate.setOnClickListener {
             val today = LocalDate.now()
@@ -173,7 +169,6 @@ class AddMedicationFragment : Fragment() {
             ).show()
         }
 
-        // Date picker for end date
         var endDate: LocalDate? = null
         tvEndDate.setOnClickListener {
             val today = LocalDate.now()
@@ -195,10 +190,10 @@ class AddMedicationFragment : Fragment() {
             .setPositiveButton("Add") { _, _ ->
                 val name = etMedicationName.text.toString()
                 val dosageAmount = etDosageAmount.text.toString().toDoubleOrNull() ?: 0.0
-                val dosageUnit = DosageUnit.values()[spinnerDosageUnit.selectedItemPosition]
+                val dosageUnit = DosageUnit.entries[spinnerDosageUnit.selectedItemPosition]
                 val frequency = etFrequency.text.toString().toIntOrNull() ?: 1
                 val timeOfDay = etTimeOfDay.text.toString().split(",").map { it.trim() }
-                val mealRelation = MealRelation.values()[spinnerMealRelation.selectedItemPosition]
+                val mealRelation = MealRelation.entries[spinnerMealRelation.selectedItemPosition]
                 val note = etNote.text.toString()
 
                 if (name.isBlank() || dosageAmount == 0.0 || frequency == 0 || timeOfDay.isEmpty() || startDate == null) {
@@ -206,7 +201,7 @@ class AddMedicationFragment : Fragment() {
                     return@setPositiveButton
                 }
 
-                if (endDate != null && endDate.isBefore(startDate)) {
+                if (endDate != null && endDate!!.isBefore(startDate)) {
                     Snackbar.make(binding.root, "End date cannot be before start date", Snackbar.LENGTH_LONG).show()
                     return@setPositiveButton
                 }
@@ -221,7 +216,7 @@ class AddMedicationFragment : Fragment() {
                     frequency = frequency,
                     timeOfDay = timeOfDay,
                     mealRelation = mealRelation,
-                    startDate = startDate,
+                    startDate = startDate!!,
                     endDate = endDate ?: startDate!!.plusMonths(1),
                     notes = note
                 )

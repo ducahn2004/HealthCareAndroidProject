@@ -62,6 +62,12 @@
         <action
             android:id="@+id/action_googleLoginFragment_to_loginMethodFragment"
             app:destination="@id/loginMethodFragment" />
+        <action
+            android:id="@+id/action_googleLoginFragment_to_loginFragment"
+            app:destination="@id/loginFragment" />
+        <action
+            android:id="@+id/action_googleLoginFragment_to_registerFragment"
+            app:destination="@id/registerFragment" />
     </fragment>
 
     <fragment

@@ -37,10 +37,11 @@ class GoogleLoginFragment : Fragment() {
         try {
             val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
             val account = task.getResult(ApiException::class.java)
-            account.idToken?.let { idToken ->
+            val idToken = account.idToken
+            if (idToken != null) {
                 Timber.d("Google Sign-In: Received ID token")
                 viewModel.handleGoogleSignIn(idToken)
-            } ?: run {
+            } else {
                 Timber.e("Google Sign-In failed: No ID token")
                 viewModel.setError(getString(R.string.error_no_id_token))
             }
@@ -92,7 +93,9 @@ class GoogleLoginFragment : Fragment() {
         // Observe ViewModel's Google Sign-In trigger
         viewModel.googleSignInTrigger.observe(viewLifecycleOwner) {
             Timber.d("Launching Google Sign-In intent")
-            signInLauncher.launch(googleSignInClient.signInIntent)
+            googleSignInClient.signOut().addOnCompleteListener {
+                signInLauncher.launch(googleSignInClient.signInIntent)
+            }
         }
 
         // Observe authentication state
@@ -113,7 +116,16 @@ class GoogleLoginFragment : Fragment() {
         viewModel.error.observe(viewLifecycleOwner) { error ->
             if (!error.isNullOrEmpty()) {
                 Timber.e("Error in GoogleLoginFragment: $error")
-                Snackbar.make(binding.root, error, Snackbar.LENGTH_LONG).show()
+                Snackbar.make(binding.root, error, Snackbar.LENGTH_LONG).apply {
+                    if (error.contains("Please log in with your email")) {
+                        addCallback(object : Snackbar.Callback() {
+                            override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
+                                navigator.fromGoogleLoginToLogin()
+                            }
+                        })
+                    }
+                    show()
+                }
                 viewModel.setError(null)
             }
         }

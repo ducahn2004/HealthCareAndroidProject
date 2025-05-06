@@ -7,7 +7,7 @@ import javax.inject.Inject
 class GetMedicalVisitsUseCase @Inject constructor(
     private val medicalVisitRepository: MedicalVisitRepository
 ) {
-    suspend operator fun invoke(forceUpdate: Boolean = false): List<MedicalVisit> {
+    suspend operator fun invoke(forceUpdate: Boolean = true): List<MedicalVisit> {
         return medicalVisitRepository.getMedicalVisits(forceUpdate)
     }
 }

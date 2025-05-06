@@ -37,6 +37,14 @@ class AuthNavigator(private val navController: NavController) {
         navController.navigate(R.id.action_googleLoginFragment_to_loginMethodFragment)
     }
 
+    fun fromGoogleLoginToLogin() {
+        navController.navigate(R.id.action_googleLoginFragment_to_loginFragment)
+    }
+
+    fun fromGoogleLoginToRegister() {
+        navController.navigate(R.id.action_googleLoginFragment_to_registerFragment)
+    }
+
     fun fromForgotPasswordToLoginMethod() {
         navController.navigate(R.id.action_forgotPasswordFragment_to_loginMethodFragment)
     }
