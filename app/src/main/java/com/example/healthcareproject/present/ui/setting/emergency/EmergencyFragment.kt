@@ -2,10 +2,12 @@ package com.example.healthcareproject.present.ui.setting.emergency
 
 import android.app.AlertDialog
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -76,13 +78,20 @@ class EmergencyFragment : Fragment() {
         viewModel.contacts.observe(viewLifecycleOwner) { state ->
             when (state) {
                 is EmergencyViewModel.ContactsUiState.Loading -> {
-                    // Handled by DataBinding
+                    Log.d("EmergencyFragment", "Loading contacts")
                 }
                 is EmergencyViewModel.ContactsUiState.Success -> {
-                    adapter.submitList(state.contacts)
+                    try {
+                        adapter.submitList(state.contacts)
+                        Log.d("EmergencyFragment", "Updated contacts: ${state.contacts.size}")
+                    } catch (e: Exception) {
+                        Toast.makeText(context, "Error updating contacts: ${e.message}", Toast.LENGTH_SHORT).show()
+                        Log.e("EmergencyFragment", "Error updating contacts: ${e.message}", e)
+                    }
                 }
                 is EmergencyViewModel.ContactsUiState.Error -> {
-                    // TODO: Show error message (e.g., Toast)
+                    Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
+                    Log.e("EmergencyFragment", "Error state: ${state.message}")
                 }
             }
         }
@@ -105,33 +114,40 @@ class EmergencyFragment : Fragment() {
         viewModel.selectedRelationship.observe(viewLifecycleOwner) { relationship ->
             dialogBinding.spRelationship.setSelection(relationship.ordinal)
         }
-        dialogBinding.spRelationship.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
+        dialogBinding.spRelationship.setOnItemSelectedListener(object : android.widget.AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: android.widget.AdapterView<*>, view: View?, position: Int, id: Long) {
                 viewModel.setRelationship(Relationship.entries[position])
             }
-
             override fun onNothingSelected(parent: android.widget.AdapterView<*>) {}
-        }
+        })
 
         // Setup Priority Spinner
         val priorityAdapter = ArrayAdapter(
             requireContext(),
             android.R.layout.simple_spinner_item,
-            (1..5).toList()
+            mutableListOf<Int>()
         ).apply {
             setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         }
         dialogBinding.spPriority.adapter = priorityAdapter
-        viewModel.selectedPriority.observe(viewLifecycleOwner) { priority ->
-            dialogBinding.spPriority.setSelection(priority - 1)
-        }
-        dialogBinding.spPriority.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: android.widget.AdapterView<*>, view: View?, position: Int, id: Long) {
-                viewModel.setPriority(position + 1)
+        viewModel.availablePriorities.observe(viewLifecycleOwner) { priorities ->
+            priorityAdapter.clear()
+            priorityAdapter.addAll(priorities)
+            priorityAdapter.notifyDataSetChanged()
+            // Set default selection to the current selected priority or first available
+            viewModel.selectedPriority.value?.let { selected ->
+                val index = priorities.indexOf(selected)
+                if (index >= 0) {
+                    dialogBinding.spPriority.setSelection(index)
+                }
             }
-
-            override fun onNothingSelected(parent: android.widget.AdapterView<*>) {}
         }
+        dialogBinding.spPriority.setOnItemSelectedListener(object : android.widget.AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: android.widget.AdapterView<*>, view: View?, position: Int, id: Long) {
+                viewModel.setPriority(priorityAdapter.getItem(position) ?: return)
+            }
+            override fun onNothingSelected(parent: android.widget.AdapterView<*>) {}
+        })
 
         // Setup Dialog
         val dialog = AlertDialog.Builder(requireContext())
