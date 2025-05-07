@@ -18,7 +18,7 @@
             android:id="@+id/tv_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Medical History"
+            android:text="Medicine"
             android:textColor="@color/primary_text_color"
             android:textSize="24sp"
             android:textStyle="bold"
@@ -59,7 +59,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layout_constraintGuide_percent="0.5" />
+            app:layout_constraintGuide_begin="366dp" />
 
         <!-- Future Visits Section -->
         <TextView
