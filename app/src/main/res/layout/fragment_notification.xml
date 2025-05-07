@@ -22,12 +22,20 @@
             android:layout_height="54dp"
             android:layout_marginTop="16dp"
             android:background="@color/background"
-            android:textAlignment="gravity"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:title="NOTIFICATION"
-            app:titleTextAppearance="@style/TextAppearance.AppCompat.Large" />
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/tv_toolbar_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="NOTIFICATION"
+                android:textColor="@color/primary_text_color"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:layout_gravity="center" />
+        </androidx.appcompat.widget.Toolbar>
 
         <!-- RecyclerView for notifications -->
         <androidx.recyclerview.widget.RecyclerView
