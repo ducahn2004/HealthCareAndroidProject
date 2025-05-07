@@ -1,7 +1,9 @@
 package com.example.healthcareproject.present.ui.home
 
+import android.app.ActivityManager
+import android.content.Context
+import android.content.Intent
 import android.graphics.Color
-import android.graphics.DashPathEffect
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.os.Handler
@@ -13,7 +15,11 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
+import com.example.healthcareproject.R
+import com.example.healthcareproject.present.notification.Notification
+import com.github.mikephil.charting.BuildConfig
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
@@ -21,7 +27,9 @@ import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.google.android.material.tabs.TabLayout
-import com.example.healthcareproject.R
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import kotlin.random.Random
 
 class OxygenFragment : Fragment() {
@@ -37,30 +45,27 @@ class OxygenFragment : Fragment() {
     private lateinit var tvAverageLabel: TextView
     private lateinit var ivSpO2Icon: ImageView
 
-    private val spo2Data = mutableListOf<Float>() // Danh sách động để lưu 20 giá trị mới nhất
-    private val maxDataPoints = 15 // Số lượng giá trị tối đa trên biểu đồ
+    private val spo2Data = mutableListOf<Float>()
+    private val maxDataPoints = 15
     private val handler = Handler(Looper.getMainLooper())
-    private val updateInterval = 1000L // Cập nhật mỗi 1 giây
-    private lateinit var timeFrame: String // Lưu khoảng thời gian hiện tại
-    private val timeStamps = mutableListOf<Long>() // Lưu thời gian (timestamp) của từng giá trị
+    private val updateInterval = if (BuildConfig.DEBUG) 1000L else 5000L // 5s in production
+    private lateinit var timeFrame: String
+    private val timeStamps = mutableListOf<Long>()
+    private var lastAlertTime: Long = 0
 
     private val updateRunnable = object : Runnable {
         override fun run() {
-            // Tạo giá trị ngẫu nhiên cho SpO2 (80-100%)
+            if (!isAdded) return // Prevent running if fragment is detached
             val newSpO2 = Random.nextFloat() * (100f - 80f) + 80f
             spo2Data.add(newSpO2)
             timeStamps.add(System.currentTimeMillis())
 
-            // Nếu vượt quá 20 giá trị, xóa giá trị cũ nhất
             if (spo2Data.size > maxDataPoints) {
                 spo2Data.removeAt(0)
                 timeStamps.removeAt(0)
             }
 
-            // Cập nhật biểu đồ và giao diện
             updateChartData()
-
-            // Lên lịch cập nhật tiếp theo
             handler.postDelayed(this, updateInterval)
         }
     }
@@ -71,7 +76,6 @@ class OxygenFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_oxygen, container, false)
 
-        // Khởi tạo các view
         tabLayout = view.findViewById(R.id.tab_layout)
         lineChart = view.findViewById(R.id.chart_spo2)
         tvTitle = view.findViewById(R.id.tv_title)
@@ -83,10 +87,8 @@ class OxygenFragment : Fragment() {
         tvAverageLabel = view.findViewById(R.id.tv_average_label)
         ivSpO2Icon = view.findViewById(R.id.iv_spo2_icon)
 
-        // Thiết lập nút back
         val btnBack = view.findViewById<ImageView>(R.id.ic_back_spo2_to_home)
         btnBack.setOnClickListener {
-            // Kiểm tra nguồn gốc điều hướng
             val previousDestinationId = findNavController().previousBackStackEntry?.destination?.id
             when (previousDestinationId) {
                 R.id.notificationFragment -> {
@@ -98,19 +100,17 @@ class OxygenFragment : Fragment() {
             }
         }
 
-        // Khởi tạo dữ liệu ban đầu
         val initialTime = System.currentTimeMillis()
         repeat(maxDataPoints) { index ->
             spo2Data.add(Random.nextFloat() * (100f - 80f) + 80f)
             timeStamps.add(initialTime - (maxDataPoints - 1 - index) * updateInterval)
         }
 
-        timeFrame = "MINUTE" // Khởi tạo mặc định là Minute
+        timeFrame = "MINUTE"
         setupTabLayout()
         setupLineChart()
         updateChartData()
 
-        // Bắt đầu cập nhật dữ liệu
         handler.postDelayed(updateRunnable, updateInterval)
 
         return view
@@ -118,7 +118,6 @@ class OxygenFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        // Dừng cập nhật khi fragment bị hủy
         handler.removeCallbacks(updateRunnable)
     }
 
@@ -132,7 +131,7 @@ class OxygenFragment : Fragment() {
                     3 -> "WEEK"
                     else -> "MINUTE"
                 }
-                updateChartData() // Cập nhật biểu đồ khi chuyển tab
+                updateChartData()
             }
 
             override fun onTabUnselected(tab: TabLayout.Tab?) {}
@@ -150,16 +149,16 @@ class OxygenFragment : Fragment() {
             legend.isEnabled = false
             xAxis.apply {
                 setDrawGridLines(false)
-                setDrawLabels(true) // Bật nhãn trục X
+                setDrawLabels(true)
                 position = XAxis.XAxisPosition.BOTTOM
-                textColor = resources.getColor(R.color.chart_axis_text_color, null)
+                textColor = ContextCompat.getColor(requireContext(), R.color.chart_axis_text_color)
                 textSize = 10f
-                labelRotationAngle = 45f // Xoay nhãn 45 độ để tránh chồng lấn
+                labelRotationAngle = 45f
             }
 
             axisLeft.apply {
                 setDrawGridLines(true)
-                axisMinimum = 80f // Giá trị SpO2 thường từ 80% trở lên
+                axisMinimum = 80f
                 axisMaximum = 100f
             }
             axisRight.isEnabled = false
@@ -169,86 +168,93 @@ class OxygenFragment : Fragment() {
     }
 
     private fun updateChartData() {
-        // Tạo entries từ dữ liệu hiện tại
+        if (!isAdded) return // Prevent crash if fragment is detached
+
         val entries = spo2Data.mapIndexed { index, value ->
             Entry(index.toFloat(), value)
         }
 
-        // Tạo nhãn cho trục X dựa trên khoảng thời gian
         val labels = when (timeFrame) {
-            "MINUTE" -> {
-                Array(spo2Data.size) { index ->
-                    val timestamp = timeStamps[index]
-                    val seconds = (timestamp / 1000) % 60 // Lấy giây trong chu kỳ 60 giây
-                    "${seconds}s"
+            "MINUTE" -> Array(spo2Data.size) { index ->
+                val timestamp = timeStamps[index]
+                val seconds = (timestamp / 1000) % 60
+                "${seconds}s"
+            }
+            "HOUR" -> Array(spo2Data.size) { index ->
+                val timestamp = timeStamps[index]
+                val minutes = (timestamp / 1000 / 60) % 60
+                "${minutes}m"
+            }
+            "DAY" -> Array(spo2Data.size) { index ->
+                val timestamp = timeStamps[index]
+                val hours = (timestamp / 1000 / 3600) % 24
+                "${hours}h"
+            }
+            "WEEK" -> Array(spo2Data.size) { index ->
+                val timestamp = timeStamps[index]
+                val day = (timestamp / 1000 / 86400).toInt() % 7
+                when (day) {
+                    0 -> "Mon"
+                    1 -> "Tue"
+                    2 -> "Wed"
+                    3 -> "Thu"
+                    4 -> "Fri"
+                    5 -> "Sat"
+                    6 -> "Sun"
+                    else -> "Mon"
                 }
             }
-            "HOUR" -> {
-                Array(spo2Data.size) { index ->
-                    val timestamp = timeStamps[index]
-                    val minutes = (timestamp / 1000 / 60) % 60 // Lấy phút trong chu kỳ 60 phút
-                    "${minutes}m"
-                }
-            }
-            "DAY" -> {
-                Array(spo2Data.size) { index ->
-                    val timestamp = timeStamps[index]
-                    val hours = (timestamp / 1000 / 3600) % 24 // Lấy giờ trong chu kỳ 24 giờ
-                    "${hours}h"
-                }
-            }
-            "WEEK" -> {
-                Array(spo2Data.size) { index ->
-                    val timestamp = timeStamps[index]
-                    val day = (timestamp / 1000 / 86400).toInt() % 7 // Lấy ngày trong chu kỳ 7 ngày
-                    when (day) {
-                        0 -> "Mon"
-                        1 -> "Tue"
-                        2 -> "Wed"
-                        3 -> "Thu"
-                        4 -> "Fri"
-                        5 -> "Sat"
-                        6 -> "Sun"
-                        else -> "Mon"
-                    }
-                }
-            }
-            else -> {
-                Array(spo2Data.size) { index ->
-                    val timestamp = timeStamps[index]
-                    val seconds = (timestamp / 1000) % 60
-                    "${seconds}s"
-                }
+            else -> Array(spo2Data.size) { index ->
+                val timestamp = timeStamps[index]
+                val seconds = (timestamp / 1000) % 60
+                "${seconds}s"
             }
         }
 
-        // Cập nhật giá trị min, max, average trên giao diện
         val minValue = spo2Data.minOrNull() ?: 0f
         val maxValue = spo2Data.maxOrNull() ?: 0f
-        val averageValue = spo2Data.average().toFloat()
-        tvSpO2Value.text = "${spo2Data.last().toInt()}"
+        val averageValue = if (spo2Data.isNotEmpty()) spo2Data.average().toFloat() else 0f
+        tvSpO2Value.text = "${spo2Data.lastOrNull()?.toInt() ?: 0}"
         tvMinValue.text = "${minValue.toInt()}"
         tvMaxValue.text = "${maxValue.toInt()}"
-        tvAverageLabel.text = "Average ${(averageValue.toInt())}%"
+        tvAverageLabel.text = "Average ${averageValue.toInt()}%"
 
-        // Kiểm tra cảnh báo (SpO2 < 95%)
-        val alertThreshold = 95f
+        val alertThreshold = 90f
+        val currentSpO2 = spo2Data.lastOrNull() ?: 0f
+        val currentTime = System.currentTimeMillis()
+        val alertCooldown = 5_000L
+
+        if (currentSpO2 < alertThreshold && (currentTime - lastAlertTime) > alertCooldown) {
+            val notification = Notification(
+                id = System.currentTimeMillis(),
+                title = "OXYGEN LEVEL ALERT",
+                message = "Oxygen level is too low (${currentSpO2.toInt()}%). Need to Emergency!",
+                time = SimpleDateFormat("hh:mma", Locale.getDefault()).format(Date()),
+                iconResId = R.drawable.ic_oxygen
+            )
+            if (isServiceRunning()) {
+                val intent = Intent("OXYGEN_LEVEL_ALERT")
+                intent.putExtra("notification", notification)
+                LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(intent)
+                lastAlertTime = currentTime
+            } else {
+                startNotificationService()
+            }
+        }
+
         val isAlert = spo2Data.any { it < alertThreshold }
-
-        // Chọn màu gradient dựa trên trạng thái cảnh báo
         val gradientColors = if (isAlert) {
             intArrayOf(
-                resources.getColor(R.color.chart_gradient_alert_top, null),
-                resources.getColor(R.color.chart_gradient_alert_bottom, null)
+                ContextCompat.getColor(requireContext(), R.color.chart_gradient_alert_top),
+                ContextCompat.getColor(requireContext(), R.color.chart_gradient_alert_bottom)
             )
         } else {
             intArrayOf(
-                resources.getColor(R.color.chart_gradient_normal_top, null),
-                resources.getColor(R.color.chart_gradient_normal_bottom, null)
+                ContextCompat.getColor(requireContext(), R.color.chart_gradient_normal_top),
+                ContextCompat.getColor(requireContext(), R.color.chart_gradient_normal_bottom)
             )
         }
 
-        // Đổi màu chữ của các TextView và icon
         val textColor = if (isAlert) R.color.alert_text_color else R.color.primary_text_color
         tvTitle.setTextColor(ContextCompat.getColor(requireContext(), textColor))
         tvDate.setTextColor(ContextCompat.getColor(requireContext(), textColor))
@@ -259,30 +265,23 @@ class OxygenFragment : Fragment() {
         tvAverageLabel.setTextColor(ContextCompat.getColor(requireContext(), textColor))
         ivSpO2Icon.setColorFilter(ContextCompat.getColor(requireContext(), textColor))
 
-        // Đổi màu chữ của giá trị trên biểu đồ
         val chartValueColor = if (isAlert) R.color.alert_text_color else R.color.chart_value_text_normal
-
-        // Chọn màu cho vòng tròn trên biểu đồ
         val circleColor = if (isAlert) {
-            resources.getColor(R.color.alert_text_color, null)
+            ContextCompat.getColor(requireContext(), R.color.alert_text_color)
         } else {
-            resources.getColor(R.color.chart_line_color, null)
+            ContextCompat.getColor(requireContext(), R.color.chart_line_color)
         }
 
-        // Tạo dataset cho biểu đồ
         val dataSet = LineDataSet(entries, "SpO2 (%)").apply {
-            color = resources.getColor(R.color.chart_line_color, null)
+            color = ContextCompat.getColor(requireContext(), R.color.chart_line_color)
             setCircleColor(circleColor)
             lineWidth = 2f
             circleRadius = 4f
             setDrawCircleHole(false)
-
             setDrawValues(true)
-            valueTextColor = resources.getColor(chartValueColor, null)
+            valueTextColor = ContextCompat.getColor(requireContext(), chartValueColor)
             valueTextSize = 10f
-
             enableDashedLine(10f, 5f, 0f)
-
             setDrawFilled(true)
             val gradientDrawable = GradientDrawable(
                 GradientDrawable.Orientation.TOP_BOTTOM,
@@ -291,12 +290,24 @@ class OxygenFragment : Fragment() {
             fillDrawable = gradientDrawable
         }
 
-        // Cập nhật nhãn trục X
         lineChart.xAxis.valueFormatter = IndexAxisValueFormatter(labels)
-
-        // Cập nhật dữ liệu biểu đồ
         val lineData = LineData(dataSet)
         lineChart.data = lineData
         lineChart.invalidate()
+    }
+
+    private fun isServiceRunning(): Boolean {
+        val manager = requireContext().getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        for (service in manager.getRunningServices(Integer.MAX_VALUE)) {
+            if ("com.example.healthcareproject.present.notification.NotificationService" == service.service.className) {
+                return true
+            }
+        }
+        return false
+    }
+
+    private fun startNotificationService() {
+        val serviceIntent = Intent(requireContext(), com.example.healthcareproject.present.notification.NotificationService::class.java)
+        ContextCompat.startForegroundService(requireContext(), serviceIntent)
     }
 }

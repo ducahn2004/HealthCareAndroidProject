@@ -1,7 +1,9 @@
 package com.example.healthcareproject.present.ui.home
 
+import android.app.ActivityManager
+import android.content.Context
+import android.content.Intent
 import android.graphics.Color
-import android.graphics.DashPathEffect
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.os.Handler
@@ -13,7 +15,11 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
+import com.example.healthcareproject.R
+import com.example.healthcareproject.present.notification.Notification
+import com.github.mikephil.charting.BuildConfig
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
@@ -21,7 +27,9 @@ import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.google.android.material.tabs.TabLayout
-import com.example.healthcareproject.R
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import kotlin.random.Random
 
 class HeartRateFragment : Fragment() {
@@ -37,30 +45,27 @@ class HeartRateFragment : Fragment() {
     private lateinit var tvAverageLabel: TextView
     private lateinit var ivHeartIcon: ImageView
 
-    private val heartRateData = mutableListOf<Float>() // Danh sách động để lưu 20 giá trị mới nhất
-    private val maxDataPoints = 20 // Số lượng giá trị tối đa trên biểu đồ
+    private val heartRateData = mutableListOf<Float>()
+    private val maxDataPoints = 20
     private val handler = Handler(Looper.getMainLooper())
-    private val updateInterval = 1000L // Cập nhật mỗi 1 giây
-    private lateinit var timeFrame: String // Lưu khoảng thời gian hiện tại
-    private val timeStamps = mutableListOf<Long>() // Lưu thời gian (timestamp) của từng giá trị
+    private val updateInterval = if (BuildConfig.DEBUG) 1000L else 5000L // 5s in production
+    private lateinit var timeFrame: String
+    private val timeStamps = mutableListOf<Long>()
+    private var lastAlertTime: Long = 0
 
     private val updateRunnable = object : Runnable {
         override fun run() {
-            // Tạo giá trị ngẫu nhiên cho nhịp tim (40-120 BPM)
-            val newHeartRate = Random.nextFloat() * (120f - 40f) + 40f
+            if (!isAdded) return // Prevent running if fragment is detached
+            val newHeartRate = Random.nextFloat() * (150f - 100f) + 100f
             heartRateData.add(newHeartRate)
             timeStamps.add(System.currentTimeMillis())
 
-            // Nếu vượt quá 20 giá trị, xóa giá trị cũ nhất
             if (heartRateData.size > maxDataPoints) {
                 heartRateData.removeAt(0)
                 timeStamps.removeAt(0)
             }
 
-            // Cập nhật biểu đồ và giao diện
             updateChartData()
-
-            // Lên lịch cập nhật tiếp theo
             handler.postDelayed(this, updateInterval)
         }
     }
@@ -71,7 +76,6 @@ class HeartRateFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_heart_rate, container, false)
 
-        // Khởi tạo các view
         tabLayout = view.findViewById(R.id.tab_layout)
         lineChart = view.findViewById(R.id.chart_heart_rate)
         tvTitle = view.findViewById(R.id.tv_title)
@@ -83,10 +87,8 @@ class HeartRateFragment : Fragment() {
         tvAverageLabel = view.findViewById(R.id.tv_average_label)
         ivHeartIcon = view.findViewById(R.id.iv_heart_icon)
 
-        // Thiết lập nút back
         val btnBack = view.findViewById<ImageView>(R.id.ic_back_heart_rate_to_home)
         btnBack.setOnClickListener {
-            // Kiểm tra nguồn gốc điều hướng
             val previousDestinationId = findNavController().previousBackStackEntry?.destination?.id
             when (previousDestinationId) {
                 R.id.notificationFragment -> {
@@ -98,19 +100,17 @@ class HeartRateFragment : Fragment() {
             }
         }
 
-        // Khởi tạo dữ liệu ban đầu
         val initialTime = System.currentTimeMillis()
         repeat(maxDataPoints) { index ->
-            heartRateData.add(Random.nextFloat() * (120f - 40f) + 40f)
+            heartRateData.add(Random.nextFloat() * (150f - 100f) + 100f)
             timeStamps.add(initialTime - (maxDataPoints - 1 - index) * updateInterval)
         }
 
-        timeFrame = "MINUTE" // Khởi tạo mặc định là Minute
+        timeFrame = "MINUTE"
         setupTabLayout()
         setupLineChart()
         updateChartData()
 
-        // Bắt đầu cập nhật dữ liệu
         handler.postDelayed(updateRunnable, updateInterval)
 
         return view
@@ -118,7 +118,6 @@ class HeartRateFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        // Dừng cập nhật khi fragment bị hủy
         handler.removeCallbacks(updateRunnable)
     }
 
@@ -132,7 +131,7 @@ class HeartRateFragment : Fragment() {
                     3 -> "WEEK"
                     else -> "MINUTE"
                 }
-                updateChartData() // Cập nhật biểu đồ khi chuyển tab
+                updateChartData()
             }
 
             override fun onTabUnselected(tab: TabLayout.Tab?) {}
@@ -150,17 +149,17 @@ class HeartRateFragment : Fragment() {
             legend.isEnabled = false
             xAxis.apply {
                 setDrawGridLines(false)
-                setDrawLabels(true) // Bật nhãn trục X
+                setDrawLabels(true)
                 position = XAxis.XAxisPosition.BOTTOM
                 textColor = Color.BLACK
                 textSize = 10f
-                labelRotationAngle = 45f // Xoay nhãn 45 độ để tránh chồng lấn
+                labelRotationAngle = 45f
             }
 
             axisLeft.apply {
                 setDrawGridLines(true)
                 axisMinimum = 0f
-                axisMaximum = 150f // Tối đa để phù hợp với nhịp tim
+                axisMaximum = 150f
             }
             axisRight.isEnabled = false
 
@@ -169,86 +168,93 @@ class HeartRateFragment : Fragment() {
     }
 
     private fun updateChartData() {
-        // Tạo entries từ dữ liệu hiện tại
+        if (!isAdded) return // Prevent crash if fragment is detached
+
         val entries = heartRateData.mapIndexed { index, value ->
             Entry(index.toFloat(), value)
         }
 
-        // Tạo nhãn cho trục X dựa trên khoảng thời gian
         val labels = when (timeFrame) {
-            "MINUTE" -> {
-                Array(heartRateData.size) { index ->
-                    val timestamp = timeStamps[index]
-                    val seconds = (timestamp / 1000) % 60 // Lấy giây trong chu kỳ 60 giây
-                    "${seconds}s"
+            "MINUTE" -> Array(heartRateData.size) { index ->
+                val timestamp = timeStamps[index]
+                val seconds = (timestamp / 1000) % 60
+                "${seconds}s"
+            }
+            "HOUR" -> Array(heartRateData.size) { index ->
+                val timestamp = timeStamps[index]
+                val minutes = (timestamp / 1000 / 60) % 60
+                "${minutes}m"
+            }
+            "DAY" -> Array(heartRateData.size) { index ->
+                val timestamp = timeStamps[index]
+                val hours = (timestamp / 1000 / 3600) % 24
+                "${hours}h"
+            }
+            "WEEK" -> Array(heartRateData.size) { index ->
+                val timestamp = timeStamps[index]
+                val day = (timestamp / 1000 / 86400).toInt() % 7
+                when (day) {
+                    0 -> "Mon"
+                    1 -> "Tue"
+                    2 -> "Wed"
+                    3 -> "Thu"
+                    4 -> "Fri"
+                    5 -> "Sat"
+                    6 -> "Sun"
+                    else -> "Mon"
                 }
             }
-            "HOUR" -> {
-                Array(heartRateData.size) { index ->
-                    val timestamp = timeStamps[index]
-                    val minutes = (timestamp / 1000 / 60) % 60 // Lấy phút trong chu kỳ 60 phút
-                    "${minutes}m"
-                }
-            }
-            "DAY" -> {
-                Array(heartRateData.size) { index ->
-                    val timestamp = timeStamps[index]
-                    val hours = (timestamp / 1000 / 3600) % 24 // Lấy giờ trong chu kỳ 24 giờ
-                    "${hours}h"
-                }
-            }
-            "WEEK" -> {
-                Array(heartRateData.size) { index ->
-                    val timestamp = timeStamps[index]
-                    val day = (timestamp / 1000 / 86400).toInt() % 7 // Lấy ngày trong chu kỳ 7 ngày
-                    when (day) {
-                        0 -> "Mon"
-                        1 -> "Tue"
-                        2 -> "Wed"
-                        3 -> "Thu"
-                        4 -> "Fri"
-                        5 -> "Sat"
-                        6 -> "Sun"
-                        else -> "Mon"
-                    }
-                }
-            }
-            else -> {
-                Array(heartRateData.size) { index ->
-                    val timestamp = timeStamps[index]
-                    val seconds = (timestamp / 1000) % 60
-                    "${seconds}s"
-                }
+            else -> Array(heartRateData.size) { index ->
+                val timestamp = timeStamps[index]
+                val seconds = (timestamp / 1000) % 60
+                "${seconds}s"
             }
         }
 
-        // Cập nhật giá trị min, max, average trên giao diện
         val minValue = heartRateData.minOrNull() ?: 0f
         val maxValue = heartRateData.maxOrNull() ?: 0f
-        val averageValue = heartRateData.average().toFloat()
-        tvHeartRateValue.text = "${heartRateData.last().toInt()}"
+        val averageValue = if (heartRateData.isNotEmpty()) heartRateData.average().toFloat() else 0f
+        tvHeartRateValue.text = "${heartRateData.lastOrNull()?.toInt() ?: 0}"
         tvMinValue.text = "${minValue.toInt()}"
         tvMaxValue.text = "${maxValue.toInt()}"
-        tvAverageLabel.text = "Average ${(averageValue.toInt())} BPM"
+        tvAverageLabel.text = "Average ${averageValue.toInt()} BPM"
 
-        // Kiểm tra cảnh báo (nhịp tim > 120 BPM)
         val alertThreshold = 120f
-        val isAlert = heartRateData.any { it > alertThreshold }
+        val currentHeartRate = heartRateData.lastOrNull() ?: 0f
+        val currentTime = System.currentTimeMillis()
+        val alertCooldown = 5_000L
 
-        // Chọn màu gradient dựa trên trạng thái cảnh báo
+        if (currentHeartRate > alertThreshold && (currentTime - lastAlertTime) > alertCooldown) {
+            val notification = Notification(
+                id = System.currentTimeMillis(),
+                title = "HEART RATE ALERT",
+                message = "Heart rate is too high (${currentHeartRate.toInt()} BPM). Need to Emergency!",
+                time = SimpleDateFormat("hh:mma", Locale.getDefault()).format(Date()),
+                iconResId = R.drawable.ic_heart_rate
+            )
+            if (isServiceRunning()) {
+                val intent = Intent("HEART_RATE_ALERT")
+                intent.putExtra("notification", notification)
+                LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(intent)
+                lastAlertTime = currentTime
+            } else {
+                startNotificationService()
+            }
+        }
+
+        val isAlert = heartRateData.any { it > alertThreshold }
         val gradientColors = if (isAlert) {
             intArrayOf(
-                resources.getColor(R.color.chart_gradient_alert_top, null),
-                resources.getColor(R.color.chart_gradient_alert_bottom, null)
+                ContextCompat.getColor(requireContext(), R.color.chart_gradient_alert_top),
+                ContextCompat.getColor(requireContext(), R.color.chart_gradient_alert_bottom)
             )
         } else {
             intArrayOf(
-                resources.getColor(R.color.chart_gradient_normal_top, null),
-                resources.getColor(R.color.chart_gradient_normal_bottom, null)
+                ContextCompat.getColor(requireContext(), R.color.chart_gradient_normal_top),
+                ContextCompat.getColor(requireContext(), R.color.chart_gradient_normal_bottom)
             )
         }
 
-        // Đổi màu chữ của các TextView và icon
         val textColor = if (isAlert) R.color.alert_text_color else R.color.primary_text_color
         tvTitle.setTextColor(ContextCompat.getColor(requireContext(), textColor))
         tvDate.setTextColor(ContextCompat.getColor(requireContext(), textColor))
@@ -259,23 +265,18 @@ class HeartRateFragment : Fragment() {
         tvAverageLabel.setTextColor(ContextCompat.getColor(requireContext(), textColor))
         ivHeartIcon.setColorFilter(ContextCompat.getColor(requireContext(), textColor))
 
-        // Đổi màu chữ của giá trị trên biểu đồ
         val chartValueColor = if (isAlert) R.color.alert_text_color else R.color.chart_value_text_normal
 
-        // Tạo dataset cho biểu đồ
         val dataSet = LineDataSet(entries, "Heart Rate (BPM)").apply {
-            color = resources.getColor(R.color.chart_line_color, null)
+            color = ContextCompat.getColor(requireContext(), R.color.chart_line_color)
             setCircleColor(Color.BLACK)
             lineWidth = 2f
             circleRadius = 4f
             setDrawCircleHole(false)
-
             setDrawValues(true)
-            valueTextColor = resources.getColor(chartValueColor, null)
+            valueTextColor = ContextCompat.getColor(requireContext(), chartValueColor)
             valueTextSize = 10f
-
             enableDashedLine(10f, 5f, 0f)
-
             setDrawFilled(true)
             val gradientDrawable = GradientDrawable(
                 GradientDrawable.Orientation.TOP_BOTTOM,
@@ -284,12 +285,24 @@ class HeartRateFragment : Fragment() {
             fillDrawable = gradientDrawable
         }
 
-        // Cập nhật nhãn trục X
         lineChart.xAxis.valueFormatter = IndexAxisValueFormatter(labels)
-
-        // Cập nhật dữ liệu biểu đồ
         val lineData = LineData(dataSet)
         lineChart.data = lineData
         lineChart.invalidate()
+    }
+
+    private fun isServiceRunning(): Boolean {
+        val manager = requireContext().getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        for (service in manager.getRunningServices(Integer.MAX_VALUE)) {
+            if ("com.example.healthcareproject.present.notification.NotificationService" == service.service.className) {
+                return true
+            }
+        }
+        return false
+    }
+
+    private fun startNotificationService() {
+        val serviceIntent = Intent(requireContext(), com.example.healthcareproject.present.notification.NotificationService::class.java)
+        ContextCompat.startForegroundService(requireContext(), serviceIntent)
     }
 }
