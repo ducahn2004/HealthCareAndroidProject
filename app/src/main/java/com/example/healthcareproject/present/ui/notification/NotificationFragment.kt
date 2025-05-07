@@ -32,7 +32,7 @@ class NotificationFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupRecyclerView()
-        observeAlerts()
+        observeNotifications()
     }
 
     private fun setupRecyclerView() {
@@ -43,9 +43,15 @@ class NotificationFragment : Fragment() {
         }
     }
 
-    private fun observeAlerts() {
-        viewModel.alerts.observe(viewLifecycleOwner) { alerts ->
-            adapter.submitList(alerts)
+    private fun observeNotifications() {
+        viewModel.notifications.observe(viewLifecycleOwner) { notifications ->
+            adapter.submitList(notifications)
+        }
+        viewModel.error.observe(viewLifecycleOwner) { errorMessage ->
+            errorMessage?.let {
+                android.widget.Toast.makeText(context, it, android.widget.Toast.LENGTH_SHORT).show()
+                viewModel.clearError()
+            }
         }
     }
 

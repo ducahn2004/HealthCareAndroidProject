@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
+        <import type="com.example.healthcareproject.domain.model.NotificationType" />
         <variable
-            name="alert"
-            type="com.example.healthcareproject.domain.model.Alert" />
+            name="notification"
+            type="com.example.healthcareproject.present.viewmodel.notification.NotificationViewModel.FormattedNotification" />
         <variable
             name="viewModel"
             type="com.example.healthcareproject.present.viewmodel.notification.NotificationViewModel" />
@@ -21,7 +23,7 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_marginEnd="16dp"
-            android:src="@drawable/ic_heart_rate" />
+            android:src="@{notification.type == NotificationType.Alert ? @drawable/ic_heart_rate : notification.type == NotificationType.Measurement ? @drawable/ic_oxygen : notification.type == NotificationType.Sos ? @drawable/ic_sos : @drawable/ic_notification}" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -33,7 +35,7 @@
                 android:id="@+id/tv_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@{alert.title}"
+                android:text="@{notification.type.toString()}"
                 android:textColor="?attr/android:textColorPrimary"
                 android:textSize="16sp"
                 android:textStyle="bold" />
@@ -43,7 +45,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="@{alert.message}"
+                android:text="@{notification.message}"
                 android:textColor="?attr/android:textColorPrimary"
                 android:textSize="14sp" />
 
@@ -52,7 +54,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="@{alert.alertTime.toString()}"
+                android:text="@{notification.formattedTimestamp}"
                 android:textColor="?attr/android:textColorSecondary"
                 android:textSize="12sp" />
         </LinearLayout>
@@ -62,7 +64,6 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:src="@drawable/ic_delete"
-            android:onClick="@{() -> viewModel.deleteAlert(alert.alertId)}" />
-
+            android:onClick="@{() -> viewModel.deleteNotification(notification.notificationId)}" />
     </LinearLayout>
 </layout>
