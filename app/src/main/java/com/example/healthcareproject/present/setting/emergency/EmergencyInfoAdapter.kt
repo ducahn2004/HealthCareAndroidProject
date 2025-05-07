@@ -30,14 +30,9 @@ class EmergencyInfoAdapter(
     ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(contact: EmergencyInfo) {
-            // Better approach: Pass the contact directly to the layout
             binding.contact = contact
-
-            // Set click listeners
             binding.btnEdit.setOnClickListener { onEditClick(contact) }
             binding.btnDelete.setOnClickListener { onDeleteClick(contact) }
-
-            // Set lifecycle owner for LiveData observation
             binding.lifecycleOwner = binding.root.context as? androidx.lifecycle.LifecycleOwner
             binding.executePendingBindings()
         }
