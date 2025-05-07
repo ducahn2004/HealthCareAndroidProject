@@ -100,6 +100,11 @@ class MedicineFragment : Fragment() {
                 viewModel.error.value = null // Reset after showing
             }
         }
+
+        // Observe navigateToAddAppointment event
+        viewModel.navigateToAddAppointmentEvent.observe(viewLifecycleOwner) { _ ->
+            mainNavigator.navigateToAddAppointment()
+        }
     }
 
     private fun setupFragmentResultListener() {

@@ -21,7 +21,7 @@ class CreateMedicalVisitUseCase @Inject constructor(
             if (patientName.isBlank()) throw IllegalArgumentException("Patient name cannot be empty")
             if (visitReason.isBlank()) throw IllegalArgumentException("Visit reason cannot be empty")
             if (doctorName.isBlank()) throw IllegalArgumentException("Doctor name cannot be empty")
-            if (visitDate.isBefore(LocalDate.now())) throw IllegalArgumentException("Visit date cannot be in the past")
+            if (visitDate.isAfter(LocalDate.now())) throw IllegalArgumentException("Visit date cannot be in the feature")
 
             // Combine diagnosis and treatment into notes
             val notes = buildString {
@@ -34,7 +34,7 @@ class CreateMedicalVisitUseCase @Inject constructor(
                 visitReason = visitReason,
                 visitDate = visitDate,
                 doctorName = doctorName,
-                notes = diagnosis,
+                notes = notes,
                 status = status
             )
 

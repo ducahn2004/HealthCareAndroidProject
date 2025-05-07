@@ -6,23 +6,26 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.viewModels
-import androidx.navigation.fragment.findNavController
 import com.example.healthcareproject.databinding.FragmentAddAppointmentBinding
-import com.example.healthcareproject.domain.model.MedicalVisit
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.LocalTime
 import java.util.*
+import javax.inject.Inject
+import com.example.healthcareproject.present.navigation.MainNavigator
 
 @AndroidEntryPoint
 class AddAppointmentFragment : Fragment() {
     private var _binding: FragmentAddAppointmentBinding? = null
     private val binding get() = _binding!!
     private val viewModel: AddAppointmentViewModel by viewModels()
+
+    @Inject
+    lateinit var mainNavigator: MainNavigator
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -43,7 +46,7 @@ class AddAppointmentFragment : Fragment() {
         // Observe navigation
         viewModel.navigateBack.observe(viewLifecycleOwner) { shouldNavigate ->
             if (shouldNavigate) {
-                findNavController().navigateUp()
+                mainNavigator.navigateBackToMedicineFromAddAppointment()
             }
         }
 
@@ -53,7 +56,7 @@ class AddAppointmentFragment : Fragment() {
                 showDatePicker { year, month, dayOfMonth ->
                     viewModel.updateVisitDate(LocalDate.of(year, month + 1, dayOfMonth))
                 }
-                viewModel.resetDatePicker() // Use reset method
+                viewModel.resetDatePicker()
             }
         }
 
@@ -63,36 +66,25 @@ class AddAppointmentFragment : Fragment() {
                 showTimePicker { hour, minute ->
                     viewModel.updateTime(LocalTime.of(hour, minute))
                 }
-                viewModel.resetTimePicker() // Use reset method
+                viewModel.resetTimePicker()
             }
         }
 
-        // Observe success state
-        viewModel.isSuccess.observe(viewLifecycleOwner) { isSuccess ->
-            if (isSuccess) {
-                // Get all appointment data
-                val appointmentData = viewModel.getAppointmentData()
-
-                // Create MedicalVisit for result
-                val medicalVisit = MedicalVisit(
-                    visitId = "", // Repository will set this
-                    userId = "", // Repository will set this
-                    visitDate = appointmentData["visitDate"] as LocalDate,
-                    clinicName = appointmentData["clinicName"] as String,
-                    doctorName = appointmentData["doctorName"] as String,
-                    diagnosis = appointmentData["diagnosis"] as String,
-                    treatment = appointmentData["treatment"] as String,
-                    createdAt = LocalDateTime.of(
-                        appointmentData["visitDate"] as LocalDate,
-                        appointmentData["time"] as LocalTime
-                    )
-                )
-
-                // Set fragment result and navigate back
+        // Observe success state with MedicalVisit
+        viewModel.successWithVisit.observe(viewLifecycleOwner) { medicalVisit ->
+            medicalVisit?.let {
                 setFragmentResult("requestKey", Bundle().apply {
-                    putParcelable("newVisit", medicalVisit)
+                    putParcelable("newVisit", it)
                 })
-                findNavController().navigateUp()
+                mainNavigator.navigateBackToMedicineFromAddAppointment()
+            }
+        }
+
+        // Observe error message
+        viewModel.errorMessage.observe(viewLifecycleOwner) { errorMsg ->
+            errorMsg?.let {
+                Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+                viewModel.clearError()
             }
         }
     }

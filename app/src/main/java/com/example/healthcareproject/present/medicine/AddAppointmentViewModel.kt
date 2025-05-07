@@ -4,13 +4,14 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.healthcareproject.domain.model.MedicalVisit
 import com.example.healthcareproject.domain.model.Result
 import com.example.healthcareproject.domain.usecase.appointment.AppointmentUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -26,17 +27,17 @@ class AddAppointmentViewModel @Inject constructor(
     private val _isLoading = MutableLiveData(false)
     val isLoading: LiveData<Boolean> = _isLoading
 
-    // Success state
-    private val _isSuccess = MutableLiveData(false)
-    val isSuccess: LiveData<Boolean> = _isSuccess
+    // Success state with MedicalVisit
+    private val _successWithVisit = MutableLiveData<MedicalVisit?>(null)
+    val successWithVisit: LiveData<MedicalVisit?> = _successWithVisit
 
-    // Form fields - Đã chuyển thành MutableLiveData công khai
+    // Form fields
     val diagnosis = MutableLiveData("")
     val doctorName = MutableLiveData("")
     val clinicName = MutableLiveData("")
     val treatment = MutableLiveData("")
 
-    // These can't be directly two-way bound due to complex types
+    // Date and time
     private val _visitDate = MutableLiveData<LocalDate?>(null)
     val visitDate: LiveData<LocalDate?> = _visitDate
 
@@ -85,6 +86,7 @@ class AddAppointmentViewModel @Inject constructor(
 
     fun onBackClicked() {
         _navigateBack.value = true
+        _navigateBack.postValue(false)
     }
 
     fun onDateClicked() {
@@ -95,7 +97,6 @@ class AddAppointmentViewModel @Inject constructor(
         _showTimePicker.value = true
     }
 
-    // Methods to reset picker triggers
     fun resetDatePicker() {
         _showDatePicker.value = false
     }
@@ -170,11 +171,21 @@ class AddAppointmentViewModel @Inject constructor(
             when (result) {
                 is Result.Success -> {
                     _isLoading.value = false
-                    _isSuccess.value = true
+                    val medicalVisit = MedicalVisit(
+                        visitId = result.data, // Sử dụng appointmentId làm visitId
+                        userId = "", // Repository sẽ gán userId
+                        visitDate = _visitDate.value!!,
+                        clinicName = clinicName.value!!,
+                        doctorName = doctorName.value!!,
+                        diagnosis = diagnosis.value!!,
+                        treatment = treatment.value!!,
+                        createdAt = createdAt
+                    )
+                    _successWithVisit.value = medicalVisit
                 }
                 is Result.Error -> {
                     _isLoading.value = false
-                    _errorMessage.value = result.exception.message
+                    _errorMessage.value = result.exception.message ?: "Failed to save appointment"
                 }
                 is Result.Loading -> {
                     _isLoading.value = true
@@ -185,16 +196,5 @@ class AddAppointmentViewModel @Inject constructor(
 
     fun clearError() {
         _errorMessage.value = null
-    }
-
-    fun getAppointmentData(): Map<String, Any?> {
-        return mapOf(
-            "diagnosis" to diagnosis.value,
-            "doctorName" to doctorName.value,
-            "clinicName" to clinicName.value,
-            "treatment" to treatment.value,
-            "visitDate" to _visitDate.value,
-            "time" to _time.value
-        )
     }
 }

@@ -13,8 +13,6 @@ interface UserDataSource {
 
     suspend fun updateUser(uid: String, user: FirebaseUser)
 
-    suspend fun getUidByEmail(email: String): String?
-
     suspend fun getEmailByUid(uid: String): String?
 
 }

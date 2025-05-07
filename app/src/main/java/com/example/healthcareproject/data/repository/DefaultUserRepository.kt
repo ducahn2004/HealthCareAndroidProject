@@ -4,10 +4,8 @@ import com.example.healthcareproject.data.mapper.toExternal
 import com.example.healthcareproject.data.mapper.toLocal
 import com.example.healthcareproject.data.mapper.toNetwork
 import com.example.healthcareproject.data.source.local.dao.UserDao
-import com.example.healthcareproject.data.source.local.entity.RoomUser
 import com.example.healthcareproject.data.source.network.datasource.AuthDataSource
 import com.example.healthcareproject.data.source.network.datasource.UserDataSource
-import com.example.healthcareproject.data.source.network.model.FirebaseUser
 import com.example.healthcareproject.di.DefaultDispatcher
 import com.example.healthcareproject.domain.model.User
 import com.example.healthcareproject.domain.repository.UserRepository
@@ -19,7 +17,6 @@ import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -35,7 +32,7 @@ class DefaultUserRepository @Inject constructor(
         get() = authDataSource.getCurrentUserId() ?: throw Exception("User not logged in")
 
     override suspend fun createUser(
-        email: String,
+        userId: String,
         password: String,
         name: String,
         address: String?,
@@ -44,13 +41,12 @@ class DefaultUserRepository @Inject constructor(
         bloodType: String,
         phone: String
     ): String = withContext(dispatcher) {
-        Timber.d("Creating user with email: $email")
-        if (email.isBlank()) throw Exception("Email cannot be empty")
-        if (password.length < 6) throw Exception("Password must be at least 6 characters")
-
-        val uid = authDataSource.registerUser(email, password)
+        Timber.d("Creating user with ID: $userId")
+        val generatedUserId = withContext(dispatcher) {
+            userId.ifEmpty { java.util.UUID.randomUUID().toString() }
+        }
         val user = User(
-            userId = uid,
+            userId = generatedUserId,
             password = password,
             name = name,
             address = address,
@@ -63,19 +59,13 @@ class DefaultUserRepository @Inject constructor(
         )
 
         try {
+            val uid = authDataSource.registerUser(userId, password)
             networkDataSource.saveUser(user.toNetwork())
             localDataSource.upsert(user.toLocal())
             uid
         } catch (e: Exception) {
-            Timber.e(e, "Failed to create user with email: $email")
-            // Clean up: Delete the user from Firebase Authentication
-            try {
-                authDataSource.deleteUser(uid)
-                Timber.d("Deleted user $uid from Authentication due to database failure")
-            } catch (deleteException: Exception) {
-                Timber.e(deleteException, "Failed to delete user $uid from Authentication")
-            }
-            throw Exception("Cannot create user with email $email: ${e.message}")
+            Timber.e(e, "Failed to create user: $userId")
+            throw Exception("Cannot create user with ID $userId: ${e.message}")
         }
     }
 
@@ -87,8 +77,7 @@ class DefaultUserRepository @Inject constructor(
         gender: String,
         bloodType: String,
         phone: String
-    ) = withContext(dispatcher) {
-        Timber.d("Updating user with ID: $userId")
+    ) {
         val user = getUser()?.copy(
             name = name,
             address = address,
@@ -96,50 +85,42 @@ class DefaultUserRepository @Inject constructor(
             gender = com.example.healthcareproject.domain.model.Gender.valueOf(gender),
             bloodType = com.example.healthcareproject.domain.model.BloodType.valueOf(bloodType),
             phone = phone,
-            updatedAt = java.time.LocalDateTime.now()
+            updatedAt = LocalDateTime.now()
         ) ?: throw Exception("User (id $userId) not found")
 
         localDataSource.upsert(user.toLocal())
         networkDataSource.updateUser(userId, user.toNetwork())
     }
 
-    override suspend fun refresh(userId: String) = withContext(dispatcher) {
-        Timber.d("Refreshing user with ID: $userId")
-        try {
-            val uid = networkDataSource.getUidByEmail(userId)
-                ?: throw Exception("UID not found for user ID $userId")
-            val networkUser = networkDataSource.loadUser(uid)
-                ?: throw Exception("User not found for ID $userId")
-            localDataSource.upsert(networkUser.toLocal())
-        } catch (e: Exception) {
-            Timber.e(e, "Failed to refresh user: $userId")
-            throw Exception("Cannot refresh user with ID $userId: ${e.message}")
+    override suspend fun refresh() {
+        withContext(dispatcher) {
+            try {
+                val remoteUser = networkDataSource.loadUser(userId)
+                if (remoteUser != null) {
+                    Timber.d("Loaded user from network: $remoteUser")
+                    localDataSource.upsert(remoteUser.toLocal())
+                    Timber.d("User saved to local database: $remoteUser")
+                } else {
+                    Timber.e("No user data found for ID: $userId")
+                }
+            } catch (e: Exception) {
+                Timber.e(e, "Failed to refresh user data")
+            }
         }
     }
 
-    override fun getUserStream(userId: String): Flow<User?> {
+    override fun getUserStream(): Flow<User?> {
         Timber.d("Streaming user with ID: $userId")
         return localDataSource.observeById(userId)
             .map { it.toExternal() }
             .flowOn(dispatcher)
     }
 
-
-    override suspend fun getUser(forceUpdate: Boolean): User? = withContext(dispatcher) {
-        val uid = authDataSource.getCurrentUserId() ?: return@withContext null
-
+    override suspend fun getUser(forceUpdate: Boolean): User? {
         if (forceUpdate) {
-            try {
-                val networkUser = networkDataSource.loadUser(uid)
-                    ?: throw Exception("User not found for UID $uid")
-                localDataSource.upsert(networkUser.toRoomUser(uid))
-            } catch (e: Exception) {
-                Timber.e(e, "Failed to refresh user: $uid")
-                return@withContext localDataSource.getById(uid)?.toDomain()
-            }
+            refresh()
         }
-
-        localDataSource.getById(uid)?.toDomain()
+        return localDataSource.getById(userId)?.toExternal()
     }
 
     override suspend fun verifyCode(email: String, code: String) = withContext(dispatcher) {
@@ -152,42 +133,16 @@ class DefaultUserRepository @Inject constructor(
         }
     }
 
-
-    override suspend fun getUserByUid(uid: String, forceUpdate: Boolean): User? = withContext(dispatcher) {
-        Timber.d("Getting user by UID: $uid, forceUpdate: $forceUpdate")
-        if (forceUpdate) {
-            try {
-                val networkUser = networkDataSource.loadUser(uid)
-                    ?: throw Exception("User not found for UID $uid")
-                localDataSource.upsert(networkUser.toLocal())
-            } catch (e: Exception) {
-                Timber.e(e, "Failed to load user by UID: $uid")
-                throw Exception("Cannot load user with UID $uid: ${e.message}")
-            }
-        }
-        val email = networkDataSource.getEmailByUid(uid)
-            ?: throw Exception("Email not found for UID $uid")
-        localDataSource.getById(email)?.toExternal()
+    override suspend fun deleteUser() {
+        localDataSource.deleteById(userId)
+        networkDataSource.deleteUser(userId)
     }
 
-    override suspend fun refreshUser(userId: String) {
-        refresh(userId)
-    }
-
-    override suspend fun deleteUser(userId: String) = withContext(dispatcher) {
-        Timber.d("Deleting user with ID: $userId")
-        try {
-            val uid = networkDataSource.getUidByEmail(userId)
-                ?: throw Exception("UID not found for user ID $userId")
-            localDataSource.deleteById(userId)
-            networkDataSource.deleteUser(uid)
-        } catch (e: Exception) {
-            Timber.e(e, "Failed to delete user: $userId")
-            throw Exception("Cannot delete user with ID $userId: ${e.message}")
-        }
-    }
-
-    override suspend fun updatePassword(email: String, currentPassword: String, newPassword: String) = withContext(dispatcher) {
+    override suspend fun updatePassword(
+        email: String,
+        currentPassword: String,
+        newPassword: String
+    ) = withContext(dispatcher) {
         Timber.d("Updating password for email: $email")
         try {
             authDataSource.updatePassword(email, currentPassword, newPassword)
@@ -217,14 +172,12 @@ class DefaultUserRepository @Inject constructor(
         }
     }
 
-    override suspend fun loginUser(email: String, password: String): String = withContext(dispatcher) {
-        Timber.d("Logging in user with email: $email")
-        try {
-            authDataSource.loginUser(email, password)
-        } catch (e: Exception) {
-            Timber.e(e, "Failed to login email: $email")
-            throw Exception("Cannot login user with email $email: ${e.message}")
-        }
+    override suspend fun loginUser(
+        userId: String,
+        password: String
+    ): String = withContext(dispatcher) {
+        Timber.d("Logging in user with ID: $userId")
+        return@withContext authDataSource.loginUser(userId, password)
     }
 
     override suspend fun sendVerificationCode(email: String) = withContext(dispatcher) {
@@ -259,110 +212,4 @@ class DefaultUserRepository @Inject constructor(
     override suspend fun sendVerificationEmail(email: String) {
         authDataSource.sendVerificationCode(email)
     }
-}
-
-fun FirebaseUser.toRoomUser(uid: String): RoomUser {
-    // Assume Firebase stores dates in ISO format; adjust if different
-    val dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE // e.g., "1990-01-01"
-    val dateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME // e.g., "2025-01-01T00:00:00"
-
-    return RoomUser(
-        userId = uid, // Firebase Auth UID
-        password = password,
-        name = name,
-        address = address,
-        dateOfBirth = if (dateOfBirth.isNotEmpty()) {
-            try {
-                LocalDate.parse(dateOfBirth, dateFormatter)
-            } catch (e: Exception) {
-                Timber.e(e, "Failed to parse dateOfBirth: $dateOfBirth")
-                LocalDate.now()
-            }
-        } else {
-            LocalDate.now()
-        },
-        gender = gender,
-        bloodType = bloodType,
-        phone = phone,
-        createdAt = if (createdAt.isNotEmpty()) {
-            try {
-                LocalDateTime.parse(createdAt, dateTimeFormatter)
-            } catch (e: Exception) {
-                Timber.e(e, "Failed to parse createdAt: $createdAt")
-                LocalDateTime.now()
-            }
-        } else {
-            LocalDateTime.now()
-        },
-        updatedAt = if (updatedAt.isNotEmpty()) {
-            try {
-                LocalDateTime.parse(updatedAt, dateTimeFormatter)
-            } catch (e: Exception) {
-                Timber.e(e, "Failed to parse updatedAt: $updatedAt")
-                LocalDateTime.now()
-            }
-        } else {
-            LocalDateTime.now()
-        }
-    )
-}
-
-fun FirebaseUser.toDomain(uid: String): User {
-    val dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE
-    val dateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
-
-    return User(
-        userId = userId, // Email
-        password = password,
-        name = name,
-        address = address,
-        dateOfBirth = if (dateOfBirth.isNotEmpty()) {
-            try {
-                LocalDate.parse(dateOfBirth, dateFormatter)
-            } catch (e: Exception) {
-                Timber.e(e, "Failed to parse dateOfBirth: $dateOfBirth")
-                LocalDate.now()
-            }
-        } else {
-            LocalDate.now()
-        },
-        gender = gender,
-        bloodType = bloodType,
-        phone = phone,
-        createdAt = if (createdAt.isNotEmpty()) {
-            try {
-                LocalDateTime.parse(createdAt, dateTimeFormatter)
-            } catch (e: Exception) {
-                Timber.e(e, "Failed to parse createdAt: $createdAt")
-                LocalDateTime.now()
-            }
-        } else {
-            LocalDateTime.now()
-        },
-        updatedAt = if (updatedAt.isNotEmpty()) {
-            try {
-                LocalDateTime.parse(updatedAt, dateTimeFormatter)
-            } catch (e: Exception) {
-                Timber.e(e, "Failed to parse updatedAt: $updatedAt")
-                LocalDateTime.now()
-            }
-        } else {
-            LocalDateTime.now()
-        }
-    )
-}
-
-fun RoomUser.toDomain(): User {
-    return User(
-        userId = userId, // Email from Firebase userId
-        password = password,
-        name = name,
-        address = address,
-        dateOfBirth = dateOfBirth,
-        gender = gender,
-        bloodType = bloodType,
-        phone = phone,
-        createdAt = createdAt,
-        updatedAt = updatedAt
-    )
 }

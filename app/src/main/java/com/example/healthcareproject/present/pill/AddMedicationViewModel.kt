@@ -14,6 +14,7 @@ import com.example.healthcareproject.domain.usecase.medicalvisit.MedicalVisitUse
 import com.example.healthcareproject.present.toLocalDate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.time.LocalDate
 import java.util.*
 import javax.inject.Inject
@@ -43,11 +44,16 @@ class AddMedicationViewModel @Inject constructor(
         diagnosis: String,
         doctorName: String,
         clinicName: String,
-        location: String?
     ) {
         viewModelScope.launch {
             _uiState.value = _uiState.value?.copy(isLoading = true)
-            val patientName = authDataSource.getCurrentUserId() ?: "Unknown Patient"
+            val patientName = authDataSource.getCurrentUserId() ?: run {
+                _uiState.value = _uiState.value?.copy(
+                    isLoading = false,
+                    error = "User not logged in"
+                )
+                return@launch
+            }
             val visitResult = medicalVisitUseCases.createMedicalVisitUseCase(
                 patientName = patientName,
                 visitReason = clinicName,
@@ -58,6 +64,7 @@ class AddMedicationViewModel @Inject constructor(
             )
             when (visitResult) {
                 is Result.Success -> {
+                    Timber.d("MedicalVisit saved with visitId: ${visitResult.data}")
                     _uiState.value = _uiState.value?.copy(
                         visitId = visitResult.data,
                         isVisitSaved = true,
@@ -66,9 +73,10 @@ class AddMedicationViewModel @Inject constructor(
                     )
                 }
                 is Result.Error -> {
+                    Timber.e(visitResult.exception, "Failed to save MedicalVisit")
                     _uiState.value = _uiState.value?.copy(
                         isLoading = false,
-                        error = visitResult.exception.message
+                        error = visitResult.exception.message ?: "Failed to save appointment"
                     )
                 }
                 is Result.Loading -> Unit
@@ -84,9 +92,27 @@ class AddMedicationViewModel @Inject constructor(
 
     fun saveAllMedications() {
         viewModelScope.launch {
-            val visitId = _uiState.value?.visitId ?: return@launch
-            val userId = authDataSource.getCurrentUserId() ?: return@launch
-            val medications = _uiState.value?.medications ?: return@launch
+            val visitId = _uiState.value?.visitId ?: run {
+                _uiState.value = _uiState.value?.copy(
+                    isLoading = false,
+                    error = "No visit ID available"
+                )
+                return@launch
+            }
+            val userId = authDataSource.getCurrentUserId() ?: run {
+                _uiState.value = _uiState.value?.copy(
+                    isLoading = false,
+                    error = "User not logged in"
+                )
+                return@launch
+            }
+            val medications = _uiState.value?.medications ?: run {
+                _uiState.value = _uiState.value?.copy(
+                    isLoading = false,
+                    error = "No medications to save"
+                )
+                return@launch
+            }
 
             _uiState.value = _uiState.value?.copy(isLoading = true)
 
@@ -104,15 +130,16 @@ class AddMedicationViewModel @Inject constructor(
                     timeOfDay = completeMedication.timeOfDay,
                     mealRelation = completeMedication.mealRelation,
                     startDate = completeMedication.startDate,
-                    endDate = completeMedication.endDate ?: completeMedication.startDate.plusMonths(1),
+                    endDate = completeMedication.endDate,
                     notes = completeMedication.notes ?: ""
                 )
                 when (medicationResult) {
-                    is Result.Success<*> -> Unit
+                    is Result.Success<String> -> Timber.d("Medication saved: ${completeMedication.name}")
                     is Result.Error -> {
+                        Timber.e(medicationResult.exception, "Failed to save medication: ${completeMedication.name}")
                         _uiState.value = _uiState.value?.copy(
                             isLoading = false,
-                            error = medicationResult.exception.message
+                            error = medicationResult.exception.message ?: "Failed to save medication"
                         )
                         return@launch
                     }

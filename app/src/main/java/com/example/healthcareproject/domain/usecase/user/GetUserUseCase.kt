@@ -7,7 +7,7 @@ import javax.inject.Inject
 class GetUserUseCase @Inject constructor(
     private val userRepository: UserRepository
 ) {
-    suspend operator fun invoke(forceUpdate: Boolean = false): User? {
+    suspend operator fun invoke(forceUpdate: Boolean = true): User? {
         return userRepository.getUser(forceUpdate)
     }
 }

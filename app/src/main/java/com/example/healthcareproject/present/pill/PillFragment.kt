@@ -15,6 +15,7 @@ import com.example.healthcareproject.databinding.FragmentPillBinding
 import com.example.healthcareproject.domain.model.Medication
 import com.example.healthcareproject.present.navigation.MainNavigator
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -76,7 +77,13 @@ class PillFragment : Fragment() {
 
     private fun setupClickListeners() {
         binding.fabAddMedication.setOnClickListener {
-            mainNavigator.navigateToAddMedication()
+            Timber.d("FAB clicked: Navigating to AddMedicationFragment")
+            try {
+                mainNavigator.navigateToAddMedication()
+            } catch (e: Exception) {
+                Timber.e(e, "Navigation to AddMedicationFragment failed")
+                Toast.makeText(context, "Failed to open Add Medication: ${e.message}", Toast.LENGTH_LONG).show()
+            }
         }
     }
 
