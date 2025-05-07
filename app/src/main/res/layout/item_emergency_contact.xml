@@ -13,13 +13,17 @@
         <variable
             name="onDeleteClick"
             type="android.view.View.OnClickListener" />
+        <variable
+            name="onItemClick"
+            type="android.view.View.OnClickListener" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/surface_light"
-        android:padding="16dp">
+        android:padding="16dp"
+        android:onClick="@{onItemClick}">
 
         <!-- Name -->
         <TextView

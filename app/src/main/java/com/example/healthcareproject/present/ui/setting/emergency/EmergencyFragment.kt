@@ -53,6 +53,10 @@ class EmergencyFragment : Fragment() {
             },
             onDeleteClick = { contact ->
                 showDeleteConfirmationDialog(contact)
+            },
+            onItemClick = { contact ->
+                viewModel.prepareEditContact(contact.emergencyId)
+                showAddEditDialog()
             }
         )
         binding.rvEmergencyContacts.apply {
@@ -114,12 +118,13 @@ class EmergencyFragment : Fragment() {
         viewModel.selectedRelationship.observe(viewLifecycleOwner) { relationship ->
             dialogBinding.spRelationship.setSelection(relationship.ordinal)
         }
-        dialogBinding.spRelationship.setOnItemSelectedListener(object : android.widget.AdapterView.OnItemSelectedListener {
+        dialogBinding.spRelationship.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: android.widget.AdapterView<*>, view: View?, position: Int, id: Long) {
                 viewModel.setRelationship(Relationship.entries[position])
             }
+
             override fun onNothingSelected(parent: android.widget.AdapterView<*>) {}
-        })
+        }
 
         // Setup Priority Spinner
         val priorityAdapter = ArrayAdapter(
@@ -142,12 +147,13 @@ class EmergencyFragment : Fragment() {
                 }
             }
         }
-        dialogBinding.spPriority.setOnItemSelectedListener(object : android.widget.AdapterView.OnItemSelectedListener {
+        dialogBinding.spPriority.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: android.widget.AdapterView<*>, view: View?, position: Int, id: Long) {
                 viewModel.setPriority(priorityAdapter.getItem(position) ?: return)
             }
+
             override fun onNothingSelected(parent: android.widget.AdapterView<*>) {}
-        })
+        }
 
         // Setup Dialog
         val dialog = AlertDialog.Builder(requireContext())

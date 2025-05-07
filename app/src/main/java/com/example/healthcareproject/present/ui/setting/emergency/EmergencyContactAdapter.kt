@@ -1,7 +1,6 @@
 package com.example.healthcareproject.present.ui.setting.emergency
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -11,11 +10,14 @@ import com.example.healthcareproject.domain.model.EmergencyInfo
 
 class EmergencyContactAdapter(
     private val onEditClick: (EmergencyInfo) -> Unit,
-    private val onDeleteClick: (EmergencyInfo) -> Unit
+    private val onDeleteClick: (EmergencyInfo) -> Unit,
+    private val onItemClick: (EmergencyInfo) -> Unit
 ) : ListAdapter<EmergencyInfo, EmergencyContactAdapter.ViewHolder>(EmergencyInfoDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val binding = ItemEmergencyContactBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val binding = ItemEmergencyContactBinding.inflate(
+            LayoutInflater.from(parent.context), parent, false
+        )
         return ViewHolder(binding)
     }
 
@@ -23,11 +25,15 @@ class EmergencyContactAdapter(
         holder.bind(getItem(position))
     }
 
-    inner class ViewHolder(private val binding: ItemEmergencyContactBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(contact: EmergencyInfo) {
-            binding.contact = contact
-            binding.onEditClick = View.OnClickListener { onEditClick(contact) }
-            binding.onDeleteClick = View.OnClickListener { onDeleteClick(contact) }
+    inner class ViewHolder(
+        private val binding: ItemEmergencyContactBinding
+    ) : RecyclerView.ViewHolder(binding.root) {
+
+        fun bind(emergencyInfo: EmergencyInfo) {
+            binding.contact = emergencyInfo
+            binding.onEditClick = android.view.View.OnClickListener { onEditClick(emergencyInfo) }
+            binding.onDeleteClick = android.view.View.OnClickListener { onDeleteClick(emergencyInfo) }
+            binding.onItemClick = android.view.View.OnClickListener { onItemClick(emergencyInfo) }
             binding.executePendingBindings()
         }
     }
