@@ -33,4 +33,12 @@ class EmergencyInfoFirebaseDataSource @Inject constructor(
             throw Exception("Error saving emergency infos: ${e.message}", e)
         }
     }
+
+    override suspend fun deleteEmergencyInfo(emergencyInfoId: String) {
+        try {
+            emergencyInfosRef.child(emergencyInfoId).removeValue().await()
+        } catch (e: Exception) {
+            throw Exception("Error deleting emergency info: ${e.message}", e)
+        }
+    }
 }

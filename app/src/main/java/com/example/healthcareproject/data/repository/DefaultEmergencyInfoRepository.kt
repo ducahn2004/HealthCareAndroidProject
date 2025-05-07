@@ -150,6 +150,9 @@ class DefaultEmergencyInfoRepository @Inject constructor(
 
     override suspend fun deleteEmergencyInfo(emergencyInfoId: String) {
         localDataSource.deleteById(emergencyInfoId)
+        withContext(dispatcher) {
+            networkDataSource.deleteEmergencyInfo(emergencyInfoId)
+        }
         saveEmergencyInfosToNetwork()
     }
 
@@ -163,6 +166,7 @@ class DefaultEmergencyInfoRepository @Inject constructor(
                 networkDataSource.saveEmergencyInfos(networkEmergencyInfos)
             } catch (e: Exception) {
                 // Log or handle the exception
+                println("Error syncing emergency infos: ${e.message}")
             }
         }
     }

@@ -11,6 +11,7 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.healthcareproject.databinding.DialogEmergencyContactBinding
 import com.example.healthcareproject.databinding.FragmentEmergencyBinding
+import com.example.healthcareproject.domain.model.EmergencyInfo
 import com.example.healthcareproject.domain.model.Relationship
 import com.example.healthcareproject.present.ui.setting.emergency.EmergencyContactAdapter
 import com.example.healthcareproject.present.viewmodel.setting.EmergencyViewModel
@@ -44,8 +45,13 @@ class EmergencyFragment : Fragment() {
 
     private fun setupRecyclerView() {
         adapter = EmergencyContactAdapter(
-            onEditClick = { contact -> viewModel.prepareEditContact(contact.emergencyId); showAddEditDialog() },
-            onDeleteClick = { contact -> viewModel.deleteContact(contact.emergencyId) }
+            onEditClick = { contact ->
+                viewModel.prepareEditContact(contact.emergencyId)
+                showAddEditDialog()
+            },
+            onDeleteClick = { contact ->
+                showDeleteConfirmationDialog(contact)
+            }
         )
         binding.rvEmergencyContacts.apply {
             layoutManager = LinearLayoutManager(context)
@@ -62,7 +68,7 @@ class EmergencyFragment : Fragment() {
 
     private fun setupBackButton() {
         binding.icBackEmergencyToSettings.setOnClickListener {
-            requireActivity().onBackPressed()
+            requireActivity().onBackPressedDispatcher.onBackPressed()
         }
     }
 
@@ -91,7 +97,7 @@ class EmergencyFragment : Fragment() {
         val relationshipAdapter = ArrayAdapter(
             requireContext(),
             android.R.layout.simple_spinner_item,
-            Relationship.values().map { it.name }
+            Relationship.entries.map { it.name }
         ).apply {
             setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         }
@@ -99,12 +105,13 @@ class EmergencyFragment : Fragment() {
         viewModel.selectedRelationship.observe(viewLifecycleOwner) { relationship ->
             dialogBinding.spRelationship.setSelection(relationship.ordinal)
         }
-        dialogBinding.spRelationship.setOnItemSelectedListener(object : android.widget.AdapterView.OnItemSelectedListener {
+        dialogBinding.spRelationship.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: android.widget.AdapterView<*>, view: View?, position: Int, id: Long) {
-                viewModel.setRelationship(Relationship.values()[position])
+                viewModel.setRelationship(Relationship.entries[position])
             }
+
             override fun onNothingSelected(parent: android.widget.AdapterView<*>) {}
-        })
+        }
 
         // Setup Priority Spinner
         val priorityAdapter = ArrayAdapter(
@@ -118,12 +125,13 @@ class EmergencyFragment : Fragment() {
         viewModel.selectedPriority.observe(viewLifecycleOwner) { priority ->
             dialogBinding.spPriority.setSelection(priority - 1)
         }
-        dialogBinding.spPriority.setOnItemSelectedListener(object : android.widget.AdapterView.OnItemSelectedListener {
+        dialogBinding.spPriority.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: android.widget.AdapterView<*>, view: View?, position: Int, id: Long) {
                 viewModel.setPriority(position + 1)
             }
+
             override fun onNothingSelected(parent: android.widget.AdapterView<*>) {}
-        })
+        }
 
         // Setup Dialog
         val dialog = AlertDialog.Builder(requireContext())
@@ -139,6 +147,20 @@ class EmergencyFragment : Fragment() {
         }
 
         dialog.show()
+    }
+
+    private fun showDeleteConfirmationDialog(contact: EmergencyInfo) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Confirm Delete")
+            .setMessage("Are you sure you want to delete ${contact.emergencyName}'s contact?")
+            .setPositiveButton("Delete") { _, _ ->
+                viewModel.deleteContact(contact.emergencyId)
+            }
+            .setNegativeButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .create()
+            .show()
     }
 
     override fun onDestroyView() {
