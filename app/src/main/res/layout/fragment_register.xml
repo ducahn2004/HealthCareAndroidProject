@@ -6,7 +6,7 @@
         <import type="android.view.View" />
         <variable
             name="viewModel"
-            type="com.example.healthcareproject.present.auth.viewmodel.RegisterViewModel" />
+            type="com.example.healthcareproject.present.viewmodel.auth.RegisterViewModel" />
     </data>
 
     <ScrollView

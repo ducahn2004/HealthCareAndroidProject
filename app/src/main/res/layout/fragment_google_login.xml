@@ -7,7 +7,7 @@
         <import type="android.view.View" />
         <variable
             name="viewModel"
-            type="com.example.healthcareproject.present.auth.viewmodel.GoogleLoginViewModel" />
+            type="com.example.healthcareproject.present.viewmodel.auth.GoogleLoginViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

@@ -1,0 +1,82 @@
+package com.example.healthcareproject.present.ui.medication
+
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
+import com.example.healthcareproject.databinding.ItemMedicationBinding
+import com.example.healthcareproject.domain.model.DosageUnit
+import com.example.healthcareproject.domain.model.Medication
+import java.time.format.DateTimeFormatter
+
+class MedicationAdapter(
+    private val onItemClick: (Medication) -> Unit = {}
+) : ListAdapter<Medication, MedicationAdapter.MedicationViewHolder>(MedicationDiffCallback()) {
+
+    private val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MedicationViewHolder {
+        val binding = ItemMedicationBinding.inflate(
+            LayoutInflater.from(parent.context),
+            parent,
+            false
+        )
+        return MedicationViewHolder(binding)
+    }
+
+    override fun onBindViewHolder(holder: MedicationViewHolder, position: Int) {
+        holder.bind(getItem(position))
+    }
+
+    inner class MedicationViewHolder(
+        private val binding: ItemMedicationBinding
+    ) : RecyclerView.ViewHolder(binding.root) {
+        init {
+            binding.root.setOnClickListener {
+                val position = bindingAdapterPosition
+                if (position != RecyclerView.NO_POSITION) {
+                    onItemClick(getItem(position))
+                }
+            }
+        }
+
+        fun bind(medication: Medication) {
+            binding.medication = medication
+            binding.tvDosage.text = "${medication.dosageAmount} ${medication.dosageUnit.toDisplayString()}"
+            binding.tvFrequency.text = when (medication.frequency) {
+                1 -> "Once daily"
+                2 -> "Twice daily"
+                else -> "${medication.frequency} times daily"
+            }
+            binding.tvStartDate.text = medication.startDate.format(dateFormatter)
+            binding.tvEndDate.text = medication.endDate.format(dateFormatter) // endDate is LocalDate
+            binding.tvTimeOfDay.text = medication.timeOfDay.joinToString(", ")
+            binding.tvMealRelation.text = medication.mealRelation.name
+                .replace("_", " ")
+                .lowercase()
+                .replaceFirstChar { it.uppercase() }
+            if (medication.notes.isEmpty()) {
+                binding.notesContainer.visibility = View.GONE
+            } else {
+                binding.notesContainer.visibility = View.VISIBLE
+                binding.tvNotes.text = medication.notes
+            }
+        }
+    }
+
+    class MedicationDiffCallback : DiffUtil.ItemCallback<Medication>() {
+        override fun areItemsTheSame(oldItem: Medication, newItem: Medication): Boolean {
+            return oldItem.medicationId == newItem.medicationId
+        }
+
+        override fun areContentsTheSame(oldItem: Medication, newItem: Medication): Boolean {
+            return oldItem == newItem
+        }
+    }
+}
+
+fun DosageUnit.toDisplayString(): String {
+    return name.replace("PerDay", " per day").replaceFirstChar { it.uppercase() }
+}

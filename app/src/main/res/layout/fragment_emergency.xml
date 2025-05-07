@@ -5,7 +5,7 @@
     <data>
         <variable
             name="viewmodel"
-            type="com.example.healthcareproject.present.setting.emergency.EmergencyViewModel" />
+            type="com.example.healthcareproject.present.viewmodel.setting.EmergencyViewModel" />
         <import type="android.view.View"/>
     </data>
 

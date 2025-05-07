@@ -22,7 +22,7 @@
 
         <!-- SplashActivity: Launcher activity -->
         <activity
-            android:name=".present.SplashActivity"
+            android:name=".present.ui.SplashActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -32,13 +32,13 @@
 
         <!-- MainActivity -->
         <activity
-            android:name=".present.MainActivity"
+            android:name=".present.ui.MainActivity"
             android:exported="false" />
 
 
         <!-- AuthActivity -->
         <activity
-            android:name=".present.AuthActivity"
+            android:name=".present.ui.AuthActivity"
             android:exported="false" />
         <meta-data
             android:name="preloaded_fonts"
