@@ -8,12 +8,11 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.healthcareproject.R
 import com.example.healthcareproject.databinding.ItemNotificationBinding
-import com.example.healthcareproject.domain.model.Alert
 import com.example.healthcareproject.present.viewmodel.notification.NotificationViewModel
 
 class NotificationAdapter(
     private val viewModel: NotificationViewModel
-) : ListAdapter<Alert, NotificationAdapter.NotificationViewHolder>(AlertDiffCallback()) {
+) : ListAdapter<NotificationViewModel.FormattedNotification, NotificationAdapter.NotificationViewHolder>(NotificationDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NotificationViewHolder {
         val binding: ItemNotificationBinding = DataBindingUtil.inflate(
@@ -26,26 +25,26 @@ class NotificationAdapter(
     }
 
     override fun onBindViewHolder(holder: NotificationViewHolder, position: Int) {
-        val alert = getItem(position)
-        holder.bind(alert, viewModel)
+        val notification = getItem(position)
+        holder.bind(notification, viewModel)
     }
 
     class NotificationViewHolder(
         private val binding: ItemNotificationBinding
     ) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(alert: Alert, viewModel: NotificationViewModel) {
-            binding.alert = alert
+        fun bind(notification: NotificationViewModel.FormattedNotification, viewModel: NotificationViewModel) {
+            binding.notification = notification
             binding.viewModel = viewModel
             binding.executePendingBindings()
         }
     }
 
-    class AlertDiffCallback : DiffUtil.ItemCallback<Alert>() {
-        override fun areItemsTheSame(oldItem: Alert, newItem: Alert): Boolean {
-            return oldItem.alertId == newItem.alertId
+    class NotificationDiffCallback : DiffUtil.ItemCallback<NotificationViewModel.FormattedNotification>() {
+        override fun areItemsTheSame(oldItem: NotificationViewModel.FormattedNotification, newItem: NotificationViewModel.FormattedNotification): Boolean {
+            return oldItem.notificationId == newItem.notificationId
         }
 
-        override fun areContentsTheSame(oldItem: Alert, newItem: Alert): Boolean {
+        override fun areContentsTheSame(oldItem: NotificationViewModel.FormattedNotification, newItem: NotificationViewModel.FormattedNotification): Boolean {
             return oldItem == newItem
         }
     }
