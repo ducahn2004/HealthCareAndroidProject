@@ -11,15 +11,13 @@ class CreateEmergencyInfoUseCase @Inject constructor(
         contactName: String,
         contactNumber: String,
         relationship: Relationship,
-        notes: String?,
-        status: Boolean
+        priority : Int
     ): String {
         return emergencyInfoRepository.createEmergencyInfo(
             contactName = contactName,
             contactNumber = contactNumber,
             relationship = relationship,
-            notes = notes,
-            status = status
+            priority = priority
         )
     }
 }

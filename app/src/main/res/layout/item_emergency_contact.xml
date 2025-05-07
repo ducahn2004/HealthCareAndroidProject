@@ -7,13 +7,19 @@
         <variable
             name="contact"
             type="com.example.healthcareproject.domain.model.EmergencyInfo" />
+        <variable
+            name="onEditClick"
+            type="android.view.View.OnClickListener" />
+        <variable
+            name="onDeleteClick"
+            type="android.view.View.OnClickListener" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:background="@color/surface_light">
+        android:background="@color/surface_light"
+        android:padding="16dp">
 
         <!-- Name -->
         <TextView
@@ -24,10 +30,10 @@
             android:textColor="@color/primary_text_color"
             android:textSize="16sp"
             android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toStartOf="@id/btn_edit"
             app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             tools:text="John Doe" />
 
         <!-- Phone Number -->
@@ -35,13 +41,13 @@
             android:id="@+id/tv_phone"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
             android:text="@{contact.emergencyPhone}"
             android:textColor="@color/secondary_text_color"
             android:textSize="14sp"
-            android:layout_marginTop="4dp"
+            app:layout_constraintEnd_toStartOf="@id/btn_edit"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tv_name"
-            app:layout_constraintEnd_toStartOf="@id/btn_edit"
             tools:text="+1 123-456-7890" />
 
         <!-- Relationship -->
@@ -49,27 +55,27 @@
             android:id="@+id/tv_relationship"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@{contact.relationship.toString()}"
+            android:layout_marginTop="8dp"
+            android:text="@{contact.relationship.name}"
             android:textColor="@color/secondary_text_color"
             android:textSize="14sp"
-            android:layout_marginTop="4dp"
+            app:layout_constraintEnd_toStartOf="@id/btn_edit"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tv_phone"
-            app:layout_constraintEnd_toStartOf="@id/btn_edit"
-            tools:text="FAMILY" />
+            tools:text="Friend" />
 
         <!-- Priority Badge -->
         <TextView
             android:id="@+id/tv_priority"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@{Integer.toString(contact.priority)}"
+            android:layout_marginTop="8dp"
+            android:backgroundTint="@color/purple_500"
+            android:padding="8dp"
+            android:text="@{String.valueOf(contact.priority)}"
             android:textColor="@android:color/white"
             android:textSize="12sp"
             android:textStyle="bold"
-            android:background="@drawable/priority_badge_background"
-            android:padding="4dp"
-            android:layout_marginTop="4dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tv_relationship"
             tools:text="1" />
@@ -80,7 +86,8 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Edit contact"
+            android:contentDescription="@string/edit_contact_description"
+            android:onClick="@{onEditClick}"
             android:src="@drawable/ic_edit"
             app:layout_constraintEnd_toStartOf="@id/btn_delete"
             app:layout_constraintTop_toTopOf="parent"
@@ -92,7 +99,8 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Delete contact"
+            android:contentDescription="@string/delete_contact_description"
+            android:onClick="@{onDeleteClick}"
             android:src="@drawable/ic_delete"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"

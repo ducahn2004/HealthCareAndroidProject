@@ -38,9 +38,12 @@ class DefaultEmergencyInfoRepository @Inject constructor(
         contactName: String,
         contactNumber: String,
         relationship: Relationship,
-        notes: String?,
-        status: Boolean
+        priority: Int
     ): String {
+        if (priority !in 1..5) {
+            throw IllegalArgumentException("Priority must be between 1 and 5")
+        }
+
         val emergencyId = withContext(dispatcher) {
             UUID.randomUUID().toString()
         }
@@ -50,7 +53,7 @@ class DefaultEmergencyInfoRepository @Inject constructor(
             emergencyName = contactName,
             emergencyPhone = contactNumber,
             relationship = relationship,
-            priority = if (status) 1 else 0
+            priority = priority
         )
         localDataSource.upsert(emergencyInfo.toLocal())
         saveEmergencyInfosToNetwork()
@@ -62,14 +65,16 @@ class DefaultEmergencyInfoRepository @Inject constructor(
         contactName: String,
         contactNumber: String,
         relationship: Relationship,
-        notes: String?,
-        status: Boolean
+        priority: Int
     ) {
+        if (priority !in 1..5) {
+            throw IllegalArgumentException("Priority must be between 1 and 5")
+        }
         val emergencyInfo = getEmergencyInfo(emergencyInfoId)?.copy(
             emergencyName = contactName,
             emergencyPhone = contactNumber,
             relationship = relationship,
-            priority = if (status) 1 else 0
+            priority = priority
         ) ?: throw Exception("EmergencyInfo (id $emergencyInfoId) not found")
 
         localDataSource.upsert(emergencyInfo.toLocal())

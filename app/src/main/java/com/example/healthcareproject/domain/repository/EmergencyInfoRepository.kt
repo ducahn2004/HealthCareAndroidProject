@@ -13,8 +13,7 @@ interface EmergencyInfoRepository {
         contactName: String,
         contactNumber: String,
         relationship: Relationship,
-        notes: String?,
-        status: Boolean
+        priority : Int
     ): String
 
     suspend fun updateEmergencyInfo(
@@ -22,8 +21,7 @@ interface EmergencyInfoRepository {
         contactName: String,
         contactNumber: String,
         relationship: Relationship,
-        notes: String?,
-        status: Boolean
+        priority : Int
     )
 
     suspend fun getEmergencyInfos(forceUpdate: Boolean = false): List<EmergencyInfo>

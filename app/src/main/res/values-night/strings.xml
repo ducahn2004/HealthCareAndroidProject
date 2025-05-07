@@ -135,6 +135,16 @@
     <string name="error_saving_state">Error saving login state</string>
     <string name="emergency_contacts">Emergency Contact</string>
     <string name="add_contact">Add Contact</string>
+    <string name="no_emergency_contacts">No Emergency Contact</string>
+    <string name="edit_contact_description">Edit emergency contact</string>
+    <string name="delete_contact_description">Delete emergency contact</string>
+    <string name="back">Back</string>
+    <string name="relationship">Relationship</string>
+    <string name="priority">Priority</string>
+    <string name="enter_contact_name">Enter contact name</string>
+    <string name="enter_phone_number">Enter phone number</string>
+    <string name="select_relationship">Select relationship</string>
+    <string name="select_priority">Select priority</string>
     <string-array name="gender_options">
         <item>Male</item>
         <item>Female</item>

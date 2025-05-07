@@ -1,17 +1,19 @@
 package com.example.healthcareproject.present.ui.setting.emergency
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.healthcareproject.R
+import com.example.healthcareproject.databinding.DialogEmergencyContactBinding
 import com.example.healthcareproject.databinding.FragmentEmergencyBinding
+import com.example.healthcareproject.domain.model.Relationship
+import com.example.healthcareproject.present.ui.setting.emergency.EmergencyContactAdapter
 import com.example.healthcareproject.present.viewmodel.setting.EmergencyViewModel
-import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -20,87 +22,123 @@ class EmergencyFragment : Fragment() {
     private var _binding: FragmentEmergencyBinding? = null
     private val binding get() = _binding!!
     private val viewModel: EmergencyViewModel by viewModels()
-    private lateinit var adapter: EmergencyInfoAdapter
+    private lateinit var adapter: EmergencyContactAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentEmergencyBinding.inflate(inflater, container, false)
+        binding.viewmodel = viewModel
+        binding.lifecycleOwner = viewLifecycleOwner
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         setupRecyclerView()
         setupFab()
+        observeContacts()
         setupBackButton()
-        observeViewModel()
-        viewModel.fetchEmergencyContacts()
     }
 
     private fun setupRecyclerView() {
-        binding.rvEmergencyContacts.layoutManager = LinearLayoutManager(context)
-        adapter = EmergencyInfoAdapter(
-            onEditClick = { contact ->
-                viewModel.setContactForEdit(contact)
-                val dialog = EmergencyInfoDialogFragment.newInstance(contact)
-                dialog.show(parentFragmentManager, "EditContactDialog")
-            },
-            onDeleteClick = { contact ->
-                viewModel.deleteEmergencyContact(contact.emergencyId)
-            }
+        adapter = EmergencyContactAdapter(
+            onEditClick = { contact -> viewModel.prepareEditContact(contact.emergencyId); showAddEditDialog() },
+            onDeleteClick = { contact -> viewModel.deleteContact(contact.emergencyId) }
         )
-        binding.rvEmergencyContacts.adapter = adapter
+        binding.rvEmergencyContacts.apply {
+            layoutManager = LinearLayoutManager(context)
+            this.adapter = this@EmergencyFragment.adapter
+        }
     }
 
     private fun setupFab() {
         binding.fabAddContact.setOnClickListener {
-            viewModel.setContactForEdit(null)
-            val dialog = EmergencyInfoDialogFragment.newInstance()
-            dialog.show(parentFragmentManager, "AddContactDialog")
+            viewModel.resetDialogInputs()
+            showAddEditDialog()
         }
     }
 
     private fun setupBackButton() {
         binding.icBackEmergencyToSettings.setOnClickListener {
-            findNavController().navigate(R.id.action_emergencyFragment_to_settingsFragment)
+            requireActivity().onBackPressed()
         }
     }
 
-    private fun observeViewModel() {
+    private fun observeContacts() {
         viewModel.contacts.observe(viewLifecycleOwner) { state ->
             when (state) {
                 is EmergencyViewModel.ContactsUiState.Loading -> {
-                    binding.progressBar.visibility = View.VISIBLE
+                    // Handled by DataBinding
                 }
                 is EmergencyViewModel.ContactsUiState.Success -> {
-                    binding.progressBar.visibility = View.GONE
                     adapter.submitList(state.contacts)
                 }
                 is EmergencyViewModel.ContactsUiState.Error -> {
-                    binding.progressBar.visibility = View.GONE
-                    Snackbar.make(binding.root, state.message, Snackbar.LENGTH_LONG).show()
+                    // TODO: Show error message (e.g., Toast)
                 }
             }
+        }
+    }
+
+    private fun showAddEditDialog() {
+        val dialogBinding = DialogEmergencyContactBinding.inflate(layoutInflater)
+        dialogBinding.viewmodel = viewModel
+        dialogBinding.lifecycleOwner = viewLifecycleOwner
+
+        // Setup Relationship Spinner
+        val relationshipAdapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_spinner_item,
+            Relationship.values().map { it.name }
+        ).apply {
+            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        }
+        dialogBinding.spRelationship.adapter = relationshipAdapter
+        viewModel.selectedRelationship.observe(viewLifecycleOwner) { relationship ->
+            dialogBinding.spRelationship.setSelection(relationship.ordinal)
+        }
+        dialogBinding.spRelationship.setOnItemSelectedListener(object : android.widget.AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: android.widget.AdapterView<*>, view: View?, position: Int, id: Long) {
+                viewModel.setRelationship(Relationship.values()[position])
+            }
+            override fun onNothingSelected(parent: android.widget.AdapterView<*>) {}
+        })
+
+        // Setup Priority Spinner
+        val priorityAdapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_spinner_item,
+            (1..5).toList()
+        ).apply {
+            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        }
+        dialogBinding.spPriority.adapter = priorityAdapter
+        viewModel.selectedPriority.observe(viewLifecycleOwner) { priority ->
+            dialogBinding.spPriority.setSelection(priority - 1)
+        }
+        dialogBinding.spPriority.setOnItemSelectedListener(object : android.widget.AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: android.widget.AdapterView<*>, view: View?, position: Int, id: Long) {
+                viewModel.setPriority(position + 1)
+            }
+            override fun onNothingSelected(parent: android.widget.AdapterView<*>) {}
+        })
+
+        // Setup Dialog
+        val dialog = AlertDialog.Builder(requireContext())
+            .setView(dialogBinding.root)
+            .create()
+
+        dialogBinding.btnSave.setOnClickListener {
+            viewModel.addOrUpdateContact()
+            dialog.dismiss()
+        }
+        dialogBinding.btnCancel.setOnClickListener {
+            dialog.dismiss()
         }
 
-        viewModel.operationState.observe(viewLifecycleOwner) { state ->
-            when (state) {
-                is EmergencyViewModel.OperationState.Success -> {
-                    binding.progressBar.visibility = View.GONE
-                    Snackbar.make(binding.root, state.message, Snackbar.LENGTH_SHORT).show()
-                }
-                is EmergencyViewModel.OperationState.Error -> {
-                    binding.progressBar.visibility = View.GONE
-                    Snackbar.make(binding.root, state.message, Snackbar.LENGTH_LONG).show()
-                }
-                is EmergencyViewModel.OperationState.Loading -> {
-                    binding.progressBar.visibility = View.VISIBLE
-                }
-            }
-        }
+        dialog.show()
     }
 
     override fun onDestroyView() {
