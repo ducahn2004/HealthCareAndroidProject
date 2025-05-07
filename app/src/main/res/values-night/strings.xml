@@ -133,6 +133,8 @@
     <string name="error_network">Network error. Please check your connection.</string>
     <string name="error_unexpected">An unexpected error occurred. Please try again.</string>
     <string name="error_saving_state">Error saving login state</string>
+    <string name="emergency_contacts">Emergency Contact</string>
+    <string name="add_contact">Add Contact</string>
     <string-array name="gender_options">
         <item>Male</item>
         <item>Female</item>

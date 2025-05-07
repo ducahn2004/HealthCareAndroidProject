@@ -202,7 +202,7 @@
     <!-- Emergency Fragment -->
     <fragment
         android:id="@+id/emergencyFragment"
-        android:name="com.example.healthcareproject.present.setting.EmergencyFragment"
+        android:name="com.example.healthcareproject.present.setting.emergency.EmergencyFragment"
         android:label="Emergency Contacts"
         tools:layout="@layout/fragment_emergency">
         <action
@@ -215,7 +215,7 @@
     <!-- Change Password In Fragment -->
     <fragment
         android:id="@+id/changePasswordFragment"
-        android:name="com.example.healthcareproject.present.setting.EmergencyFragment"
+        android:name="com.example.healthcareproject.present.setting.emergency.EmergencyFragment"
         android:label="Change Password"
         tools:layout="@layout/fragment_change_password">
         <action
