@@ -15,13 +15,14 @@ import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.example.healthcareproject.BuildConfig
 import com.example.healthcareproject.R
-import com.example.healthcareproject.present.MainActivity
+import com.example.healthcareproject.present.ui.MainActivity
 import io.socket.client.IO
 import io.socket.client.Socket
 import io.socket.engineio.client.EngineIOException
 import org.json.JSONObject
 import android.Manifest
 import android.util.Log
+import timber.log.Timber
 import java.net.Socket
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -182,7 +183,7 @@ class NotificationService : Service() {
     }
 
     override fun onDestroy() {
-        Log.d("NotificationService", "Service destroyed")
+        Timber.tag("NotificationService").d("Service destroyed")
         LocalBroadcastManager.getInstance(this).unregisterReceiver(alertReceiver)
         socket.disconnect()
         super.onDestroy()
