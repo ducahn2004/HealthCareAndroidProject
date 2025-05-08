@@ -59,7 +59,13 @@ class AddMedicationDialogFragment : DialogFragment() {
     }
 
     private fun prepopulateFields(medication: Medication) {
+        if (medication.medicationId.isBlank()) {
+            Toast.makeText(requireContext(), "Invalid medication ID", Toast.LENGTH_SHORT).show()
+            dismiss()
+            return
+        }
         viewModel.apply {
+            setMedicationId(medication.medicationId)
             medicationName.set(medication.name)
             dosageAmount.set(medication.dosageAmount.toString())
             dosageUnit.set(medication.dosageUnit)
@@ -71,6 +77,7 @@ class AddMedicationDialogFragment : DialogFragment() {
             notes.set(medication.notes)
         }
     }
+
 
     private fun setupSpinners() {
         val dosageUnits = DosageUnit.entries.map { it.name }
@@ -147,11 +154,22 @@ class AddMedicationDialogFragment : DialogFragment() {
     }
 
     private fun setupButtons() {
-        binding.btnAdd.setOnClickListener {
-            Timber.d("Add button clicked")
-            if (validateInputs()) {
-                Timber.d("Inputs validated, calling addMedication()")
-                viewModel.addMedication()
+        if (medicationToEdit != null) {
+            binding.btnAdd.text = "Update"
+            binding.btnAdd.setOnClickListener {
+                Timber.d("Update button clicked")
+                if (validateInputs()) {
+                    Timber.d("Inputs validated, calling updateMedication()")
+                    viewModel.updateMedication()
+                }
+            }
+        } else {
+            binding.btnAdd.setOnClickListener {
+                Timber.d("Add button clicked")
+                if (validateInputs()) {
+                    Timber.d("Inputs validated, calling addMedication()")
+                    viewModel.addMedication()
+                }
             }
         }
 

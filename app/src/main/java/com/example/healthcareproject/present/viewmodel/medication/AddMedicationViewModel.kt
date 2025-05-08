@@ -28,7 +28,6 @@ class AddMedicationViewModel @Inject constructor(
     private val medicalVisitUseCases: MedicalVisitUseCases,
     private val authDataSource: AuthDataSource
 ) : ViewModel() {
-
     // Observable fields for two-way data binding with the layout
     val medicationName = ObservableField<String>("")
     val dosageAmount = ObservableField<String>("")
@@ -58,6 +57,7 @@ class AddMedicationViewModel @Inject constructor(
     private var visitId: String? = null
     private var visitDate: LocalDate? = null
     private var visitTime: Calendar? = null
+    private var medicationId: String = ""
 
     init {
         // Set up observers for date changes
@@ -88,6 +88,10 @@ class AddMedicationViewModel @Inject constructor(
 
     fun setDosageUnit(unit: DosageUnit) {
         dosageUnit.set(unit)
+    }
+
+    fun setMedicationId(id: String) {
+        medicationId = id
     }
 
     fun setMealRelation(relation: MealRelation) {
@@ -171,6 +175,63 @@ class AddMedicationViewModel @Inject constructor(
                 is Result.Error -> {
                     Timber.e(result.exception, "Failed to save medication: ${medication.name}")
                     _error.value = result.exception.message ?: "Failed to save medication"
+                }
+                is Result.Loading -> Unit
+            }
+        }
+    }
+
+    fun updateMedication() {
+        if (medicationId.isBlank()) {
+            _error.value = "Medication ID cannot be empty"
+            return
+        }
+
+        val timeOfDayList = timeOfDay.get()?.split(",")?.map { it.trim() }?.filter { it.isNotBlank() } ?: emptyList()
+        try {
+            timeOfDayList.forEach { time ->
+                require(isValidTimeFormat(time)) { "Invalid time format: $time" }
+            }
+        } catch (e: IllegalArgumentException) {
+            _error.value = e.message
+            return
+        }
+
+        viewModelScope.launch {
+            isLoading.set(true)
+            val result = medicationUseCases.updateMedication(
+                medicationId = medicationId,
+                name = medicationName.get() ?: "",
+                dosageUnit = dosageUnit.get() ?: DosageUnit.None,
+                dosageAmount = dosageAmount.get()?.toFloatOrNull() ?: 0f,
+                frequency = frequency.get()?.toIntOrNull() ?: 1,
+                timeOfDay = timeOfDayList,
+                mealRelation = mealRelation.get() ?: MealRelation.None,
+                startDate = startDate.get() ?: LocalDate.now(),
+                endDate = endDate.get() ?: startDate.get() ?: LocalDate.now(),
+                notes = notes.get() ?: ""
+            )
+            isLoading.set(false)
+
+            when (result) {
+                is Result.Success -> {
+                    Timber.d("Medication updated: ${medicationName.get()} with ID: $medicationId")
+                    medicationName.set("")
+                    dosageAmount.set("")
+                    dosageUnit.set(DosageUnit.None)
+                    frequency.set("")
+                    timeOfDay.set("")
+                    mealRelation.set(MealRelation.None)
+                    startDate.set(null)
+                    endDate.set(null)
+                    notes.set("")
+                    medicationId = ""
+                    _error.value = null
+                    _isFinished.value = true
+                }
+                is Result.Error -> {
+                    Timber.e(result.exception, "Failed to update medication: ${medicationName.get()}")
+                    _error.value = result.exception.message ?: "Failed to update medication"
                 }
                 is Result.Loading -> Unit
             }
