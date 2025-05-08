@@ -18,8 +18,10 @@ import androidx.fragment.app.Fragment
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.fragment.findNavController
 import com.example.healthcareproject.R
-import com.example.healthcareproject.present.notification.Notification
-import com.github.mikephil.charting.BuildConfig
+import com.example.healthcareproject.domain.model.Notification
+import com.example.healthcareproject.domain.model.NotificationType
+import com.example.healthcareproject.domain.model.RelatedTable
+import com.example.healthcareproject.domain.usecase.notification.CreateNotificationUseCase
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
@@ -27,11 +29,16 @@ import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.google.android.material.tabs.TabLayout
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.time.LocalDateTime
+import java.util.UUID
+import javax.inject.Inject
 import kotlin.random.Random
 
+@AndroidEntryPoint
 class HeartRateFragment : Fragment() {
 
     private lateinit var tabLayout: TabLayout
@@ -48,10 +55,13 @@ class HeartRateFragment : Fragment() {
     private val heartRateData = mutableListOf<Float>()
     private val maxDataPoints = 20
     private val handler = Handler(Looper.getMainLooper())
-    private val updateInterval = if (BuildConfig.DEBUG) 1000L else 5000L // 5s in production
+    private val updateInterval = 5000L // 5s
     private lateinit var timeFrame: String
     private val timeStamps = mutableListOf<Long>()
     private var lastAlertTime: Long = 0
+
+    @Inject
+    lateinit var createNotificationUseCase: CreateNotificationUseCase
 
     private val updateRunnable = object : Runnable {
         override fun run() {
@@ -225,20 +235,37 @@ class HeartRateFragment : Fragment() {
         val alertCooldown = 5_000L
 
         if (currentHeartRate > alertThreshold && (currentTime - lastAlertTime) > alertCooldown) {
+            val notificationId = UUID.randomUUID().toString()
             val notification = Notification(
-                id = System.currentTimeMillis(),
-                title = "HEART RATE ALERT",
+                notificationId = notificationId,
+                userId = "", // Will be set by CreateNotificationUseCase
+                type = NotificationType.Alert,
+                relatedTable = RelatedTable.Measurement,
+                relatedId = "heart_rate_$notificationId",
                 message = "Heart rate is too high (${currentHeartRate.toInt()} BPM). Need to Emergency!",
-                time = SimpleDateFormat("hh:mma", Locale.getDefault()).format(Date()),
-                iconResId = R.drawable.ic_heart_rate
+                timestamp = LocalDateTime.now()
             )
-            if (isServiceRunning()) {
-                val intent = Intent("HEART_RATE_ALERT")
-                intent.putExtra("notification", notification)
-                LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(intent)
-                lastAlertTime = currentTime
-            } else {
-                startNotificationService()
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    createNotificationUseCase(
+                        type = notification.type,
+                        relatedTable = notification.relatedTable,
+                        relatedId = notification.relatedId,
+                        message = notification.message,
+                        notificationTime = notification.timestamp
+                    )
+                    // Send to NotificationService
+                    if (isServiceRunning()) {
+                        val intent = Intent("HEART_RATE_ALERT")
+                        intent.putExtra("notification", notification)
+                        LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(intent)
+                        lastAlertTime = currentTime
+                    } else {
+                        startNotificationService()
+                    }
+                } catch (e: Exception) {
+                    // Handle error (e.g., log or show Toast)
+                }
             }
         }
 
@@ -302,7 +329,7 @@ class HeartRateFragment : Fragment() {
     }
 
     private fun startNotificationService() {
-        val serviceIntent = Intent(requireContext(), com.example.healthcareproject.present.notification.NotificationService::class.java)
+        val serviceIntent = Intent(requireContext(), com.example.healthcareproject.present.service.MyFirebaseMessagingService::class.java)
         ContextCompat.startForegroundService(requireContext(), serviceIntent)
     }
 }

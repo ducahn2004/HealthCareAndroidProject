@@ -30,7 +30,7 @@ class MainActivity : AppCompatActivity() {
         binding.bottomNavigationView.setupWithNavController(navController)
 
         // Handle navigation from notification
-        intent.getStringExtra("navigate_to")?.let { destination ->
+        intent.getStringExtra("notificationId")?.let { destination ->
             when (destination) {
                 "heart_rate" -> navController.navigate(R.id.action_global_heartRateFragment)
                 "oxygen" -> navController.navigate(R.id.action_global_oxygenFragment)

@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.healthcareproject.domain.model.Notification
 import com.example.healthcareproject.domain.model.NotificationType
+import com.example.healthcareproject.domain.repository.NotificationRepository
 import com.example.healthcareproject.domain.usecase.notification.DeleteNotificationUseCase
 import com.example.healthcareproject.domain.usecase.notification.GetNotificationsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,10 +18,11 @@ import javax.inject.Inject
 @HiltViewModel
 class NotificationViewModel @Inject constructor(
     private val getNotificationsUseCase: GetNotificationsUseCase,
-    private val deleteNotificationUseCase: DeleteNotificationUseCase
+    private val deleteNotificationUseCase: DeleteNotificationUseCase,
+    private val notificationRepository: NotificationRepository
 ) : ViewModel() {
 
-    // Class con để lưu thông báo với timestamp đã định dạng
+
     data class FormattedNotification(
         val notification: Notification,
         val formattedTimestamp: String
@@ -38,6 +40,23 @@ class NotificationViewModel @Inject constructor(
 
     init {
         loadNotifications()
+        observeNewNotifications()
+    }
+
+    private fun observeNewNotifications() {
+        viewModelScope.launch {
+            notificationRepository.getNotificationsFlow().collect { notifications ->
+                val formattedNotifications = notifications.map { notification ->
+                    FormattedNotification(
+                        notification = notification,
+                        formattedTimestamp = notification.timestamp.format(
+                            DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
+                        )
+                    )
+                }
+                _notifications.postValue(formattedNotifications)
+            }
+        }
     }
 
     fun loadNotifications() {

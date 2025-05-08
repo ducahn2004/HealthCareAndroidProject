@@ -164,6 +164,7 @@
     <string name="enter_phone_number">Enter phone number</string>
     <string name="select_relationship">Select relationship</string>
     <string name="select_priority">Select priority</string>
+    <color name="colorAccent">#FF4081</color>
     <string-array name="gender_options">
         <item>Male</item>
         <item>Female</item>
