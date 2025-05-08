@@ -84,20 +84,21 @@
             tools:listitem="@layout/item_medication" />
 
         <!-- Past Medications Title -->
+
+        <!-- No Past Medications Message -->
+
         <TextView
             android:id="@+id/tv_past_medications"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="56dp"
             android:text="Past Medications"
             android:textColor="@color/primary_text_color"
             android:textSize="18sp"
             android:textStyle="bold"
-            app:layout_constraintTop_toBottomOf="@id/rv_current_medications"
             app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp" />
+            app:layout_constraintTop_toBottomOf="@id/rv_current_medications" />
 
-        <!-- No Past Medications Message -->
         <TextView
             android:id="@+id/tv_no_past_medications"
             android:layout_width="wrap_content"
@@ -118,11 +119,10 @@
             android:layout_height="0dp"
             android:background="@color/surface"
             android:contentDescription="List of past medications"
-            app:layout_constraintTop_toBottomOf="@id/tv_no_past_medications"
-            app:layout_constraintBottom_toTopOf="@id/fab_add_medication"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginBottom="16dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_no_past_medications"
             tools:listitem="@layout/item_medication" />
 
         <!-- Floating Action Button to Add Medication -->

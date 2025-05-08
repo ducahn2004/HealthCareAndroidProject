@@ -17,6 +17,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.time.LocalDate
+import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.*
 import javax.inject.Inject
@@ -31,10 +32,10 @@ class AddMedicationViewModel @Inject constructor(
     // Observable fields for two-way data binding with the layout
     val medicationName = ObservableField<String>("")
     val dosageAmount = ObservableField<String>("")
-    val dosageUnit = ObservableField<DosageUnit>(DosageUnit.None) // Default to MG
+    val dosageUnit = ObservableField<DosageUnit>(DosageUnit.None)
     val frequency = ObservableField<String>("")
-    val timeOfDay = ObservableField<String>("") // Comma-separated times, e.g., "08:00,14:00"
-    val mealRelation = ObservableField<MealRelation>(MealRelation.None) // Default
+    val timeOfDay = ObservableField<String>("")
+    val mealRelation = ObservableField<MealRelation>(MealRelation.None)
     val startDate = ObservableField<LocalDate>()
     val endDate = ObservableField<LocalDate>()
     val notes = ObservableField<String>("")
@@ -57,7 +58,6 @@ class AddMedicationViewModel @Inject constructor(
     private var visitId: String? = null
     private var visitDate: LocalDate? = null
     private var visitTime: Calendar? = null
-    private val medications = mutableListOf<Medication>()
 
     init {
         // Set up observers for date changes
@@ -82,6 +82,10 @@ class AddMedicationViewModel @Inject constructor(
         visitTime = calendar
     }
 
+    fun setVisitId(id: String?) {
+        visitId = id
+    }
+
     fun setDosageUnit(unit: DosageUnit) {
         dosageUnit.set(unit)
     }
@@ -98,45 +102,23 @@ class AddMedicationViewModel @Inject constructor(
         endDate.set(date)
     }
 
-    fun saveMedicalVisit(
-        diagnosis: String,
-        doctorName: String,
-        clinicName: String
-    ) {
-        viewModelScope.launch {
-            isLoading.set(true)
-            val patientName = authDataSource.getCurrentUserId() ?: run {
-                isLoading.set(false)
-                _error.value = "User not logged in"
-                return@launch
-            }
-            val visitResult = medicalVisitUseCases.createMedicalVisitUseCase(
-                patientName = patientName,
-                visitReason = clinicName,
-                visitDate = visitDate ?: LocalDate.now(),
-                doctorName = doctorName,
-                diagnosis = diagnosis,
-                status = true
-            )
-            when (visitResult) {
-                is Result.Success -> {
-                    Timber.d("MedicalVisit saved with visitId: ${visitResult.data}")
-                    visitId = visitResult.data
-                    isLoading.set(false)
-                    _error.value = null
-                }
-                is Result.Error -> {
-                    Timber.e(visitResult.exception, "Failed to save MedicalVisit")
-                    isLoading.set(false)
-                    _error.value = visitResult.exception.message ?: "Failed to save appointment"
-                }
-                is Result.Loading -> Unit
-            }
-        }
-    }
-
     fun addMedication() {
+        // Validate time of day format
         val timeOfDayList = timeOfDay.get()?.split(",")?.map { it.trim() }?.filter { it.isNotBlank() } ?: emptyList()
+        try {
+            timeOfDayList.forEach { time ->
+                require(isValidTimeFormat(time)) { "Invalid time format: $time" }
+            }
+        } catch (e: IllegalArgumentException) {
+            _error.value = e.message
+            return
+        }
+
+        val userId = authDataSource.getCurrentUserId() ?: run {
+            _error.value = "User not logged in"
+            return
+        }
+
         val medicationStartDate = startDate.get() ?: LocalDate.now()
         val medication = Medication(
             medicationId = UUID.randomUUID().toString(),
@@ -147,76 +129,51 @@ class AddMedicationViewModel @Inject constructor(
             timeOfDay = timeOfDayList,
             mealRelation = mealRelation.get() ?: MealRelation.None,
             startDate = medicationStartDate,
-            endDate = endDate.get() ?: medicationStartDate, // Fixed: Use startDate as fallback for non-null endDate
+            endDate = endDate.get() ?: medicationStartDate,
             notes = notes.get() ?: "",
-            userId = "",
-            visitId = ""
+            userId = userId,
+            visitId = visitId ?: ""
         )
-        medications.add(medication)
 
-        // Clear input fields after adding
-        medicationName.set("")
-        dosageAmount.set("")
-        dosageUnit.set(DosageUnit.None)
-        frequency.set("")
-        timeOfDay.set("")
-        mealRelation.set(MealRelation.None)
-        startDate.set(null)
-        endDate.set(null)
-        notes.set("")
-
-        // Set isFinished to true to signal that the dialog should close
-        _isFinished.value = true
-    }
-
-    fun saveAllMedications() {
+        // Save medication directly via use case
         viewModelScope.launch {
-            val currentVisitId = visitId ?: run {
-                isLoading.set(false)
-                _error.value = "No visit ID available"
-                return@launch
-            }
-            val userId = authDataSource.getCurrentUserId() ?: run {
-                isLoading.set(false)
-                _error.value = "User not logged in"
-                return@launch
-            }
-            if (medications.isEmpty()) {
-                isLoading.set(false)
-                _error.value = "No medications to save"
-                return@launch
-            }
-
             isLoading.set(true)
-
-            medications.forEach { medication ->
-                val medicationResult = medicationUseCases.createMedication(
-                    visitId = currentVisitId,
-                    name = medication.name,
-                    dosageUnit = medication.dosageUnit,
-                    dosageAmount = medication.dosageAmount,
-                    frequency = medication.frequency,
-                    timeOfDay = medication.timeOfDay,
-                    mealRelation = medication.mealRelation,
-                    startDate = medication.startDate,
-                    endDate = medication.endDate,
-                    notes = medication.notes
-                )
-                when (medicationResult) {
-                    is Result.Success -> Timber.d("Medication saved: ${medication.name} with ID: ${medicationResult.data}")
-                    is Result.Error -> {
-                        Timber.e(medicationResult.exception, "Failed to save medication: ${medication.name}")
-                        isLoading.set(false)
-                        _error.value = medicationResult.exception.message ?: "Failed to save medication"
-                        return@launch
-                    }
-                    is Result.Loading -> Unit
-                }
-            }
-
+            val result = medicationUseCases.createMedication(
+                visitId = visitId,
+                name = medication.name,
+                dosageUnit = medication.dosageUnit,
+                dosageAmount = medication.dosageAmount,
+                frequency = medication.frequency,
+                timeOfDay = medication.timeOfDay,
+                mealRelation = medication.mealRelation,
+                startDate = medication.startDate,
+                endDate = medication.endDate,
+                notes = medication.notes
+            )
             isLoading.set(false)
-            _isFinished.value = true
-            _error.value = null
+
+            when (result) {
+                is Result.Success -> {
+                    Timber.d("Medication saved: ${medication.name} with ID: ${result.data}")
+                    // Clear input fields
+                    medicationName.set("")
+                    dosageAmount.set("")
+                    dosageUnit.set(DosageUnit.None)
+                    frequency.set("")
+                    timeOfDay.set("")
+                    mealRelation.set(MealRelation.None)
+                    startDate.set(null)
+                    endDate.set(null)
+                    notes.set("")
+                    _error.value = null
+                    _isFinished.value = true
+                }
+                is Result.Error -> {
+                    Timber.e(result.exception, "Failed to save medication: ${medication.name}")
+                    _error.value = result.exception.message ?: "Failed to save medication"
+                }
+                is Result.Loading -> Unit
+            }
         }
     }
 
@@ -228,5 +185,14 @@ class AddMedicationViewModel @Inject constructor(
     private fun updateFormattedEndDate() {
         val date = endDate.get()
         formattedEndDate.set(date?.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) ?: "Select End Date (optional)")
+    }
+
+    private fun isValidTimeFormat(time: String): Boolean {
+        return try {
+            LocalTime.parse(time)
+            true
+        } catch (e: Exception) {
+            false
+        }
     }
 }

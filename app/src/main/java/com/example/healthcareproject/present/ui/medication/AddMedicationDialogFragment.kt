@@ -82,14 +82,14 @@ class AddMedicationDialogFragment : DialogFragment() {
             setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         }
         binding.spinnerDosageUnit.adapter = dosageAdapter
-        binding.spinnerDosageUnit.setSelection(medicationToEdit?.dosageUnit?.ordinal ?: DosageUnit.None.ordinal)
+        binding.spinnerDosageUnit.setSelection(medicationToEdit?.dosageUnit?.ordinal ?: DosageUnit.Cup.ordinal)
         binding.spinnerDosageUnit.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: android.widget.AdapterView<*>, view: View?, position: Int, id: Long) {
                 viewModel.setDosageUnit(DosageUnit.entries[position])
             }
 
             override fun onNothingSelected(parent: android.widget.AdapterView<*>) {
-                viewModel.setDosageUnit(DosageUnit.None)
+                viewModel.setDosageUnit(DosageUnit.Cup)
             }
         }
 
@@ -102,14 +102,14 @@ class AddMedicationDialogFragment : DialogFragment() {
             setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         }
         binding.spinnerMealRelation.adapter = mealAdapter
-        binding.spinnerMealRelation.setSelection(medicationToEdit?.mealRelation?.ordinal ?: MealRelation.None.ordinal)
+        binding.spinnerMealRelation.setSelection(medicationToEdit?.mealRelation?.ordinal ?: MealRelation.AfterMeal.ordinal)
         binding.spinnerMealRelation.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: android.widget.AdapterView<*>, view: View?, position: Int, id: Long) {
                 viewModel.setMealRelation(MealRelation.entries[position])
             }
 
             override fun onNothingSelected(parent: android.widget.AdapterView<*>) {
-                viewModel.setMealRelation(MealRelation.None)
+                viewModel.setMealRelation(MealRelation.AfterMeal)
             }
         }
     }
@@ -175,6 +175,17 @@ class AddMedicationDialogFragment : DialogFragment() {
         }
         if (viewModel.timeOfDay.get()?.split(",")?.map { it.trim() }?.filter { it.isNotEmpty() }?.isEmpty() != false) {
             Toast.makeText(requireContext(), "At least one time of day is required", Toast.LENGTH_SHORT).show()
+            return false
+        }
+        // Check if startDate is before or equal to endDate (if endDate is set)
+        val startDate = viewModel.startDate.get()
+        val endDate = viewModel.endDate.get()
+        if (startDate == null) {
+            Toast.makeText(requireContext(), "Start date is required", Toast.LENGTH_SHORT).show()
+            return false
+        }
+        if (endDate != null && startDate.isAfter(endDate)) {
+            Toast.makeText(requireContext(), "Start date must be before or equal to end date", Toast.LENGTH_SHORT).show()
             return false
         }
         return true
@@ -258,7 +269,6 @@ class AddMedicationDialogFragment : DialogFragment() {
             }
         }
 
-        // New method to create instance with source fragment information
         fun newInstance(medication: Medication? = null, sourceFragment: String? = null): AddMedicationDialogFragment {
             return AddMedicationDialogFragment().apply {
                 arguments = Bundle().apply {
