@@ -3,6 +3,7 @@ package com.example.healthcareproject.present.ui.medicine
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,12 +19,16 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.healthcareproject.databinding.FragmentAddMedicalVisitBinding
 import com.example.healthcareproject.domain.model.Medication
+import com.example.healthcareproject.present.navigation.AuthNavigator
+import com.example.healthcareproject.present.navigation.MainNavigator
 import com.example.healthcareproject.present.ui.medication.AddMedicationDialogFragment
 import com.example.healthcareproject.present.viewmodel.medicine.AddMedicalVisitViewModel
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 import java.time.LocalDateTime
 import java.util.*
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class AddMedicalVisitFragment : Fragment() {
@@ -31,6 +36,10 @@ class AddMedicalVisitFragment : Fragment() {
     private var _binding: FragmentAddMedicalVisitBinding? = null
     private val binding get() = _binding!!
     private val viewModel: AddMedicalVisitViewModel by viewModels()
+
+    @Inject
+    lateinit var navigator: MainNavigator
+
     private lateinit var medicationAdapter: MedicationAdapter
 
     override fun onCreateView(
@@ -100,7 +109,8 @@ class AddMedicalVisitFragment : Fragment() {
         val calendar = Calendar.getInstance()
 
         binding.ivBack.setOnClickListener {
-            findNavController().navigateUp()
+            Timber.tag("AddMedicalVisitFragment").d("Back button clicked")
+            navigator.navigateBackToMedicineFromAddMedicalVisit()
         }
 
         binding.tvDateTime.setOnClickListener {
