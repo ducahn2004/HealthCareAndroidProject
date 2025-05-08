@@ -9,6 +9,7 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.databinding.Observable
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import com.example.healthcareproject.databinding.DialogAddMedicationBinding
@@ -31,7 +32,6 @@ class AddMedicationDialogFragment : DialogFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setStyle(STYLE_NORMAL, android.R.style.Theme_Material_Light_Dialog_NoActionBar_MinWidth)
-        // Retrieve medication from arguments if editing
         medicationToEdit = arguments?.getParcelable(ARG_MEDICATION)
     }
 
@@ -52,7 +52,6 @@ class AddMedicationDialogFragment : DialogFragment() {
         setupDatePickers()
         setupButtons()
         observeViewModel()
-        // Prepopulate fields if editing
         medicationToEdit?.let { prepopulateFields(it) }
     }
 
@@ -71,7 +70,6 @@ class AddMedicationDialogFragment : DialogFragment() {
     }
 
     private fun setupSpinners() {
-        // Dosage Unit Spinner
         val dosageUnits = DosageUnit.entries.map { it.name }
         val dosageAdapter = ArrayAdapter(
             requireContext(),
@@ -92,7 +90,6 @@ class AddMedicationDialogFragment : DialogFragment() {
             }
         }
 
-        // Meal Relation Spinner
         val mealRelations = MealRelation.entries.map { it.name }
         val mealAdapter = ArrayAdapter(
             requireContext(),
@@ -148,13 +145,26 @@ class AddMedicationDialogFragment : DialogFragment() {
 
     private fun setupButtons() {
         binding.btnAdd.setOnClickListener {
-            viewModel.addMedication()
-            viewModel.saveAllMedications()
+            if (validateInputs()) {
+                viewModel.addMedication()
+            }
         }
 
         binding.btnCancel.setOnClickListener {
             dismiss()
         }
+    }
+
+    private fun validateInputs(): Boolean {
+        if (viewModel.medicationName.get().isNullOrBlank()) {
+            Toast.makeText(requireContext(), "Medication name is required", Toast.LENGTH_SHORT).show()
+            return false
+        }
+        if (viewModel.dosageAmount.get().isNullOrBlank()) {
+            Toast.makeText(requireContext(), "Dosage amount is required", Toast.LENGTH_SHORT).show()
+            return false
+        }
+        return true
     }
 
     private fun observeViewModel() {
@@ -166,7 +176,24 @@ class AddMedicationDialogFragment : DialogFragment() {
 
         viewModel.isFinished.observe(viewLifecycleOwner, Observer { isFinished ->
             if (isFinished == true) {
-                Toast.makeText(requireContext(), "Medication saved successfully", Toast.LENGTH_SHORT).show()
+                val medication = Medication(
+                    medicationId = medicationToEdit?.medicationId ?: "",
+                    userId = "",
+                    visitId = null,
+                    name = viewModel.medicationName.get() ?: "",
+                    dosageUnit = viewModel.dosageUnit.get() ?: DosageUnit.None,
+                    dosageAmount = viewModel.dosageAmount.get()?.toFloatOrNull() ?: 0f,
+                    frequency = viewModel.frequency.get()?.toIntOrNull() ?: 0,
+                    timeOfDay = viewModel.timeOfDay.get()?.split(",")?.map { it.trim() }?.filter { it.isNotEmpty() } ?: emptyList(),
+                    mealRelation = viewModel.mealRelation.get() ?: MealRelation.None,
+                    startDate = viewModel.startDate.get() ?: LocalDate.now(),
+                    endDate = viewModel.endDate.get() ?: LocalDate.now().plusMonths(1),
+                    notes = viewModel.notes.get() ?: ""
+                )
+                setFragmentResult("medicationKey", Bundle().apply {
+                    putBoolean("medicationAdded", true)
+                    putParcelable("medication", medication)
+                })
                 dismiss()
             }
         })
@@ -192,10 +219,10 @@ class AddMedicationDialogFragment : DialogFragment() {
             return AddMedicationDialogFragment()
         }
 
-        fun newInstance(medication: Medication): AddMedicationDialogFragment {
+        fun newInstance(medication: Medication? = null): AddMedicationDialogFragment {
             return AddMedicationDialogFragment().apply {
                 arguments = Bundle().apply {
-                    putParcelable(ARG_MEDICATION, medication)
+                    medication?.let { putParcelable(ARG_MEDICATION, it) }
                 }
             }
         }

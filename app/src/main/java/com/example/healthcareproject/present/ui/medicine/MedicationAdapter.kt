@@ -1,11 +1,13 @@
 package com.example.healthcareproject.present.ui.medicine
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.healthcareproject.databinding.ItemMedicationBinding
+import com.example.healthcareproject.domain.model.DosageUnit
 import com.example.healthcareproject.domain.model.Medication
 import java.time.format.DateTimeFormatter
 

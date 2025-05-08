@@ -12,7 +12,7 @@ class CreateMedicationUseCase @Inject constructor(
     private val medicationRepository: MedicationRepository
 ) {
     suspend operator fun invoke(
-        visitId: String,
+        visitId: String?,
         name: String,
         dosageUnit: DosageUnit,
         dosageAmount: Float,

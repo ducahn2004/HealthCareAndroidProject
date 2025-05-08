@@ -12,6 +12,8 @@ import com.example.healthcareproject.domain.model.Medication
 import java.time.format.DateTimeFormatter
 
 class MedicationAdapter(
+    private val onEdit: (Medication) -> Unit = {},
+    private val onDelete: (Medication) -> Unit = {},
     private val onItemClick: (Medication) -> Unit = {}
 ) : ListAdapter<Medication, MedicationAdapter.MedicationViewHolder>(MedicationDiffCallback()) {
 
@@ -23,7 +25,7 @@ class MedicationAdapter(
             parent,
             false
         )
-        return MedicationViewHolder(binding)
+        return MedicationViewHolder(binding, onEdit, onDelete, onItemClick)
     }
 
     override fun onBindViewHolder(holder: MedicationViewHolder, position: Int) {
@@ -31,7 +33,10 @@ class MedicationAdapter(
     }
 
     inner class MedicationViewHolder(
-        private val binding: ItemMedicationBinding
+        private val binding: ItemMedicationBinding,
+        private val onEdit: (Medication) -> Unit,
+        private val onDelete: (Medication) -> Unit,
+        private val onItemClick: (Medication) -> Unit
     ) : RecyclerView.ViewHolder(binding.root) {
         init {
             binding.root.setOnClickListener {
@@ -40,10 +45,23 @@ class MedicationAdapter(
                     onItemClick(getItem(position))
                 }
             }
+            binding.iconEdit.setOnClickListener {
+                val position = bindingAdapterPosition
+                if (position != RecyclerView.NO_POSITION) {
+                    onEdit(getItem(position))
+                }
+            }
+            binding.iconDelete.setOnClickListener {
+                val position = bindingAdapterPosition
+                if (position != RecyclerView.NO_POSITION) {
+                    onDelete(getItem(position))
+                }
+            }
         }
 
         fun bind(medication: Medication) {
             binding.medication = medication
+            binding.dateFormatter = dateFormatter
             binding.tvDosage.text = "${medication.dosageAmount} ${medication.dosageUnit.toDisplayString()}"
             binding.tvFrequency.text = when (medication.frequency) {
                 1 -> "Once daily"
@@ -51,7 +69,7 @@ class MedicationAdapter(
                 else -> "${medication.frequency} times daily"
             }
             binding.tvStartDate.text = medication.startDate.format(dateFormatter)
-            binding.tvEndDate.text = medication.endDate.format(dateFormatter) // endDate is LocalDate
+            binding.tvEndDate.text = medication.endDate?.format(dateFormatter) ?: "Ongoing"
             binding.tvTimeOfDay.text = medication.timeOfDay.joinToString(", ")
             binding.tvMealRelation.text = medication.mealRelation.name
                 .replace("_", " ")
@@ -63,6 +81,7 @@ class MedicationAdapter(
                 binding.notesContainer.visibility = View.VISIBLE
                 binding.tvNotes.text = medication.notes
             }
+            binding.executePendingBindings()
         }
     }
 
@@ -78,5 +97,5 @@ class MedicationAdapter(
 }
 
 fun DosageUnit.toDisplayString(): String {
-    return name.replace("PerDay", " per day").replaceFirstChar { it.uppercase() }
+    return name.replace("PerDay", " per day").replaceFirstChar { it.uppercase()}
 }

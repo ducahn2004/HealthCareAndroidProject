@@ -1,9 +1,7 @@
-package com.example.healthcareproject.present.ui.medicine
+package com.example.healthcareproject.present.ui.medication
 
-import android.app.Activity
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,13 +10,13 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.databinding.Observable
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.healthcareproject.databinding.FragmentAddMedicalVisitBinding
 import com.example.healthcareproject.domain.model.Medication
-import com.example.healthcareproject.present.ui.medication.AddMedicationDialogFragment
 import com.example.healthcareproject.present.viewmodel.medicine.AddMedicalVisitViewModel
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
@@ -49,23 +47,24 @@ class AddMedicalVisitFragment : Fragment() {
         setupRecyclerView()
         setupClickListeners()
         observeViewModel()
+        setupFragmentResultListener()
     }
 
     private fun setupRecyclerView() {
         medicationAdapter = MedicationAdapter(
             onEdit = { medication ->
                 val dialog = AddMedicationDialogFragment.newInstance(medication)
-                dialog.setTargetFragment(this, REQUEST_CODE_EDIT_MEDICATION)
                 dialog.show(parentFragmentManager, "EditMedicationDialog")
             },
             onDelete = { medication ->
                 viewModel.removeMedication(medication)
-                medicationAdapter.submitList(viewModel.getMedications())
                 Snackbar.make(binding.root, "Medication deleted", Snackbar.LENGTH_LONG)
                     .setAction("Undo") {
                         viewModel.addMedication(medication)
-                        medicationAdapter.submitList(viewModel.getMedications())
                     }.show()
+            },
+            onItemClick = { medication ->
+                Toast.makeText(requireContext(), "Clicked: ${medication.name}", Toast.LENGTH_SHORT).show()
             }
         )
         binding.rvMedications.apply {
@@ -126,19 +125,57 @@ class AddMedicalVisitFragment : Fragment() {
 
         binding.btnAddMedication.setOnClickListener {
             val dialog = AddMedicationDialogFragment.newInstance()
-            dialog.setTargetFragment(this, REQUEST_CODE_ADD_MEDICATION)
             dialog.show(parentFragmentManager, "AddMedicationDialog")
         }
 
         binding.btnSave.setOnClickListener {
+            val diagnosis = binding.etCondition.text.toString()
+            val doctorName = binding.etDoctor.text.toString()
+            val clinicName = binding.etFacility.text.toString()
+
+            if (diagnosis.isBlank()) {
+                binding.etCondition.error = "Diagnosis is required"
+                return@setOnClickListener
+            }
+            if (doctorName.isBlank()) {
+                binding.etDoctor.error = "Doctor name is required"
+                return@setOnClickListener
+            }
+            if (clinicName.isBlank()) {
+                binding.etFacility.error = "Clinic name is required"
+                return@setOnClickListener
+            }
+
+            viewModel.diagnosis.set(diagnosis)
+            viewModel.doctorName.set(doctorName)
+            viewModel.clinicName.set(clinicName)
+
             if (viewModel.getMedications().isEmpty()) {
                 AlertDialog.Builder(requireContext())
                     .setMessage("No medications added. Save anyway?")
-                    .setPositiveButton("Yes") { _, _ -> viewModel.saveMedicalVisit() }
+                    .setPositiveButton("Yes") { _, _ ->
+                        viewModel.saveMedicalVisit()
+                    }
                     .setNegativeButton("No", null)
                     .show()
             } else {
                 viewModel.saveMedicalVisit()
+            }
+        }
+    }
+
+    private fun setupFragmentResultListener() {
+        setFragmentResultListener("medicationKey") { _, bundle ->
+            if (bundle.getBoolean("medicationAdded", false)) {
+                val medication = bundle.getParcelable<Medication>("medication")
+                if (medication != null) {
+                    if (medication.medicationId.isNotEmpty()) {
+                        viewModel.updateMedication(medication)
+                    } else {
+                        viewModel.addMedication(medication.copy(medicationId = UUID.randomUUID().toString()))
+                    }
+                    medicationAdapter.submitList(viewModel.getMedications())
+                }
             }
         }
     }
@@ -173,28 +210,8 @@ class AddMedicalVisitFragment : Fragment() {
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == Activity.RESULT_OK && data != null) {
-            val medication = data.getParcelableExtra<Medication>(EXTRA_MEDICATION)
-            if (medication != null) {
-                when (requestCode) {
-                    REQUEST_CODE_ADD_MEDICATION -> viewModel.addMedication(medication)
-                    REQUEST_CODE_EDIT_MEDICATION -> viewModel.updateMedication(medication)
-                }
-                medicationAdapter.submitList(viewModel.getMedications())
-            }
-        }
-    }
-
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-
-    companion object {
-        private const val REQUEST_CODE_ADD_MEDICATION = 1001
-        private const val REQUEST_CODE_EDIT_MEDICATION = 1002
-        const val EXTRA_MEDICATION = "extra_medication"
     }
 }

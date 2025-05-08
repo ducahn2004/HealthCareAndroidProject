@@ -56,12 +56,12 @@ class PillFragment : Fragment() {
         currentMedicationAdapter = MedicationAdapter { medication ->
             medication.visitId?.takeIf { it.isNotEmpty() }?.let { visitId ->
                 mainNavigator.navigateToMedicalHistoryDetail(visitId)
-            } ?: Toast.makeText(context, "Invalid visit ID", Toast.LENGTH_SHORT).show()
+            }
         }
         pastMedicationAdapter = MedicationAdapter { medication ->
             medication.visitId?.takeIf { it.isNotEmpty() }?.let { visitId ->
                 mainNavigator.navigateToMedicalHistoryDetail(visitId)
-            } ?: Toast.makeText(context, "Invalid visit ID", Toast.LENGTH_SHORT).show()
+            }
         }
 
         binding.rvCurrentMedications.apply {
@@ -78,10 +78,20 @@ class PillFragment : Fragment() {
         binding.fabAddMedication.setOnClickListener {
             Timber.d("FAB clicked: Showing AddMedicationDialogFragment")
             try {
-                AddMedicationDialogFragment().show(parentFragmentManager, "AddMedicationDialog")
+                val dialog = AddMedicationDialogFragment.newInstance()
+                dialog.show(parentFragmentManager, "AddMedicationDialog")
             } catch (e: Exception) {
                 Timber.e(e, "Failed to show AddMedicationDialogFragment")
                 Toast.makeText(context, "Failed to open Add Medication: ${e.message}", Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    private fun setupFragmentResultListener() {
+        setFragmentResultListener("medicationKey") { _, bundle ->
+            if (bundle.getBoolean("medicationAdded", false)) {
+                viewModel.loadMedications()
+                Toast.makeText(context, "Medication added successfully", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -96,18 +106,6 @@ class PillFragment : Fragment() {
         viewModel.error.observe(viewLifecycleOwner) { errorMessage ->
             errorMessage?.let {
                 Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-
-    private fun setupFragmentResultListener() {
-        setFragmentResultListener("medicationKey") { _, bundle ->
-            if (bundle.getBoolean("medicationAdded", false)) {
-                viewModel.loadMedications()
-            }
-            val visitId = bundle.getString("visitId")
-            if (visitId != null && bundle.getBoolean("navigateToVisit", false)) {
-                mainNavigator.navigateToMedicalHistoryDetail(visitId)
             }
         }
     }
