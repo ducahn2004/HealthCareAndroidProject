@@ -128,7 +128,7 @@
     <fragment
         android:id="@+id/addMedicalVisitFragment"
         android:name="com.example.healthcareproject.present.ui.medicine.AddMedicalVisitFragment"
-        android:label="Add Appointment"
+        android:label="Add Medical Visit"
         tools:layout="@layout/fragment_add_medical_visit">
         <action
             android:id="@+id/action_addMedicalVisitFragment_to_medicineFragment"

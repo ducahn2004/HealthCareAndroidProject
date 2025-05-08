@@ -18,6 +18,7 @@ import com.example.healthcareproject.domain.model.MealRelation
 import com.example.healthcareproject.domain.model.Medication
 import com.example.healthcareproject.present.viewmodel.medication.AddMedicationViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 import java.time.LocalDate
 import java.util.*
 
@@ -28,11 +29,13 @@ class AddMedicationDialogFragment : DialogFragment() {
     private val binding get() = _binding!!
     private val viewModel: AddMedicationViewModel by viewModels()
     private var medicationToEdit: Medication? = null
+    private var sourceFragment: String? = null // To track which fragment opened this dialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setStyle(STYLE_NORMAL, android.R.style.Theme_Material_Light_Dialog_NoActionBar_MinWidth)
         medicationToEdit = arguments?.getParcelable(ARG_MEDICATION)
+        sourceFragment = arguments?.getString(ARG_SOURCE_FRAGMENT)
     }
 
     override fun onCreateView(
@@ -145,7 +148,9 @@ class AddMedicationDialogFragment : DialogFragment() {
 
     private fun setupButtons() {
         binding.btnAdd.setOnClickListener {
+            Timber.d("Add button clicked")
             if (validateInputs()) {
+                Timber.d("Inputs validated, calling addMedication()")
                 viewModel.addMedication()
             }
         }
@@ -162,6 +167,14 @@ class AddMedicationDialogFragment : DialogFragment() {
         }
         if (viewModel.dosageAmount.get().isNullOrBlank()) {
             Toast.makeText(requireContext(), "Dosage amount is required", Toast.LENGTH_SHORT).show()
+            return false
+        }
+        if (viewModel.frequency.get()?.toIntOrNull()?.let { it <= 0 } != false) {
+            Toast.makeText(requireContext(), "Valid frequency is required", Toast.LENGTH_SHORT).show()
+            return false
+        }
+        if (viewModel.timeOfDay.get()?.split(",")?.map { it.trim() }?.filter { it.isNotEmpty() }?.isEmpty() != false) {
+            Toast.makeText(requireContext(), "At least one time of day is required", Toast.LENGTH_SHORT).show()
             return false
         }
         return true
@@ -190,10 +203,20 @@ class AddMedicationDialogFragment : DialogFragment() {
                     endDate = viewModel.endDate.get() ?: LocalDate.now().plusMonths(1),
                     notes = viewModel.notes.get() ?: ""
                 )
-                setFragmentResult("medicationKey", Bundle().apply {
+
+                // Return result based on the source fragment
+                val resultKey = when (sourceFragment) {
+                    SOURCE_PILL_FRAGMENT -> RESULT_KEY_PILL_FRAGMENT
+                    SOURCE_MEDICAL_VISIT_FRAGMENT -> RESULT_KEY_MEDICAL_VISIT_FRAGMENT
+                    else -> RESULT_KEY_DEFAULT
+                }
+
+                setFragmentResult(resultKey, Bundle().apply {
                     putBoolean("medicationAdded", true)
                     putParcelable("medication", medication)
+                    putString("sourceFragment", sourceFragment)
                 })
+
                 dismiss()
             }
         })
@@ -214,6 +237,14 @@ class AddMedicationDialogFragment : DialogFragment() {
 
     companion object {
         private const val ARG_MEDICATION = "arg_medication"
+        private const val ARG_SOURCE_FRAGMENT = "arg_source_fragment"
+
+        const val SOURCE_PILL_FRAGMENT = "pill_fragment"
+        const val SOURCE_MEDICAL_VISIT_FRAGMENT = "medical_visit_fragment"
+
+        const val RESULT_KEY_DEFAULT = "medicationKey"
+        const val RESULT_KEY_PILL_FRAGMENT = "medicationKeyPill"
+        const val RESULT_KEY_MEDICAL_VISIT_FRAGMENT = "medicationKeyMedicalVisit"
 
         fun newInstance(): AddMedicationDialogFragment {
             return AddMedicationDialogFragment()
@@ -223,6 +254,16 @@ class AddMedicationDialogFragment : DialogFragment() {
             return AddMedicationDialogFragment().apply {
                 arguments = Bundle().apply {
                     medication?.let { putParcelable(ARG_MEDICATION, it) }
+                }
+            }
+        }
+
+        // New method to create instance with source fragment information
+        fun newInstance(medication: Medication? = null, sourceFragment: String? = null): AddMedicationDialogFragment {
+            return AddMedicationDialogFragment().apply {
+                arguments = Bundle().apply {
+                    medication?.let { putParcelable(ARG_MEDICATION, it) }
+                    sourceFragment?.let { putString(ARG_SOURCE_FRAGMENT, it) }
                 }
             }
         }

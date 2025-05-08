@@ -164,6 +164,9 @@ class AddMedicationViewModel @Inject constructor(
         startDate.set(null)
         endDate.set(null)
         notes.set("")
+
+        // Set isFinished to true to signal that the dialog should close
+        _isFinished.value = true
     }
 
     fun saveAllMedications() {

@@ -78,7 +78,10 @@ class PillFragment : Fragment() {
         binding.fabAddMedication.setOnClickListener {
             Timber.d("FAB clicked: Showing AddMedicationDialogFragment")
             try {
-                val dialog = AddMedicationDialogFragment.newInstance()
+                // Use the new newInstance method with source fragment information
+                val dialog = AddMedicationDialogFragment.newInstance(
+                    sourceFragment = AddMedicationDialogFragment.SOURCE_PILL_FRAGMENT
+                )
                 dialog.show(parentFragmentManager, "AddMedicationDialog")
             } catch (e: Exception) {
                 Timber.e(e, "Failed to show AddMedicationDialogFragment")
@@ -88,10 +91,23 @@ class PillFragment : Fragment() {
     }
 
     private fun setupFragmentResultListener() {
-        setFragmentResultListener("medicationKey") { _, bundle ->
+        // Listen to the specific result key for PillFragment
+        setFragmentResultListener(AddMedicationDialogFragment.RESULT_KEY_PILL_FRAGMENT) { _, bundle ->
             if (bundle.getBoolean("medicationAdded", false)) {
                 viewModel.loadMedications()
                 Toast.makeText(context, "Medication added successfully", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        // Also listen to the default key for backward compatibility
+        setFragmentResultListener(AddMedicationDialogFragment.RESULT_KEY_DEFAULT) { _, bundle ->
+            if (bundle.getBoolean("medicationAdded", false)) {
+                // Check if this result was intended for this fragment
+                val source = bundle.getString("sourceFragment")
+                if (source == null || source == AddMedicationDialogFragment.SOURCE_PILL_FRAGMENT) {
+                    viewModel.loadMedications()
+                    Toast.makeText(context, "Medication added successfully", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }

@@ -1,4 +1,4 @@
-package com.example.healthcareproject.present.ui.medication
+package com.example.healthcareproject.present.ui.medicine
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
@@ -12,11 +12,13 @@ import androidx.databinding.Observable
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.healthcareproject.databinding.FragmentAddMedicalVisitBinding
 import com.example.healthcareproject.domain.model.Medication
+import com.example.healthcareproject.present.ui.medication.AddMedicationDialogFragment
 import com.example.healthcareproject.present.viewmodel.medicine.AddMedicalVisitViewModel
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
@@ -53,7 +55,11 @@ class AddMedicalVisitFragment : Fragment() {
     private fun setupRecyclerView() {
         medicationAdapter = MedicationAdapter(
             onEdit = { medication ->
-                val dialog = AddMedicationDialogFragment.newInstance(medication)
+                // Use the updated newInstance with source fragment information
+                val dialog = AddMedicationDialogFragment.newInstance(
+                    medication = medication,
+                    sourceFragment = AddMedicationDialogFragment.SOURCE_MEDICAL_VISIT_FRAGMENT
+                )
                 dialog.show(parentFragmentManager, "EditMedicationDialog")
             },
             onDelete = { medication ->
@@ -62,9 +68,6 @@ class AddMedicalVisitFragment : Fragment() {
                     .setAction("Undo") {
                         viewModel.addMedication(medication)
                     }.show()
-            },
-            onItemClick = { medication ->
-                Toast.makeText(requireContext(), "Clicked: ${medication.name}", Toast.LENGTH_SHORT).show()
             }
         )
         binding.rvMedications.apply {
@@ -97,7 +100,7 @@ class AddMedicalVisitFragment : Fragment() {
         val calendar = Calendar.getInstance()
 
         binding.ivBack.setOnClickListener {
-            requireActivity().onBackPressed()
+            findNavController().navigateUp()
         }
 
         binding.tvDateTime.setOnClickListener {
@@ -124,7 +127,10 @@ class AddMedicalVisitFragment : Fragment() {
         }
 
         binding.btnAddMedication.setOnClickListener {
-            val dialog = AddMedicationDialogFragment.newInstance()
+            // Use the updated newInstance with source fragment information
+            val dialog = AddMedicationDialogFragment.newInstance(
+                sourceFragment = AddMedicationDialogFragment.SOURCE_MEDICAL_VISIT_FRAGMENT
+            )
             dialog.show(parentFragmentManager, "AddMedicationDialog")
         }
 
@@ -165,7 +171,8 @@ class AddMedicalVisitFragment : Fragment() {
     }
 
     private fun setupFragmentResultListener() {
-        setFragmentResultListener("medicationKey") { _, bundle ->
+        // Listen to the specific result key for Medical Visit Fragment
+        setFragmentResultListener(AddMedicationDialogFragment.RESULT_KEY_MEDICAL_VISIT_FRAGMENT) { _, bundle ->
             if (bundle.getBoolean("medicationAdded", false)) {
                 val medication = bundle.getParcelable<Medication>("medication")
                 if (medication != null) {
@@ -175,6 +182,25 @@ class AddMedicalVisitFragment : Fragment() {
                         viewModel.addMedication(medication.copy(medicationId = UUID.randomUUID().toString()))
                     }
                     medicationAdapter.submitList(viewModel.getMedications())
+                }
+            }
+        }
+
+        // Also listen to the default key for backward compatibility
+        setFragmentResultListener(AddMedicationDialogFragment.RESULT_KEY_DEFAULT) { _, bundle ->
+            if (bundle.getBoolean("medicationAdded", false)) {
+                // Check if this result was intended for this fragment
+                val source = bundle.getString("sourceFragment")
+                if (source == null || source == AddMedicationDialogFragment.SOURCE_MEDICAL_VISIT_FRAGMENT) {
+                    val medication = bundle.getParcelable<Medication>("medication")
+                    if (medication != null) {
+                        if (medication.medicationId.isNotEmpty()) {
+                            viewModel.updateMedication(medication)
+                        } else {
+                            viewModel.addMedication(medication.copy(medicationId = UUID.randomUUID().toString()))
+                        }
+                        medicationAdapter.submitList(viewModel.getMedications())
+                    }
                 }
             }
         }
