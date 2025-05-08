@@ -76,11 +76,11 @@ class PillFragment : Fragment() {
 
     private fun setupClickListeners() {
         binding.fabAddMedication.setOnClickListener {
-            Timber.d("FAB clicked: Navigating to AddMedicationFragment")
+            Timber.d("FAB clicked: Showing AddMedicationDialogFragment")
             try {
-                mainNavigator.navigateToAddMedication()
+                AddMedicationDialogFragment().show(parentFragmentManager, "AddMedicationDialog")
             } catch (e: Exception) {
-                Timber.e(e, "Navigation to AddMedicationFragment failed")
+                Timber.e(e, "Failed to show AddMedicationDialogFragment")
                 Toast.makeText(context, "Failed to open Add Medication: ${e.message}", Toast.LENGTH_LONG).show()
             }
         }
@@ -102,7 +102,9 @@ class PillFragment : Fragment() {
 
     private fun setupFragmentResultListener() {
         setFragmentResultListener("medicationKey") { _, bundle ->
-            viewModel.loadMedications()
+            if (bundle.getBoolean("medicationAdded", false)) {
+                viewModel.loadMedications()
+            }
             val visitId = bundle.getString("visitId")
             if (visitId != null && bundle.getBoolean("navigateToVisit", false)) {
                 mainNavigator.navigateToMedicalHistoryDetail(visitId)

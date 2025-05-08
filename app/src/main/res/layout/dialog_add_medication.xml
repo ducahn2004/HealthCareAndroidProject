@@ -1,161 +1,180 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/scroll_view"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:nestedScrollingEnabled="true"
-    android:overScrollMode="always">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <LinearLayout
+    <data>
+        <variable
+            name="viewModel"
+            type="com.example.healthcareproject.present.viewmodel.medication.AddMedicationViewModel" />
+    </data>
+
+    <ScrollView
+        android:id="@+id/scroll_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp"
-        android:background="@color/surface"
-        android:descendantFocusability="beforeDescendants"
-        android:paddingBottom="32dp">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Add New Medication"
-            android:textColor="@color/primary_text_color"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="16dp" />
-
-        <EditText
-            android:id="@+id/et_medication_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="48dp"
-            android:hint="Medication Name"
-            android:textColor="@color/primary_text_color"
-            android:textColorHint="@color/secondary_text_color"
-            android:backgroundTint="@color/light_gray"
-            android:layout_marginTop="8dp"
-            android:imeOptions="actionDone"
-            android:singleLine="true" />
-
-        <EditText
-            android:id="@+id/et_dosage_amount"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="48dp"
-            android:hint="Dosage Amount (e.g., 1)"
-            android:inputType="numberDecimal"
-            android:textColor="@color/primary_text_color"
-            android:textColorHint="@color/secondary_text_color"
-            android:backgroundTint="@color/light_gray"
-            android:layout_marginTop="8dp"
-            android:imeOptions="actionDone"
-            android:singleLine="true" />
-
-        <Spinner
-            android:id="@+id/spinner_dosage_unit"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp" />
-
-        <EditText
-            android:id="@+id/et_frequency"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="48dp"
-            android:hint="Frequency (e.g., 1 for once a day)"
-            android:inputType="number"
-            android:textColor="@color/primary_text_color"
-            android:textColorHint="@color/secondary_text_color"
-            android:backgroundTint="@color/light_gray"
-            android:layout_marginTop="8dp"
-            android:imeOptions="actionDone"
-            android:singleLine="true" />
-
-        <EditText
-            android:id="@+id/et_time_of_day"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="48dp"
-            android:hint="Time of Day (e.g., Morning, Evening)"
-            android:textColor="@color/primary_text_color"
-            android:textColorHint="@color/secondary_text_color"
-            android:backgroundTint="@color/light_gray"
-            android:layout_marginTop="8dp"
-            android:imeOptions="actionDone"
-            android:singleLine="true" />
-
-        <Spinner
-            android:id="@+id/spinner_meal_relation"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:focusable="false"
-            android:focusableInTouchMode="false" />
-
-        <TextView
-            android:id="@+id/tv_start_date"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="48dp"
-            android:hint="Select Start Date"
-            android:textColor="@color/primary_text_color"
-            android:textColorHint="@color/secondary_text_color"
-            android:background="@drawable/edit_text_background"
-            android:padding="12dp"
-            android:layout_marginTop="8dp" />
-
-        <TextView
-            android:id="@+id/tv_end_date"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="48dp"
-            android:hint="Select End Date (optional)"
-            android:textColor="@color/primary_text_color"
-            android:textColorHint="@color/secondary_text_color"
-            android:background="@drawable/edit_text_background"
-            android:padding="12dp"
-            android:layout_marginTop="8dp" />
-
-        <EditText
-            android:id="@+id/et_note"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="48dp"
-            android:hint="Note (optional)"
-            android:textColor="@color/primary_text_color"
-            android:textColorHint="@color/secondary_text_color"
-            android:backgroundTint="@color/light_gray"
-            android:layout_marginTop="8dp"
-            android:imeOptions="actionDone"
-            android:singleLine="true" />
+        android:nestedScrollingEnabled="true"
+        android:overScrollMode="always">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:orientation="horizontal"
-            android:gravity="end">
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:background="@color/surface"
+            android:descendantFocusability="beforeDescendants"
+            android:paddingBottom="32dp">
 
-            <Button
-                android:id="@+id/btn_cancel"
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@color/light_gray"
-                android:text="Cancel"
+                android:text="Add New Medication"
                 android:textColor="@color/primary_text_color"
-                android:layout_marginEnd="8dp"
-                android:clickable="true"
-                android:focusable="true" />
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="16dp" />
 
-            <Button
-                android:id="@+id/btn_add"
-                android:layout_width="wrap_content"
+            <EditText
+                android:id="@+id/et_medication_name"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@color/button_accent_color"
-                android:text="Add"
-                android:textColor="@color/button_text_color"
-                android:clickable="true"
-                android:focusable="true" />
+                android:minHeight="48dp"
+                android:hint="Medication Name"
+                android:text="@={viewModel.medicationName}"
+                android:textColor="@color/primary_text_color"
+                android:textColorHint="@color/secondary_text_color"
+                android:backgroundTint="@color/light_gray"
+                android:layout_marginTop="8dp"
+                android:imeOptions="actionDone"
+                android:singleLine="true" />
+
+            <EditText
+                android:id="@+id/et_dosage_amount"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:hint="Dosage Amount (e.g., 1)"
+                android:inputType="numberDecimal"
+                android:text="@={viewModel.dosageAmount}"
+                android:textColor="@color/primary_text_color"
+                android:textColorHint="@color/secondary_text_color"
+                android:backgroundTint="@color/light_gray"
+                android:layout_marginTop="8dp"
+                android:imeOptions="actionDone"
+                android:singleLine="true" />
+
+            <Spinner
+                android:id="@+id/spinner_dosage_unit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp" />
+
+            <EditText
+                android:id="@+id/et_frequency"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:hint="Frequency (e.g., 1 for once a day)"
+                android:inputType="number"
+                android:text="@={viewModel.frequency}"
+                android:textColor="@color/primary_text_color"
+                android:textColorHint="@color/secondary_text_color"
+                android:backgroundTint="@color/light_gray"
+                android:layout_marginTop="8dp"
+                android:imeOptions="actionDone"
+                android:singleLine="true" />
+
+            <EditText
+                android:id="@+id/et_time_of_day"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:hint="Time of Day (e.g., 08:00,14:00)"
+                android:text="@={viewModel.timeOfDay}"
+                android:textColor="@color/primary_text_color"
+                android:textColorHint="@color/secondary_text_color"
+                android:backgroundTint="@color/light_gray"
+                android:layout_marginTop="8dp"
+                android:imeOptions="actionDone"
+                android:singleLine="true" />
+
+            <Spinner
+                android:id="@+id/spinner_meal_relation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:focusable="false"
+                android:focusableInTouchMode="false" />
+
+            <TextView
+                android:id="@+id/tv_start_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:hint="Select Start Date"
+                android:text="@{viewModel.startDate != null ? viewModel.startDate.format(`java.time.format.DateTimeFormatter`.ofPattern(`dd/MM/yyyy`)) : ``}"
+                android:textColor="@color/primary_text_color"
+                android:textColorHint="@color/secondary_text_color"
+                android:background="@drawable/edit_text_background"
+                android:padding="12dp"
+                android:layout_marginTop="8dp" />
+
+            <TextView
+                android:id="@+id/tv_end_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:hint="Select End Date (optional)"
+                android:text="@{viewModel.endDate != null ? viewModel.endDate.format(`java.time.format.DateTimeFormatter`.ofPattern(`dd/MM/yyyy`)) : `Select End Date (optional)`}"
+                android:textColor="@color/primary_text_color"
+                android:textColorHint="@color/secondary_text_color"
+                android:background="@drawable/edit_text_background"
+                android:padding="12dp"
+                android:layout_marginTop="8dp" />
+
+            <EditText
+                android:id="@+id/et_note"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:hint="Note (optional)"
+                android:text="@={viewModel.notes}"
+                android:textColor="@color/primary_text_color"
+                android:textColorHint="@color/secondary_text_color"
+                android:backgroundTint="@color/light_gray"
+                android:layout_marginTop="8dp"
+                android:imeOptions="actionDone"
+                android:singleLine="true" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal"
+                android:gravity="end">
+
+                <Button
+                    android:id="@+id/btn_cancel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="@color/light_gray"
+                    android:text="Cancel"
+                    android:textColor="@color/primary_text_color"
+                    android:layout_marginEnd="8dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:enabled="@{!viewModel.isLoading}" />
+
+                <Button
+                    android:id="@+id/btn_add"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="@color/button_accent_color"
+                    android:text="Add"
+                    android:textColor="@color/button_text_color"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:enabled="@{!viewModel.isLoading}" />
+            </LinearLayout>
         </LinearLayout>
-    </LinearLayout>
-</ScrollView>
+    </ScrollView>
+</layout>
