@@ -10,29 +10,40 @@ import com.example.healthcareproject.domain.model.Medication
 import java.time.format.DateTimeFormatter
 
 class MedicationAdapter(
-    private val dateFormatter: DateTimeFormatter
-) : ListAdapter<Medication, MedicationAdapter.MedicationViewHolder>(
-    object : DiffUtil.ItemCallback<Medication>() {
-        override fun areItemsTheSame(oldItem: Medication, newItem: Medication): Boolean =
-            oldItem.medicationId == newItem.medicationId
+    private val onEdit: (Medication) -> Unit,
+    private val onDelete: (Medication) -> Unit
+) : ListAdapter<Medication, MedicationAdapter.ViewHolder>(MedicationDiffCallback()) {
 
-        override fun areContentsTheSame(oldItem: Medication, newItem: Medication): Boolean =
-            oldItem == newItem
-    }
-) {
-    class MedicationViewHolder(val binding: ItemMedicationBinding) :
-        RecyclerView.ViewHolder(binding.root)
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MedicationViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding = ItemMedicationBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return MedicationViewHolder(binding)
+        return ViewHolder(binding, onEdit, onDelete)
     }
 
-    override fun onBindViewHolder(holder: MedicationViewHolder, position: Int) {
-        holder.binding.apply {
-            medication = getItem(position)
-            dateFormatter = this@MedicationAdapter.dateFormatter
-            executePendingBindings()
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        holder.bind(getItem(position))
+    }
+
+    class ViewHolder(
+        private val binding: ItemMedicationBinding,
+        private val onEdit: (Medication) -> Unit,
+        private val onDelete: (Medication) -> Unit
+    ) : RecyclerView.ViewHolder(binding.root) {
+        fun bind(medication: Medication) {
+            binding.medication = medication
+            binding.dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+            binding.iconEdit.setOnClickListener { onEdit(medication) }
+            binding.iconDelete.setOnClickListener { onDelete(medication) }
+            binding.executePendingBindings()
         }
+    }
+}
+
+class MedicationDiffCallback : DiffUtil.ItemCallback<Medication>() {
+    override fun areItemsTheSame(oldItem: Medication, newItem: Medication): Boolean {
+        return oldItem.medicationId == newItem.medicationId
+    }
+
+    override fun areContentsTheSame(oldItem: Medication, newItem: Medication): Boolean {
+        return oldItem == newItem
     }
 }

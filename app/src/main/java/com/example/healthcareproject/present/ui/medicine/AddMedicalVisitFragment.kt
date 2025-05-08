@@ -8,17 +8,21 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.databinding.Observable
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.healthcareproject.databinding.FragmentAddMedicalVisitBinding
 import com.example.healthcareproject.domain.model.Medication
 import com.example.healthcareproject.present.ui.medication.AddMedicationDialogFragment
 import com.example.healthcareproject.present.viewmodel.medicine.AddMedicalVisitViewModel
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import java.time.LocalDateTime
 import java.util.*
 
 @AndroidEntryPoint
@@ -48,11 +52,46 @@ class AddMedicalVisitFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        medicationAdapter = MedicationAdapter()
+        medicationAdapter = MedicationAdapter(
+            onEdit = { medication ->
+                val dialog = AddMedicationDialogFragment.newInstance(medication)
+                dialog.setTargetFragment(this, REQUEST_CODE_EDIT_MEDICATION)
+                dialog.show(parentFragmentManager, "EditMedicationDialog")
+            },
+            onDelete = { medication ->
+                viewModel.removeMedication(medication)
+                medicationAdapter.submitList(viewModel.getMedications())
+                Snackbar.make(binding.root, "Medication deleted", Snackbar.LENGTH_LONG)
+                    .setAction("Undo") {
+                        viewModel.addMedication(medication)
+                        medicationAdapter.submitList(viewModel.getMedications())
+                    }.show()
+            }
+        )
         binding.rvMedications.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = medicationAdapter
         }
+
+        // Enable drag-and-drop reordering
+        val itemTouchHelperCallback = object : ItemTouchHelper.SimpleCallback(
+            ItemTouchHelper.UP or ItemTouchHelper.DOWN, 0
+        ) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                val from = viewHolder.adapterPosition
+                val to = target.adapterPosition
+                viewModel.reorderMedications(from, to)
+                medicationAdapter.notifyItemMoved(from, to)
+                return true
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {}
+        }
+        ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(binding.rvMedications)
     }
 
     private fun setupClickListeners() {
@@ -62,37 +101,27 @@ class AddMedicalVisitFragment : Fragment() {
             requireActivity().onBackPressed()
         }
 
-        binding.tvDate.setOnClickListener {
+        binding.tvDateTime.setOnClickListener {
             val datePicker = DatePickerDialog(
                 requireContext(),
                 { _, year, month, dayOfMonth ->
-                    val selectedDate = Calendar.getInstance().apply {
-                        set(year, month, dayOfMonth)
-                    }
-                    viewModel.setVisitDate(selectedDate)
+                    val timePicker = TimePickerDialog(
+                        requireContext(),
+                        { _, hourOfDay, minute ->
+                            val selectedDateTime = LocalDateTime.of(year, month + 1, dayOfMonth, hourOfDay, minute)
+                            viewModel.setVisitDateTime(selectedDateTime)
+                        },
+                        calendar.get(Calendar.HOUR_OF_DAY),
+                        calendar.get(Calendar.MINUTE),
+                        true
+                    )
+                    timePicker.show()
                 },
                 calendar.get(Calendar.YEAR),
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH)
             )
             datePicker.show()
-        }
-
-        binding.tvTime.setOnClickListener {
-            val timePicker = TimePickerDialog(
-                requireContext(),
-                { _, hourOfDay, minute ->
-                    val selectedTime = Calendar.getInstance().apply {
-                        set(Calendar.HOUR_OF_DAY, hourOfDay)
-                        set(Calendar.MINUTE, minute)
-                    }
-                    viewModel.setVisitTime(selectedTime)
-                },
-                calendar.get(Calendar.HOUR_OF_DAY),
-                calendar.get(Calendar.MINUTE),
-                true
-            )
-            timePicker.show()
         }
 
         binding.btnAddMedication.setOnClickListener {
@@ -102,7 +131,15 @@ class AddMedicalVisitFragment : Fragment() {
         }
 
         binding.btnSave.setOnClickListener {
-            viewModel.saveMedicalVisit()
+            if (viewModel.getMedications().isEmpty()) {
+                AlertDialog.Builder(requireContext())
+                    .setMessage("No medications added. Save anyway?")
+                    .setPositiveButton("Yes") { _, _ -> viewModel.saveMedicalVisit() }
+                    .setNegativeButton("No", null)
+                    .show()
+            } else {
+                viewModel.saveMedicalVisit()
+            }
         }
     }
 
@@ -110,6 +147,9 @@ class AddMedicalVisitFragment : Fragment() {
         viewModel.error.observe(viewLifecycleOwner) { errorMessage ->
             errorMessage?.let {
                 Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
+                binding.etCondition.error = if (it.contains("Diagnosis")) it else null
+                binding.etDoctor.error = if (it.contains("Doctor")) it else null
+                binding.etFacility.error = if (it.contains("Facility")) it else null
             }
         }
 
@@ -127,14 +167,21 @@ class AddMedicalVisitFragment : Fragment() {
                 binding.btnAddMedication.isEnabled = !isLoading
             }
         })
+
+        viewModel.medications.observe(viewLifecycleOwner) { medications ->
+            medicationAdapter.submitList(medications)
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_CODE_ADD_MEDICATION && resultCode == Activity.RESULT_OK) {
-            val medication = data?.getParcelableExtra<Medication>(EXTRA_MEDICATION)
+        if (resultCode == Activity.RESULT_OK && data != null) {
+            val medication = data.getParcelableExtra<Medication>(EXTRA_MEDICATION)
             if (medication != null) {
-                viewModel.addMedication(medication)
+                when (requestCode) {
+                    REQUEST_CODE_ADD_MEDICATION -> viewModel.addMedication(medication)
+                    REQUEST_CODE_EDIT_MEDICATION -> viewModel.updateMedication(medication)
+                }
                 medicationAdapter.submitList(viewModel.getMedications())
             }
         }
@@ -147,34 +194,7 @@ class AddMedicalVisitFragment : Fragment() {
 
     companion object {
         private const val REQUEST_CODE_ADD_MEDICATION = 1001
+        private const val REQUEST_CODE_EDIT_MEDICATION = 1002
         const val EXTRA_MEDICATION = "extra_medication"
-    }
-}
-
-class MedicationAdapter : androidx.recyclerview.widget.RecyclerView.Adapter<MedicationAdapter.ViewHolder>() {
-
-    private var medications: List<Medication> = emptyList()
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(android.R.layout.simple_list_item_1, parent, false)
-        return ViewHolder(view)
-    }
-
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val medication = medications[position]
-        holder.bind(medication)
-    }
-
-    override fun getItemCount(): Int = medications.size
-
-    fun submitList(newMedications: List<Medication>) {
-        medications = newMedications
-        notifyDataSetChanged()
-    }
-
-    class ViewHolder(itemView: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(itemView) {
-        fun bind(medication: Medication) {
-            itemView.findViewById<TextView>(android.R.id.text1).text = "${medication.name} (${medication.dosageAmount} ${medication.dosageUnit})"
-        }
     }
 }

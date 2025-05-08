@@ -14,6 +14,7 @@ import androidx.lifecycle.Observer
 import com.example.healthcareproject.databinding.DialogAddMedicationBinding
 import com.example.healthcareproject.domain.model.DosageUnit
 import com.example.healthcareproject.domain.model.MealRelation
+import com.example.healthcareproject.domain.model.Medication
 import com.example.healthcareproject.present.viewmodel.medication.AddMedicationViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.LocalDate
@@ -25,10 +26,13 @@ class AddMedicationDialogFragment : DialogFragment() {
     private var _binding: DialogAddMedicationBinding? = null
     private val binding get() = _binding!!
     private val viewModel: AddMedicationViewModel by viewModels()
+    private var medicationToEdit: Medication? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setStyle(STYLE_NORMAL, android.R.style.Theme_Material_Light_Dialog_NoActionBar_MinWidth)
+        // Retrieve medication from arguments if editing
+        medicationToEdit = arguments?.getParcelable(ARG_MEDICATION)
     }
 
     override fun onCreateView(
@@ -48,11 +52,27 @@ class AddMedicationDialogFragment : DialogFragment() {
         setupDatePickers()
         setupButtons()
         observeViewModel()
+        // Prepopulate fields if editing
+        medicationToEdit?.let { prepopulateFields(it) }
+    }
+
+    private fun prepopulateFields(medication: Medication) {
+        viewModel.apply {
+            medicationName.set(medication.name)
+            dosageAmount.set(medication.dosageAmount.toString())
+            dosageUnit.set(medication.dosageUnit)
+            frequency.set(medication.frequency.toString())
+            timeOfDay.set(medication.timeOfDay.joinToString(","))
+            mealRelation.set(medication.mealRelation)
+            startDate.set(medication.startDate)
+            endDate.set(medication.endDate)
+            notes.set(medication.notes)
+        }
     }
 
     private fun setupSpinners() {
         // Dosage Unit Spinner
-        val dosageUnits = DosageUnit.values().map { it.name }
+        val dosageUnits = DosageUnit.entries.map { it.name }
         val dosageAdapter = ArrayAdapter(
             requireContext(),
             android.R.layout.simple_spinner_item,
@@ -61,19 +81,19 @@ class AddMedicationDialogFragment : DialogFragment() {
             setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         }
         binding.spinnerDosageUnit.adapter = dosageAdapter
-        binding.spinnerDosageUnit.setSelection(DosageUnit.None.ordinal)
-        binding.spinnerDosageUnit.setOnItemSelectedListener(object : android.widget.AdapterView.OnItemSelectedListener {
+        binding.spinnerDosageUnit.setSelection(medicationToEdit?.dosageUnit?.ordinal ?: DosageUnit.None.ordinal)
+        binding.spinnerDosageUnit.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: android.widget.AdapterView<*>, view: View?, position: Int, id: Long) {
-                viewModel.setDosageUnit(DosageUnit.values()[position])
+                viewModel.setDosageUnit(DosageUnit.entries[position])
             }
 
             override fun onNothingSelected(parent: android.widget.AdapterView<*>) {
                 viewModel.setDosageUnit(DosageUnit.None)
             }
-        })
+        }
 
         // Meal Relation Spinner
-        val mealRelations = MealRelation.values().map { it.name }
+        val mealRelations = MealRelation.entries.map { it.name }
         val mealAdapter = ArrayAdapter(
             requireContext(),
             android.R.layout.simple_spinner_item,
@@ -82,16 +102,16 @@ class AddMedicationDialogFragment : DialogFragment() {
             setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         }
         binding.spinnerMealRelation.adapter = mealAdapter
-        binding.spinnerMealRelation.setSelection(MealRelation.None.ordinal)
-        binding.spinnerMealRelation.setOnItemSelectedListener(object : android.widget.AdapterView.OnItemSelectedListener {
+        binding.spinnerMealRelation.setSelection(medicationToEdit?.mealRelation?.ordinal ?: MealRelation.None.ordinal)
+        binding.spinnerMealRelation.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: android.widget.AdapterView<*>, view: View?, position: Int, id: Long) {
-                viewModel.setMealRelation(MealRelation.values()[position])
+                viewModel.setMealRelation(MealRelation.entries[position])
             }
 
             override fun onNothingSelected(parent: android.widget.AdapterView<*>) {
                 viewModel.setMealRelation(MealRelation.None)
             }
-        })
+        }
     }
 
     private fun setupDatePickers() {
@@ -166,8 +186,18 @@ class AddMedicationDialogFragment : DialogFragment() {
     }
 
     companion object {
+        private const val ARG_MEDICATION = "arg_medication"
+
         fun newInstance(): AddMedicationDialogFragment {
             return AddMedicationDialogFragment()
+        }
+
+        fun newInstance(medication: Medication): AddMedicationDialogFragment {
+            return AddMedicationDialogFragment().apply {
+                arguments = Bundle().apply {
+                    putParcelable(ARG_MEDICATION, medication)
+                }
+            }
         }
     }
 }

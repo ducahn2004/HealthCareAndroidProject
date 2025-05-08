@@ -5,7 +5,6 @@
 
     <data>
         <import type="android.view.View" />
-        <!-- Declare the medication variable -->
         <variable
             name="medication"
             type="com.example.healthcareproject.domain.model.Medication" />
@@ -22,171 +21,197 @@
         app:cardCornerRadius="8dp"
         app:cardElevation="2dp">
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- Medication Name -->
-            <TextView
-                android:id="@+id/tv_medication_name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="@color/primary_text_color"
-                android:text="@{medication.name}"
-                tools:text="Medication Name" />
-
-            <!-- Dosage Information -->
+            <!-- Edit and Delete Icons (Top-Right) -->
             <LinearLayout
-                android:layout_width="match_parent"
+                android:id="@+id/icon_container"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginTop="8dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Dosage: "
-                    android:textStyle="bold"
-                    android:textColor="@color/secondary_text_color" />
-
-                <TextView
-                    android:id="@+id/tv_dosage"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/secondary_text_color"
-                    tools:text="20 mg" />
+                android:layout_alignParentEnd="true">
+                <ImageView
+                    android:id="@+id/icon_edit"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_edit"
+                    android:contentDescription="Edit Medication"
+                    android:background="?attr/selectableItemBackgroundBorderless" />
+                <ImageView
+                    android:id="@+id/icon_delete"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginStart="8dp"
+                    android:src="@drawable/ic_delete"
+                    android:contentDescription="Delete Medication"
+                    android:background="?attr/selectableItemBackgroundBorderless" />
             </LinearLayout>
 
-            <!-- Frequency Information -->
+            <!-- Content Container -->
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="4dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Frequency: "
-                    android:textStyle="bold"
-                    android:textColor="@color/secondary_text_color" />
-
-                <TextView
-                    android:id="@+id/tv_frequency"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/secondary_text_color"
-                    tools:text="Twice daily" />
-            </LinearLayout>
-
-            <!-- Date Range Information -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="4dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="From: "
-                    android:textStyle="bold"
-                    android:textColor="@color/secondary_text_color" />
-
-                <TextView
-                    android:id="@+id/tv_start_date"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/secondary_text_color"
-                    tools:text="01/05/2025" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text=" To: "
-                    android:textStyle="bold"
-                    android:textColor="@color/secondary_text_color"
-                    android:layout_marginStart="8dp" />
-
-                <TextView
-                    android:id="@+id/tv_end_date"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/secondary_text_color"
-                    tools:text="31/05/2025" />
-            </LinearLayout>
-
-            <!-- Time of Day Information -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="4dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Time of Day: "
-                    android:textStyle="bold"
-                    android:textColor="@color/secondary_text_color" />
-
-                <TextView
-                    android:id="@+id/tv_time_of_day"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/secondary_text_color"
-                    tools:text="Morning, Evening" />
-            </LinearLayout>
-
-            <!-- Meal Relation Information -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="4dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Meal Relation: "
-                    android:textStyle="bold"
-                    android:textColor="@color/secondary_text_color" />
-
-                <TextView
-                    android:id="@+id/tv_meal_relation"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/secondary_text_color"
-                    tools:text="With Food" />
-            </LinearLayout>
-
-            <!-- Notes (Optional) -->
-            <LinearLayout
-                android:id="@+id/notes_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
+                android:layout_below="@id/icon_container"
                 android:layout_marginTop="8dp">
 
+                <!-- Medication Name -->
                 <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Notes:"
-                    android:textStyle="bold"
-                    android:textColor="@color/secondary_text_color" />
-
-                <TextView
-                    android:id="@+id/tv_notes"
+                    android:id="@+id/tv_medication_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/secondary_text_color"
-                    android:layout_marginTop="2dp"
-                    tools:text="Take with food" />
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/primary_text_color"
+                    android:text="@{medication.name}"
+                    tools:text="Medication Name" />
+
+                <!-- Dosage Information -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="8dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Dosage: "
+                        android:textStyle="bold"
+                        android:textColor="@color/secondary_text_color" />
+                    <TextView
+                        android:id="@+id/tv_dosage"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/secondary_text_color"
+                        android:text="@{medication.dosageAmount + ` ` + medication.dosageUnit}"
+                        tools:text="20 mg" />
+                </LinearLayout>
+
+                <!-- Frequency Information -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Frequency: "
+                        android:textStyle="bold"
+                        android:textColor="@color/secondary_text_color" />
+                    <TextView
+                        android:id="@+id/tv_frequency"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/secondary_text_color"
+                        android:text="@{medication.frequency + ` times/day`}"
+                        tools:text="Twice daily" />
+                </LinearLayout>
+
+                <!-- Date Range Information -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="From: "
+                        android:textStyle="bold"
+                        android:textColor="@color/secondary_text_color" />
+                    <TextView
+                        android:id="@+id/tv_start_date"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/secondary_text_color"
+                        android:text="@{medication.startDate.format(dateFormatter)}"
+                        tools:text="01/05/2025" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=" To: "
+                        android:textStyle="bold"
+                        android:textColor="@color/secondary_text_color"
+                        android:layout_marginStart="8dp" />
+                    <TextView
+                        android:id="@+id/tv_end_date"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/secondary_text_color"
+                        android:text="@{medication.endDate.format(dateFormatter)}"
+                        tools:text="31/05/2025" />
+                </LinearLayout>
+
+                <!-- Time of Day Information -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Time of Day: "
+                        android:textStyle="bold"
+                        android:textColor="@color/secondary_text_color" />
+                    <TextView
+                        android:id="@+id/tv_time_of_day"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/secondary_text_color"
+                        android:text="@{medication.formattedTimeOfDay}"
+                        tools:text="Morning, Evening" />
+                </LinearLayout>
+
+                <!-- Meal Relation Information -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="4dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Meal Relation: "
+                        android:textStyle="bold"
+                        android:textColor="@color/secondary_text_color" />
+                    <TextView
+                        android:id="@+id/tv_meal_relation"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/secondary_text_color"
+                        android:text="@{medication.mealRelation.name}"
+                        tools:text="With Food" />
+                </LinearLayout>
+
+                <!-- Notes (Optional) -->
+                <LinearLayout
+                    android:id="@+id/notes_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginTop="8dp"
+                    android:visibility="@{medication.notes.isEmpty() ? View.GONE : View.VISIBLE}">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Notes:"
+                        android:textStyle="bold"
+                        android:textColor="@color/secondary_text_color" />
+                    <TextView
+                        android:id="@+id/tv_notes"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/secondary_text_color"
+                        android:text="@{medication.notes}"
+                        android:layout_marginTop="2dp"
+                        tools:text="Take with food" />
+                </LinearLayout>
             </LinearLayout>
-        </LinearLayout>
+        </RelativeLayout>
     </androidx.cardview.widget.CardView>
 </layout>

@@ -2,8 +2,8 @@ package com.example.healthcareproject.domain.model
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
-
 import java.time.LocalDate
+
 @Parcelize
 data class Medication(
     val medicationId: String,
@@ -18,4 +18,7 @@ data class Medication(
     val startDate: LocalDate,
     val endDate: LocalDate,
     val notes: String
-) : Parcelable
+) : Parcelable {
+    val formattedTimeOfDay: String
+        get() = if (timeOfDay.isEmpty()) "N/A" else timeOfDay.joinToString(", ")
+}

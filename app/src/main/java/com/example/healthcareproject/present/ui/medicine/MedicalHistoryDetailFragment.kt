@@ -4,74 +4,53 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.healthcareproject.databinding.FragmentMedicalHistoryDetailBinding
-import com.example.healthcareproject.present.navigation.MainNavigator
+import com.example.healthcareproject.domain.model.Medication
 import com.example.healthcareproject.present.viewmodel.medicine.MedicalHistoryDetailViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import java.time.format.DateTimeFormatter
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class MedicalHistoryDetailFragment : Fragment() {
+
     private var _binding: FragmentMedicalHistoryDetailBinding? = null
     private val binding get() = _binding!!
     private val viewModel: MedicalHistoryDetailViewModel by viewModels()
-
-    @Inject lateinit var mainNavigator: MainNavigator
-
-    private val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+    private lateinit var medicationAdapter: MedicationAdapter
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentMedicalHistoryDetailBinding.inflate(inflater, container, false).apply {
-            lifecycleOwner = viewLifecycleOwner
-            viewModel = this@MedicalHistoryDetailFragment.viewModel
-        }
+        _binding = FragmentMedicalHistoryDetailBinding.inflate(inflater, container, false)
+        binding.viewModel = viewModel
+        binding.lifecycleOwner = viewLifecycleOwner
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        setupUI()
+        setupRecyclerView()
         observeViewModel()
-        loadVisitDetails()
     }
 
-    private fun setupUI() {
-        binding.ivBack.setOnClickListener {
-            mainNavigator.navigateBackToMedicineFromMedicalHistoryDetail()
-        }
-
+    private fun setupRecyclerView() {
+        medicationAdapter = MedicationAdapter(
+            onEdit = { /* Editing not supported in history view */ },
+            onDelete = { /* Deleting not supported in history view */ }
+        )
         binding.rvMedications.apply {
-            layoutManager = LinearLayoutManager(context)
-            adapter = MedicationAdapter(dateFormatter)
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = medicationAdapter
         }
     }
 
     private fun observeViewModel() {
         viewModel.medications.observe(viewLifecycleOwner) { medications ->
-            (binding.rvMedications.adapter as MedicationAdapter).submitList(medications)
-        }
-
-        viewModel.error.observe(viewLifecycleOwner) { errorMessage ->
-            errorMessage?.let { Toast.makeText(context, it, Toast.LENGTH_SHORT).show() }
-        }
-    }
-
-    private fun loadVisitDetails() {
-        val visitId = arguments?.getString("visitId")
-        if (visitId != null) {
-            viewModel.loadDetails(visitId)
-        } else {
-            Toast.makeText(context, "Invalid visit ID", Toast.LENGTH_SHORT).show()
-            mainNavigator.navigateBackToMedicineFromMedicalHistoryDetail()
+            medicationAdapter.submitList(medications)
         }
     }
 
@@ -80,4 +59,3 @@ class MedicalHistoryDetailFragment : Fragment() {
         _binding = null
     }
 }
-

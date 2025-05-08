@@ -6,17 +6,14 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.healthcareproject.data.source.network.datasource.AuthDataSource
-import com.example.healthcareproject.domain.model.DosageUnit
-import com.example.healthcareproject.domain.model.MealRelation
 import com.example.healthcareproject.domain.model.Medication
 import com.example.healthcareproject.domain.usecase.medicalvisit.AddMedicalVisitWithMedicationsUseCase
-import com.example.healthcareproject.present.ui.toLocalDate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
@@ -29,14 +26,13 @@ class AddMedicalVisitViewModel @Inject constructor(
     val diagnosis = ObservableField<String>("")
     val doctorName = ObservableField<String>("")
     val clinicName = ObservableField<String>("")
-    val visitDate = ObservableField<LocalDate>()
-    val visitTime = ObservableField<Calendar>()
-    val formattedVisitDate = ObservableField<String>("Select Date")
-    val formattedVisitTime = ObservableField<String>("Select Time")
+    val visitDateTime = ObservableField<LocalDateTime>()
+    val formattedVisitDateTime = ObservableField<String>("Select Date and Time")
     val isLoading = ObservableField<Boolean>(false)
 
     // Medication list
-    private val medications = mutableListOf<Medication>()
+    private val _medications = MutableLiveData<List<Medication>>(emptyList())
+    val medications: LiveData<List<Medication>> = _medications
 
     // LiveData for UI events
     private val _error = MutableLiveData<String?>()
@@ -46,34 +42,65 @@ class AddMedicalVisitViewModel @Inject constructor(
     val isFinished: LiveData<Boolean> = _isFinished
 
     init {
-        // Set up observers for date/time changes
-        visitDate.addOnPropertyChangedCallback(object : androidx.databinding.Observable.OnPropertyChangedCallback() {
+        visitDateTime.addOnPropertyChangedCallback(object : androidx.databinding.Observable.OnPropertyChangedCallback() {
             override fun onPropertyChanged(sender: androidx.databinding.Observable?, propertyId: Int) {
-                updateFormattedVisitDate()
-            }
-        })
-        visitTime.addOnPropertyChangedCallback(object : androidx.databinding.Observable.OnPropertyChangedCallback() {
-            override fun onPropertyChanged(sender: androidx.databinding.Observable?, propertyId: Int) {
-                updateFormattedVisitTime()
+                updateFormattedVisitDateTime()
             }
         })
     }
 
-    fun setVisitDate(calendar: Calendar) {
-        visitDate.set(calendar.time.toLocalDate())
-    }
-
-    fun setVisitTime(calendar: Calendar) {
-        visitTime.set(calendar)
+    fun setVisitDateTime(dateTime: LocalDateTime) {
+        visitDateTime.set(dateTime)
     }
 
     fun addMedication(medication: Medication) {
-        medications.add(medication)
+        val currentList = _medications.value?.toMutableList() ?: mutableListOf()
+        currentList.add(medication)
+        _medications.value = currentList
     }
 
-    fun getMedications(): List<Medication> = medications.toList()
+    fun updateMedication(updatedMedication: Medication) {
+        val currentList = _medications.value?.toMutableList() ?: mutableListOf()
+        val index = currentList.indexOfFirst { it.medicationId == updatedMedication.medicationId }
+        if (index != -1) {
+            currentList[index] = updatedMedication
+            _medications.value = currentList
+        }
+    }
+
+    fun removeMedication(medication: Medication) {
+        val currentList = _medications.value?.toMutableList() ?: mutableListOf()
+        currentList.remove(medication)
+        _medications.value = currentList
+    }
+
+    fun reorderMedications(from: Int, to: Int) {
+        val currentList = _medications.value?.toMutableList() ?: mutableListOf()
+        val medication = currentList.removeAt(from)
+        currentList.add(to, medication)
+        _medications.value = currentList
+    }
+
+    fun getMedications(): List<Medication> = _medications.value ?: emptyList()
 
     fun saveMedicalVisit() {
+        if (diagnosis.get().isNullOrBlank()) {
+            _error.value = "Diagnosis is required"
+            return
+        }
+        if (doctorName.get().isNullOrBlank()) {
+            _error.value = "Doctor name is required"
+            return
+        }
+        if (clinicName.get().isNullOrBlank()) {
+            _error.value = "Facility is required"
+            return
+        }
+        if (visitDateTime.get() == null) {
+            _error.value = "Visit date and time are required"
+            return
+        }
+
         viewModelScope.launch {
             isLoading.set(true)
             val patientName = authDataSource.getCurrentUserId() ?: run {
@@ -82,7 +109,7 @@ class AddMedicalVisitViewModel @Inject constructor(
                 return@launch
             }
 
-            val medicationData = medications.map { medication ->
+            val medicationData = getMedications().map { medication ->
                 medication.name to mapOf(
                     "dosageUnit" to medication.dosageUnit,
                     "dosageAmount" to medication.dosageAmount,
@@ -99,7 +126,7 @@ class AddMedicalVisitViewModel @Inject constructor(
                 addMedicalVisitWithMedicationsUseCase(
                     patientName = patientName,
                     visitReason = clinicName.get() ?: "",
-                    visitDate = visitDate.get() ?: LocalDate.now(),
+                    visitDate = visitDateTime.get()?.toLocalDate() ?: LocalDate.now(),
                     doctorName = doctorName.get() ?: "",
                     diagnosis = diagnosis.get(),
                     status = true,
@@ -116,16 +143,10 @@ class AddMedicalVisitViewModel @Inject constructor(
         }
     }
 
-    private fun updateFormattedVisitDate() {
-        val date = visitDate.get()
-        formattedVisitDate.set(date?.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) ?: "Select Date")
-    }
-
-    private fun updateFormattedVisitTime() {
-        val time = visitTime.get()
-        formattedVisitTime.set(time?.let {
-            val formatter = java.text.SimpleDateFormat("HH:mm", Locale.getDefault())
-            formatter.format(it.time)
-        } ?: "Select Time")
+    private fun updateFormattedVisitDateTime() {
+        val dateTime = visitDateTime.get()
+        formattedVisitDateTime.set(
+            dateTime?.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")) ?: "Select Date and Time"
+        )
     }
 }

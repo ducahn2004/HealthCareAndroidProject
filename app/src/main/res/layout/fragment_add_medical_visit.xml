@@ -75,22 +75,12 @@
                 android:backgroundTint="@color/light_gray"
                 android:layout_marginTop="8dp" />
             <TextView
-                android:id="@+id/tv_date"
+                android:id="@+id/tv_date_time"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:minHeight="48dp"
-                android:text="@{viewModel.formattedVisitDate}"
-                android:textColor="@color/primary_text_color"
-                android:textColorHint="@color/secondary_text_color"
-                android:background="@drawable/edit_text_background"
-                android:padding="12dp"
-                android:layout_marginTop="8dp" />
-            <TextView
-                android:id="@+id/tv_time"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="48dp"
-                android:text="@{viewModel.formattedVisitTime}"
+                android:text="@{viewModel.formattedVisitDateTime}"
+                android:hint="Select Date and Time"
                 android:textColor="@color/primary_text_color"
                 android:textColorHint="@color/secondary_text_color"
                 android:background="@drawable/edit_text_background"
