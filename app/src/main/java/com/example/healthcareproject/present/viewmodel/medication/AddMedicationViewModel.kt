@@ -160,15 +160,15 @@ class AddMedicationViewModel @Inject constructor(
                 is Result.Success -> {
                     Timber.d("Medication saved: ${medication.name} with ID: ${result.data}")
                     // Clear input fields
-                    medicationName.set("")
-                    dosageAmount.set("")
-                    dosageUnit.set(DosageUnit.None)
-                    frequency.set("")
-                    timeOfDay.set("")
-                    mealRelation.set(MealRelation.None)
-                    startDate.set(null)
-                    endDate.set(null)
-                    notes.set("")
+//                    medicationName.set("")
+//                    dosageAmount.set("")
+//                    dosageUnit.set(DosageUnit.None)
+//                    frequency.set("")
+//                    timeOfDay.set("")
+//                    mealRelation.set(MealRelation.None)
+//                    startDate.set(null)
+//                    endDate.set(null)
+//                    notes.set("")
                     _error.value = null
                     _isFinished.value = true
                 }
