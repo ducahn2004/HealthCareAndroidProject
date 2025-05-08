@@ -1,4 +1,4 @@
-package com.example.healthcareproject.present.view
+package com.example.healthcareproject.present.ui.medicine
 
 import android.app.Activity
 import android.app.DatePickerDialog
