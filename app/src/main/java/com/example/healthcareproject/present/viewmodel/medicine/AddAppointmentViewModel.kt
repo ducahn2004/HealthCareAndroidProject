@@ -165,7 +165,7 @@ class AddAppointmentViewModel @Inject constructor(
                 doctorName = doctorName.value ?: "",
                 location = clinicName.value ?: "",
                 appointmentTime = createdAt,
-                note = "${diagnosis.value} - ${treatment.value}"
+                note = "${diagnosis.value}"
             )
 
             when (result) {
