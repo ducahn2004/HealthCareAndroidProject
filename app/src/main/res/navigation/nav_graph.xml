@@ -80,7 +80,7 @@
 
     <fragment
         android:id="@+id/addMedicationFragment"
-        android:name="com.example.healthcareproject.present.ui.medication.AddMedicationFragment"
+        android:name="com.example.healthcareproject.present.ui.medication.AddMedicationDialogFragment"
         android:label="Add Medication"
         tools:layout="@layout/dialog_add_medication">
         <action
@@ -105,6 +105,11 @@
             app:destination="@id/addAppointmentFragment"
             app:popUpTo="@id/medicineFragment"
             app:popUpToInclusive="false" />
+        <action
+            android:id="@+id/action_medicineFragment_to_addMedicalVisitFragment"
+            app:destination="@id/addMedicalVisitFragment"
+            app:popUpTo="@id/medicineFragment"
+            app:popUpToInclusive="false" />
     </fragment>
 
     <!-- Add Appointment Fragment -->
@@ -115,6 +120,18 @@
         tools:layout="@layout/fragment_add_appointment">
         <action
             android:id="@+id/action_addAppointmentFragment_to_medicineFragment"
+            app:destination="@id/medicineFragment"
+            app:popUpTo="@id/medicineFragment"
+            app:popUpToInclusive="false" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/addMedicalVisitFragment"
+        android:name="com.example.healthcareproject.present.ui.medicine.AddMedicalVisitFragment"
+        android:label="Add Appointment"
+        tools:layout="@layout/fragment_add_medical_visit">
+        <action
+            android:id="@+id/action_addMedicalVisitFragment_to_medicineFragment"
             app:destination="@id/medicineFragment"
             app:popUpTo="@id/medicineFragment"
             app:popUpToInclusive="false" />

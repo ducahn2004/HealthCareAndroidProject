@@ -56,12 +56,20 @@ class MainNavigatorImpl @Inject constructor(
         navController.navigate(R.id.action_medicineFragment_to_addAppointmentFragment)
     }
 
+    override fun navigateToAddMedicalVisit() {
+        navController.navigate(R.id.action_medicineFragment_to_addMedicalVisitFragment)
+    }
+
     override fun navigateBackToMedicineFromAddAppointment() {
         navController.navigate(R.id.action_addAppointmentFragment_to_medicineFragment)
     }
 
     override fun navigateBackToMedicineFromMedicalHistoryDetail() {
         navController.navigate(R.id.action_back_medical_history_detail_to_medicine)
+    }
+
+    override fun navigateBackToMedicineFromAddMedicalVisit() {
+        navController.navigate(R.id.action_addMedicalVisitFragment_to_medicineFragment)
     }
 
     override fun navigateToHeartRateFromNotification() {

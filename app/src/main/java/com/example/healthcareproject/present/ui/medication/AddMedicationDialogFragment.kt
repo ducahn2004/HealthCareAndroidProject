@@ -7,46 +7,36 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Toast
-import androidx.databinding.DataBindingUtil
+import androidx.databinding.Observable
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.example.healthcareproject.R
+import androidx.lifecycle.Observer
 import com.example.healthcareproject.databinding.DialogAddMedicationBinding
 import com.example.healthcareproject.domain.model.DosageUnit
 import com.example.healthcareproject.domain.model.MealRelation
-import com.example.healthcareproject.domain.model.Result
-import com.example.healthcareproject.domain.usecase.medication.MedicationUseCases
-import com.example.healthcareproject.present.navigation.MainNavigator
 import com.example.healthcareproject.present.viewmodel.medication.AddMedicationViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.launch
 import java.time.LocalDate
-import java.time.LocalTime
-import java.time.format.DateTimeFormatter
-import javax.inject.Inject
+import java.util.*
 
-/**
- * ViewModel for handling the logic of adding a new medication in the dialog.
- */
 @AndroidEntryPoint
 class AddMedicationDialogFragment : DialogFragment() {
+
     private var _binding: DialogAddMedicationBinding? = null
     private val binding get() = _binding!!
     private val viewModel: AddMedicationViewModel by viewModels()
 
-    @Inject
-    lateinit var mainNavigator: MainNavigator
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setStyle(STYLE_NORMAL, android.R.style.Theme_Material_Light_Dialog_NoActionBar_MinWidth)
+    }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = DataBindingUtil.inflate(inflater, R.layout.dialog_add_medication, container, false)
+        _binding = DialogAddMedicationBinding.inflate(inflater, container, false)
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
         return binding.root
@@ -62,7 +52,7 @@ class AddMedicationDialogFragment : DialogFragment() {
 
     private fun setupSpinners() {
         // Dosage Unit Spinner
-        val dosageUnits = DosageUnit.values().map { it.toDisplayString() }
+        val dosageUnits = DosageUnit.values().map { it.name }
         val dosageAdapter = ArrayAdapter(
             requireContext(),
             android.R.layout.simple_spinner_item,
@@ -71,15 +61,19 @@ class AddMedicationDialogFragment : DialogFragment() {
             setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         }
         binding.spinnerDosageUnit.adapter = dosageAdapter
+        binding.spinnerDosageUnit.setSelection(DosageUnit.None.ordinal)
         binding.spinnerDosageUnit.setOnItemSelectedListener(object : android.widget.AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: android.widget.AdapterView<*>, view: View?, position: Int, id: Long) {
-                viewModel.setDosageUnit(position)
+                viewModel.setDosageUnit(DosageUnit.values()[position])
             }
-            override fun onNothingSelected(parent: android.widget.AdapterView<*>) {}
+
+            override fun onNothingSelected(parent: android.widget.AdapterView<*>) {
+                viewModel.setDosageUnit(DosageUnit.None)
+            }
         })
 
         // Meal Relation Spinner
-        val mealRelations = MealRelation.values().map { it.name.replace("_", " ").lowercase().replaceFirstChar { it.uppercase() } }
+        val mealRelations = MealRelation.values().map { it.name }
         val mealAdapter = ArrayAdapter(
             requireContext(),
             android.R.layout.simple_spinner_item,
@@ -88,24 +82,31 @@ class AddMedicationDialogFragment : DialogFragment() {
             setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         }
         binding.spinnerMealRelation.adapter = mealAdapter
+        binding.spinnerMealRelation.setSelection(MealRelation.None.ordinal)
         binding.spinnerMealRelation.setOnItemSelectedListener(object : android.widget.AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: android.widget.AdapterView<*>, view: View?, position: Int, id: Long) {
-                viewModel.setMealRelation(position)
+                viewModel.setMealRelation(MealRelation.values()[position])
             }
-            override fun onNothingSelected(parent: android.widget.AdapterView<*>) {}
+
+            override fun onNothingSelected(parent: android.widget.AdapterView<*>) {
+                viewModel.setMealRelation(MealRelation.None)
+            }
         })
     }
 
     private fun setupDatePickers() {
-        val today = LocalDate.now()
+        val calendar = Calendar.getInstance()
 
         binding.tvStartDate.setOnClickListener {
             val datePicker = DatePickerDialog(
                 requireContext(),
-                { _, year, month, day ->
-                    viewModel.setStartDate(year, month, day)
+                { _, year, month, dayOfMonth ->
+                    val selectedDate = LocalDate.of(year, month + 1, dayOfMonth)
+                    viewModel.setStartDate(selectedDate)
                 },
-                today.year, today.monthValue - 1, today.dayOfMonth
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
             )
             datePicker.show()
         }
@@ -113,56 +114,60 @@ class AddMedicationDialogFragment : DialogFragment() {
         binding.tvEndDate.setOnClickListener {
             val datePicker = DatePickerDialog(
                 requireContext(),
-                { _, year, month, day ->
-                    viewModel.setEndDate(year, month, day)
+                { _, year, month, dayOfMonth ->
+                    val selectedDate = LocalDate.of(year, month + 1, dayOfMonth)
+                    viewModel.setEndDate(selectedDate)
                 },
-                today.year, today.monthValue - 1, today.dayOfMonth
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
             )
             datePicker.show()
         }
     }
 
     private fun setupButtons() {
-        binding.btnCancel.setOnClickListener {
-            dismiss()
+        binding.btnAdd.setOnClickListener {
+            viewModel.addMedication()
+            viewModel.saveAllMedications()
         }
 
-        binding.btnAdd.setOnClickListener {
-            val visitId = arguments?.getString("visitId") ?: "" // Adjust based on your app's logic
-            viewModel.addMedication(visitId)
+        binding.btnCancel.setOnClickListener {
+            dismiss()
         }
     }
 
     private fun observeViewModel() {
-        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
-            binding.btnAdd.isEnabled = !isLoading
-            binding.btnCancel.isEnabled = !isLoading
-        }
-
-        viewModel.error.observe(viewLifecycleOwner) { error ->
-            error?.let {
-                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+        viewModel.error.observe(viewLifecycleOwner, Observer { errorMessage ->
+            errorMessage?.let {
+                Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
             }
-        }
+        })
 
-        viewModel.dismissDialog.observe(viewLifecycleOwner) { shouldDismiss ->
-            if (shouldDismiss) {
-                // Notify PillFragment to refresh
-                parentFragmentManager.setFragmentResult("medicationKey", Bundle().apply {
-                    putBoolean("medicationAdded", true)
-                })
+        viewModel.isFinished.observe(viewLifecycleOwner, Observer { isFinished ->
+            if (isFinished == true) {
+                Toast.makeText(requireContext(), "Medication saved successfully", Toast.LENGTH_SHORT).show()
                 dismiss()
             }
-        }
-    }
+        })
 
-    override fun onStart() {
-        super.onStart()
-        dialog?.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        viewModel.isLoading.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
+            override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
+                val isLoading = viewModel.isLoading.get() ?: false
+                binding.btnAdd.isEnabled = !isLoading
+                binding.btnCancel.isEnabled = !isLoading
+            }
+        })
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    companion object {
+        fun newInstance(): AddMedicationDialogFragment {
+            return AddMedicationDialogFragment()
+        }
     }
 }

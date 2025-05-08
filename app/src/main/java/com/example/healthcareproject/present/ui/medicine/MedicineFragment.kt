@@ -45,7 +45,7 @@ class MedicineFragment : Fragment() {
         setupSearch()
         setupObservers()
         setupFragmentResultListener()
-        setupFab()
+        setupButtons()
     }
 
     private fun setupRecyclerViews() {
@@ -77,14 +77,12 @@ class MedicineFragment : Fragment() {
         // Observe visitsBefore LiveData
         viewModel.visitsBefore.observe(viewLifecycleOwner) { visits ->
             adapterBefore.submitList(visits)
-            // Update visibility for no data message directly if needed
             binding.tvNoPastVisits.visibility = if (visits.isEmpty()) View.VISIBLE else View.GONE
         }
 
         // Observe visitsAfter LiveData
         viewModel.visitsAfter.observe(viewLifecycleOwner) { visits ->
             adapterAfter.submitList(visits)
-            // Update visibility for no data message directly if needed
             binding.tvNoFutureVisits.visibility = if (visits.isEmpty()) View.VISIBLE else View.GONE
         }
 
@@ -105,6 +103,11 @@ class MedicineFragment : Fragment() {
         viewModel.navigateToAddAppointmentEvent.observe(viewLifecycleOwner) { _ ->
             mainNavigator.navigateToAddAppointment()
         }
+
+        // Observe navigateToAddMedicalVisit event (new)
+        viewModel.navigateToAddMedicalVisitEvent.observe(viewLifecycleOwner) { _ ->
+            mainNavigator.navigateToAddMedicalVisit()
+        }
     }
 
     private fun setupFragmentResultListener() {
@@ -116,9 +119,15 @@ class MedicineFragment : Fragment() {
         }
     }
 
-    private fun setupFab() {
-        binding.fabAddVisit.setOnClickListener {
+    private fun setupButtons() {
+        // Upcoming Visits Add Button
+        binding.btnAddFutureVisit.setOnClickListener {
             viewModel.navigateToAddAppointment()
+        }
+
+        // Past Visits Add Button
+        binding.btnAddPastVisit.setOnClickListener {
+            viewModel.navigateToAddMedicalVisit()
         }
     }
 
