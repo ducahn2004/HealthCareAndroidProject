@@ -66,12 +66,22 @@ class PillViewModel @Inject constructor(
                         today in medication.startDate..endDate
                     }
 
-                    _currentMedications.value = current
-                    _pastMedications.value = past
+                    val sortedCurrent = current.sortedWith(
+                        compareByDescending<Medication> { it.startDate }
+                            .thenBy { it.name }
+                    )
+
+                    val sortedPast = past.sortedWith(
+                        compareByDescending<Medication> { it.endDate }
+                            .thenBy { it.name }
+                    )
+
+                    _currentMedications.value = sortedCurrent
+                    _pastMedications.value = sortedPast
 
                     // Update empty state indicators
-                    _noCurrentMedicationsVisible.value = current.isEmpty()
-                    _noPastMedicationsVisible.value = past.isEmpty()
+                    _noCurrentMedicationsVisible.value = sortedCurrent.isEmpty()
+                    _noPastMedicationsVisible.value = sortedPast.isEmpty()
 
                     _isLoading.value = false
                 }
