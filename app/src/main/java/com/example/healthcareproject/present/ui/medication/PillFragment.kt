@@ -1,5 +1,6 @@
 package com.example.healthcareproject.present.ui.medication
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,6 +13,7 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.healthcareproject.R
 import com.example.healthcareproject.databinding.FragmentPillBinding
+import com.example.healthcareproject.domain.model.Medication
 import com.example.healthcareproject.present.navigation.MainNavigator
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
@@ -53,16 +55,32 @@ class PillFragment : Fragment() {
     }
 
     private fun setupRecyclerViews() {
-        currentMedicationAdapter = MedicationAdapter { medication ->
-            medication.visitId?.takeIf { it.isNotEmpty() }?.let { visitId ->
-                mainNavigator.navigateToMedicalHistoryDetail(visitId)
+        currentMedicationAdapter = MedicationAdapter(
+            onEdit = { medication ->
+                showEditMedicationDialog(medication)
+            },
+            onDelete = { medication ->
+                showDeleteConfirmationDialog(medication)
+            },
+            onItemClick = { medication ->
+                medication.visitId?.takeIf { it.isNotEmpty() }?.let { visitId ->
+                    mainNavigator.navigateToMedicalHistoryDetail(visitId)
+                }
             }
-        }
-        pastMedicationAdapter = MedicationAdapter { medication ->
-            medication.visitId?.takeIf { it.isNotEmpty() }?.let { visitId ->
-                mainNavigator.navigateToMedicalHistoryDetail(visitId)
+        )
+        pastMedicationAdapter = MedicationAdapter(
+            onEdit = { medication ->
+                showEditMedicationDialog(medication)
+            },
+            onDelete = { medication ->
+                showDeleteConfirmationDialog(medication)
+            },
+            onItemClick = { medication ->
+                medication.visitId?.takeIf { it.isNotEmpty() }?.let { visitId ->
+                    mainNavigator.navigateToMedicalHistoryDetail(visitId)
+                }
             }
-        }
+        )
 
         binding.rvCurrentMedications.apply {
             layoutManager = LinearLayoutManager(context)
@@ -72,6 +90,25 @@ class PillFragment : Fragment() {
             layoutManager = LinearLayoutManager(context)
             adapter = pastMedicationAdapter
         }
+    }
+
+    private fun showEditMedicationDialog(medication: Medication) {
+        val dialog = AddMedicationDialogFragment.newInstance(
+            medication = medication,
+            sourceFragment = AddMedicationDialogFragment.SOURCE_PILL_FRAGMENT
+        )
+        dialog.show(parentFragmentManager, "EditMedicationDialog")
+    }
+
+    private fun showDeleteConfirmationDialog(medication: Medication) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Delete Medication")
+            .setMessage("Are you sure you want to delete ${medication.name}?")
+            .setPositiveButton("Delete") { _, _ ->
+                viewModel.deleteMedication(medication.medicationId)
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     private fun setupClickListeners() {

@@ -86,4 +86,27 @@ class PillViewModel @Inject constructor(
         }
     }
 
+    fun deleteMedication(medicationId: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            _error.value = null
+
+            val result = medicationUseCases.deleteMedication(medicationId)
+
+            when (result) {
+                is Result.Success<*> -> {
+                    loadMedications() // Refresh the list after deletion
+                    _isLoading.value = false
+                }
+                is Result.Error -> {
+                    _error.value = result.exception.message ?: "Failed to delete medication"
+                    _isLoading.value = false
+                }
+                is Result.Loading -> {
+                    _isLoading.value = true
+                }
+            }
+        }
+    }
+
 }
