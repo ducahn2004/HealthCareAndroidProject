@@ -1,6 +1,7 @@
 package com.example.healthcareproject.present.ui.medicine
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,8 +26,8 @@ class MedicineFragment : Fragment() {
     @Inject
     lateinit var mainNavigator: MainNavigator
 
-    private lateinit var adapterBefore: MedicalVisitAdapter
-    private lateinit var adapterAfter: MedicalVisitAdapter
+    private lateinit var medicalVisitAdapter: MedicalVisitAdapter
+    private lateinit var appointmentAdapter: AppointmentAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -46,24 +47,25 @@ class MedicineFragment : Fragment() {
         setupObservers()
         setupFragmentResultListener()
         setupButtons()
+        viewModel.loadMedicalVisits()
     }
 
     private fun setupRecyclerViews() {
-        adapterBefore = MedicalVisitAdapter { visit ->
+        medicalVisitAdapter = MedicalVisitAdapter { visit ->
             mainNavigator.navigateToMedicalHistoryDetail(visit.visitId)
         }
-        adapterAfter = MedicalVisitAdapter { visit ->
-            mainNavigator.navigateToMedicalHistoryDetail(visit.visitId)
+        appointmentAdapter = AppointmentAdapter { appointment ->
+            mainNavigator.navigateToMedicalHistoryDetail(appointment.visitId ?: appointment.appointmentId)
         }
 
         binding.recyclerViewBefore.apply {
             layoutManager = LinearLayoutManager(context)
-            adapter = adapterBefore
+            adapter = medicalVisitAdapter
         }
 
         binding.recyclerViewAfter.apply {
             layoutManager = LinearLayoutManager(context)
-            adapter = adapterAfter
+            adapter = appointmentAdapter
         }
     }
 
@@ -74,38 +76,33 @@ class MedicineFragment : Fragment() {
     }
 
     private fun setupObservers() {
-        // Observe visitsBefore LiveData
-        viewModel.visitsBefore.observe(viewLifecycleOwner) { visits ->
-            adapterBefore.submitList(visits)
+        viewModel.medicalVisits.observe(viewLifecycleOwner) { visits ->
+            medicalVisitAdapter.submitList(visits)
             binding.tvNoPastVisits.visibility = if (visits.isEmpty()) View.VISIBLE else View.GONE
         }
 
-        // Observe visitsAfter LiveData
-        viewModel.visitsAfter.observe(viewLifecycleOwner) { visits ->
-            adapterAfter.submitList(visits)
-            binding.tvNoFutureVisits.visibility = if (visits.isEmpty()) View.VISIBLE else View.GONE
+        viewModel.appointments.observe(viewLifecycleOwner) { appointments ->
+            appointmentAdapter.submitList(appointments)
+            binding.tvNoFutureVisits.visibility = if (appointments.isEmpty()) View.VISIBLE else View.GONE
         }
 
-        // Observe loading state
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
         }
 
-        // Observe error LiveData
         viewModel.error.observe(viewLifecycleOwner) { errorMsg ->
             errorMsg?.let {
+                Log.e("MedicineFragment", "Error: $it")
                 Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
-                viewModel.error.value = null // Reset after showing
+                viewModel.error.value = null
             }
         }
 
-        // Observe navigateToAddAppointment event
-        viewModel.navigateToAddAppointmentEvent.observe(viewLifecycleOwner) { _ ->
+        viewModel.navigateToAddAppointmentEvent.observe(viewLifecycleOwner) {
             mainNavigator.navigateToAddAppointment()
         }
 
-        // Observe navigateToAddMedicalVisit event (new)
-        viewModel.navigateToAddMedicalVisitEvent.observe(viewLifecycleOwner) { _ ->
+        viewModel.navigateToAddMedicalVisitEvent.observe(viewLifecycleOwner) {
             mainNavigator.navigateToAddMedicalVisit()
         }
     }
@@ -120,12 +117,10 @@ class MedicineFragment : Fragment() {
     }
 
     private fun setupButtons() {
-        // Upcoming Visits Add Button
         binding.btnAddFutureVisit.setOnClickListener {
             viewModel.navigateToAddAppointment()
         }
 
-        // Past Visits Add Button
         binding.btnAddPastVisit.setOnClickListener {
             viewModel.navigateToAddMedicalVisit()
         }

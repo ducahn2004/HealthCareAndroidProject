@@ -2,11 +2,13 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
+
     <data>
         <variable
             name="viewModel"
             type="com.example.healthcareproject.present.ui.medicine.MedicineViewModel" />
     </data>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -97,7 +99,7 @@
             android:text="No upcoming visits available"
             android:textColor="@color/secondary_text_color"
             android:textSize="16sp"
-            android:visibility="@{viewModel.getAfterEmptyVisibility()}"
+            android:visibility="@{viewModel.getAppointmentsEmptyVisibility()}"
             app:layout_constraintTop_toBottomOf="@id/tv_future_visits_title"
             app:layout_constraintBottom_toTopOf="@id/recyclerViewAfter"
             app:layout_constraintStart_toStartOf="parent"
@@ -117,7 +119,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginTop="8dp"
-            tools:listitem="@layout/item_medical_visit" />
+            tools:listitem="@layout/item_appointment" />
 
         <!-- Past Visits Section -->
         <TextView
@@ -155,7 +157,7 @@
             android:text="No past visits available"
             android:textColor="@color/secondary_text_color"
             android:textSize="16sp"
-            android:visibility="@{viewModel.getBeforeEmptyVisibility()}"
+            android:visibility="@{viewModel.getMedicalVisitsEmptyVisibility()}"
             app:layout_constraintTop_toBottomOf="@id/tv_past_visits_title"
             app:layout_constraintBottom_toTopOf="@id/recyclerViewBefore"
             app:layout_constraintStart_toStartOf="parent"

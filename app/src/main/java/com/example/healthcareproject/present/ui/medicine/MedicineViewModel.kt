@@ -5,56 +5,91 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.healthcareproject.domain.model.Appointment
 import com.example.healthcareproject.domain.model.MedicalVisit
+import com.example.healthcareproject.domain.usecase.appointment.GetAppointmentsUseCase
+import com.example.healthcareproject.domain.usecase.medicalvisit.GetMedicalVisitsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class MedicineViewModel @Inject constructor() : ViewModel() {
+class MedicineViewModel @Inject constructor(
+    private val getMedicalVisitsUseCase: GetMedicalVisitsUseCase,
+    private val getAppointmentsUseCase: GetAppointmentsUseCase
+) : ViewModel() {
 
-    // Existing LiveData properties (assumed)
-    val visitsBefore: LiveData<List<MedicalVisit>> = MutableLiveData()
-    val visitsAfter: LiveData<List<MedicalVisit>> = MutableLiveData()
-    val isLoading: LiveData<Boolean> = MutableLiveData()
-    val error: MutableLiveData<String?> = MutableLiveData()
+    private val _medicalVisits = MutableLiveData<List<MedicalVisit>>()
+    val medicalVisits: LiveData<List<MedicalVisit>> = _medicalVisits
 
-    // Existing navigation event for add appointment
+    private val _appointments = MutableLiveData<List<Appointment>>()
+    val appointments: LiveData<List<Appointment>> = _appointments
+
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean> = _isLoading
+
+    val error = MutableLiveData<String?>()
+
     private val _navigateToAddAppointmentEvent = MutableLiveData<Unit>()
     val navigateToAddAppointmentEvent: LiveData<Unit> = _navigateToAddAppointmentEvent
 
-    // New navigation event for add medical visit
     private val _navigateToAddMedicalVisitEvent = MutableLiveData<Unit>()
     val navigateToAddMedicalVisitEvent: LiveData<Unit> = _navigateToAddMedicalVisitEvent
 
-    // Existing methods (assumed)
-    fun onSearchQueryChanged(query: String) {
-        // Handle search query
+    fun loadMedicalVisits() {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val medicalVisits = getMedicalVisitsUseCase()
+                val appointments = getAppointmentsUseCase()
+                _medicalVisits.value = medicalVisits
+                _appointments.value = appointments
+            } catch (e: Exception) {
+                error.value = "Failed to load visits: ${e.message}"
+            } finally {
+                _isLoading.value = false
+            }
+        }
     }
 
-    fun loadMedicalVisits() {
-        // Load visits
+    fun onSearchQueryChanged(query: String) {
+        viewModelScope.launch {
+            try {
+                val medicalVisits = getMedicalVisitsUseCase().filter {
+                    it.diagnosis.contains(query, ignoreCase = true) ||
+                            it.doctorName.contains(query, ignoreCase = true) ||
+                            it.clinicName.contains(query, ignoreCase = true)
+                }
+                val appointments = getAppointmentsUseCase().filter {
+                    (it.note?.contains(query, ignoreCase = true) ?: false) ||
+                            it.doctorName.contains(query, ignoreCase = true) ||
+                            it.location.contains(query, ignoreCase = true)
+                }
+                _medicalVisits.value = medicalVisits
+                _appointments.value = appointments
+            } catch (e: Exception) {
+                error.value = "Search failed: ${e.message}"
+            }
+        }
     }
 
     fun navigateToAddAppointment() {
         _navigateToAddAppointmentEvent.value = Unit
     }
 
-    // New method for navigating to add medical visit
     fun navigateToAddMedicalVisit() {
         _navigateToAddMedicalVisitEvent.value = Unit
     }
 
-    // Existing visibility methods (assumed)
     fun getLoadingVisibility(): Int {
         return if (isLoading.value == true) View.VISIBLE else View.GONE
     }
 
-    fun getBeforeEmptyVisibility(): Int {
-        return if (visitsBefore.value?.isEmpty() == true) View.VISIBLE else View.GONE
+    fun getMedicalVisitsEmptyVisibility(): Int {
+        return if (medicalVisits.value?.isEmpty() == true) View.VISIBLE else View.GONE
     }
 
-    fun getAfterEmptyVisibility(): Int {
-        return if (visitsAfter.value?.isEmpty() == true) View.VISIBLE else View.GONE
+    fun getAppointmentsEmptyVisibility(): Int {
+        return if (appointments.value?.isEmpty() == true) View.VISIBLE else View.GONE
     }
 }
