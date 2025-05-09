@@ -65,31 +65,26 @@ class MedicationAdapter(
         }
 
         fun bind(medication: Medication) {
-            if (isHistoryView) {
-                // Hỗ trợ DataBinding cho history view (tương tự Adapter 2)
-                binding.medication = medication
-                binding.dateFormatter = dateFormatter
+            binding.medication = medication
+            binding.dateFormatter = dateFormatter
+            binding.tvDosage.text = "${medication.dosageAmount} ${medication.dosageUnit.toDisplayString()}"
+            binding.tvFrequency.text = when (medication.frequency) {
+                1 -> "Once daily"
+                2 -> "Twice daily"
+                else -> "${medication.frequency} times daily"
+            }
+            binding.tvStartDate.text = medication.startDate.format(dateFormatter)
+            binding.tvEndDate.text = medication.endDate?.format(dateFormatter) ?: "Ongoing"
+            binding.tvTimeOfDay.text = medication.timeOfDay.joinToString(", ")
+            binding.tvMealRelation.text = medication.mealRelation.name
+                .replace("_", " ")
+                .lowercase()
+                .replaceFirstChar { it.uppercase() }
+            if (medication.notes.isEmpty()) {
+                binding.notesContainer.visibility = View.GONE
             } else {
-                // Logic hiển thị chi tiết (tương tự Adapter 1)
-                binding.tvDosage.text = "${medication.dosageAmount} ${medication.dosageUnit.toDisplayString()}"
-                binding.tvFrequency.text = when (medication.frequency) {
-                    1 -> "Once daily"
-                    2 -> "Twice daily"
-                    else -> "${medication.frequency} times daily"
-                }
-                binding.tvStartDate.text = medication.startDate.format(dateFormatter)
-                binding.tvEndDate.text = medication.endDate?.format(dateFormatter) ?: "Ongoing"
-                binding.tvTimeOfDay.text = medication.timeOfDay.joinToString(", ")
-                binding.tvMealRelation.text = medication.mealRelation.name
-                    .replace("_", " ")
-                    .lowercase()
-                    .replaceFirstChar { it.uppercase() }
-                if (medication.notes.isEmpty()) {
-                    binding.notesContainer.visibility = View.GONE
-                } else {
-                    binding.notesContainer.visibility = View.VISIBLE
-                    binding.tvNotes.text = medication.notes
-                }
+                binding.notesContainer.visibility = View.VISIBLE
+                binding.tvNotes.text = medication.notes
             }
             binding.executePendingBindings()
         }

@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import java.time.LocalDate
 import java.util.UUID
 import javax.inject.Inject
@@ -124,13 +125,18 @@ class DefaultMedicationRepository @Inject constructor(
             refresh()
         }
         return withContext(dispatcher) {
-            localDataSource.getAll().toExternal().filter { it.visitId == visitId }
+            val allMedications = localDataSource.getAll().toExternal()
+            Timber.tag("MedicationRepository").d("All medications: $allMedications")
+            val filteredMedications = allMedications.filter { it.visitId == visitId }
+            Timber.tag("MedicationRepository").d("Filtered medications for visitId $visitId: $filteredMedications")
+            filteredMedications
         }
     }
 
     override suspend fun refresh() {
         withContext(dispatcher) {
             val remoteMedications = networkDataSource.loadMedications(userId)
+            Timber.tag("MedicationRepository").d("Remote medications: $remoteMedications")
             localDataSource.deleteAll()
             localDataSource.upsertAll(remoteMedications.toLocal())
         }
