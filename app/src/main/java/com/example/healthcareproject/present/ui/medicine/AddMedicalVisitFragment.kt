@@ -22,6 +22,7 @@ import com.example.healthcareproject.domain.model.Medication
 import com.example.healthcareproject.present.navigation.AuthNavigator
 import com.example.healthcareproject.present.navigation.MainNavigator
 import com.example.healthcareproject.present.ui.medication.AddMedicationDialogFragment
+import com.example.healthcareproject.present.ui.medication.MedicationAdapter
 import com.example.healthcareproject.present.viewmodel.medicine.AddMedicalVisitViewModel
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint

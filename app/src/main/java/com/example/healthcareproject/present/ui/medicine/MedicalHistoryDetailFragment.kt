@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.healthcareproject.R
 import com.example.healthcareproject.databinding.FragmentMedicalHistoryDetailBinding
 import com.example.healthcareproject.present.navigation.MainNavigator
+import com.example.healthcareproject.present.ui.medication.MedicationAdapter
 import com.example.healthcareproject.present.viewmodel.medicine.MedicalHistoryDetailViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
@@ -83,13 +84,24 @@ class MedicalHistoryDetailFragment : Fragment() {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun observeViewModel() {
         viewModel.medications.observe(viewLifecycleOwner) { medications ->
             Timber.tag("MedicalHistoryDetail").d("Medications: $medications")
-            medicationAdapter.submitList(medications)
+            if (medications.isEmpty()) {
+                binding.tvError.text = "No medications found for this visit"
+                binding.tvError.visibility = View.VISIBLE
+                binding.rvMedications.visibility = View.GONE
+            } else {
+                binding.tvError.visibility = View.GONE
+                binding.rvMedications.visibility = View.VISIBLE
+                medicationAdapter.submitList(medications)
+            }
         }
         viewModel.error.observe(viewLifecycleOwner) { error ->
             error?.let {
+                binding.tvError.text = it
+                binding.tvError.visibility = View.VISIBLE
                 Toast.makeText(context, it, Toast.LENGTH_LONG).show()
             }
         }
