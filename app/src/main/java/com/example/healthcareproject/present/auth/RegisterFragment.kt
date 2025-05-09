@@ -142,10 +142,13 @@ class RegisterFragment : Fragment() {
             binding.btnCreateAccount.isEnabled = !isLoading
         }
 
-        // Back button
+        // Back button - Fixed implementation
         binding.btnBackRegisterToLoginMethod.setOnClickListener {
             try {
-                navigator.fromRegisterToLoginMethod()
+                // Direct navigation using findNavController instead of relying on navigator
+                findNavController().navigateUp()
+                // Alternative approach if navigateUp() doesn't work:
+                // findNavController().navigate(R.id.action_registerFragment_to_loginMethodFragment)
             } catch (e: Exception) {
                 Timber.e("Navigation failed: ${e.message}")
                 Snackbar.make(binding.root, "Navigation failed: ${e.message}", Snackbar.LENGTH_LONG).show()
