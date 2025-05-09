@@ -124,56 +124,30 @@ class AddMedicationViewModel @Inject constructor(
         }
 
         val medicationStartDate = startDate.get() ?: LocalDate.now()
-        val medication = Medication(
-            medicationId = UUID.randomUUID().toString(),
-            name = medicationName.get() ?: "",
-            dosageAmount = dosageAmount.get()?.toFloatOrNull() ?: 0f,
-            dosageUnit = dosageUnit.get() ?: DosageUnit.None,
-            frequency = frequency.get()?.toIntOrNull() ?: 1,
-            timeOfDay = timeOfDayList,
-            mealRelation = mealRelation.get() ?: MealRelation.None,
-            startDate = medicationStartDate,
-            endDate = endDate.get() ?: medicationStartDate,
-            notes = notes.get() ?: "",
-            userId = userId,
-            visitId = visitId ?: ""
-        )
 
         // Save medication directly via use case
         viewModelScope.launch {
             isLoading.set(true)
             val result = medicationUseCases.createMedication(
                 visitId = visitId,
-                name = medication.name,
-                dosageUnit = medication.dosageUnit,
-                dosageAmount = medication.dosageAmount,
-                frequency = medication.frequency,
-                timeOfDay = medication.timeOfDay,
-                mealRelation = medication.mealRelation,
-                startDate = medication.startDate,
-                endDate = medication.endDate,
-                notes = medication.notes
+                name = medicationName.get() ?: "",
+                dosageAmount = dosageAmount.get()?.toFloatOrNull() ?: 0f,
+                dosageUnit = dosageUnit.get() ?: DosageUnit.None,
+                frequency = frequency.get()?.toIntOrNull() ?: 1,
+                timeOfDay = timeOfDayList,
+                mealRelation = mealRelation.get() ?: MealRelation.None,
+                startDate = medicationStartDate,
+                endDate = endDate.get() ?: medicationStartDate,
+                notes = notes.get() ?: "",
             )
             isLoading.set(false)
 
             when (result) {
                 is Result.Success -> {
-                    Timber.d("Medication saved: ${medication.name} with ID: ${result.data}")
-                    // Clear input fields
-//                    medicationName.set("")
-//                    dosageAmount.set("")
-//                    dosageUnit.set(DosageUnit.None)
-//                    frequency.set("")
-//                    timeOfDay.set("")
-//                    mealRelation.set(MealRelation.None)
-//                    startDate.set(null)
-//                    endDate.set(null)
-//                    notes.set("")
                     _error.value = null
                     _isFinished.value = true
                 }
                 is Result.Error -> {
-                    Timber.e(result.exception, "Failed to save medication: ${medication.name}")
                     _error.value = result.exception.message ?: "Failed to save medication"
                 }
                 is Result.Loading -> Unit
