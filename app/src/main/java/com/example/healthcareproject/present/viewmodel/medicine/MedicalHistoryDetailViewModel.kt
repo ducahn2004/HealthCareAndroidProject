@@ -1,5 +1,6 @@
 package com.example.healthcareproject.present.viewmodel.medicine
 
+import android.util.Log
 import androidx.lifecycle.*
 import com.example.healthcareproject.domain.model.MedicalVisit
 import com.example.healthcareproject.domain.model.Medication
@@ -7,6 +8,7 @@ import com.example.healthcareproject.domain.usecase.medicalvisit.MedicalVisitUse
 import com.example.healthcareproject.domain.usecase.medication.MedicationUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
@@ -38,12 +40,14 @@ class MedicalHistoryDetailViewModel @Inject constructor(
     private val timeFormatter = DateTimeFormatter.ofPattern("hh:mm a")
 
     fun loadDetails(visitId: String) {
+        Timber.tag("MedicalHistoryDetail").d("Loading for visitId: $visitId")
         viewModelScope.launch {
             _isLoading.value = true
             try {
                 val medicalVisit = medicalVisitUseCases.getMedicalVisitUseCase(visitId)
                 val medicationsList = medicationUseCases.getMedicationsByVisitId(visitId)
-
+                Timber.tag("MedicalHistoryDetail")
+                    .d("Visit: $medicalVisit, Medications: $medicationsList")
                 if (medicalVisit != null) {
                     _medicalVisit.value = medicalVisit
                     _medications.value = medicationsList
@@ -54,15 +58,14 @@ class MedicalHistoryDetailViewModel @Inject constructor(
                     handleError("Medical visit not found")
                 }
             } catch (e: Exception) {
+                Timber.tag("MedicalHistoryDetail").e("Error: ${e.message}")
                 handleError(e.message ?: "An error occurred")
             } finally {
                 _isLoading.value = false
             }
         }
     }
-
     private fun handleError(message: String) {
         _error.value = message
-        _medications.value = emptyList()
     }
 }

@@ -144,9 +144,15 @@
         <argument
             android:name="visitId"
             app:argType="string" />
+        <argument
+            android:name="sourceFragment"
+            app:argType="string" />
         <action
             android:id="@+id/action_back_medical_history_detail_to_medicine"
             app:destination="@id/medicineFragment"/>
+        <action
+            android:id="@+id/action_back_medical_history_detail_to_pill"
+            app:destination="@id/pillFragment"/>
     </fragment>
     <!-- Notification Fragment -->
     <fragment

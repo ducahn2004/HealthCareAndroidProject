@@ -48,6 +48,7 @@ class MainNavigatorImpl @Inject constructor(
     override fun navigatePillFragmentToMedicalHistoryDetail(visitId: String) {
         val bundle = Bundle().apply {
             putString("visitId", visitId)
+            putString("sourceFragment", "PillFragment")
         }
         navController.navigate(R.id.action_pillFragment_to_medicalHistoryDetailFragment, bundle)
     }
@@ -55,12 +56,21 @@ class MainNavigatorImpl @Inject constructor(
     override fun navigateMedicineToMedicalHistoryDetail(visitId: String) {
         val bundle = Bundle().apply {
             putString("visitId", visitId)
+            putString("sourceFragment", "MedicineFragment")
         }
         navController.navigate(R.id.action_medicineFragment_to_medicalHistoryDetailFragment, bundle)
     }
 
     override fun navigateToAddAppointment() {
         navController.navigate(R.id.action_medicineFragment_to_addAppointmentFragment)
+    }
+
+    override fun navigateBackMedicineFragmentFromMedicalHistoryDetail() {
+        navController.navigate(R.id.action_back_medical_history_detail_to_medicine)
+    }
+
+    override fun navigateBackPillFragmentFromMedicalHistoryDetail() {
+        navController.navigate(R.id.action_back_medical_history_detail_to_pill)
     }
 
     override fun navigateToAddMedicalVisit() {

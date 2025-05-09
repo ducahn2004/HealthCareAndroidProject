@@ -13,6 +13,8 @@ interface MainNavigator {
     fun navigatePillFragmentToMedicalHistoryDetail(visitId: String)
     fun navigateMedicineToMedicalHistoryDetail(visitId: String)
     fun navigateToAddAppointment()
+    fun navigateBackPillFragmentFromMedicalHistoryDetail()
+    fun navigateBackMedicineFragmentFromMedicalHistoryDetail()
     fun navigateToAddMedicalVisit()
     fun navigateBackToMedicineFromAddAppointment()
     fun navigateBackToMedicineFromMedicalHistoryDetail()

@@ -15,6 +15,7 @@ import com.example.healthcareproject.databinding.FragmentMedicineBinding
 import com.example.healthcareproject.domain.model.MedicalVisit
 import com.example.healthcareproject.present.navigation.MainNavigator
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -52,9 +53,12 @@ class MedicineFragment : Fragment() {
 
     private fun setupRecyclerViews() {
         medicalVisitAdapter = MedicalVisitAdapter { visit ->
+            Timber.tag("MedicineFragment").d("Navigating with visitId: ${visit.visitId}")
             mainNavigator.navigateMedicineToMedicalHistoryDetail(visit.visitId)
         }
         appointmentAdapter = AppointmentAdapter { appointment ->
+            val id = appointment.visitId ?: appointment.appointmentId
+            Timber.tag("MedicineFragment").d("Navigating with id: $id")
             mainNavigator.navigateMedicineToMedicalHistoryDetail(appointment.visitId ?: appointment.appointmentId)
         }
 

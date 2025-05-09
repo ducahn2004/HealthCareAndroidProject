@@ -1,38 +1,73 @@
 package com.example.healthcareproject.present.ui.medicine
 
+import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.healthcareproject.R
 import com.example.healthcareproject.databinding.FragmentMedicalHistoryDetailBinding
-import com.example.healthcareproject.domain.model.Medication
+import com.example.healthcareproject.present.navigation.MainNavigator
 import com.example.healthcareproject.present.viewmodel.medicine.MedicalHistoryDetailViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MedicalHistoryDetailFragment : Fragment() {
-
-    private var _binding: FragmentMedicalHistoryDetailBinding? = null
-    private val binding get() = _binding!!
+    private lateinit var binding: FragmentMedicalHistoryDetailBinding
     private val viewModel: MedicalHistoryDetailViewModel by viewModels()
     private lateinit var medicationAdapter: MedicationAdapter
 
+    @Inject
+    lateinit var mainNavigator: MainNavigator // Inject MainNavigator
+
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
+        inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentMedicalHistoryDetailBinding.inflate(inflater, container, false)
+        binding = DataBindingUtil.inflate(
+            inflater,
+            R.layout.fragment_medical_history_detail,
+            container,
+            false
+        )
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
         return binding.root
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val visitId = arguments?.getString("visitId")
+        val sourceFragment = arguments?.getString("sourceFragment")
+
+        if (visitId == null) {
+            binding.tvError.text = "No visit ID provided"
+            binding.tvError.visibility = View.VISIBLE
+            Timber.tag("MedicalHistoryDetail").e("No visitId received")
+        } else {
+            Timber.tag("MedicalHistoryDetail").d("Loading visitId: $visitId")
+            viewModel.loadDetails(visitId)
+        }
+
+        // Handle back button click
+        binding.ivBack.setOnClickListener {
+            when (sourceFragment) {
+                "PillFragment" -> mainNavigator.navigateBackPillFragmentFromMedicalHistoryDetail()
+                "MedicineFragment" -> mainNavigator.navigateBackToMedicineFromMedicalHistoryDetail()
+                else -> findNavController().navigateUp() // Fallback
+            }
+        }
+
         setupRecyclerView()
         observeViewModel()
     }
@@ -50,12 +85,13 @@ class MedicalHistoryDetailFragment : Fragment() {
 
     private fun observeViewModel() {
         viewModel.medications.observe(viewLifecycleOwner) { medications ->
+            Timber.tag("MedicalHistoryDetail").d("Medications: $medications")
             medicationAdapter.submitList(medications)
         }
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+        viewModel.error.observe(viewLifecycleOwner) { error ->
+            error?.let {
+                Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+            }
+        }
     }
 }

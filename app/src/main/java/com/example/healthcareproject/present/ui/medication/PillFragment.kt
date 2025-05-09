@@ -47,11 +47,10 @@ class PillFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         setupRecyclerViews()
         setupClickListeners()
-        observeMedications()
         setupFragmentResultListener()
+        observeMedications()
     }
 
     private fun setupRecyclerViews() {
@@ -65,9 +64,7 @@ class PillFragment : Fragment() {
             onItemClick = { medication ->
                 medication.visitId?.takeIf { it.isNotEmpty() }?.let { visitId ->
                     mainNavigator.navigatePillFragmentToMedicalHistoryDetail(visitId)
-                } ?: run {
-                    Toast.makeText(context, "No medical visit associated with this medication", Toast.LENGTH_SHORT).show()
-                }
+                } // Silently ignore standalone medications
             }
         )
         pastMedicationAdapter = MedicationAdapter(
@@ -80,9 +77,7 @@ class PillFragment : Fragment() {
             onItemClick = { medication ->
                 medication.visitId?.takeIf { it.isNotEmpty() }?.let { visitId ->
                     mainNavigator.navigatePillFragmentToMedicalHistoryDetail(visitId)
-                } ?: run {
-                    Toast.makeText(context, "No medical visit associated with this medication", Toast.LENGTH_SHORT).show()
-                }
+                } // Silently ignore standalone medications
             }
         )
 
@@ -119,7 +114,6 @@ class PillFragment : Fragment() {
         binding.fabAddMedication.setOnClickListener {
             Timber.d("FAB clicked: Showing AddMedicationDialogFragment")
             try {
-                // Use the new newInstance method with source fragment information
                 val dialog = AddMedicationDialogFragment.newInstance(
                     sourceFragment = AddMedicationDialogFragment.SOURCE_PILL_FRAGMENT
                 )
@@ -132,18 +126,14 @@ class PillFragment : Fragment() {
     }
 
     private fun setupFragmentResultListener() {
-        // Listen to the specific result key for PillFragment
         setFragmentResultListener(AddMedicationDialogFragment.RESULT_KEY_PILL_FRAGMENT) { _, bundle ->
             if (bundle.getBoolean("medicationAdded", false)) {
                 viewModel.loadMedications()
                 Toast.makeText(context, "Medication added successfully", Toast.LENGTH_SHORT).show()
             }
         }
-
-        // Also listen to the default key for backward compatibility
         setFragmentResultListener(AddMedicationDialogFragment.RESULT_KEY_DEFAULT) { _, bundle ->
             if (bundle.getBoolean("medicationAdded", false)) {
-                // Check if this result was intended for this fragment
                 val source = bundle.getString("sourceFragment")
                 if (source == null || source == AddMedicationDialogFragment.SOURCE_PILL_FRAGMENT) {
                     viewModel.loadMedications()
@@ -155,9 +145,11 @@ class PillFragment : Fragment() {
 
     private fun observeMedications() {
         viewModel.currentMedications.observe(viewLifecycleOwner) { medications ->
+            Timber.tag("PillFragment").d("Current Medications: $medications")
             currentMedicationAdapter.submitList(medications)
         }
         viewModel.pastMedications.observe(viewLifecycleOwner) { medications ->
+            Timber.tag("PillFragment").d("Past Medications: $medications")
             pastMedicationAdapter.submitList(medications)
         }
         viewModel.error.observe(viewLifecycleOwner) { errorMessage ->
