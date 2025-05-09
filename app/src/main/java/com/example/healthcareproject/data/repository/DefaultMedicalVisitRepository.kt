@@ -40,7 +40,6 @@ class DefaultMedicalVisitRepository @Inject constructor(
 
     override suspend fun createMedicalVisit(
         visitId: String,
-        patientName: String,
         visitReason: String,
         visitDate: LocalDate,
         doctorName: String,
@@ -65,7 +64,6 @@ class DefaultMedicalVisitRepository @Inject constructor(
 
     override suspend fun updateMedicalVisit(
         medicalVisitId: String,
-        patientName: String,
         visitReason: String,
         visitDate: LocalDate,
         doctorName: String,

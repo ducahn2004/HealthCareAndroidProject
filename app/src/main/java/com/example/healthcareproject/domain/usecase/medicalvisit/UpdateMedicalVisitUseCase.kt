@@ -9,7 +9,6 @@ class UpdateMedicalVisitUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(
         medicalVisitId: String,
-        patientName: String,
         visitReason: String,
         visitDate: LocalDate,
         doctorName: String,
@@ -18,7 +17,6 @@ class UpdateMedicalVisitUseCase @Inject constructor(
     ) {
         medicalVisitRepository.updateMedicalVisit(
             medicalVisitId = medicalVisitId,
-            patientName = patientName,
             visitReason = visitReason,
             visitDate = visitDate,
             doctorName = doctorName,

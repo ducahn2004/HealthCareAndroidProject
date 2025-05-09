@@ -10,7 +10,6 @@ class CreateMedicalVisitUseCase @Inject constructor(
     private val medicalVisitRepository: MedicalVisitRepository
 ) {
     suspend operator fun invoke(
-        patientName: String,
         visitReason: String,
         visitDate: LocalDate,
         doctorName: String,
@@ -19,7 +18,6 @@ class CreateMedicalVisitUseCase @Inject constructor(
     ): Result<String> {
         return try {
             // Validate inputs
-            if (patientName.isBlank()) throw IllegalArgumentException("Patient name cannot be empty")
             if (visitReason.isBlank()) throw IllegalArgumentException("Visit reason cannot be empty")
             if (doctorName.isBlank()) throw IllegalArgumentException("Doctor name cannot be empty")
             if (visitDate.isAfter(LocalDate.now())) throw IllegalArgumentException("Visit date cannot be in the feature")
@@ -32,7 +30,6 @@ class CreateMedicalVisitUseCase @Inject constructor(
             // Call repository to create medical visit
             val resultVisitId = medicalVisitRepository.createMedicalVisit(
                 visitId = visitId,
-                patientName = patientName,
                 visitReason = visitReason,
                 visitDate = visitDate,
                 doctorName = doctorName,

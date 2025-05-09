@@ -17,7 +17,6 @@ class AddMedicalVisitWithMedicationsUseCase @Inject constructor(
     private val medicationRepository: MedicationRepository
 ) {
     suspend operator fun invoke(
-        patientName: String,
         visitReason: String,
         visitDate: LocalDate,
         doctorName: String,
@@ -30,7 +29,6 @@ class AddMedicalVisitWithMedicationsUseCase @Inject constructor(
             // Lưu MedicalVisit với visitId
             medicalVisitRepository.createMedicalVisit(
                 visitId = visitId,
-                patientName = patientName,
                 visitReason = visitReason,
                 visitDate = visitDate,
                 doctorName = doctorName,
