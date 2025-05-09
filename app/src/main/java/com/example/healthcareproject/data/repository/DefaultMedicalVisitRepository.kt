@@ -1,8 +1,11 @@
 package com.example.healthcareproject.data.repository
 
+import androidx.room.RoomDatabase
+import androidx.room.withTransaction
 import com.example.healthcareproject.data.mapper.toExternal
 import com.example.healthcareproject.data.mapper.toLocal
 import com.example.healthcareproject.data.mapper.toNetwork
+import com.example.healthcareproject.data.source.local.AppDatabase
 import com.example.healthcareproject.data.source.local.dao.MedicalVisitDao
 import com.example.healthcareproject.data.source.network.datasource.AuthDataSource
 import com.example.healthcareproject.data.source.network.datasource.MedicalVisitDataSource
@@ -29,12 +32,14 @@ class DefaultMedicalVisitRepository @Inject constructor(
     private val authDataSource: AuthDataSource,
     @DefaultDispatcher private val dispatcher: CoroutineDispatcher,
     @ApplicationScope private val scope: CoroutineScope,
+    private val appDatabase: AppDatabase
 ) : MedicalVisitRepository {
 
     private val userId: String
         get() = authDataSource.getCurrentUserId() ?: throw Exception("User not logged in")
 
     override suspend fun createMedicalVisit(
+        visitId: String,
         patientName: String,
         visitReason: String,
         visitDate: LocalDate,
@@ -42,9 +47,7 @@ class DefaultMedicalVisitRepository @Inject constructor(
         notes: String?,
         status: Boolean
     ): String {
-        val visitId = withContext(dispatcher) {
-            UUID.randomUUID().toString()
-        }
+
         val medicalVisit = MedicalVisit(
             visitId = visitId,
             userId = userId,
@@ -162,5 +165,9 @@ class DefaultMedicalVisitRepository @Inject constructor(
                 // Log or handle the exception
             }
         }
+    }
+
+    override suspend fun withTransaction(block: suspend () -> Unit) {
+        appDatabase.withTransaction(block)
     }
 }

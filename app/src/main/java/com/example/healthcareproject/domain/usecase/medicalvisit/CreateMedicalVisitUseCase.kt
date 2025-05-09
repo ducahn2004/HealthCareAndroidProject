@@ -1,6 +1,7 @@
 package com.example.healthcareproject.domain.usecase.medicalvisit
 
 import com.example.healthcareproject.domain.model.Result
+import java.util.UUID
 import com.example.healthcareproject.domain.repository.MedicalVisitRepository
 import java.time.LocalDate
 import javax.inject.Inject
@@ -27,9 +28,10 @@ class CreateMedicalVisitUseCase @Inject constructor(
             val notes = buildString {
                 if (!diagnosis.isNullOrBlank()) append("Diagnosis: $diagnosis\n")
             }.takeIf { it.isNotBlank() }
-
+            val visitId = UUID.randomUUID().toString()
             // Call repository to create medical visit
-            val visitId = medicalVisitRepository.createMedicalVisit(
+            val resultVisitId = medicalVisitRepository.createMedicalVisit(
+                visitId = visitId,
                 patientName = patientName,
                 visitReason = visitReason,
                 visitDate = visitDate,

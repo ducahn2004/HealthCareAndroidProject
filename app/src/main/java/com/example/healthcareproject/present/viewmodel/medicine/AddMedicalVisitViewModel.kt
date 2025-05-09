@@ -129,9 +129,13 @@ class AddMedicalVisitViewModel @Inject constructor(
             }
 
             try {
+                Timber.d("Saving MedicalVisit with visitId: $visitId") // Thêm log cho MedicalVisit
+                medicationData.forEach { (name, _) ->
+                    Timber.d("Saving Medication with visitId: $visitId for medication: $name") // Thêm log cho mỗi Medication
+                }
                 addMedicalVisitWithMedicationsUseCase(
                     patientName = patientName,
-                    visitReason = clinicName.get() ?: "",
+                    visitReason = clinicName.get() ?: "",   
                     visitDate = visitDateTime.get()?.toLocalDate() ?: LocalDate.now(),
                     doctorName = doctorName.get() ?: "",
                     diagnosis = diagnosis.get(),

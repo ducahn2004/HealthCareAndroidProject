@@ -24,32 +24,35 @@ class AddMedicalVisitWithMedicationsUseCase @Inject constructor(
         diagnosis: String?,
         status: Boolean,
         medications: List<Pair<String, Map<String, Any>>>,
-        visitId: String
+        visitId: String = UUID.randomUUID().toString()
     ) {
-        // Lưu MedicalVisit với visitId
-        medicalVisitRepository.createMedicalVisit(
-            patientName = patientName,
-            visitReason = visitReason,
-            visitDate = visitDate,
-            doctorName = doctorName,
-            notes = diagnosis,
-            status = status
-        )
-
-        // Lưu Medications với visitId
-        medications.forEach { (name, data) ->
-            medicationRepository.createMedication(
+        medicalVisitRepository.withTransaction {
+            // Lưu MedicalVisit với visitId
+            medicalVisitRepository.createMedicalVisit(
                 visitId = visitId,
-                name = name,
-                dosageUnit = data["dosageUnit"] as? DosageUnit ?: DosageUnit.None,
-                dosageAmount = (data["dosageAmount"] as? Number)?.toFloat() ?: 0f,
-                frequency = (data["frequency"] as? Number)?.toInt() ?: 1,
-                timeOfDay = data["timeOfDay"] as? List<String> ?: emptyList(),
-                mealRelation = data["mealRelation"] as? MealRelation ?: MealRelation.None,
-                startDate = data["startDate"] as? LocalDate ?: LocalDate.now(),
-                endDate = data["endDate"] as? LocalDate ?: LocalDate.now().plusMonths(1),
-                notes = data["notes"] as? String ?: ""
+                patientName = patientName,
+                visitReason = visitReason,
+                visitDate = visitDate,
+                doctorName = doctorName,
+                notes = diagnosis,
+                status = status
             )
+
+            // Lưu Medications với visitId
+            medications.forEach { (name, data) ->
+                medicationRepository.createMedication(
+                    visitId = visitId,
+                    name = name,
+                    dosageUnit = data["dosageUnit"] as? DosageUnit ?: DosageUnit.None,
+                    dosageAmount = (data["dosageAmount"] as? Number)?.toFloat() ?: 0f,
+                    frequency = (data["frequency"] as? Number)?.toInt() ?: 1,
+                    timeOfDay = data["timeOfDay"] as? List<String> ?: emptyList(),
+                    mealRelation = data["mealRelation"] as? MealRelation ?: MealRelation.None,
+                    startDate = data["startDate"] as? LocalDate ?: LocalDate.now(),
+                    endDate = data["endDate"] as? LocalDate ?: LocalDate.now().plusMonths(1),
+                    notes = data["notes"] as? String ?: ""
+                )
+            }
         }
     }
 }

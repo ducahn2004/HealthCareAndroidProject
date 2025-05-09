@@ -43,7 +43,8 @@
                     android:padding="10dp"
                     android:src="@drawable/ic_edit"
                     android:contentDescription="Edit Medication"
-                    android:background="?attr/selectableItemBackgroundBorderless" />
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    app:tint="@color/purple_500"/>
 
                 <ImageView
                     android:id="@+id/icon_delete"
@@ -52,7 +53,8 @@
                     android:padding="10dp"
                     android:src="@drawable/ic_delete"
                     android:contentDescription="Delete Medication"
-                    android:background="?attr/selectableItemBackgroundBorderless" />
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    app:tint="@color/alert_text_color"/>
             </LinearLayout>
 
             <!-- Medication Name -->
