@@ -52,10 +52,10 @@ class MedicineFragment : Fragment() {
 
     private fun setupRecyclerViews() {
         medicalVisitAdapter = MedicalVisitAdapter { visit ->
-            mainNavigator.navigateToMedicalHistoryDetail(visit.visitId)
+            mainNavigator.navigateMedicineToMedicalHistoryDetail(visit.visitId)
         }
         appointmentAdapter = AppointmentAdapter { appointment ->
-            mainNavigator.navigateToMedicalHistoryDetail(appointment.visitId ?: appointment.appointmentId)
+            mainNavigator.navigateMedicineToMedicalHistoryDetail(appointment.visitId ?: appointment.appointmentId)
         }
 
         binding.recyclerViewBefore.apply {

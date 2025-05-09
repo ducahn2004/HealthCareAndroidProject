@@ -36,6 +36,9 @@ class AddMedicationDialogFragment : DialogFragment() {
         setStyle(STYLE_NORMAL, android.R.style.Theme_Material_Light_Dialog_NoActionBar_MinWidth)
         medicationToEdit = arguments?.getParcelable(ARG_MEDICATION)
         sourceFragment = arguments?.getString(ARG_SOURCE_FRAGMENT)
+        // Attache visitId to ViewModel
+        val visitId = arguments?.getString(ARG_VISIT_ID)
+        viewModel.setVisitId(visitId)
     }
 
     override fun onCreateView(
@@ -267,6 +270,7 @@ class AddMedicationDialogFragment : DialogFragment() {
     companion object {
         private const val ARG_MEDICATION = "arg_medication"
         private const val ARG_SOURCE_FRAGMENT = "arg_source_fragment"
+        private const val ARG_VISIT_ID = "arg_visit_id"
 
         const val SOURCE_PILL_FRAGMENT = "pill_fragment"
         const val SOURCE_MEDICAL_VISIT_FRAGMENT = "medical_visit_fragment"
@@ -287,11 +291,12 @@ class AddMedicationDialogFragment : DialogFragment() {
             }
         }
 
-        fun newInstance(medication: Medication? = null, sourceFragment: String? = null): AddMedicationDialogFragment {
+        fun newInstance(medication: Medication? = null, sourceFragment: String? = null, visitId: String? = null): AddMedicationDialogFragment {
             return AddMedicationDialogFragment().apply {
                 arguments = Bundle().apply {
                     medication?.let { putParcelable(ARG_MEDICATION, it) }
                     sourceFragment?.let { putString(ARG_SOURCE_FRAGMENT, it) }
+                    visitId?.let { putString(ARG_VISIT_ID, it) }
                 }
             }
         }

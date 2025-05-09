@@ -67,7 +67,8 @@ class AddMedicalVisitFragment : Fragment() {
                 // Use the updated newInstance with source fragment information
                 val dialog = AddMedicationDialogFragment.newInstance(
                     medication = medication,
-                    sourceFragment = AddMedicationDialogFragment.SOURCE_MEDICAL_VISIT_FRAGMENT
+                    sourceFragment = AddMedicationDialogFragment.SOURCE_MEDICAL_VISIT_FRAGMENT,
+                    visitId = viewModel.getVisitId()
                 )
                 dialog.show(parentFragmentManager, "EditMedicationDialog")
             },

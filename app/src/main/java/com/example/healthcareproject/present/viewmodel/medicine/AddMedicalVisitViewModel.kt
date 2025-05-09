@@ -10,6 +10,7 @@ import com.example.healthcareproject.domain.model.Medication
 import com.example.healthcareproject.domain.usecase.medicalvisit.AddMedicalVisitWithMedicationsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import java.util.UUID
 import timber.log.Timber
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -41,6 +42,8 @@ class AddMedicalVisitViewModel @Inject constructor(
     private val _isFinished = MutableLiveData<Boolean>()
     val isFinished: LiveData<Boolean> = _isFinished
 
+    //Temporary VisitID
+    private val visitId: String = UUID.randomUUID().toString()
     init {
         visitDateTime.addOnPropertyChangedCallback(object : androidx.databinding.Observable.OnPropertyChangedCallback() {
             override fun onPropertyChanged(sender: androidx.databinding.Observable?, propertyId: Int) {
@@ -48,6 +51,8 @@ class AddMedicalVisitViewModel @Inject constructor(
             }
         })
     }
+
+    fun getVisitId(): String = visitId
 
     fun setVisitDateTime(dateTime: LocalDateTime) {
         visitDateTime.set(dateTime)
@@ -118,7 +123,8 @@ class AddMedicalVisitViewModel @Inject constructor(
                     "mealRelation" to medication.mealRelation,
                     "startDate" to medication.startDate,
                     "endDate" to medication.endDate,
-                    "notes" to medication.notes
+                    "notes" to medication.notes,
+                    "visitId" to visitId
                 )
             }
 
@@ -130,7 +136,8 @@ class AddMedicalVisitViewModel @Inject constructor(
                     doctorName = doctorName.get() ?: "",
                     diagnosis = diagnosis.get(),
                     status = true,
-                    medications = medicationData
+                    medications = medicationData,
+                    visitId = visitId
                 )
                 isLoading.set(false)
                 _error.value = null

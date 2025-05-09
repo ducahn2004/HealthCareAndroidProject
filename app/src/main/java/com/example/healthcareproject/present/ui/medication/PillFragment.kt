@@ -64,7 +64,7 @@ class PillFragment : Fragment() {
             },
             onItemClick = { medication ->
                 medication.visitId?.takeIf { it.isNotEmpty() }?.let { visitId ->
-                    mainNavigator.navigateToMedicalHistoryDetail(visitId)
+                    mainNavigator.navigatePillFragmentToMedicalHistoryDetail(visitId)
                 } ?: run {
                     Toast.makeText(context, "No medical visit associated with this medication", Toast.LENGTH_SHORT).show()
                 }
@@ -79,7 +79,7 @@ class PillFragment : Fragment() {
             },
             onItemClick = { medication ->
                 medication.visitId?.takeIf { it.isNotEmpty() }?.let { visitId ->
-                    mainNavigator.navigateToMedicalHistoryDetail(visitId)
+                    mainNavigator.navigatePillFragmentToMedicalHistoryDetail(visitId)
                 } ?: run {
                     Toast.makeText(context, "No medical visit associated with this medication", Toast.LENGTH_SHORT).show()
                 }

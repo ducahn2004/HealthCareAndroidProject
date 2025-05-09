@@ -2,6 +2,7 @@ package com.example.healthcareproject.di
 
 import android.content.Context
 import com.example.healthcareproject.domain.repository.*
+import com.example.healthcareproject.domain.repository.MedicationRepository
 import com.example.healthcareproject.domain.usecase.alert.*
 import com.example.healthcareproject.domain.usecase.appointment.*
 import com.example.healthcareproject.domain.usecase.user.LogoutUseCase
@@ -65,8 +66,7 @@ object UseCaseModule {
     @Provides
     fun provideMedicalVisitUseCases(
         medicalVisitRepository: MedicalVisitRepository,
-        createMedicalVisitUseCase: CreateMedicalVisitUseCase,
-        createMedicationUseCase: CreateMedicationUseCase
+        medicationRepository: MedicationRepository
     ): MedicalVisitUseCases {
         return MedicalVisitUseCases(
             getMedicalVisitsUseCase = GetMedicalVisitsUseCase(medicalVisitRepository),
@@ -75,8 +75,8 @@ object UseCaseModule {
             updateMedicalVisitUseCase = UpdateMedicalVisitUseCase(medicalVisitRepository),
             deleteMedicalVisitUseCase = DeleteMedicalVisitUseCase(medicalVisitRepository),
             addMedicalVisitWithMedicationsUseCase = AddMedicalVisitWithMedicationsUseCase(
-                createMedicalVisitUseCase,
-                createMedicationUseCase
+                medicalVisitRepository,
+                medicationRepository
             )
         )
     }
