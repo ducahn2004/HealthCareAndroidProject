@@ -26,7 +26,6 @@ class AddMedicalVisitWithMedicationsUseCase @Inject constructor(
         medications: List<Pair<String, Map<String, Any>>>,
         visitId: String = UUID.randomUUID().toString()
     ) {
-        // Thêm debug log
         Timber.d("Starting AddMedicalVisitWithMedicationsUseCase operation")
         Timber.d("VisitId: $visitId, VisitReason: $visitReason, DoctorName: $doctorName")
         Timber.d("Number of medications: ${medications.size}")
@@ -35,18 +34,22 @@ class AddMedicalVisitWithMedicationsUseCase @Inject constructor(
             // First: Ensure MedicalVisit is saved
             val savedVisitId = medicalVisitRepository.createMedicalVisit(
                 visitId = visitId,
-                visitReason = visitReason,  // Truyền đúng visitReason (sẽ được lưu là clinicName)
+                visitReason = visitReason,
                 visitDate = visitDate,
                 doctorName = doctorName,
                 notes = diagnosis,
                 status = status
             )
 
+            if (savedVisitId.isBlank()) {
+                Timber.e("Error: savedVisitId is blank")
+                throw IllegalStateException("Failed to create medical visit: Invalid visitId")
+            }
+
             Timber.d("MedicalVisit created with ID: $savedVisitId, now creating medications")
 
             // Second: Save each medication with reference to the visit
             medications.forEach { (name, data) ->
-                // Chuyển đổi timeOfDay thành danh sách nếu cần
                 val timeOfDay = when (val tod = data["timeOfDay"]) {
                     is String -> tod.split(",").map { it.trim() }
                     is List<*> -> tod.filterIsInstance<String>()
@@ -56,7 +59,7 @@ class AddMedicalVisitWithMedicationsUseCase @Inject constructor(
                 Timber.d("Creating medication: $name with visitId: $savedVisitId")
 
                 try {
-                    medicationRepository.createMedication(
+                    val medicationId = medicationRepository.createMedication(
                         visitId = savedVisitId,
                         name = name,
                         dosageUnit = data["dosageUnit"] as? DosageUnit ?: DosageUnit.None,
@@ -68,7 +71,7 @@ class AddMedicalVisitWithMedicationsUseCase @Inject constructor(
                         endDate = data["endDate"] as? LocalDate ?: LocalDate.now().plusMonths(1),
                         notes = data["notes"] as? String ?: ""
                     )
-                    Timber.d("Medication '$name' created successfully")
+                    Timber.d("Medication '$name' created with ID: $medicationId, visitId: $savedVisitId")
                 } catch (e: Exception) {
                     Timber.e(e, "Error creating medication: $name - ${e.message}")
                     // Continue with other medications even if one fails
@@ -76,8 +79,6 @@ class AddMedicalVisitWithMedicationsUseCase @Inject constructor(
             }
 
             Timber.d("All medications created, ensuring data is synced")
-
-            Timber.d("Operation completed successfully")
         } catch (e: Exception) {
             Timber.e(e, "Error in AddMedicalVisitWithMedicationsUseCase: ${e.message}")
             throw e

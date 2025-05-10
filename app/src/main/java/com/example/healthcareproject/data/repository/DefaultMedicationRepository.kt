@@ -66,8 +66,13 @@ class DefaultMedicationRepository @Inject constructor(
             endDate = endDate,
             notes = notes
         )
-        localDataSource.upsert(medication.toLocal())
+        Timber.d("Creating medication: ID=$medicationId, visitId=$visitId")
+        val roomMedication = medication.toLocal()
+        Timber.d("RoomMedication: visitId=${roomMedication.visitId}")
+        localDataSource.upsert(roomMedication)
+        Timber.d("Medication saved to Room with visitId=$visitId")
         saveMedicationsToNetwork()
+        Timber.d("Medication synced to Firebase with visitId=$visitId")
         return medicationId
     }
 
@@ -186,12 +191,18 @@ class DefaultMedicationRepository @Inject constructor(
         scope.launch {
             try {
                 val localMedications = localDataSource.getAll()
+                Timber.d("Syncing ${localMedications.size} medications to network")
                 val networkMedications = withContext(dispatcher) {
-                    localMedications.toNetwork()
+                    localMedications.toNetwork().also {
+                        it.forEach { med ->
+                            Timber.d("Network medication: ID=${med.medicationId}, visitId=${med.visitId}")
+                        }
+                    }
                 }
                 networkDataSource.saveMedications(networkMedications)
+                Timber.d("Medications synced to network successfully")
             } catch (e: Exception) {
-                // Log or handle the exception
+                Timber.e(e, "Failed to sync medications")
             }
         }
     }
