@@ -108,18 +108,19 @@ class AddMedicalVisitViewModel @Inject constructor(
 
         viewModelScope.launch {
             isLoading.set(true)
-            val patientName = authDataSource.getCurrentUserId() ?: run {
-                isLoading.set(false)
-                _error.value = "User not logged in"
-                return@launch
-            }
 
             val medicationData = getMedications().map { medication ->
+                val timeOfDayList = when (val tod = medication.timeOfDay) {
+                    is String -> tod.split(",").map { it.trim() }
+                    is List<*> -> tod as? List<String> ?: emptyList()
+                    else -> emptyList<String>()
+                }
+
                 medication.name to mapOf(
                     "dosageUnit" to medication.dosageUnit,
                     "dosageAmount" to medication.dosageAmount,
                     "frequency" to medication.frequency,
-                    "timeOfDay" to medication.timeOfDay,
+                    "timeOfDay" to timeOfDayList,
                     "mealRelation" to medication.mealRelation,
                     "startDate" to medication.startDate,
                     "endDate" to medication.endDate,
@@ -129,16 +130,17 @@ class AddMedicalVisitViewModel @Inject constructor(
             }
 
             try {
-                Timber.d("Saving MedicalVisit with visitId: $visitId") // Thêm log cho MedicalVisit
-                medicationData.forEach { (name, _) ->
-                    Timber.d("Saving Medication with visitId: $visitId for medication: $name") // Thêm log cho mỗi Medication
+                Timber.d("Saving MedicalVisit with visitId: $visitId")
+                medicationData.forEach { (name, data) ->
+                    Timber.d("Saving Medication with visitId: $visitId for medication: $name")
                 }
+
+                // Fix: Chắc chắn truyền đúng tham số theo implementation thực tế
                 addMedicalVisitWithMedicationsUseCase(
-                    patientName = patientName,
-                    visitReason = clinicName.get() ?: "",   
+                    visitReason = clinicName.get() ?: "", // Trong implementation này, visitReason được lưu là clinicName
                     visitDate = visitDateTime.get()?.toLocalDate() ?: LocalDate.now(),
                     doctorName = doctorName.get() ?: "",
-                    diagnosis = diagnosis.get(),
+                    diagnosis = diagnosis.get(), // diagnosis vẫn là giá trị nhập vào
                     status = true,
                     medications = medicationData,
                     visitId = visitId
@@ -147,7 +149,7 @@ class AddMedicalVisitViewModel @Inject constructor(
                 _error.value = null
                 _isFinished.value = true
             } catch (e: Exception) {
-                Timber.e(e, "Failed to save medical visit")
+                Timber.e(e, "Failed to save medical visit: ${e.message}")
                 isLoading.set(false)
                 _error.value = e.message ?: "Failed to save medical visit"
             }
