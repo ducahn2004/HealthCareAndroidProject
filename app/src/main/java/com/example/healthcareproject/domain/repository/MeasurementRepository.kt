@@ -1,7 +1,6 @@
 package com.example.healthcareproject.domain.repository
 
 import com.example.healthcareproject.domain.model.Measurement
-import com.example.healthcareproject.domain.model.MeasurementType
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDateTime
 
@@ -11,20 +10,15 @@ import java.time.LocalDateTime
 interface MeasurementRepository {
 
     suspend fun createMeasurement(
-        type: MeasurementType,
-        value: Float?,
-        valueList: List<Float>?,
-        measurementTime: LocalDateTime,
-        status: Boolean
+        deviceId: String,
+        bpm: Float,
+        spO2: Float
     ): String
 
     suspend fun updateMeasurement(
         measurementId: String,
-        type: MeasurementType,
-        value: Float?,
-        valueList: List<Float>?,
-        measurementTime: LocalDateTime,
-        status: Boolean
+        bpm: Float,
+        spO2: Float
     )
 
     fun getMeasurementsRealtime(): Flow<List<Measurement>>
@@ -40,10 +34,6 @@ interface MeasurementRepository {
     suspend fun getMeasurement(measurementId: String, forceUpdate: Boolean = false): Measurement?
 
     suspend fun refreshMeasurement(measurementId: String)
-
-    suspend fun activateMeasurement(measurementId: String)
-
-    suspend fun deactivateMeasurement(measurementId: String)
 
     suspend fun deleteAllMeasurements()
 

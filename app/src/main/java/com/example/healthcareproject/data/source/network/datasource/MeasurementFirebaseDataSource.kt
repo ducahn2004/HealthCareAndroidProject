@@ -11,30 +11,32 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
-
 class MeasurementFirebaseDataSource @Inject constructor(
-    private val firebaseDatabase: FirebaseDatabase
+    firebaseDatabase: FirebaseDatabase
 ) : MeasurementDataSource {
 
     private val measurementsRef = firebaseDatabase.getReference("measurements")
 
-    override fun getMeasurementsFirebaseRealtime(userId: String): Flow<List<FirebaseMeasurement>>
-            = callbackFlow {
-        val ref = measurementsRef.child(userId)
+    override fun getMeasurementsFirebaseRealtime(
+        userId: String
+    ): Flow<List<FirebaseMeasurement>> = callbackFlow {
         val listener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                val list = snapshot.children.mapNotNull {
+                val measurements = snapshot.children.mapNotNull {
                     it.getValue(FirebaseMeasurement::class.java)
                 }
-                trySend(list).isSuccess
+                trySend(measurements).isSuccess
             }
 
             override fun onCancelled(error: DatabaseError) {
                 close(error.toException())
             }
         }
-        ref.addValueEventListener(listener)
-        awaitClose { ref.removeEventListener(listener) }
+
+        measurementsRef.orderByChild("userId").equalTo(userId)
+            .addValueEventListener(listener)
+
+        awaitClose { measurementsRef.removeEventListener(listener) }
     }
 
     override suspend fun loadMeasurements(userId: String): List<FirebaseMeasurement> = try {

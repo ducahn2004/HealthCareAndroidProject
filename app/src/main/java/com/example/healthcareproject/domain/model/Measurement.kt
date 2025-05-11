@@ -4,9 +4,10 @@ import java.time.LocalDateTime
 
 data class Measurement(
     val measurementId: String,
+    val deviceId: String,
     val userId: String,
-    val type: MeasurementType,
-    val value: Float?,
-    val valueList: List<Float>?,
-    val timestamp: LocalDateTime
+    val bpm: Float,
+    val spO2: Float,
+    val dateTime: LocalDateTime
 )
+

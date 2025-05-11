@@ -8,24 +8,24 @@ import java.time.format.DateTimeFormatter
 
 // External to Local
 fun Measurement.toLocal() = RoomMeasurement(
+    deviceId = deviceId,
     measurementId = measurementId,
     userId = userId,
-    type = type,
-    value = value,
-    valueList = valueList,
-    timestamp = timestamp
+    bpm = bpm,
+    spO2 = spO2,
+    dateTime = dateTime
 )
 
 fun List<Measurement>.toLocal() = map(Measurement::toLocal)
 
 // Local to External
 fun RoomMeasurement.toExternal() = Measurement(
+    deviceId = deviceId,
     measurementId = measurementId,
     userId = userId,
-    type = type,
-    value = value,
-    valueList = valueList,
-    timestamp = timestamp
+    bpm = bpm,
+    spO2 = spO2,
+    dateTime = dateTime
 )
 
 @JvmName("localToExternal")
@@ -33,12 +33,12 @@ fun List<RoomMeasurement>.toExternal() = map(RoomMeasurement::toExternal)
 
 // Network to Local
 fun FirebaseMeasurement.toLocal() = RoomMeasurement(
+    deviceId = deviceId,
     measurementId = measurementId,
     userId = userId,
-    type = type,
-    value = value,
-    valueList = valueList,
-    timestamp = LocalDateTime.parse(timestamp, DateTimeFormatter.ISO_DATE_TIME)
+    bpm = bpm,
+    spO2 = spO2,
+    dateTime = LocalDateTime.parse(dateTime, DateTimeFormatter.ISO_DATE_TIME)
 )
 
 @JvmName("networkToLocal")
@@ -46,12 +46,12 @@ fun List<FirebaseMeasurement>.toLocal() = map(FirebaseMeasurement::toLocal)
 
 // Local to Network
 fun RoomMeasurement.toNetwork() = FirebaseMeasurement(
+    deviceId = deviceId,
     measurementId = measurementId,
     userId = userId,
-    type = type,
-    value = value,
-    valueList = valueList,
-    timestamp = timestamp.format(DateTimeFormatter.ISO_DATE_TIME)
+    bpm = bpm,
+    spO2 = spO2,
+    dateTime = dateTime.format(DateTimeFormatter.ISO_DATE_TIME)
 )
 
 fun List<RoomMeasurement>.toNetwork() = map(RoomMeasurement::toNetwork)

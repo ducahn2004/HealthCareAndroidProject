@@ -1,7 +1,7 @@
 package com.example.healthcareproject.domain.usecase.measurement
 
-import com.example.healthcareproject.domain.model.MeasurementType
 import com.example.healthcareproject.domain.repository.MeasurementRepository
+import com.example.healthcareproject.domain.usecase.medicalvisit.GetMedicalVisitsUseCase
 import com.example.healthcareproject.domain.usecase.sos.SendSosUseCase
 import com.example.healthcareproject.domain.usecase.user.GetUserUseCase
 import kotlinx.coroutines.flow.mapNotNull
@@ -11,6 +11,7 @@ import javax.inject.Inject
 class HRAnalysisUseCase @Inject constructor(
     private val measurementRepository: MeasurementRepository,
     private val getUserUseCase: GetUserUseCase,
+    private val getMedicalVisitUseCase: GetMedicalVisitsUseCase,
     private val sendSosUseCase: SendSosUseCase
 ) {
     private fun calculateAge(birthDate: String): Int {
@@ -26,20 +27,43 @@ class HRAnalysisUseCase @Inject constructor(
         }
     }
 
+    private suspend fun adjustHeartRateRangeBasedOnMedicalHistory(
+        minNormal: Int,
+        maxNormal: Int
+    ): Pair<Int, Int> {
+        val medicalVisits = getMedicalVisitUseCase(forceUpdate = true)
+        var adjustedMin = minNormal
+        var adjustedMax = maxNormal
+
+        medicalVisits.forEach { visit ->
+            if (visit.treatment == "Inactive") {
+                when (visit.diagnosis.lowercase()) {
+                    "hypertension" -> adjustedMax += 10
+                    "hypotension" -> adjustedMin -= 10
+                    "arrhythmia" -> {
+                        adjustedMin -= 5
+                        adjustedMax += 5
+                    }
+                }
+            }
+        }
+        return adjustedMin to adjustedMax
+    }
+
     suspend operator fun invoke() {
         val user = getUserUseCase(forceUpdate = true) ?: return
         val age = calculateAge(user.dateOfBirth.toString())
         val (minNormal, maxNormal) = getNormalHeartRateRange(age)
+        val (adjustedMin, adjustedMax) = adjustHeartRateRangeBasedOnMedicalHistory(minNormal, maxNormal)
 
         measurementRepository.getMeasurementsStream()
             .mapNotNull { measurements ->
                 measurements
-                    .filter { it.type == MeasurementType.HR }
-                    .maxByOrNull { it.timestamp } // Get the latest HR measurement
+                    .maxByOrNull { it.measurementId }
             }
             .collect { latestHR ->
-                val heartRate = latestHR.value ?: return@collect
-                if (heartRate < minNormal || heartRate > maxNormal) {
+                val heartRate = latestHR.bpm
+                if (heartRate < adjustedMin || heartRate > adjustedMax) {
                     val triggerReason = "Abnormal heart rate detected: $heartRate bpm"
                     sendSosUseCase(
                         measurementId = latestHR.measurementId,
