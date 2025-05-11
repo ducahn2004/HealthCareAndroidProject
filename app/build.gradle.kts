@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.compose.compiler)
+//    alias(libs.plugins.compose.compiler)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
     id("com.google.relay")
@@ -30,8 +30,9 @@ android {
 
     buildFeatures {
         viewBinding = true
-        compose = false
+//        compose = false
         buildConfig = true
+        //noinspection DataBindingWithoutKapt
         dataBinding = true
     }
 
