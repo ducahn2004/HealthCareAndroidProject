@@ -36,8 +36,7 @@ class DefaultMeasurementRepository @Inject constructor(
     override suspend fun createMeasurement(
         deviceId: String,
         bpm: Float,
-        spO2: Float,
-        status: Boolean
+        spO2: Float
     ): String {
         val measurementId = withContext(dispatcher) {
             UUID.randomUUID().toString()
@@ -48,6 +47,7 @@ class DefaultMeasurementRepository @Inject constructor(
             userId = userId,
             bpm = bpm,
             spO2 = spO2,
+            dateTime = LocalDateTime.now()
         )
         localDataSource.upsert(measurement.toLocal())
         saveMeasurementsToNetwork()
@@ -55,15 +55,13 @@ class DefaultMeasurementRepository @Inject constructor(
     }
 
     override suspend fun updateMeasurement(
-        deviceId: String,
         measurementId: String,
         bpm: Float,
         spO2: Float,
-        status: Boolean
     ) {
         val measurement = getMeasurement(measurementId)?.copy(
             bpm = bpm,
-            spO2 = spO2,
+            spO2 = spO2
         ) ?: throw Exception("Measurement (id $measurementId) not found")
 
         localDataSource.upsert(measurement.toLocal())

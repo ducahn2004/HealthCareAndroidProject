@@ -12,7 +12,7 @@ import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 class MeasurementFirebaseDataSource @Inject constructor(
-    private val firebaseDatabase: FirebaseDatabase
+    firebaseDatabase: FirebaseDatabase
 ) : MeasurementDataSource {
 
     private val measurementsRef = firebaseDatabase.getReference("measurements")
@@ -22,24 +22,10 @@ class MeasurementFirebaseDataSource @Inject constructor(
     ): Flow<List<FirebaseMeasurement>> = callbackFlow {
         val listener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                val result = mutableListOf<FirebaseMeasurement>()
-
-                snapshot.children.forEach { deviceSnapshot ->
-                    val deviceId = deviceSnapshot.key.orEmpty()
-
-                    deviceSnapshot.children.forEach { measurementSnapshot ->
-                        val data = measurementSnapshot.getValue(FirebaseMeasurement::class.java)
-                        val userMatch = data?.userId == userId
-                        if (data != null && userMatch) {
-                            result += data.copy(
-                                measurementId = measurementSnapshot.key.orEmpty(),
-                                deviceId = deviceId
-                            )
-                        }
-                    }
+                val measurements = snapshot.children.mapNotNull {
+                    it.getValue(FirebaseMeasurement::class.java)
                 }
-
-                trySend(result).isSuccess
+                trySend(measurements).isSuccess
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -47,48 +33,29 @@ class MeasurementFirebaseDataSource @Inject constructor(
             }
         }
 
-        measurementsRef.addValueEventListener(listener)
+        measurementsRef.orderByChild("userId").equalTo(userId)
+            .addValueEventListener(listener)
+
         awaitClose { measurementsRef.removeEventListener(listener) }
     }
 
     override suspend fun loadMeasurements(userId: String): List<FirebaseMeasurement> = try {
-        val snapshot = measurementsRef.get().await()
-        val result = mutableListOf<FirebaseMeasurement>()
-
-        snapshot.children.forEach { deviceSnapshot ->
-            val deviceId = deviceSnapshot.key.orEmpty()
-
-            deviceSnapshot.children.forEach { measurementSnapshot ->
-                val data = measurementSnapshot.getValue(FirebaseMeasurement::class.java)
-                val userMatch = data?.userId == userId
-                if (data != null && userMatch) {
-                    result += data.copy(
-                        measurementId = measurementSnapshot.key.orEmpty(),
-                        deviceId = deviceId
-                    )
-                }
-            }
-        }
-
-        result
+        measurementsRef
+            .orderByChild("userId")
+            .equalTo(userId)
+            .get()
+            .await()
+            .children
+            .mapNotNull { it.getValue(FirebaseMeasurement::class.java) }
     } catch (e: Exception) {
-        throw Exception("Error loading measurements: ${e.message}", e)
+        throw Exception("Error loading measurements for userId '$userId': ${e.message}", e)
     }
 
     override suspend fun saveMeasurements(measurements: List<FirebaseMeasurement>) {
         if (measurements.isEmpty()) return
 
         try {
-            val updates = mutableMapOf<String, Any?>()
-            for (m in measurements) {
-                val path = "${m.deviceId}/${m.measurementId}"
-                updates[path] = mapOf(
-                    "BPM" to m.bpm,
-                    "SpO2" to m.spO2,
-                    "userId" to m.userId
-                )
-            }
-
+            val updates = measurements.associateBy { it.measurementId }
             measurementsRef.updateChildren(updates).await()
         } catch (e: Exception) {
             throw Exception("Error saving measurements: ${e.message}", e)

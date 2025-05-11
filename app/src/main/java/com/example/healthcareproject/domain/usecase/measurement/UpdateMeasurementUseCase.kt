@@ -8,18 +8,14 @@ class UpdateMeasurementUseCase @Inject constructor(
     private val measurementRepository: MeasurementRepository
 ) {
     suspend operator fun invoke(
-        deviceId: String,
         measurementId: String,
         bpm: Float,
-        spO2: Float,
-        status: Boolean
+        spO2: Float
     ) {
         measurementRepository.updateMeasurement(
-            deviceId = deviceId,
             measurementId = measurementId,
             bpm = bpm,
-            spO2 = spO2,
-            status = status
+            spO2 = spO2
         )
     }
 }

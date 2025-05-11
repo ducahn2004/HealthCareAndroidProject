@@ -6,6 +6,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import com.example.healthcareproject.data.source.local.Converters
+import java.time.LocalDateTime
 
 @Entity(
     tableName = "measurement",
@@ -26,4 +27,5 @@ data class RoomMeasurement(
     val userId: String,
     val bpm: Float,
     val spO2: Float,
+    val dateTime: LocalDateTime
 )

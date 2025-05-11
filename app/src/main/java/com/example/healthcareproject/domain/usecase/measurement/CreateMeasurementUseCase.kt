@@ -11,13 +11,11 @@ class CreateMeasurementUseCase @Inject constructor(
         deviceId: String,
         bpm: Float,
         spO2: Float,
-        status: Boolean
     ): String {
         return measurementRepository.createMeasurement(
             deviceId = deviceId,
             bpm = bpm,
-            spO2 = spO2,
-            status = status
+            spO2 = spO2
         )
     }
 }

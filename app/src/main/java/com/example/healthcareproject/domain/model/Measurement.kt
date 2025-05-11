@@ -8,5 +8,6 @@ data class Measurement(
     val userId: String,
     val bpm: Float,
     val spO2: Float,
+    val dateTime: LocalDateTime
 )
 
