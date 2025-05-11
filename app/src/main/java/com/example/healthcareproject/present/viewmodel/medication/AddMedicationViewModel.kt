@@ -8,11 +8,10 @@ import androidx.lifecycle.viewModelScope
 import com.example.healthcareproject.data.source.network.datasource.AuthDataSource
 import com.example.healthcareproject.domain.model.DosageUnit
 import com.example.healthcareproject.domain.model.MealRelation
-import com.example.healthcareproject.domain.model.Medication
 import com.example.healthcareproject.domain.model.Result
 import com.example.healthcareproject.domain.usecase.medication.MedicationUseCases
 import com.example.healthcareproject.domain.usecase.medicalvisit.MedicalVisitUseCases
-import com.example.healthcareproject.present.ui.toLocalDate
+import com.example.healthcareproject.present.ui.utils.toLocalDate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import timber.log.Timber

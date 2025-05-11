@@ -43,31 +43,24 @@ class MedicationFirebaseDataSource @Inject constructor(
             Timber.d("No medications to save")
             return
         }
-
         try {
-            // Tạo updates với ánh xạ rõ ràng
             val updates = medications.associate { medication ->
-                // Kiểm tra visitId
-                if (medication.visitId == null && medication.medicationId != null) {
-                    Timber.w("Saving medication ${medication.medicationId} with null visitId")
-                }
-                // Ánh xạ thủ công để đảm bảo tất cả trường được lưu
+                Timber.d("Saving medication ${medication.medicationId} with visitId: ${medication.visitId}")
                 val data = mapOf(
                     "medicationId" to medication.medicationId,
                     "userId" to medication.userId,
-                    "visitId" to medication.visitId, // Đảm bảo lưu visitId
+                    "visitId" to medication.visitId,
                     "name" to medication.name,
                     "dosageUnit" to medication.dosageUnit?.name,
                     "dosageAmount" to medication.dosageAmount,
                     "frequency" to medication.frequency,
                     "timeOfDay" to medication.timeOfDay,
-                    "mealRelation" to medication.mealRelation?.name,
-                    "startDate" to medication.startDate?.toString(),
-                    "endDate" to medication.endDate?.toString(),
-                    "notes" to medication.notes,
-                    "updatedAt" to LocalDateTime.now().toString()
+                    "mealRelation" to medication.mealRelation.name,
+                    "startDate" to medication.startDate.toString(),
+                    "endDate" to medication.endDate.toString(),
+                    "notes" to medication.notes
                 )
-                medication.medicationId to data
+                "${medication.userId}/${medication.medicationId}" to data
             }
             medicationRef.updateChildren(updates).await()
             Timber.d("Saved ${medications.size} medications to Firebase")
@@ -78,7 +71,7 @@ class MedicationFirebaseDataSource @Inject constructor(
     }
 
     // Phương thức để gỡ listener nếu có
-    override suspend fun removeListeners() {
+    override fun removeListeners() {
         listeners.forEach { medicationRef.removeEventListener(it) }
         listeners.clear()
         Timber.d("Removed all listeners from medicationRef")
@@ -95,7 +88,7 @@ class MedicationFirebaseDataSource @Inject constructor(
                     }
                     medication
                 }
-                Timber.d("Firebase data changed: ${medications.size} medications for userId: $userId")
+                Timber.d("Firebase data  changed: ${medications.size} medications for userId: $userId")
                 onDataChange(medications)
             }
 
@@ -105,6 +98,6 @@ class MedicationFirebaseDataSource @Inject constructor(
         }
         medicationRef.orderByChild("userId").equalTo(userId).addValueEventListener(listener)
         listeners.add(listener)
-        Timber.d("Added sync listener for userId: $userId")
+        Timber.d("Added sync listener for userId: $userId, listener count: ${listeners.size}")
     }
 }

@@ -8,7 +8,7 @@ interface MedicationDataSource {
 
     suspend fun saveMedications(medications: List<FirebaseMedication>)
 
-    suspend fun removeListeners()
+    fun removeListeners()
 
     suspend fun addSyncListener(userId: String, onDataChange: (List<FirebaseMedication>) -> Unit)
 }

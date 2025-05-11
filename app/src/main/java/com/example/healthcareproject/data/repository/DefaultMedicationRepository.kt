@@ -6,6 +6,7 @@ import com.example.healthcareproject.data.mapper.toNetwork
 import com.example.healthcareproject.data.source.local.dao.MedicationDao
 import com.example.healthcareproject.data.source.network.datasource.AuthDataSource
 import com.example.healthcareproject.data.source.network.datasource.MedicationDataSource
+import com.example.healthcareproject.data.source.network.model.FirebaseMedication
 import com.example.healthcareproject.di.ApplicationScope
 import com.example.healthcareproject.di.DefaultDispatcher
 import com.example.healthcareproject.domain.model.DosageUnit
@@ -191,14 +192,54 @@ class DefaultMedicationRepository @Inject constructor(
         try {
             Timber.d("Syncing medications to network for userId: $userId")
             val localMedications = localDataSource.getAll()
+            Timber.d("Local medications before sync: ${localMedications.map { "${it.name}: visitId=${it.visitId}" }}")
             val networkMedications = withContext(dispatcher) {
-                localMedications.toNetwork()
+                localMedications.map { med ->
+                    FirebaseMedication(
+                        medicationId = med.medicationId,
+                        userId = med.userId,
+                        visitId = med.visitId, // Đảm bảo giữ visitId
+                        name = med.name,
+                        dosageUnit = med.dosageUnit,
+                        dosageAmount = med.dosageAmount,
+                        frequency = med.frequency,
+                        timeOfDay = med.timeOfDay,
+                        mealRelation = med.mealRelation,
+                        startDate = med.startDate.toString(),
+                        endDate = med.endDate.toString(),
+                        notes = med.notes
+                    ).also {
+                        Timber.d("Mapping to network: ${it.name}, visitId=${it.visitId}")
+                    }
+                }
             }
             networkDataSource.saveMedications(networkMedications)
-            Timber.d("Medications synced successfully")
+            Timber.d("Medications synced successfully to Firebase")
+
+            val firebaseMedications = networkDataSource.loadMedications(userId)
+            Timber.d("Firebase medications loaded: ${firebaseMedications.map { "${it.name}: visitId=${it.visitId}" }}")
+            firebaseMedications.forEach { firebaseMed ->
+                val localMed = localMedications.find { it.medicationId == firebaseMed.medicationId }
+                if (localMed != null) {
+                    val updatedVisitId = if (firebaseMed.visitId == null && localMed.visitId != null) {
+                        Timber.w("Firebase medication ${firebaseMed.name} has null visitId, keeping local visitId: ${localMed.visitId}")
+                        localMed.visitId
+                    } else {
+                        firebaseMed.visitId
+                    }
+                    localDataSource.upsert(
+                        firebaseMed.copy(visitId = updatedVisitId).toLocal()
+                    )
+                    Timber.d("Updated Room with medication ${firebaseMed.name}, visitId: $updatedVisitId")
+                } else {
+                    localDataSource.upsert(firebaseMed.toLocal())
+                    Timber.d("Added new medication ${firebaseMed.name} to Room, visitId: ${firebaseMed.visitId}")
+                }
+            }
+            Timber.d("Room updated successfully from Firebase")
         } catch (e: Exception) {
             Timber.e(e, "Failed to sync medications to network: ${e.message}")
-            throw e // Ném lỗi để thông báo cho caller
+            throw e
         }
     }
 }

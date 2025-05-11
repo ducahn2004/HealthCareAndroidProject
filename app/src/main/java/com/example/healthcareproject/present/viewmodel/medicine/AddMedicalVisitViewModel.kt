@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.healthcareproject.data.source.network.datasource.AuthDataSource
+import com.example.healthcareproject.data.source.network.datasource.MedicationDataSource
 import com.example.healthcareproject.domain.model.Medication
 import com.example.healthcareproject.domain.usecase.medicalvisit.AddMedicalVisitWithMedicationsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,7 +21,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AddMedicalVisitViewModel @Inject constructor(
     private val addMedicalVisitWithMedicationsUseCase: AddMedicalVisitWithMedicationsUseCase,
-    private val authDataSource: AuthDataSource
+    private val medicationDataSource: MedicationDataSource
 ) : ViewModel() {
 
     // Observable fields for data binding
@@ -170,5 +171,11 @@ class AddMedicalVisitViewModel @Inject constructor(
         formattedVisitDateTime.set(
             dateTime?.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")) ?: "Select Date and Time"
         )
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        medicationDataSource.removeListeners()
+        Timber.d("AddMedicalVisitViewModel cleared, listeners removed")
     }
 }
