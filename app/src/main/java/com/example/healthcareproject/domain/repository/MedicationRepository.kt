@@ -21,7 +21,8 @@ interface MedicationRepository {
         mealRelation: MealRelation,
         startDate: LocalDate,
         endDate: LocalDate,
-        notes: String
+        notes: String,
+        syncToNetwork: Boolean = true
     ): String
 
     suspend fun updateMedication(
@@ -60,4 +61,7 @@ interface MedicationRepository {
     suspend fun deleteAllMedications()
 
     suspend fun deleteMedication(medicationId: String)
+
+    suspend fun saveMedicationsToNetwork()
+
 }

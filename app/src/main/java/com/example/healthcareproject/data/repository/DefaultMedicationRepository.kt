@@ -47,7 +47,8 @@ class DefaultMedicationRepository @Inject constructor(
         mealRelation: MealRelation,
         startDate: LocalDate,
         endDate: LocalDate,
-        notes: String
+        notes: String,
+        syncToNetwork: Boolean
     ): String {
         val medicationId = withContext(dispatcher) {
             UUID.randomUUID().toString()
@@ -64,15 +65,14 @@ class DefaultMedicationRepository @Inject constructor(
             mealRelation = mealRelation,
             startDate = startDate,
             endDate = endDate,
-            notes = notes
+            notes = notes,
         )
-        Timber.d("Creating medication: ID=$medicationId, visitId=$visitId")
-        val roomMedication = medication.toLocal()
-        Timber.d("RoomMedication: visitId=${roomMedication.visitId}")
-        localDataSource.upsert(roomMedication)
-        Timber.d("Medication saved to Room with visitId=$visitId")
-        saveMedicationsToNetwork()
-        Timber.d("Medication synced to Firebase with visitId=$visitId")
+        Timber.d("Creating medication with visitId: $visitId, syncToNetwork: $syncToNetwork")
+        localDataSource.upsert(medication.toLocal())
+        if (syncToNetwork) {
+            saveMedicationsToNetwork()
+        }
+        Timber.d("Saved medication to database: $name, visitId: $visitId, medicationId: $medicationId")
         return medicationId
     }
 
@@ -187,23 +187,18 @@ class DefaultMedicationRepository @Inject constructor(
         saveMedicationsToNetwork()
     }
 
-    private fun saveMedicationsToNetwork() {
-        scope.launch {
-            try {
-                val localMedications = localDataSource.getAll()
-                Timber.d("Syncing ${localMedications.size} medications to network")
-                val networkMedications = withContext(dispatcher) {
-                    localMedications.toNetwork().also {
-                        it.forEach { med ->
-                            Timber.d("Network medication: ID=${med.medicationId}, visitId=${med.visitId}")
-                        }
-                    }
-                }
-                networkDataSource.saveMedications(networkMedications)
-                Timber.d("Medications synced to network successfully")
-            } catch (e: Exception) {
-                Timber.e(e, "Failed to sync medications")
+    override suspend fun saveMedicationsToNetwork() {
+        try {
+            Timber.d("Syncing medications to network for userId: $userId")
+            val localMedications = localDataSource.getAll()
+            val networkMedications = withContext(dispatcher) {
+                localMedications.toNetwork()
             }
+            networkDataSource.saveMedications(networkMedications)
+            Timber.d("Medications synced successfully")
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to sync medications to network: ${e.message}")
+            throw e // Ném lỗi để thông báo cho caller
         }
     }
 }

@@ -78,12 +78,14 @@ class AddMedicationViewModel @Inject constructor(
         startDate.set(visitDate) // Default start date to visit date
     }
 
+
     fun setVisitTime(calendar: Calendar) {
         visitTime = calendar
     }
 
     fun setVisitId(id: String?) {
         visitId = id
+        Timber.d("ViewModel visitId set to: $visitId")
     }
 
     fun getVisitId(): String? = visitId
@@ -108,7 +110,7 @@ class AddMedicationViewModel @Inject constructor(
         endDate.set(date)
     }
 
-    fun addMedication() {
+    fun addMedication(syncToNetwork: Boolean) {
         // Validate time of day format
         val timeOfDayList = timeOfDay.get()?.split(",")?.map { it.trim() }?.filter { it.isNotBlank() } ?: emptyList()
         try {
@@ -132,32 +134,46 @@ class AddMedicationViewModel @Inject constructor(
         }
 
         val medicationStartDate = startDate.get() ?: LocalDate.now()
-
+        isLoading.set(true)
         viewModelScope.launch {
-            isLoading.set(true)
-            val result = medicationUseCases.createMedication(
-                visitId = visitId,
-                name = medicationName.get() ?: "",
-                dosageAmount = dosageAmount.get()?.toFloatOrNull() ?: 0f,
-                dosageUnit = dosageUnit.get() ?: DosageUnit.None,
-                frequency = frequency.get()?.toIntOrNull() ?: 1,
-                timeOfDay = timeOfDayList,
-                mealRelation = mealRelation.get() ?: MealRelation.None,
-                startDate = medicationStartDate,
-                endDate = endDate.get() ?: medicationStartDate,
-                notes = notes.get() ?: ""
-            )
-            isLoading.set(false)
-
-            when (result) {
-                is Result.Success -> {
-                    _error.value = null
-                    _isFinished.value = true
+            try {
+                val result = medicationUseCases.createMedication(
+                    visitId = visitId,
+                    name = medicationName.get()
+                        ?: throw IllegalArgumentException("Medication name is required"),
+                    dosageUnit = dosageUnit.get()
+                        ?: throw IllegalArgumentException("Dosage unit is required"),
+                    dosageAmount = dosageAmount.get()?.toFloatOrNull()
+                        ?: throw IllegalArgumentException("Invalid dosage amount"),
+                    frequency = frequency.get()?.toIntOrNull()
+                        ?: throw IllegalArgumentException("Invalid frequency"),
+                    timeOfDay = timeOfDay.get()?.split(",")?.map { it.trim() }
+                        ?.filter { it.isNotEmpty() }
+                        ?: throw IllegalArgumentException("Time of day is required"),
+                    mealRelation = mealRelation.get()
+                        ?: throw IllegalArgumentException("Meal relation is required"),
+                    startDate = startDate.get()
+                        ?: throw IllegalArgumentException("Start date is required"),
+                    endDate = endDate.get() ?: LocalDate.now().plusMonths(1),
+                    notes = notes.get() ?: "",
+                    syncToNetwork = syncToNetwork
+                )
+                when (result) {
+                    is Result.Success -> {
+                        _isFinished.value = true
+                        _error.value = null
+                    }
+                    is Result.Error -> {
+                        _error.value = result.exception.message
+                    }
+                    else -> {
+                        Timber.d("Unexpected result state: $result")
+                    }
                 }
-                is Result.Error -> {
-                    _error.value = result.exception.message ?: "Failed to save medication"
-                }
-                is Result.Loading -> Unit
+            } catch (e: Exception) {
+                _error.value = "Failed to add medication: ${e.message}"
+            } finally {
+                isLoading.set(false)
             }
         }
     }

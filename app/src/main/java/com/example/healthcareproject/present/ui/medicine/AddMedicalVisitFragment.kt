@@ -141,7 +141,8 @@ class AddMedicalVisitFragment : Fragment() {
         binding.btnAddMedication.setOnClickListener {
             // Use the updated newInstance with source fragment information
             val dialog = AddMedicationDialogFragment.newInstance(
-                sourceFragment = AddMedicationDialogFragment.SOURCE_MEDICAL_VISIT_FRAGMENT
+                sourceFragment = AddMedicationDialogFragment.SOURCE_MEDICAL_VISIT_FRAGMENT,
+                visitId = viewModel.getVisitId()
             )
             Timber.d("Showing AddMedicationDialog with visitId: ${viewModel.getVisitId()}")
             dialog.show(parentFragmentManager, "AddMedicationDialog")
@@ -189,14 +190,24 @@ class AddMedicalVisitFragment : Fragment() {
                 val medication = bundle.getParcelable<Medication>("medication")
                 if (medication != null) {
                     Timber.d("Received medication with visitId: ${medication.visitId}")
-                    if (medication.medicationId.isNotEmpty()) {
-                        viewModel.updateMedication(medication)
+
+                    val updatedMedication = if (medication.visitId != viewModel.getVisitId()) {
+                        medication.copy(visitId = viewModel.getVisitId())
                     } else {
-                        viewModel.addMedication(medication.copy(
-                            medicationId = UUID.randomUUID().toString(),
-                            visitId = viewModel.getVisitId()
-                        ))
+                        medication
                     }
+
+                    // Tạo ID nếu là medication mới
+                    if (updatedMedication.medicationId.isBlank()) {
+                        viewModel.addMedication(
+                            updatedMedication.copy(
+                                medicationId = UUID.randomUUID().toString()
+                            )
+                        )
+                    } else {
+                        viewModel.updateMedication(updatedMedication)
+                    }
+
                     medicationAdapter.submitList(viewModel.getMedications())
                 }
             }

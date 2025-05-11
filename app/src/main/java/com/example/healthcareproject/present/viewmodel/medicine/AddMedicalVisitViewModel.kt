@@ -60,7 +60,17 @@ class AddMedicalVisitViewModel @Inject constructor(
 
     fun addMedication(medication: Medication) {
         val currentList = _medications.value?.toMutableList() ?: mutableListOf()
-        currentList.add(medication)
+        val existingIndex = currentList.indexOfFirst {
+            it.medicationId == medication.medicationId && medication.medicationId.isNotBlank()
+        }
+        if (existingIndex >= 0) {
+            currentList[existingIndex] = medication
+            Timber.d("Updated existing medication at index $existingIndex")
+        } else {
+            // Thêm mới nếu chưa tồn tại
+            currentList.add(medication)
+            Timber.d("Added new medication to list")
+        }
         _medications.value = currentList
     }
 
@@ -134,13 +144,12 @@ class AddMedicalVisitViewModel @Inject constructor(
                 medicationData.forEach { (name, data) ->
                     Timber.d("Saving Medication with visitId: $visitId for medication: $name")
                 }
-
-                // Fix: Chắc chắn truyền đúng tham số theo implementation thực tế
+                Timber.d("Preparing to save medications: $medications")
                 addMedicalVisitWithMedicationsUseCase(
-                    visitReason = clinicName.get() ?: "", // Trong implementation này, visitReason được lưu là clinicName
+                    visitReason = clinicName.get() ?: "",
                     visitDate = visitDateTime.get()?.toLocalDate() ?: LocalDate.now(),
                     doctorName = doctorName.get() ?: "",
-                    diagnosis = diagnosis.get(), // diagnosis vẫn là giá trị nhập vào
+                    diagnosis = diagnosis.get(),
                     status = true,
                     medications = medicationData,
                     visitId = visitId

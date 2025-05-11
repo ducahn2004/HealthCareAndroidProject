@@ -4,6 +4,7 @@ import com.example.healthcareproject.domain.model.DosageUnit
 import com.example.healthcareproject.domain.model.MealRelation
 import com.example.healthcareproject.domain.repository.MedicationRepository
 import com.example.healthcareproject.domain.model.Result
+import timber.log.Timber
 import java.time.LocalDate
 import java.time.LocalTime
 import javax.inject.Inject
@@ -21,7 +22,8 @@ class CreateMedicationUseCase @Inject constructor(
         mealRelation: MealRelation,
         startDate: LocalDate,
         endDate: LocalDate,
-        notes: String
+        notes: String,
+        syncToNetwork: Boolean = true
     ): Result<String> {
         return try {
             require(name.isNotBlank()) { "Medication name cannot be empty" }
@@ -43,12 +45,15 @@ class CreateMedicationUseCase @Inject constructor(
                 mealRelation = mealRelation,
                 startDate = startDate,
                 endDate = endDate,
-                notes = notes
+                notes = notes,
+                syncToNetwork = syncToNetwork
             )
             Result.Success(medicationId)
         } catch (e: IllegalArgumentException) {
+            Timber.e(e, "Validation failed: ${e.message}")
             Result.Error(e)
         } catch (e: Exception) {
+            Timber.e(e, "Failed to create medication: ${e.message}")
             Result.Error(Exception("Failed to create medication: ${e.message}", e))
         }
     }

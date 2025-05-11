@@ -12,6 +12,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import com.example.healthcareproject.data.source.network.datasource.MedicationDataSource
 import com.example.healthcareproject.databinding.DialogAddMedicationBinding
 import com.example.healthcareproject.domain.model.DosageUnit
 import com.example.healthcareproject.domain.model.MealRelation
@@ -21,6 +22,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 import java.time.LocalDate
 import java.util.*
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class AddMedicationDialogFragment : DialogFragment() {
@@ -30,6 +32,7 @@ class AddMedicationDialogFragment : DialogFragment() {
     private val viewModel: AddMedicationViewModel by viewModels()
     private var medicationToEdit: Medication? = null
     private var sourceFragment: String? = null // To track which fragment opened this dialog
+    @Inject lateinit var medicationDataSource: MedicationDataSource
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,6 +42,7 @@ class AddMedicationDialogFragment : DialogFragment() {
         // Attache visitId to ViewModel
         val visitId = arguments?.getString(ARG_VISIT_ID)
         viewModel.setVisitId(visitId)
+        Timber.d("AddMedicationDialogFragment onCreate with visitId: $visitId")
     }
 
     override fun onCreateView(
@@ -174,7 +178,7 @@ class AddMedicationDialogFragment : DialogFragment() {
                 Timber.d("Add button clicked")
                 if (validateInputs()) {
                     Timber.d("Inputs validated, calling addMedication()")
-                    viewModel.addMedication()
+                    viewModel.addMedication(syncToNetwork = sourceFragment == SOURCE_PILL_FRAGMENT)
                 }
             }
         }
@@ -238,6 +242,7 @@ class AddMedicationDialogFragment : DialogFragment() {
                     endDate = viewModel.endDate.get() ?: LocalDate.now().plusMonths(1),
                     notes = viewModel.notes.get() ?: ""
                 )
+                Timber.d("Creating Medication object with visitId: ${viewModel.getVisitId()}")
                 Timber.d("Returning medication with visitId: ${medication.visitId}")
                 val resultKey = when (sourceFragment) {
                     SOURCE_PILL_FRAGMENT -> RESULT_KEY_PILL_FRAGMENT

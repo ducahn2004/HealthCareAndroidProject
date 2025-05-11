@@ -49,5 +49,8 @@ interface MedicalVisitRepository {
 
     suspend fun deleteMedicalVisit(medicalVisitId: String)
 
+    suspend fun saveMedicalVisitsToNetwork()
+
     suspend fun withTransaction(block: suspend () -> Unit)
+
 }

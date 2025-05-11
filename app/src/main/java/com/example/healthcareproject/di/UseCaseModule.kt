@@ -66,7 +66,7 @@ object UseCaseModule {
     @Provides
     fun provideMedicalVisitUseCases(
         medicalVisitRepository: MedicalVisitRepository,
-        medicationRepository: MedicationRepository
+        medicationUseCases: MedicationUseCases
     ): MedicalVisitUseCases {
         return MedicalVisitUseCases(
             getMedicalVisitsUseCase = GetMedicalVisitsUseCase(medicalVisitRepository),
@@ -76,7 +76,7 @@ object UseCaseModule {
             deleteMedicalVisitUseCase = DeleteMedicalVisitUseCase(medicalVisitRepository),
             addMedicalVisitWithMedicationsUseCase = AddMedicalVisitWithMedicationsUseCase(
                 medicalVisitRepository,
-                medicationRepository
+                medicationUseCases
             )
         )
     }

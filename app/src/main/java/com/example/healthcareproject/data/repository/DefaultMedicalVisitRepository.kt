@@ -12,6 +12,7 @@ import com.example.healthcareproject.di.ApplicationScope
 import com.example.healthcareproject.di.DefaultDispatcher
 import com.example.healthcareproject.domain.model.MedicalVisit
 import com.example.healthcareproject.domain.repository.MedicalVisitRepository
+import com.example.healthcareproject.domain.repository.MedicationRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -28,6 +29,7 @@ class DefaultMedicalVisitRepository @Inject constructor(
     private val networkDataSource: MedicalVisitDataSource,
     private val localDataSource: MedicalVisitDao,
     private val authDataSource: AuthDataSource,
+    private val medicationRepository: MedicationRepository,
     @DefaultDispatcher private val dispatcher: CoroutineDispatcher,
     @ApplicationScope private val scope: CoroutineScope,
     private val appDatabase: AppDatabase
@@ -173,7 +175,7 @@ class DefaultMedicalVisitRepository @Inject constructor(
         }
     }
 
-    private suspend fun saveMedicalVisitsToNetwork() {
+    override suspend fun saveMedicalVisitsToNetwork() {
         try {
             val localVisits = localDataSource.getAll()
             if (localVisits.isNotEmpty()) {
@@ -192,12 +194,14 @@ class DefaultMedicalVisitRepository @Inject constructor(
     override suspend fun withTransaction(block: suspend () -> Unit) {
         appDatabase.withTransaction {
             try {
-                Timber.d("Starting transaction")
+                Timber.d("Starting database transaction")
                 block()
+                Timber.d("Local transaction completed, syncing to network")
                 saveMedicalVisitsToNetwork()
-                Timber.d("Transaction completed")
+                medicationRepository.saveMedicationsToNetwork()
+                Timber.d("Network sync completed successfully")
             } catch (e: Exception) {
-                Timber.e(e, "Transaction failed")
+                Timber.e(e, "Transaction failed: ${e.message}")
                 throw e
             }
         }
