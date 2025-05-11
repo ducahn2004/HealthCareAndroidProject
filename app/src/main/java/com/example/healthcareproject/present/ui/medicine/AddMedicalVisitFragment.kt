@@ -143,6 +143,7 @@ class AddMedicalVisitFragment : Fragment() {
             val dialog = AddMedicationDialogFragment.newInstance(
                 sourceFragment = AddMedicationDialogFragment.SOURCE_MEDICAL_VISIT_FRAGMENT
             )
+            Timber.d("Showing AddMedicationDialog with visitId: ${viewModel.getVisitId()}")
             dialog.show(parentFragmentManager, "AddMedicationDialog")
         }
 
@@ -183,36 +184,20 @@ class AddMedicalVisitFragment : Fragment() {
     }
 
     private fun setupFragmentResultListener() {
-        // Listen to the specific result key for Medical Visit Fragment
         setFragmentResultListener(AddMedicationDialogFragment.RESULT_KEY_MEDICAL_VISIT_FRAGMENT) { _, bundle ->
             if (bundle.getBoolean("medicationAdded", false)) {
                 val medication = bundle.getParcelable<Medication>("medication")
                 if (medication != null) {
+                    Timber.d("Received medication with visitId: ${medication.visitId}")
                     if (medication.medicationId.isNotEmpty()) {
                         viewModel.updateMedication(medication)
                     } else {
-                        viewModel.addMedication(medication.copy(medicationId = UUID.randomUUID().toString()))
+                        viewModel.addMedication(medication.copy(
+                            medicationId = UUID.randomUUID().toString(),
+                            visitId = viewModel.getVisitId()
+                        ))
                     }
                     medicationAdapter.submitList(viewModel.getMedications())
-                }
-            }
-        }
-
-        // Also listen to the default key for backward compatibility
-        setFragmentResultListener(AddMedicationDialogFragment.RESULT_KEY_DEFAULT) { _, bundle ->
-            if (bundle.getBoolean("medicationAdded", false)) {
-                // Check if this result was intended for this fragment
-                val source = bundle.getString("sourceFragment")
-                if (source == null || source == AddMedicationDialogFragment.SOURCE_MEDICAL_VISIT_FRAGMENT) {
-                    val medication = bundle.getParcelable<Medication>("medication")
-                    if (medication != null) {
-                        if (medication.medicationId.isNotEmpty()) {
-                            viewModel.updateMedication(medication)
-                        } else {
-                            viewModel.addMedication(medication.copy(medicationId = UUID.randomUUID().toString()))
-                        }
-                        medicationAdapter.submitList(viewModel.getMedications())
-                    }
                 }
             }
         }

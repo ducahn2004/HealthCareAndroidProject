@@ -86,6 +86,8 @@ class AddMedicationViewModel @Inject constructor(
         visitId = id
     }
 
+    fun getVisitId(): String? = visitId
+
     fun setDosageUnit(unit: DosageUnit) {
         dosageUnit.set(unit)
     }
@@ -118,6 +120,12 @@ class AddMedicationViewModel @Inject constructor(
             return
         }
 
+        if (visitId != null) {
+            Timber.d("Skipping direct save for MedicalVisitFragment, visitId: $visitId")
+            _isFinished.value = true
+            return
+        }
+
         val userId = authDataSource.getCurrentUserId() ?: run {
             _error.value = "User not logged in"
             return
@@ -125,7 +133,6 @@ class AddMedicationViewModel @Inject constructor(
 
         val medicationStartDate = startDate.get() ?: LocalDate.now()
 
-        // Save medication directly via use case
         viewModelScope.launch {
             isLoading.set(true)
             val result = medicationUseCases.createMedication(
@@ -138,7 +145,7 @@ class AddMedicationViewModel @Inject constructor(
                 mealRelation = mealRelation.get() ?: MealRelation.None,
                 startDate = medicationStartDate,
                 endDate = endDate.get() ?: medicationStartDate,
-                notes = notes.get() ?: "",
+                notes = notes.get() ?: ""
             )
             isLoading.set(false)
 
@@ -156,6 +163,7 @@ class AddMedicationViewModel @Inject constructor(
     }
 
     fun updateMedication() {
+        Timber.d("updateMedication called with visitId: $visitId, medicationId: $medicationId")
         if (medicationId.isBlank()) {
             _error.value = "Medication ID cannot be empty"
             return
@@ -168,6 +176,12 @@ class AddMedicationViewModel @Inject constructor(
             }
         } catch (e: IllegalArgumentException) {
             _error.value = e.message
+            return
+        }
+
+        if (visitId != null) {
+            Timber.d("Skipping direct save for MedicalVisitFragment, visitId: $visitId")
+            _isFinished.value = true
             return
         }
 

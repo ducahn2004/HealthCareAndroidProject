@@ -54,6 +54,9 @@ class AddMedicationDialogFragment : DialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val visitId = arguments?.getString(ARG_VISIT_ID)
+        Timber.d("AddMedicationDialogFragment initialized with visitId: $visitId")
+        viewModel.setVisitId(visitId)
         setupSpinners()
         setupDatePickers()
         setupButtons()
@@ -220,11 +223,11 @@ class AddMedicationDialogFragment : DialogFragment() {
         })
 
         viewModel.isFinished.observe(viewLifecycleOwner, Observer { isFinished ->
-            if (isFinished == true) {
+            if (isFinished == true && !isStateSaved) {
                 val medication = Medication(
                     medicationId = medicationToEdit?.medicationId ?: "",
                     userId = "",
-                    visitId = null,
+                    visitId = viewModel.getVisitId(), // Sử dụng visitId từ ViewModel
                     name = viewModel.medicationName.get() ?: "",
                     dosageUnit = viewModel.dosageUnit.get() ?: DosageUnit.None,
                     dosageAmount = viewModel.dosageAmount.get()?.toFloatOrNull() ?: 0f,
@@ -235,8 +238,7 @@ class AddMedicationDialogFragment : DialogFragment() {
                     endDate = viewModel.endDate.get() ?: LocalDate.now().plusMonths(1),
                     notes = viewModel.notes.get() ?: ""
                 )
-
-                // Return result based on the source fragment
+                Timber.d("Returning medication with visitId: ${medication.visitId}")
                 val resultKey = when (sourceFragment) {
                     SOURCE_PILL_FRAGMENT -> RESULT_KEY_PILL_FRAGMENT
                     SOURCE_MEDICAL_VISIT_FRAGMENT -> RESULT_KEY_MEDICAL_VISIT_FRAGMENT

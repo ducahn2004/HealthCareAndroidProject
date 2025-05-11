@@ -89,6 +89,7 @@ class AddMedicalVisitViewModel @Inject constructor(
     fun getMedications(): List<Medication> = _medications.value ?: emptyList()
 
     fun saveMedicalVisit() {
+        if (isLoading.get() == true) return
         if (diagnosis.get().isNullOrBlank()) {
             _error.value = "Diagnosis is required"
             return
@@ -125,7 +126,6 @@ class AddMedicalVisitViewModel @Inject constructor(
                     "startDate" to medication.startDate,
                     "endDate" to medication.endDate,
                     "notes" to medication.notes,
-                    "visitId" to visitId
                 )
             }
 
