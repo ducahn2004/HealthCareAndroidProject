@@ -20,15 +20,12 @@ class MedicationFirebaseDataSource @Inject constructor(
 
     override suspend fun loadMedications(userId: String): List<FirebaseMedication> = try {
         val snapshot = medicationRef
-            .orderByChild("userId")
-            .equalTo(userId)
+            .child(userId)
             .get()
             .await()
         val medications = snapshot.children.mapNotNull { child ->
             val medication = child.getValue(FirebaseMedication::class.java)
-            if (medication?.visitId == null && medication?.medicationId != null) {
-                Timber.w("Medication ${medication.medicationId} has null visitId in Firebase")
-            }
+            Timber.d("Loaded medication ${medication?.medicationId} with visitId: ${medication?.visitId}")
             medication
         }
         Timber.d("Loaded ${medications.size} medications for userId: $userId")
@@ -55,40 +52,46 @@ class MedicationFirebaseDataSource @Inject constructor(
                     "dosageAmount" to medication.dosageAmount,
                     "frequency" to medication.frequency,
                     "timeOfDay" to medication.timeOfDay,
-                    "mealRelation" to medication.mealRelation.name,
-                    "startDate" to medication.startDate.toString(),
-                    "endDate" to medication.endDate.toString(),
+                    "mealRelation" to medication.mealRelation?.name,
+                    "startDate" to medication.startDate?.toString(),
+                    "endDate" to medication.endDate?.toString(),
                     "notes" to medication.notes
                 )
                 "${medication.userId}/${medication.medicationId}" to data
             }
             medicationRef.updateChildren(updates).await()
-            Timber.d("Saved ${medications.size} medications to Firebase")
+            // Xác nhận dữ liệu sau khi lưu
+            val savedMedications = loadMedications(medications.first().userId)
+            Timber.d("After saving, loaded ${savedMedications.size} medications: ${savedMedications.map { "${it.name}: visitId=${it.visitId}" }}")
+            if (savedMedications.size != medications.size) {
+                Timber.e("Mismatch in saved medications: expected ${medications.size}, got ${savedMedications.size}")
+            }
+            medications.forEach { med ->
+                if (med.medicationId !in savedMedications.map { it.medicationId }) {
+                    Timber.e("Medication ${med.name} (ID: ${med.medicationId}) not saved to Firebase")
+                }
+            }
         } catch (e: Exception) {
             Timber.e(e, "Error saving medications: ${e.message}")
             throw Exception("Error saving medications: ${e.message}", e)
         }
     }
 
-    // Phương thức để gỡ listener nếu có
     override fun removeListeners() {
         listeners.forEach { medicationRef.removeEventListener(it) }
         listeners.clear()
-        Timber.d("Removed all listeners from medicationRef")
+        Timber.d("Removed all listeners from medicationRef, count: ${listeners.size}")
     }
 
-    // Phương thức để thêm listener nếu cần đồng bộ liên tục
     override suspend fun addSyncListener(userId: String, onDataChange: (List<FirebaseMedication>) -> Unit) {
         val listener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val medications = snapshot.children.mapNotNull { child ->
                     val medication = child.getValue(FirebaseMedication::class.java)
-                    if (medication?.visitId == null && medication?.medicationId != null) {
-                        Timber.w("Firebase medication ${medication.medicationId} has null visitId")
-                    }
+                    Timber.d("Sync listener: Medication ${medication?.medicationId} with visitId: ${medication?.visitId}")
                     medication
                 }
-                Timber.d("Firebase data  changed: ${medications.size} medications for userId: $userId")
+                Timber.d("Firebase data changed: ${medications.size} medications for userId: $userId")
                 onDataChange(medications)
             }
 
@@ -96,8 +99,8 @@ class MedicationFirebaseDataSource @Inject constructor(
                 Timber.e(error.toException(), "Medication sync cancelled for userId: $userId")
             }
         }
-        medicationRef.orderByChild("userId").equalTo(userId).addValueEventListener(listener)
+        medicationRef.child(userId).addValueEventListener(listener)
         listeners.add(listener)
-        Timber.d("Added sync listener for userId: $userId, listener count: ${listeners.size}")
+        Timber.d("Added sync listener for userId: $userId, listener count: ${listeners.size}, caller: ${Thread.currentThread().stackTrace[3]}")
     }
 }

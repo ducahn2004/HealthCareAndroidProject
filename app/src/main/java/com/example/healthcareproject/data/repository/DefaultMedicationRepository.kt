@@ -66,7 +66,7 @@ class DefaultMedicationRepository @Inject constructor(
             mealRelation = mealRelation,
             startDate = startDate,
             endDate = endDate,
-            notes = notes,
+            notes = notes
         )
         Timber.d("Creating medication with visitId: $visitId, syncToNetwork: $syncToNetwork")
         localDataSource.upsert(medication.toLocal())
@@ -190,7 +190,7 @@ class DefaultMedicationRepository @Inject constructor(
 
     override suspend fun saveMedicationsToNetwork() {
         try {
-            Timber.d("Syncing medications to network for userId: $userId")
+            Timber.d("Syncing medications to network for userId: $userId, caller: ${Thread.currentThread().stackTrace[3]}")
             val localMedications = localDataSource.getAll()
             Timber.d("Local medications before sync: ${localMedications.map { "${it.name}: visitId=${it.visitId}" }}")
             val networkMedications = withContext(dispatcher) {
@@ -198,7 +198,7 @@ class DefaultMedicationRepository @Inject constructor(
                     FirebaseMedication(
                         medicationId = med.medicationId,
                         userId = med.userId,
-                        visitId = med.visitId, // Đảm bảo giữ visitId
+                        visitId = med.visitId,
                         name = med.name,
                         dosageUnit = med.dosageUnit,
                         dosageAmount = med.dosageAmount,
@@ -216,11 +216,14 @@ class DefaultMedicationRepository @Inject constructor(
             networkDataSource.saveMedications(networkMedications)
             Timber.d("Medications synced successfully to Firebase")
 
+            // Cập nhật Room từ Firebase
             val firebaseMedications = networkDataSource.loadMedications(userId)
             Timber.d("Firebase medications loaded: ${firebaseMedications.map { "${it.name}: visitId=${it.visitId}" }}")
+            val localMedIds = localMedications.map { it.medicationId }.toSet()
             firebaseMedications.forEach { firebaseMed ->
                 val localMed = localMedications.find { it.medicationId == firebaseMed.medicationId }
                 if (localMed != null) {
+                    // Giữ visitId cục bộ nếu Firebase trả về null và local có visitId
                     val updatedVisitId = if (firebaseMed.visitId == null && localMed.visitId != null) {
                         Timber.w("Firebase medication ${firebaseMed.name} has null visitId, keeping local visitId: ${localMed.visitId}")
                         localMed.visitId
@@ -232,8 +235,15 @@ class DefaultMedicationRepository @Inject constructor(
                     )
                     Timber.d("Updated Room with medication ${firebaseMed.name}, visitId: $updatedVisitId")
                 } else {
+                    // Thêm mới nếu không tồn tại trong Room
                     localDataSource.upsert(firebaseMed.toLocal())
                     Timber.d("Added new medication ${firebaseMed.name} to Room, visitId: ${firebaseMed.visitId}")
+                }
+            }
+            localMedications.forEach { localMed ->
+                if (localMed.medicationId !in firebaseMedications.map { it.medicationId }) {
+                    Timber.w("Medication ${localMed.name} not found in Firebase, deleting from Room")
+                    localDataSource.deleteById(localMed.medicationId)
                 }
             }
             Timber.d("Room updated successfully from Firebase")
