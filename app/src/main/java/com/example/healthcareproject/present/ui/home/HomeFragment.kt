@@ -6,14 +6,20 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.example.healthcareproject.R
 import com.example.healthcareproject.databinding.FragmentHomeBinding
+import com.example.healthcareproject.present.viewmodel.measurement.HomeViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
+
+    private val viewModel: HomeViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -27,24 +33,9 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Simulate data from a database
-        val heartRate = "84bpm"
-        val oxygenLevel = "99"
-        val ecgStatus = "GOOD"
-        val weight = "65kg"
+//        observeHeartRate()
+//        observeSpO2()
 
-        // Update UI with simulated data
-        binding.tvHeartRateValue.text = heartRate
-        binding.tvOxygenLevelValue.text = oxygenLevel
-        binding.tvEcgValue.text = ecgStatus
-        binding.tvWeightValue.text = weight
-
-        binding.tvHeartRateCurrent.text = getString(R.string.default_heart_rate_current, heartRate)
-        binding.tvOxygenLevelCurrent.text = getString(R.string.default_oxygen_level_current, oxygenLevel)
-        binding.tvEcgCurrent.text = getString(R.string.default_ecg_current, ecgStatus)
-        binding.tvWeightCurrent.text = getString(R.string.default_weight_current, weight)
-
-        // Set up click listeners for navigation
         binding.cvHeartRate.setOnClickListener {
             findNavController().navigate(R.id.action_homeFragment_to_heartRateFragment)
         }
@@ -66,4 +57,24 @@ class HomeFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
+//
+//    @SuppressLint("StringFormatInvalid")
+//    private fun observeHeartRate() {
+//        viewModel.heartRate.observe(viewLifecycleOwner) { heartRate ->
+//            val heartRateText = "${heartRate.toInt()} bpm"
+//            binding.tvHeartRateValue.text = heartRateText
+//            binding.tvHeartRateCurrent.text =
+//                getString(R.string.default_heart_rate_current, heartRateText)
+//        }
+//    }
+//
+//    @SuppressLint("StringFormatInvalid")
+//    private fun observeSpO2() {
+//        viewModel.spO2.observe(viewLifecycleOwner) { spO2 ->
+//            val spO2Text = "${spO2.toInt()}%"
+//            binding.tvOxygenLevelValue.text = spO2Text
+//            binding.tvOxygenLevelCurrent.text =
+//                getString(R.string.default_oxygen_level_current, spO2Text)
+//        }
+//    }
 }

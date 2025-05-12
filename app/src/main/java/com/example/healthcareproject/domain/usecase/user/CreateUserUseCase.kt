@@ -29,7 +29,7 @@ class CreateUserUseCase @Inject constructor(
 
             // Call UserRepository to create the user
             val uid = userRepository.createUser(
-                email = email,
+                userId = email,
                 password = password,
                 name = name,
                 address = address,

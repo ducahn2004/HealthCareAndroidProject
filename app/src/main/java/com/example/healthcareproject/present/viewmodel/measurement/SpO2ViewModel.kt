@@ -11,19 +11,19 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class HRViewModel @Inject constructor(
+class SpO2ViewModel @Inject constructor(
     private val measurementUseCases: MeasurementUseCases
 ) : ViewModel() {
 
-    private val _heartRate = MutableLiveData<Float>()
-    val heartRate: LiveData<Float> get() = _heartRate
+    private val _spO2 = MutableLiveData<Float>()
+    val spO2: LiveData<Float> get() = _spO2
 
     init {
         viewModelScope.launch {
             measurementUseCases.getMeasurementRealTimeUseCase().collectLatest { measurements ->
-                val latestBpm = measurements.lastOrNull()?.bpm
-                latestBpm?.let {
-                    _heartRate.postValue(it)
+                val latestSpO2 = measurements.lastOrNull()?.spO2
+                latestSpO2?.let {
+                    _spO2.postValue(it)
                 }
             }
         }
