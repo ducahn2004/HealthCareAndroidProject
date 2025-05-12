@@ -20,6 +20,7 @@ class MedicationFirebaseDataSource @Inject constructor(
 
     override suspend fun loadMedications(userId: String): List<FirebaseMedication> = try {
         val snapshot = medicationRef.get().await()
+        Timber.d("Raw Firebase snapshot: ${snapshot.value}")
         val medications = snapshot.children.mapNotNull { child ->
             val medication = child.getValue(FirebaseMedication::class.java)
             medication?.takeIf { it.userId == userId } // Lọc theo userId
@@ -85,8 +86,9 @@ class MedicationFirebaseDataSource @Inject constructor(
             override fun onDataChange(snapshot: DataSnapshot) {
                 val medications = snapshot.children.mapNotNull { child ->
                     val medication = child.getValue(FirebaseMedication::class.java)
-                    medication?.takeIf { it.userId == userId }
-                        ?.also { Timber.d("Sync listener: Medication ${it.medicationId} with visitId: ${it.visitId}") }
+                    medication?.takeIf { it.userId == userId }?.also {
+                        if (it.visitId == null) Timber.w("Loaded medication ${it.medicationId} with null visitId from Firebase")
+                    }
                 }
                 Timber.d("Firebase data changed: ${medications.size} medications for userId: $userId")
                 onDataChange(medications)

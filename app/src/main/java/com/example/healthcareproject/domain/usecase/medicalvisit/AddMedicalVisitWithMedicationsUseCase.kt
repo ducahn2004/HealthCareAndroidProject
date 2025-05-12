@@ -36,7 +36,6 @@ class AddMedicalVisitWithMedicationsUseCase @Inject constructor(
             require(doctorName.isNotBlank()) { "Doctor name cannot be empty" }
 
             medicalVisitRepository.withTransaction {
-                // Tạo và đồng bộ MedicalVisit
                 val savedVisitId = medicalVisitRepository.createMedicalVisit(
                     visitId = visitId,
                     visitReason = visitReason,
@@ -104,5 +103,14 @@ class AddMedicalVisitWithMedicationsUseCase @Inject constructor(
             Timber.e(e, "Error in AddMedicalVisitWithMedicationsUseCase: ${e.message}")
             throw e
         }
+        val finalMedications = medicationUseCases.getMedicationsByVisitId(visitId)
+        finalMedications.forEach { med ->
+            if (med.visitId == null) {
+                Timber.e("Final check failed: Medication ${med.name} has null visitId after sync")
+                throw IllegalStateException("Final check failed: Medication ${med.name} has null visitId after sync")
+            }
+            Timber.d("Final check passed: Medication ${med.name} with visitId=${med.visitId}")
+        }
+        Timber.d("Operation completed successfully")
     }
 }

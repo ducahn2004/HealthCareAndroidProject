@@ -3,6 +3,7 @@ package com.example.healthcareproject.data.repository
 import com.example.healthcareproject.data.mapper.toExternal
 import com.example.healthcareproject.data.mapper.toLocal
 import com.example.healthcareproject.data.mapper.toNetwork
+import com.example.healthcareproject.data.source.local.dao.MedicalVisitDao
 import com.example.healthcareproject.data.source.local.dao.MedicationDao
 import com.example.healthcareproject.data.source.network.datasource.AuthDataSource
 import com.example.healthcareproject.data.source.network.datasource.MedicationDataSource
@@ -30,6 +31,7 @@ import javax.inject.Singleton
 class DefaultMedicationRepository @Inject constructor(
     private val networkDataSource: MedicationDataSource,
     private val localDataSource: MedicationDao,
+    private val medicalVisitDao: MedicalVisitDao,
     private val authDataSource: AuthDataSource,
     @DefaultDispatcher private val dispatcher: CoroutineDispatcher,
     @ApplicationScope private val scope: CoroutineScope,
@@ -148,21 +150,12 @@ class DefaultMedicationRepository @Inject constructor(
             remoteMedications.forEach { med ->
                 Timber.d("Firebase medication for refresh: name=${med.name}, id=${med.medicationId}, visitId=${med.visitId}, userId=${med.userId}")
             }
-            remoteMedications.forEach { med ->
-                if (med.visitId == null) {
-                    Timber.e("Invalid null visitId in Firebase for ${med.name}, id: ${med.medicationId}")
-                    throw IllegalStateException("Firebase contains invalid data")
-                }
-            }
-            Timber.tag("MedicationRepository").d("Remote medications: $remoteMedications")
             localDataSource.deleteAll()
             localDataSource.upsertAll(remoteMedications.toLocal())
-
             val updatedLocalMedications = localDataSource.getAll()
             updatedLocalMedications.forEach { med ->
                 Timber.d("Room after refresh: name=${med.name}, id=${med.medicationId}, visitId=${med.visitId}, userId=${med.userId}")
             }
-            Timber.d("Refresh completed for ${updatedLocalMedications.size} medications")
         }
     }
 
@@ -214,6 +207,7 @@ class DefaultMedicationRepository @Inject constructor(
                 Timber.d("Local medication before sync: name=${med.name}, id=${med.medicationId}, visitId=${med.visitId}, userId=${med.userId}")
             }
             Timber.d("Local medications before sync: ${localMedications.map { "${it.name}: visitId=${it.visitId}" }}")
+
             val networkMedications = withContext(dispatcher) {
                 localMedications.map { med ->
                     FirebaseMedication(
@@ -230,7 +224,7 @@ class DefaultMedicationRepository @Inject constructor(
                         endDate = med.endDate.toString(),
                         notes = med.notes
                     ).also {
-                        Timber.d("Mapping to network: ${it.name}, visitId=${it.visitId}")
+                        Timber.d("Mapping to network: name=${it.name}, id=${it.medicationId}, visitId=${it.visitId}")
                     }
                 }
             }
@@ -238,16 +232,20 @@ class DefaultMedicationRepository @Inject constructor(
             networkDataSource.saveMedications(networkMedications)
             Timber.d("Medications synced successfully to Firebase")
 
+
             val firebaseMedications = networkDataSource.loadMedications(userId)
+            Timber.d("Before sync with Firebase: medications=${firebaseMedications.map { "${it.name}: visitId=${it.visitId}, id=${it.medicationId}" }}")
             firebaseMedications.forEach { med ->
                 Timber.d("Firebase medication loaded: name=${med.name}, id=${med.medicationId}, visitId=${med.visitId}, userId=${med.userId}")
             }
             Timber.d("Firebase medications loaded: ${firebaseMedications.map { "${it.name}: visitId=${it.visitId}" }}")
+
             val localMedIds = localMedications.map { it.medicationId }.toSet()
             firebaseMedications.forEach { firebaseMed ->
                 val localMed = localMedications.find { it.medicationId == firebaseMed.medicationId }
                 if (localMed != null) {
-                    // Giữ visitId cục bộ nếu Firebase trả về null và local có visitId
+                    val visitExists = medicalVisitDao.getMedicalVisitById(firebaseMed.visitId) != null
+                    Timber.d("Checking RoomMedicalVisit for visitId=${firebaseMed.visitId}, exists=$visitExists")
                     Timber.d("Processing medication: name=${firebaseMed.name}, id=${firebaseMed.medicationId}, local visitId=${localMed.visitId}, firebase visitId=${firebaseMed.visitId}")
                     val updatedVisitId = if (firebaseMed.visitId == null && localMed.visitId != null) {
                         Timber.w("Firebase medication ${firebaseMed.name} has null visitId, keeping local visitId: ${localMed.visitId}")
@@ -259,23 +257,27 @@ class DefaultMedicationRepository @Inject constructor(
                     localDataSource.upsert(
                         firebaseMed.copy(visitId = updatedVisitId).toLocal()
                     )
-                    Timber.d("Updated Room with medication ${firebaseMed.name}, visitId: $updatedVisitId")
+                    Timber.d("After sync to Room: medication ${firebaseMed.name}, id=${firebaseMed.medicationId}, updated visitId=${updatedVisitId}")
                 } else {
                     localDataSource.upsert(firebaseMed.toLocal())
-                    Timber.d("Added new medication ${firebaseMed.name} to Room, visitId: ${firebaseMed.visitId}")
+                    Timber.d("Added new medication ${firebaseMed.name} to Room, id=${firebaseMed.medicationId}, visitId=${firebaseMed.visitId}")
                 }
             }
             localMedications.forEach { localMed ->
                 if (localMed.medicationId !in firebaseMedications.map { it.medicationId }) {
-                    Timber.w("Medication ${localMed.name} not found in Firebase, deleting from Room")
+                    Timber.w("Medication ${localMed.name} not found in Firebase, deleting from Room, id=${localMed.medicationId}")
                     localDataSource.deleteById(localMed.medicationId)
                 }
             }
+            Timber.d("Room after sync: medications=${localDataSource.getAll().map { "${it.name}: visitId=${it.visitId}, id=${it.medicationId}" }}")
+            Timber.d("Room updated successfully from Firebase")
+
             val updatedLocalMedications = localDataSource.getAll()
             updatedLocalMedications.forEach { med ->
-                Timber.d("Room after sync: name=${med.name}, id=${med.medicationId}, visitId=${med.visitId}, userId=${med.userId}")
+                Timber.d("Room after sync (verification): name=${med.name}, id=${med.medicationId}, visitId=${med.visitId}, userId=${med.userId}")
             }
-            Timber.d("Room updated successfully from Firebase")
+            Timber.d("Room verification completed: ${updatedLocalMedications.size} medications, visitIds: ${updatedLocalMedications.map { "${it.name}: ${it.visitId}" }}")
+
         } catch (e: Exception) {
             Timber.e(e, "Failed to sync medications to network: ${e.message}")
             throw e
