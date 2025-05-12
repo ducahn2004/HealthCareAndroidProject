@@ -142,6 +142,12 @@ class DefaultMedicationRepository @Inject constructor(
     override suspend fun refresh() {
         withContext(dispatcher) {
             val remoteMedications = networkDataSource.loadMedications(userId)
+            remoteMedications.forEach { med ->
+                if (med.visitId == null) {
+                    Timber.e("Invalid null visitId in Firebase for ${med.name}, id: ${med.medicationId}")
+                    throw IllegalStateException("Firebase contains invalid data")
+                }
+            }
             Timber.tag("MedicationRepository").d("Remote medications: $remoteMedications")
             localDataSource.deleteAll()
             localDataSource.upsertAll(remoteMedications.toLocal())

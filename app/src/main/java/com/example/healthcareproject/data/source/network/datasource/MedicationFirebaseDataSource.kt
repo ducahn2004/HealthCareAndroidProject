@@ -19,14 +19,11 @@ class MedicationFirebaseDataSource @Inject constructor(
     private val listeners = mutableListOf<ValueEventListener>()
 
     override suspend fun loadMedications(userId: String): List<FirebaseMedication> = try {
-        val snapshot = medicationRef
-            .child(userId)
-            .get()
-            .await()
+        val snapshot = medicationRef.get().await()
         val medications = snapshot.children.mapNotNull { child ->
             val medication = child.getValue(FirebaseMedication::class.java)
-            Timber.d("Loaded medication ${medication?.medicationId} with visitId: ${medication?.visitId}")
-            medication
+            medication?.takeIf { it.userId == userId } // Lọc theo userId
+                ?.also { Timber.d("Loaded medication ${it.medicationId} with visitId: ${it.visitId}") }
         }
         Timber.d("Loaded ${medications.size} medications for userId: $userId")
         medications
@@ -48,16 +45,16 @@ class MedicationFirebaseDataSource @Inject constructor(
                     "userId" to medication.userId,
                     "visitId" to medication.visitId,
                     "name" to medication.name,
-                    "dosageUnit" to medication.dosageUnit?.name,
+                    "dosageUnit" to medication.dosageUnit.name,
                     "dosageAmount" to medication.dosageAmount,
                     "frequency" to medication.frequency,
                     "timeOfDay" to medication.timeOfDay,
-                    "mealRelation" to medication.mealRelation?.name,
-                    "startDate" to medication.startDate?.toString(),
-                    "endDate" to medication.endDate?.toString(),
+                    "mealRelation" to medication.mealRelation.name,
+                    "startDate" to medication.startDate,
+                    "endDate" to medication.endDate,
                     "notes" to medication.notes
                 )
-                "${medication.userId}/${medication.medicationId}" to data
+                medication.medicationId to data
             }
             medicationRef.updateChildren(updates).await()
             // Xác nhận dữ liệu sau khi lưu
@@ -83,13 +80,13 @@ class MedicationFirebaseDataSource @Inject constructor(
         Timber.d("Removed all listeners from medicationRef, count: ${listeners.size}")
     }
 
-    override suspend fun addSyncListener(userId: String, onDataChange: (List<FirebaseMedication>) -> Unit) {
+    override fun addSyncListener(userId: String, onDataChange: (List<FirebaseMedication>) -> Unit) {
         val listener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val medications = snapshot.children.mapNotNull { child ->
                     val medication = child.getValue(FirebaseMedication::class.java)
-                    Timber.d("Sync listener: Medication ${medication?.medicationId} with visitId: ${medication?.visitId}")
-                    medication
+                    medication?.takeIf { it.userId == userId }
+                        ?.also { Timber.d("Sync listener: Medication ${it.medicationId} with visitId: ${it.visitId}") }
                 }
                 Timber.d("Firebase data changed: ${medications.size} medications for userId: $userId")
                 onDataChange(medications)
@@ -99,7 +96,7 @@ class MedicationFirebaseDataSource @Inject constructor(
                 Timber.e(error.toException(), "Medication sync cancelled for userId: $userId")
             }
         }
-        medicationRef.child(userId).addValueEventListener(listener)
+        medicationRef.addValueEventListener(listener)
         listeners.add(listener)
         Timber.d("Added sync listener for userId: $userId, listener count: ${listeners.size}, caller: ${Thread.currentThread().stackTrace[3]}")
     }
