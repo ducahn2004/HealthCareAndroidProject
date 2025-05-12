@@ -1,119 +1,95 @@
 package com.example.healthcareproject.present.ui.medicine
 
+import android.view.View
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.healthcareproject.domain.model.Appointment
 import com.example.healthcareproject.domain.model.MedicalVisit
-import com.example.healthcareproject.domain.usecase.medicalvisit.MedicalVisitUseCases
+import com.example.healthcareproject.domain.usecase.appointment.GetAppointmentsUseCase
+import com.example.healthcareproject.domain.usecase.medicalvisit.GetMedicalVisitsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
 class MedicineViewModel @Inject constructor(
-    private val medicalVisitUseCases: MedicalVisitUseCases
+    private val getMedicalVisitsUseCase: GetMedicalVisitsUseCase,
+    private val getAppointmentsUseCase: GetAppointmentsUseCase
 ) : ViewModel() {
-    // LiveData objects for binding
-    val isLoading = MutableLiveData(false)
-    val visitsBefore = MutableLiveData<List<MedicalVisit>>(emptyList())
-    val visitsAfter = MutableLiveData<List<MedicalVisit>>(emptyList())
-    val error = MutableLiveData<String?>(null)
 
-    // Visibility helpers for data binding
-    val isVisitsBeforeEmpty = MutableLiveData(true)
-    val isVisitsAfterEmpty = MutableLiveData(true)
+    private val _medicalVisits = MutableLiveData<List<MedicalVisit>>()
+    val medicalVisits: LiveData<List<MedicalVisit>> = _medicalVisits
 
-    val navigateToAddAppointmentEvent = MutableLiveData<Unit>()
+    private val _appointments = MutableLiveData<List<Appointment>>()
+    val appointments: LiveData<List<Appointment>> = _appointments
 
-    // Cache for unfiltered lists
-    private var allVisitsBefore: List<MedicalVisit> = emptyList()
-    private var allVisitsAfter: List<MedicalVisit> = emptyList()
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean> = _isLoading
 
-    init {
-        loadMedicalVisits()
-    }
+    val error = MutableLiveData<String?>()
+
+    private val _navigateToAddAppointmentEvent = MutableLiveData<Unit>()
+    val navigateToAddAppointmentEvent: LiveData<Unit> = _navigateToAddAppointmentEvent
+
+    private val _navigateToAddMedicalVisitEvent = MutableLiveData<Unit>()
+    val navigateToAddMedicalVisitEvent: LiveData<Unit> = _navigateToAddMedicalVisitEvent
 
     fun loadMedicalVisits() {
         viewModelScope.launch {
-            isLoading.value = true
-
+            _isLoading.value = true
             try {
-                // Get visits from use case
-                val visits = medicalVisitUseCases.getMedicalVisitsUseCase()
-
-                // Partition visits into before and after current date
-                val (before, after) = visits.partition { visit ->
-                    visit.visitDate.isBefore(LocalDate.now())
-                }
-
-                // Store in cache
-                allVisitsBefore = before
-                allVisitsAfter = after
-
-                // Update LiveData
-                updateVisitsLists(before, after)
-                isLoading.value = false
-                error.value = null
+                val medicalVisits = getMedicalVisitsUseCase()
+                val appointments = getAppointmentsUseCase()
+                _medicalVisits.value = medicalVisits
+                _appointments.value = appointments
             } catch (e: Exception) {
-                isLoading.value = false
-                error.value = e.message
+                error.value = "Failed to load visits: ${e.message}"
+            } finally {
+                _isLoading.value = false
             }
         }
     }
 
     fun onSearchQueryChanged(query: String) {
         viewModelScope.launch {
-            val filteredBefore = if (query.isBlank()) {
-                allVisitsBefore
-            } else {
-                allVisitsBefore.filter { visit ->
-                    visit.diagnosis.contains(query, ignoreCase = true) ||
-                            visit.doctorName.contains(query, ignoreCase = true) ||
-                            visit.clinicName.contains(query, ignoreCase = true)
+            try {
+                val medicalVisits = getMedicalVisitsUseCase().filter {
+                    it.diagnosis.contains(query, ignoreCase = true) ||
+                            it.doctorName.contains(query, ignoreCase = true) ||
+                            it.clinicName.contains(query, ignoreCase = true)
                 }
-            }
-
-            val filteredAfter = if (query.isBlank()) {
-                allVisitsAfter
-            } else {
-                allVisitsAfter.filter { visit ->
-                    visit.diagnosis.contains(query, ignoreCase = true) ||
-                            visit.doctorName.contains(query, ignoreCase = true) ||
-                            visit.clinicName.contains(query, ignoreCase = true)
+                val appointments = getAppointmentsUseCase().filter {
+                    (it.note?.contains(query, ignoreCase = true) ?: false) ||
+                            it.doctorName.contains(query, ignoreCase = true) ||
+                            it.location.contains(query, ignoreCase = true)
                 }
+                _medicalVisits.value = medicalVisits
+                _appointments.value = appointments
+            } catch (e: Exception) {
+                error.value = "Search failed: ${e.message}"
             }
-
-            updateVisitsLists(filteredBefore, filteredAfter)
         }
     }
 
-    private fun updateVisitsLists(before: List<MedicalVisit>, after: List<MedicalVisit>) {
-        visitsBefore.value = before
-        visitsAfter.value = after
-
-        // Update visibility helpers
-        isVisitsBeforeEmpty.value = before.isEmpty()
-        isVisitsAfterEmpty.value = after.isEmpty()
-    }
-
     fun navigateToAddAppointment() {
-        // This will be implemented to navigate to add appointment screen
-        // Implementation would depend on your navigation strategy
-        navigateToAddAppointmentEvent.value = Unit
+        _navigateToAddAppointmentEvent.value = Unit
     }
 
-    // Helper method to get loading visibility (1=VISIBLE, 8=GONE)
+    fun navigateToAddMedicalVisit() {
+        _navigateToAddMedicalVisitEvent.value = Unit
+    }
+
     fun getLoadingVisibility(): Int {
-        return if (isLoading.value == true) 0 else 8
+        return if (isLoading.value == true) View.VISIBLE else View.GONE
     }
 
-    // Helper method for empty list visibility
-    fun getBeforeEmptyVisibility(): Int {
-        return if (isVisitsBeforeEmpty.value == true) 0 else 8
+    fun getMedicalVisitsEmptyVisibility(): Int {
+        return if (medicalVisits.value?.isEmpty() == true) View.VISIBLE else View.GONE
     }
 
-    fun getAfterEmptyVisibility(): Int {
-        return if (isVisitsAfterEmpty.value == true) 0 else 8
+    fun getAppointmentsEmptyVisibility(): Int {
+        return if (appointments.value?.isEmpty() == true) View.VISIBLE else View.GONE
     }
 }

@@ -10,7 +10,7 @@ import java.time.LocalDate
 interface MedicalVisitRepository {
 
     suspend fun createMedicalVisit(
-        patientName: String,
+        visitId: String,
         visitReason: String,
         visitDate: LocalDate,
         doctorName: String,
@@ -20,7 +20,6 @@ interface MedicalVisitRepository {
 
     suspend fun updateMedicalVisit(
         medicalVisitId: String,
-        patientName: String,
         visitReason: String,
         visitDate: LocalDate,
         doctorName: String,
@@ -49,4 +48,9 @@ interface MedicalVisitRepository {
     suspend fun deleteAllMedicalVisits()
 
     suspend fun deleteMedicalVisit(medicalVisitId: String)
+
+    suspend fun saveMedicalVisitsToNetwork()
+
+    suspend fun withTransaction(block: suspend () -> Unit)
+
 }

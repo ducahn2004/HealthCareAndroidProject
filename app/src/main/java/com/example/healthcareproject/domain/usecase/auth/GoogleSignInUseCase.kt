@@ -1,5 +1,6 @@
 package com.example.healthcareproject.domain.usecase.auth
 
+import com.example.healthcareproject.domain.repository.UserRepository
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
@@ -9,7 +10,8 @@ import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 class GoogleSignInUseCase @Inject constructor(
-    private val firebaseAuth: FirebaseAuth
+    private val firebaseAuth: FirebaseAuth,
+    private val userRepository: UserRepository
 ) {
 
     suspend operator fun invoke(idToken: String): Result<FirebaseUser?> {
@@ -17,6 +19,7 @@ class GoogleSignInUseCase @Inject constructor(
             val credential = GoogleAuthProvider.getCredential(idToken, null)
             val authResult = firebaseAuth.signInWithCredential(credential).await()
             val user = authResult.user
+            userRepository.refresh()
             // Log analytics event (optional)
             Result.success(user)
         } catch (e: FirebaseAuthException) {

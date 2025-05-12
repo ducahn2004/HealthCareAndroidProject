@@ -1,6 +1,7 @@
 package com.example.healthcareproject.present.ui.medicine
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,6 +15,7 @@ import com.example.healthcareproject.databinding.FragmentMedicineBinding
 import com.example.healthcareproject.domain.model.MedicalVisit
 import com.example.healthcareproject.present.navigation.MainNavigator
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -25,8 +27,8 @@ class MedicineFragment : Fragment() {
     @Inject
     lateinit var mainNavigator: MainNavigator
 
-    private lateinit var adapterBefore: MedicalVisitAdapter
-    private lateinit var adapterAfter: MedicalVisitAdapter
+    private lateinit var medicalVisitAdapter: MedicalVisitAdapter
+    private lateinit var appointmentAdapter: AppointmentAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -45,25 +47,29 @@ class MedicineFragment : Fragment() {
         setupSearch()
         setupObservers()
         setupFragmentResultListener()
-        setupFab()
+        setupButtons()
+        viewModel.loadMedicalVisits()
     }
 
     private fun setupRecyclerViews() {
-        adapterBefore = MedicalVisitAdapter { visit ->
-            mainNavigator.navigateToMedicalHistoryDetail(visit.visitId)
+        medicalVisitAdapter = MedicalVisitAdapter { visit ->
+            Timber.tag("MedicineFragment").d("Navigating with visitId: ${visit.visitId}")
+            mainNavigator.navigateMedicineToMedicalHistoryDetail(visit.visitId)
         }
-        adapterAfter = MedicalVisitAdapter { visit ->
-            mainNavigator.navigateToMedicalHistoryDetail(visit.visitId)
+        appointmentAdapter = AppointmentAdapter { appointment ->
+            val id = appointment.visitId ?: appointment.appointmentId
+            Timber.tag("MedicineFragment").d("Navigating with id: $id")
+            mainNavigator.navigateMedicineToMedicalHistoryDetail(appointment.visitId ?: appointment.appointmentId)
         }
 
         binding.recyclerViewBefore.apply {
             layoutManager = LinearLayoutManager(context)
-            adapter = adapterBefore
+            adapter = medicalVisitAdapter
         }
 
         binding.recyclerViewAfter.apply {
             layoutManager = LinearLayoutManager(context)
-            adapter = adapterAfter
+            adapter = appointmentAdapter
         }
     }
 
@@ -74,36 +80,34 @@ class MedicineFragment : Fragment() {
     }
 
     private fun setupObservers() {
-        // Observe visitsBefore LiveData
-        viewModel.visitsBefore.observe(viewLifecycleOwner) { visits ->
-            adapterBefore.submitList(visits)
-            // Update visibility for no data message directly if needed
+        viewModel.medicalVisits.observe(viewLifecycleOwner) { visits ->
+            medicalVisitAdapter.submitList(visits)
             binding.tvNoPastVisits.visibility = if (visits.isEmpty()) View.VISIBLE else View.GONE
         }
 
-        // Observe visitsAfter LiveData
-        viewModel.visitsAfter.observe(viewLifecycleOwner) { visits ->
-            adapterAfter.submitList(visits)
-            // Update visibility for no data message directly if needed
-            binding.tvNoFutureVisits.visibility = if (visits.isEmpty()) View.VISIBLE else View.GONE
+        viewModel.appointments.observe(viewLifecycleOwner) { appointments ->
+            appointmentAdapter.submitList(appointments)
+            binding.tvNoFutureVisits.visibility = if (appointments.isEmpty()) View.VISIBLE else View.GONE
         }
 
-        // Observe loading state
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
         }
 
-        // Observe error LiveData
         viewModel.error.observe(viewLifecycleOwner) { errorMsg ->
             errorMsg?.let {
+                Log.e("MedicineFragment", "Error: $it")
                 Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
-                viewModel.error.value = null // Reset after showing
+                viewModel.error.value = null
             }
         }
 
-        // Observe navigateToAddAppointment event
-        viewModel.navigateToAddAppointmentEvent.observe(viewLifecycleOwner) { _ ->
+        viewModel.navigateToAddAppointmentEvent.observe(viewLifecycleOwner) {
             mainNavigator.navigateToAddAppointment()
+        }
+
+        viewModel.navigateToAddMedicalVisitEvent.observe(viewLifecycleOwner) {
+            mainNavigator.navigateToAddMedicalVisit()
         }
     }
 
@@ -116,9 +120,13 @@ class MedicineFragment : Fragment() {
         }
     }
 
-    private fun setupFab() {
-        binding.fabAddVisit.setOnClickListener {
+    private fun setupButtons() {
+        binding.btnAddFutureVisit.setOnClickListener {
             viewModel.navigateToAddAppointment()
+        }
+
+        binding.btnAddPastVisit.setOnClickListener {
+            viewModel.navigateToAddMedicalVisit()
         }
     }
 

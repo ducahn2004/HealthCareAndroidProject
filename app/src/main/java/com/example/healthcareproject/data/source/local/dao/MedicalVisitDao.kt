@@ -27,6 +27,9 @@ interface MedicalVisitDao {
     @Query("SELECT * FROM medical_visits WHERE userId = :userId")
     suspend fun getByUserId(userId: String): List<RoomMedicalVisit>
 
+    @Query("SELECT * FROM medical_visits WHERE visitId = :visitId LIMIT 1")
+    suspend fun getMedicalVisitById(visitId: String?): RoomMedicalVisit?
+
     @Upsert
     suspend fun upsert(medicalVisit: RoomMedicalVisit)
 

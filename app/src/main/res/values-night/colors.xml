@@ -34,4 +34,5 @@
     <color name="button_accent_color">#FFBB86FC</color>
     <color name="fab_background">#FF6200EE</color>
     <color name="fab_icon_color">@android:color/white</color>
+    <color name="bold_gray">#CCCCCC</color>
 </resources>

@@ -1,83 +1,109 @@
 package com.example.healthcareproject.present.ui.medicine
 
+import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.healthcareproject.R
 import com.example.healthcareproject.databinding.FragmentMedicalHistoryDetailBinding
 import com.example.healthcareproject.present.navigation.MainNavigator
+import com.example.healthcareproject.present.ui.medication.MedicationAdapter
 import com.example.healthcareproject.present.viewmodel.medicine.MedicalHistoryDetailViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import java.time.format.DateTimeFormatter
+import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class MedicalHistoryDetailFragment : Fragment() {
-    private var _binding: FragmentMedicalHistoryDetailBinding? = null
-    private val binding get() = _binding!!
+    private lateinit var binding: FragmentMedicalHistoryDetailBinding
     private val viewModel: MedicalHistoryDetailViewModel by viewModels()
+    private lateinit var medicationAdapter: MedicationAdapter
 
-    @Inject lateinit var mainNavigator: MainNavigator
-
-    private val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+    @Inject
+    lateinit var mainNavigator: MainNavigator // Inject MainNavigator
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentMedicalHistoryDetailBinding.inflate(inflater, container, false).apply {
-            lifecycleOwner = viewLifecycleOwner
-            viewModel = this@MedicalHistoryDetailFragment.viewModel
-        }
+        binding = DataBindingUtil.inflate(
+            inflater,
+            R.layout.fragment_medical_history_detail,
+            container,
+            false
+        )
+        binding.viewModel = viewModel
+        binding.lifecycleOwner = viewLifecycleOwner
         return binding.root
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val visitId = arguments?.getString("visitId")
+        val sourceFragment = arguments?.getString("sourceFragment")
 
-        setupUI()
-        observeViewModel()
-        loadVisitDetails()
-    }
+        if (visitId == null) {
+            binding.tvError.text = "No visit ID provided"
+            binding.tvError.visibility = View.VISIBLE
+            Timber.tag("MedicalHistoryDetail").e("No visitId received")
+        } else {
+            Timber.tag("MedicalHistoryDetail").d("Loading visitId: $visitId")
+            viewModel.loadDetails(visitId)
+        }
 
-    private fun setupUI() {
+        // Handle back button click
         binding.ivBack.setOnClickListener {
-            mainNavigator.navigateBackToMedicineFromMedicalHistoryDetail()
+            when (sourceFragment) {
+                "PillFragment" -> mainNavigator.navigateBackPillFragmentFromMedicalHistoryDetail()
+                "MedicineFragment" -> mainNavigator.navigateBackToMedicineFromMedicalHistoryDetail()
+                else -> findNavController().navigateUp() // Fallback
+            }
         }
 
+        setupRecyclerView()
+        observeViewModel()
+    }
+
+    private fun setupRecyclerView() {
+        medicationAdapter = MedicationAdapter(
+            onEdit = { /* Editing not supported in history view */ },
+            onDelete = { /* Deleting not supported in history view */ }
+        )
         binding.rvMedications.apply {
-            layoutManager = LinearLayoutManager(context)
-            adapter = MedicationAdapter(dateFormatter)
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = medicationAdapter
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun observeViewModel() {
         viewModel.medications.observe(viewLifecycleOwner) { medications ->
-            (binding.rvMedications.adapter as MedicationAdapter).submitList(medications)
+            Timber.tag("MedicalHistoryDetail").d("Medications: $medications")
+            if (medications.isEmpty()) {
+                binding.tvError.text = "No medications found for this visit"
+                binding.tvError.visibility = View.VISIBLE
+                binding.rvMedications.visibility = View.GONE
+            } else {
+                binding.tvError.visibility = View.GONE
+                binding.rvMedications.visibility = View.VISIBLE
+                medicationAdapter.submitList(medications)
+            }
         }
-
-        viewModel.error.observe(viewLifecycleOwner) { errorMessage ->
-            errorMessage?.let { Toast.makeText(context, it, Toast.LENGTH_SHORT).show() }
+        viewModel.error.observe(viewLifecycleOwner) { error ->
+            error?.let {
+                binding.tvError.text = it
+                binding.tvError.visibility = View.VISIBLE
+                Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+            }
         }
-    }
-
-    private fun loadVisitDetails() {
-        val visitId = arguments?.getString("visitId")
-        if (visitId != null) {
-            viewModel.loadDetails(visitId)
-        } else {
-            Toast.makeText(context, "Invalid visit ID", Toast.LENGTH_SHORT).show()
-            mainNavigator.navigateBackToMedicineFromMedicalHistoryDetail()
-        }
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 }
-

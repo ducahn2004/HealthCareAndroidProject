@@ -3,6 +3,7 @@ package com.example.healthcareproject.data.source.local.dao
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Upsert
+import com.example.healthcareproject.data.source.local.entity.RoomMedicalVisit
 import com.example.healthcareproject.data.source.local.entity.RoomMedication
 import kotlinx.coroutines.flow.Flow
 
@@ -26,6 +27,9 @@ interface MedicationDao {
 
     @Query("SELECT * FROM medications WHERE medicationId = :medicationId")
     suspend fun getById(medicationId: String): RoomMedication?
+
+    @Query("SELECT * FROM medical_visits WHERE visitId = :visitId LIMIT 1")
+    suspend fun getMedicalVisitById(visitId: String?): RoomMedicalVisit?
 
     @Query("SELECT * FROM medications WHERE userId = :userId")
     suspend fun getByUserId(userId: String): List<RoomMedication>
