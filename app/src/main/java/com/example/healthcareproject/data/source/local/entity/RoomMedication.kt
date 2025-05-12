@@ -23,7 +23,7 @@ import java.time.LocalDate
             entity = RoomMedicalVisit::class,
             parentColumns = ["visitId"],
             childColumns = ["visitId"],
-            onDelete = ForeignKey.RESTRICT
+            onDelete = ForeignKey.SET_NULL
         )
     ],
     indices = [Index("userId"), Index("visitId")]

@@ -150,7 +150,6 @@ class DefaultMedicationRepository @Inject constructor(
             remoteMedications.forEach { med ->
                 Timber.d("Firebase medication for refresh: name=${med.name}, id=${med.medicationId}, visitId=${med.visitId}, userId=${med.userId}")
             }
-            localDataSource.deleteAll()
             localDataSource.upsertAll(remoteMedications.toLocal())
             val updatedLocalMedications = localDataSource.getAll()
             updatedLocalMedications.forEach { med ->

@@ -119,7 +119,6 @@ class DefaultMedicalVisitRepository @Inject constructor(
         withContext(dispatcher) {
             appDatabase.withTransaction {
                 val remoteVisits = networkDataSource.loadMedicalVisits(userId)
-                localDataSource.deleteAll()
                 localDataSource.upsertAll(remoteVisits.toLocal())
             }
         }
