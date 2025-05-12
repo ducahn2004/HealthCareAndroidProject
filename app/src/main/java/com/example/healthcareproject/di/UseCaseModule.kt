@@ -108,9 +108,8 @@ object UseCaseModule {
     ): MeasurementUseCases {
         return MeasurementUseCases(
             getMeasurementsUseCase = GetMeasurementsUseCase(measurementRepository),
-            createMeasurementUseCase = CreateMeasurementUseCase(measurementRepository),
+            getMeasurementRealTimeUseCase = GetMeasurementRealTimeUseCase(measurementRepository),
             deleteMeasurementUseCase = DeleteMeasurementUseCase(measurementRepository),
-            updateMeasurementUseCase = UpdateMeasurementUseCase(measurementRepository),
             hRAnalysisUseCase = HRAnalysisUseCase(
                 measurementRepository,
                 getUserUseCase,
