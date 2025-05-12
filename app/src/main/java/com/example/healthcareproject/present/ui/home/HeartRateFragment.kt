@@ -12,7 +12,6 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.healthcareproject.R
 import com.example.healthcareproject.present.viewmodel.measurement.HRViewModel
@@ -24,8 +23,6 @@ import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.google.android.material.tabs.TabLayout
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class HeartRateFragment : Fragment() {
@@ -43,7 +40,6 @@ class HeartRateFragment : Fragment() {
 
     private val heartRateData = mutableListOf<Float>()
     private val timeStamps = mutableListOf<Long>()
-    private val maxDataPoints = 20
     private lateinit var timeFrame: String
 
     private val viewModel: HRViewModel by viewModels()
@@ -84,26 +80,28 @@ class HeartRateFragment : Fragment() {
     }
 
     private fun observeHeartRate() {
-        viewModel.heartRate.observe(viewLifecycleOwner) { bpm ->
-            if (bpm != null) {
-                heartRateData.add(bpm)
-                timeStamps.add(System.currentTimeMillis())
+        viewModel.heartRateHistory.observe(viewLifecycleOwner) { measurements ->
+            if (measurements.isNullOrEmpty()) return@observe
 
-                if (heartRateData.size > maxDataPoints) {
-                    heartRateData.removeAt(0)
-                    timeStamps.removeAt(0)
-                }
+            heartRateData.clear()
+            timeStamps.clear()
 
-                updateChartData()
+            measurements.forEach {
+                heartRateData.add(it.bpm)
+
+                // Convert LocalDateTime to epoch millis
+                val epochMillis = it.dateTime
+                    .atZone(java.time.ZoneId.systemDefault())
+                    .toInstant()
+                    .toEpochMilli()
+
+                timeStamps.add(epochMillis)
             }
-        }
 
-        lifecycleScope.launch {
-            while (true) {
-                delay(1000L)
-            }
+            updateChartData()
         }
     }
+
 
     private fun setupTabLayout() {
         tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {

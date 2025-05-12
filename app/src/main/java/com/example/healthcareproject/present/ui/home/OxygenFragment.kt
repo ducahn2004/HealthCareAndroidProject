@@ -40,7 +40,6 @@ class OxygenFragment : Fragment() {
 
     private val spo2Data = mutableListOf<Float>()
     private val timeStamps = mutableListOf<Long>()
-    private val maxDataPoints = 15
 
     private lateinit var timeFrame: String
 
@@ -86,22 +85,25 @@ class OxygenFragment : Fragment() {
     }
 
     private fun observeSpO2() {
-        viewModel.spO2.observe(viewLifecycleOwner) { newSpO2 ->
-            if (newSpO2 != null) {
-                addSpO2Data(newSpO2)
-                updateChartData()
+        viewModel.spO2History.observe(viewLifecycleOwner) { measurements ->
+            if (measurements.isNullOrEmpty()) return@observe
+
+            spo2Data.clear()
+            timeStamps.clear()
+
+            measurements.forEach {
+                spo2Data.add(it.spO2)
+
+                // Convert LocalDateTime to epoch millis
+                val epochMillis = it.dateTime
+                    .atZone(java.time.ZoneId.systemDefault())
+                    .toInstant()
+                    .toEpochMilli()
+
+                timeStamps.add(epochMillis)
             }
-        }
-    }
 
-    private fun addSpO2Data(value: Float) {
-        val now = System.currentTimeMillis()
-        spo2Data.add(value)
-        timeStamps.add(now)
-
-        if (spo2Data.size > maxDataPoints) {
-            spo2Data.removeAt(0)
-            timeStamps.removeAt(0)
+            updateChartData()
         }
     }
 

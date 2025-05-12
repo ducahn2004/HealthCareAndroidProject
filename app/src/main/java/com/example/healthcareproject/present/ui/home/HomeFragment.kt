@@ -33,8 +33,8 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-//        observeHeartRate()
-//        observeSpO2()
+        observeHeartRate()
+        observeSpO2()
 
         binding.cvHeartRate.setOnClickListener {
             findNavController().navigate(R.id.action_homeFragment_to_heartRateFragment)
@@ -57,24 +57,24 @@ class HomeFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
-//
-//    @SuppressLint("StringFormatInvalid")
-//    private fun observeHeartRate() {
-//        viewModel.heartRate.observe(viewLifecycleOwner) { heartRate ->
-//            val heartRateText = "${heartRate.toInt()} bpm"
-//            binding.tvHeartRateValue.text = heartRateText
-//            binding.tvHeartRateCurrent.text =
-//                getString(R.string.default_heart_rate_current, heartRateText)
-//        }
-//    }
-//
-//    @SuppressLint("StringFormatInvalid")
-//    private fun observeSpO2() {
-//        viewModel.spO2.observe(viewLifecycleOwner) { spO2 ->
-//            val spO2Text = "${spO2.toInt()}%"
-//            binding.tvOxygenLevelValue.text = spO2Text
-//            binding.tvOxygenLevelCurrent.text =
-//                getString(R.string.default_oxygen_level_current, spO2Text)
-//        }
-//    }
+
+    @SuppressLint("StringFormatInvalid")
+    private fun observeHeartRate() {
+        viewModel.heartRate.observe(viewLifecycleOwner) { heartRate ->
+            val heartRateText = "${heartRate.toInt()} bpm"
+            binding.tvHeartRateValue.text = heartRateText
+            binding.tvHeartRateCurrent.text =
+                getString(R.string.default_heart_rate_current, heartRateText)
+        }
+    }
+
+    @SuppressLint("StringFormatInvalid")
+    private fun observeSpO2() {
+        viewModel.spO2.observe(viewLifecycleOwner) { spO2 ->
+            val spO2Text = "${spO2.toInt()}%"
+            binding.tvOxygenLevelValue.text = spO2Text
+            binding.tvOxygenLevelCurrent.text =
+                getString(R.string.default_oxygen_level_current, spO2Text)
+        }
+    }
 }
