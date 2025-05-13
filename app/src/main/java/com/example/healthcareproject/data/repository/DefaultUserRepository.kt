@@ -177,7 +177,9 @@ class DefaultUserRepository @Inject constructor(
         password: String
     ): String = withContext(dispatcher) {
         Timber.d("Logging in user with ID: $userId")
-        return@withContext authDataSource.loginUser(userId, password)
+        authDataSource.loginUser(userId, password)
+        refresh()
+        userId // Return the userId or another meaningful String value
     }
 
     override suspend fun sendVerificationCode(email: String) = withContext(dispatcher) {
