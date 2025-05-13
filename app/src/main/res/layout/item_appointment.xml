@@ -7,16 +7,12 @@
         <variable
             name="appointment"
             type="com.example.healthcareproject.domain.model.Appointment" />
-        <variable
-            name="clickListener"
-            type="android.view.View.OnClickListener" />
     </data>
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginVertical="4dp"
-        android:onClick="@{clickListener}"
         app:cardBackgroundColor="@color/surface_alternate"
         app:cardCornerRadius="8dp"
         app:cardElevation="2dp">

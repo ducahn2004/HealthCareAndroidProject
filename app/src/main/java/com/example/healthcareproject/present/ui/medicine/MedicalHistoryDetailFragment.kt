@@ -1,6 +1,7 @@
 package com.example.healthcareproject.present.ui.medicine
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -9,12 +10,15 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.healthcareproject.R
 import com.example.healthcareproject.databinding.FragmentMedicalHistoryDetailBinding
+import com.example.healthcareproject.domain.model.Medication
 import com.example.healthcareproject.present.navigation.MainNavigator
+import com.example.healthcareproject.present.ui.medication.AddMedicationDialogFragment
 import com.example.healthcareproject.present.ui.medication.MedicationAdapter
 import com.example.healthcareproject.present.viewmodel.medicine.MedicalHistoryDetailViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -70,13 +74,19 @@ class MedicalHistoryDetailFragment : Fragment() {
         }
 
         setupRecyclerView()
+        setupFragmentResultListener()
         observeViewModel()
     }
 
     private fun setupRecyclerView() {
         medicationAdapter = MedicationAdapter(
-            onEdit = { /* Editing not supported in history view */ },
-            onDelete = { /* Deleting not supported in history view */ }
+            onEdit = { medication ->
+                showEditMedicationDialog(medication)
+            },
+            onDelete = { medication ->
+                showDeleteConfirmationDialog(medication)
+            },
+            isHistoryView = false // Hiển thị icon edit/delete
         )
         binding.rvMedications.apply {
             layoutManager = LinearLayoutManager(requireContext())
@@ -106,4 +116,43 @@ class MedicalHistoryDetailFragment : Fragment() {
             }
         }
     }
+    private fun showEditMedicationDialog(medication: Medication) {
+        val dialog = AddMedicationDialogFragment.newInstance(
+            medication = medication,
+            sourceFragment = AddMedicationDialogFragment.SOURCE_MEDICAL_HISTORY_DETAIL_FRAGMENT
+        )
+        dialog.show(parentFragmentManager, "EditMedicationDialog")
+    }
+    private fun setupFragmentResultListener() {
+        setFragmentResultListener(AddMedicationDialogFragment.RESULT_KEY_DEFAULT) { _, bundle ->
+            if (bundle.getBoolean("medicationAdded", false)) {
+                val source = bundle.getString("sourceFragment")
+                if (source == AddMedicationDialogFragment.SOURCE_MEDICAL_HISTORY_DETAIL_FRAGMENT) {
+                    val updatedMedication = bundle.getParcelable<Medication>("updatedMedication")
+                    if (updatedMedication != null) {
+                        viewModel.updateMedication(updatedMedication)
+                        Toast.makeText(context, "Medication updated successfully", Toast.LENGTH_SHORT).show()
+                    } else {
+                        val visitId = arguments?.getString("visitId")
+                        if (visitId != null) {
+                            viewModel.loadDetails(visitId)
+                            Toast.makeText(context, "Medication updated successfully", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun showDeleteConfirmationDialog(medication: Medication) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Delete Medication")
+            .setMessage("Are you sure you want to delete ${medication.name}?")
+            .setPositiveButton("Delete") { _, _ ->
+                viewModel.deleteMedication(medication.medicationId)
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
 }

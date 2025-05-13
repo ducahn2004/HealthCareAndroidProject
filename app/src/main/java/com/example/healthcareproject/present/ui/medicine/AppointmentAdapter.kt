@@ -10,15 +10,13 @@ import com.example.healthcareproject.databinding.ItemAppointmentBinding
 import com.example.healthcareproject.domain.model.Appointment
 
 class AppointmentAdapter(
-    private val onItemClick: (Appointment) -> Unit
 ) : ListAdapter<Appointment, AppointmentAdapter.AppointmentViewHolder>(AppointmentDiffCallback()) {
 
     class AppointmentViewHolder(
         private val binding: ItemAppointmentBinding
     ) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(appointment: Appointment, clickListener: (Appointment) -> Unit) {
+        fun bind(appointment: Appointment) {
             binding.appointment = appointment
-            binding.clickListener = View.OnClickListener { clickListener(appointment) }
             binding.executePendingBindings()
         }
     }
@@ -32,7 +30,7 @@ class AppointmentAdapter(
 
     override fun onBindViewHolder(holder: AppointmentViewHolder, position: Int) {
         val appointment = getItem(position)
-        holder.bind(appointment, onItemClick)
+        holder.bind(appointment)
     }
 }
 

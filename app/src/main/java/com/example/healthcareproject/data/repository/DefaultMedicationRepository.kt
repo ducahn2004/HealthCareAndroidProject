@@ -194,8 +194,18 @@ class DefaultMedicationRepository @Inject constructor(
     }
 
     override suspend fun deleteMedication(medicationId: String) {
-        localDataSource.deleteById(medicationId)
-        saveMedicationsToNetwork()
+        withContext(dispatcher) {
+            try {
+                Timber.d("Deleting medication $medicationId from Room")
+                localDataSource.deleteById(medicationId)
+                Timber.d("Deleting medication $medicationId from Firebase")
+                networkDataSource.deleteMedication(medicationId)
+                Timber.d("Medication $medicationId deleted successfully")
+            } catch (e: Exception) {
+                Timber.e(e, "Failed to delete medication $medicationId")
+                throw e
+            }
+        }
     }
 
     override suspend fun saveMedicationsToNetwork() {

@@ -75,6 +75,16 @@ class MedicationFirebaseDataSource @Inject constructor(
         }
     }
 
+    override suspend fun deleteMedication(medicationId: String) {
+        try {
+            medicationRef.child(medicationId).removeValue().await()
+            Timber.d("Deleted medication $medicationId from Firebase")
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to delete medication $medicationId from Firebase")
+            throw Exception("Failed to delete medication: ${e.message}", e)
+        }
+    }
+
     override fun removeListeners() {
         listeners.forEach { medicationRef.removeEventListener(it) }
         listeners.clear()

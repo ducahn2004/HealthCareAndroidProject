@@ -249,6 +249,7 @@ class AddMedicationDialogFragment : DialogFragment() {
                 val resultKey = when (sourceFragment) {
                     SOURCE_PILL_FRAGMENT -> RESULT_KEY_PILL_FRAGMENT
                     SOURCE_MEDICAL_VISIT_FRAGMENT -> RESULT_KEY_MEDICAL_VISIT_FRAGMENT
+                    SOURCE_MEDICAL_HISTORY_DETAIL_FRAGMENT -> RESULT_KEY_MEDICAL_HISTORY_DETAIL_FRAGMENT
                     else -> RESULT_KEY_DEFAULT
                 }
 
@@ -286,10 +287,12 @@ class AddMedicationDialogFragment : DialogFragment() {
 
         const val SOURCE_PILL_FRAGMENT = "pill_fragment"
         const val SOURCE_MEDICAL_VISIT_FRAGMENT = "medical_visit_fragment"
+        const val SOURCE_MEDICAL_HISTORY_DETAIL_FRAGMENT = "medical_history_detail_fragment"
 
         const val RESULT_KEY_DEFAULT = "medicationKey"
         const val RESULT_KEY_PILL_FRAGMENT = "medicationKeyPill"
         const val RESULT_KEY_MEDICAL_VISIT_FRAGMENT = "medicationKeyMedicalVisit"
+        const val RESULT_KEY_MEDICAL_HISTORY_DETAIL_FRAGMENT = "medicationKeyMedicalHistoryDetail"
 
         fun newInstance(): AddMedicationDialogFragment {
             return AddMedicationDialogFragment()
