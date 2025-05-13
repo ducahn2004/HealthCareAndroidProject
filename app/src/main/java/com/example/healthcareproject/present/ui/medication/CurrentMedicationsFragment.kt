@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.setFragmentResultListener
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.healthcareproject.R
 import com.example.healthcareproject.databinding.FragmentCurrentMedicationsBinding
@@ -14,6 +15,7 @@ import com.example.healthcareproject.domain.model.Medication
 import com.example.healthcareproject.present.navigation.MainNavigator
 import com.example.healthcareproject.present.viewmodel.medication.PillViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -30,6 +32,7 @@ class CurrentMedicationsFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        Timber.d("CurrentMedicationsFragment onCreateView")
         binding = DataBindingUtil.inflate(
             inflater,
             R.layout.fragment_current_medications,
@@ -43,20 +46,27 @@ class CurrentMedicationsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        Timber.d("CurrentMedicationsFragment onViewCreated")
         setupRecyclerView()
+        setupFab()
         observeMedications()
+        setupFragmentResultListener()
     }
 
     private fun setupRecyclerView() {
+        Timber.d("Setting up current medications RecyclerView")
         medicationAdapter = MedicationAdapter(
             onEdit = { medication ->
+                Timber.d("Editing medication: ${medication.name}")
                 showEditMedicationDialog(medication)
             },
             onDelete = { medication ->
+                Timber.d("Deleting medication: ${medication.name}")
                 showDeleteConfirmationDialog(medication)
             },
             onItemClick = { medication ->
                 medication.visitId?.takeIf { it.isNotEmpty() }?.let { visitId ->
+                    Timber.d("Navigating to medical history detail: $visitId")
                     mainNavigator.navigatePillFragmentToMedicalHistoryDetail(visitId)
                 }
             }
@@ -66,6 +76,21 @@ class CurrentMedicationsFragment : Fragment() {
             layoutManager = LinearLayoutManager(context)
             adapter = medicationAdapter
         }
+    }
+
+    private fun setupFab() {
+        binding.fabAddMedication.setOnClickListener {
+            Timber.d("FAB Add Medication clicked")
+            showAddMedicationDialog()
+        }
+    }
+
+    private fun showAddMedicationDialog() {
+        val dialog = AddMedicationDialogFragment.newInstance(
+            medication = null,
+            sourceFragment = AddMedicationDialogFragment.SOURCE_PILL_FRAGMENT
+        )
+        dialog.show(parentFragmentManager, "AddMedicationDialog")
     }
 
     private fun showEditMedicationDialog(medication: Medication) {
@@ -81,6 +106,7 @@ class CurrentMedicationsFragment : Fragment() {
             .setTitle("Delete Medication")
             .setMessage("Are you sure you want to delete ${medication.name}?")
             .setPositiveButton("Delete") { _, _ ->
+                Timber.d("Confirmed deletion of medication: ${medication.name}")
                 viewModel.deleteMedication(medication.medicationId)
             }
             .setNegativeButton("Cancel", null)
@@ -89,7 +115,20 @@ class CurrentMedicationsFragment : Fragment() {
 
     private fun observeMedications() {
         viewModel.currentMedications.observe(viewLifecycleOwner) { medications ->
+            Timber.d("Current medications received: size=${medications?.size}")
             medicationAdapter.submitList(medications)
+            binding.tvNoCurrentMedications.visibility = if (medications.isNullOrEmpty()) View.VISIBLE else View.GONE
+        }
+    }
+
+    private fun setupFragmentResultListener() {
+        setFragmentResultListener("medicationResult") { _, bundle ->
+            Timber.d("Received medication result")
+            val medication = bundle.getParcelable<Medication>("medication")
+            medication?.let {
+                Timber.d("Medication updated/added: ${it.name}")
+                viewModel.loadMedications()
+            }
         }
     }
 }

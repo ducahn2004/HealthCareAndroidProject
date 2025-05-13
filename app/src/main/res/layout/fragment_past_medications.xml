@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <!-- No Past Medications Message -->
+        <!-- No Medications Message -->
         <TextView
             android:id="@+id/tv_no_past_medications"
             android:layout_width="wrap_content"
@@ -40,6 +40,21 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             tools:listitem="@layout/item_medication" />
+
+        <!-- Floating Action Button for Adding Medication -->
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_add_medication"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@android:drawable/ic_input_add"
+            android:contentDescription="Add new medication"
+            app:backgroundTint="@color/fab_background"
+            app:tint="@color/fab_icon_color"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_margin="24dp"
+            app:elevation="8dp"
+            app:useCompatPadding="true" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
