@@ -1,7 +1,6 @@
 package com.example.healthcareproject.present.ui.medicine
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,11 +9,11 @@ import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.healthcareproject.databinding.FragmentMedicineBinding
 import com.example.healthcareproject.domain.model.MedicalVisit
 import com.example.healthcareproject.present.navigation.MainNavigator
 import com.example.healthcareproject.present.viewmodel.medicine.MedicineViewModel
+import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 import javax.inject.Inject
@@ -28,13 +27,11 @@ class MedicineFragment : Fragment() {
     @Inject
     lateinit var mainNavigator: MainNavigator
 
-    private lateinit var medicalVisitAdapter: MedicalVisitAdapter
-    private lateinit var appointmentAdapter: AppointmentAdapter
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        Timber.d("MedicineFragment onCreateView")
         _binding = FragmentMedicineBinding.inflate(inflater, container, false)
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
@@ -43,67 +40,55 @@ class MedicineFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        setupRecyclerViews()
+        Timber.d("MedicineFragment onViewCreated")
+        setupViewPager()
         setupSearch()
         setupObservers()
         setupFragmentResultListener()
-        setupButtons()
         viewModel.loadMedicalVisits()
     }
 
-    private fun setupRecyclerViews() {
-        medicalVisitAdapter = MedicalVisitAdapter { visit ->
-            Timber.tag("MedicineFragment").d("Navigating with visitId: ${visit.visitId}")
-            mainNavigator.navigateMedicineToMedicalHistoryDetail(visit.visitId)
-        }
-        appointmentAdapter = AppointmentAdapter ()
-
-        binding.recyclerViewBefore.apply {
-            layoutManager = LinearLayoutManager(context)
-            adapter = medicalVisitAdapter
-        }
-
-        binding.recyclerViewAfter.apply {
-            layoutManager = LinearLayoutManager(context)
-            adapter = appointmentAdapter
-        }
+    private fun setupViewPager() {
+        Timber.d("Setting up ViewPager")
+        val pagerAdapter = MedicinePagerAdapter(this)
+        binding.viewPager.adapter = pagerAdapter
+        TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
+            tab.text = when (position) {
+                0 -> "Upcoming Visits"
+                1 -> "Past Visits"
+                else -> null
+            }
+        }.attach()
     }
 
     private fun setupSearch() {
         binding.etSearch.addTextChangedListener { text ->
+            Timber.d("Search input: $text")
             viewModel.onSearchQueryChanged(text.toString())
         }
     }
 
     private fun setupObservers() {
-        viewModel.medicalVisits.observe(viewLifecycleOwner) { visits ->
-            medicalVisitAdapter.submitList(visits)
-            binding.tvNoPastVisits.visibility = if (visits.isEmpty()) View.VISIBLE else View.GONE
-        }
-
-        viewModel.appointments.observe(viewLifecycleOwner) { appointments ->
-            appointmentAdapter.submitList(appointments)
-            binding.tvNoFutureVisits.visibility = if (appointments.isEmpty()) View.VISIBLE else View.GONE
-        }
-
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            Timber.d("Loading state: $isLoading")
             binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
         }
 
         viewModel.error.observe(viewLifecycleOwner) { errorMsg ->
             errorMsg?.let {
-                Timber.tag("MedicineFragment").e("Error: $it")
+                Timber.e("Error: $it")
                 Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
                 viewModel.error.value = null
             }
         }
 
         viewModel.navigateToAddAppointmentEvent.observe(viewLifecycleOwner) {
+            Timber.d("Navigating to add appointment")
             mainNavigator.navigateToAddAppointment()
         }
 
         viewModel.navigateToAddMedicalVisitEvent.observe(viewLifecycleOwner) {
+            Timber.d("Navigating to add medical visit")
             mainNavigator.navigateToAddMedicalVisit()
         }
     }
@@ -112,23 +97,15 @@ class MedicineFragment : Fragment() {
         setFragmentResultListener("requestKey") { _, bundle ->
             val newVisit = bundle.getParcelable<MedicalVisit>("newVisit")
             newVisit?.let {
+                Timber.d("New visit added, reloading data")
                 viewModel.loadMedicalVisits()
             }
         }
     }
 
-    private fun setupButtons() {
-        binding.btnAddFutureVisit.setOnClickListener {
-            viewModel.navigateToAddAppointment()
-        }
-
-        binding.btnAddPastVisit.setOnClickListener {
-            viewModel.navigateToAddMedicalVisit()
-        }
-    }
-
     override fun onDestroyView() {
         super.onDestroyView()
+        Timber.d("MedicineFragment onDestroyView")
         _binding = null
     }
 }
