@@ -1,4 +1,4 @@
-package com.example.healthcareproject.present.ui.medicine
+package com.example.healthcareproject.present.viewmodel.medicine
 
 import android.view.View
 import androidx.lifecycle.LiveData

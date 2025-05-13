@@ -6,7 +6,7 @@
     <data>
         <variable
             name="viewModel"
-            type="com.example.healthcareproject.present.ui.medicine.MedicineViewModel" />
+            type="com.example.healthcareproject.present.viewmodel.medicine.MedicineViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

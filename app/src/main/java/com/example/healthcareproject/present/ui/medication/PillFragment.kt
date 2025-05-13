@@ -10,11 +10,11 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.healthcareproject.R
 import com.example.healthcareproject.databinding.FragmentPillBinding
-import com.example.healthcareproject.domain.model.Medication
 import com.example.healthcareproject.present.navigation.MainNavigator
+import com.example.healthcareproject.present.viewmodel.medication.PillViewModel
+import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 import javax.inject.Inject
@@ -26,9 +26,6 @@ class PillFragment : Fragment() {
 
     @Inject
     lateinit var mainNavigator: MainNavigator
-
-    private lateinit var currentMedicationAdapter: MedicationAdapter
-    private lateinit var pastMedicationAdapter: MedicationAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -47,67 +44,23 @@ class PillFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setupRecyclerViews()
+        setupViewPager()
         setupClickListeners()
         setupFragmentResultListener()
-        observeMedications()
+        observeErrors()
     }
 
-    private fun setupRecyclerViews() {
-        currentMedicationAdapter = MedicationAdapter(
-            onEdit = { medication ->
-                showEditMedicationDialog(medication)
-            },
-            onDelete = { medication ->
-                showDeleteConfirmationDialog(medication)
-            },
-            onItemClick = { medication ->
-                medication.visitId?.takeIf { it.isNotEmpty() }?.let { visitId ->
-                    mainNavigator.navigatePillFragmentToMedicalHistoryDetail(visitId)
-                } // Silently ignore standalone medications
-            }
-        )
-        pastMedicationAdapter = MedicationAdapter(
-            onEdit = { medication ->
-                showEditMedicationDialog(medication)
-            },
-            onDelete = { medication ->
-                showDeleteConfirmationDialog(medication)
-            },
-            onItemClick = { medication ->
-                medication.visitId?.takeIf { it.isNotEmpty() }?.let { visitId ->
-                    mainNavigator.navigatePillFragmentToMedicalHistoryDetail(visitId)
-                } // Silently ignore standalone medications
-            }
-        )
+    private fun setupViewPager() {
+        val pagerAdapter = MedicationPagerAdapter(this)
+        binding.viewPager.adapter = pagerAdapter
 
-        binding.rvCurrentMedications.apply {
-            layoutManager = LinearLayoutManager(context)
-            adapter = currentMedicationAdapter
-        }
-        binding.rvPastMedications.apply {
-            layoutManager = LinearLayoutManager(context)
-            adapter = pastMedicationAdapter
-        }
-    }
-
-    private fun showEditMedicationDialog(medication: Medication) {
-        val dialog = AddMedicationDialogFragment.newInstance(
-            medication = medication,
-            sourceFragment = AddMedicationDialogFragment.SOURCE_PILL_FRAGMENT
-        )
-        dialog.show(parentFragmentManager, "EditMedicationDialog")
-    }
-
-    private fun showDeleteConfirmationDialog(medication: Medication) {
-        AlertDialog.Builder(requireContext())
-            .setTitle("Delete Medication")
-            .setMessage("Are you sure you want to delete ${medication.name}?")
-            .setPositiveButton("Delete") { _, _ ->
-                viewModel.deleteMedication(medication.medicationId)
+        TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
+            tab.text = when (position) {
+                0 -> "Current Medications"
+                1 -> "Past Medications"
+                else -> null
             }
-            .setNegativeButton("Cancel", null)
-            .show()
+        }.attach()
     }
 
     private fun setupClickListeners() {
@@ -143,15 +96,7 @@ class PillFragment : Fragment() {
         }
     }
 
-    private fun observeMedications() {
-        viewModel.currentMedications.observe(viewLifecycleOwner) { medications ->
-            Timber.tag("PillFragment").d("Current Medications: $medications")
-            currentMedicationAdapter.submitList(medications)
-        }
-        viewModel.pastMedications.observe(viewLifecycleOwner) { medications ->
-            Timber.tag("PillFragment").d("Past Medications: $medications")
-            pastMedicationAdapter.submitList(medications)
-        }
+    private fun observeErrors() {
         viewModel.error.observe(viewLifecycleOwner) { errorMessage ->
             errorMessage?.let {
                 Toast.makeText(context, it, Toast.LENGTH_SHORT).show()

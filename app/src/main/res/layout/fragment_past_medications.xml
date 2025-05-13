@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <import type="android.view.View" />
+        <variable
+            name="viewModel"
+            type="com.example.healthcareproject.present.viewmodel.medication.PillViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <!-- No Past Medications Message -->
+        <TextView
+            android:id="@+id/tv_no_past_medications"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="No past medications available"
+            android:textColor="@color/secondary_text_color"
+            android:textSize="16sp"
+            android:visibility="@{viewModel.noPastMedicationsVisibility}"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="8dp" />
+
+        <!-- Past Medications RecyclerView -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_past_medications"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:background="@color/surface"
+            android:contentDescription="List of past medications"
+            app:layout_constraintTop_toBottomOf="@id/tv_no_past_medications"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:listitem="@layout/item_medication" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

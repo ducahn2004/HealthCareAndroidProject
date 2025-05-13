@@ -7,7 +7,7 @@
         <import type="android.view.View" />
         <variable
             name="viewModel"
-            type="com.example.healthcareproject.present.ui.medication.PillViewModel" />
+            type="com.example.healthcareproject.present.viewmodel.medication.PillViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -40,90 +40,27 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- Current Medications Title -->
-        <TextView
-            android:id="@+id/tv_current_medications"
-            android:layout_width="wrap_content"
+        <!-- TabLayout -->
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tab_layout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Current Medications"
-            android:textColor="@color/primary_text_color"
-            android:textSize="24sp"
-            android:textStyle="bold"
+            app:tabMode="fixed"
+            app:tabGravity="fill"
             app:layout_constraintTop_toBottomOf="@id/progress_bar"
             app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp" />
-
-        <!-- No Current Medications Message -->
-        <TextView
-            android:id="@+id/tv_no_current_medications"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="No current medications available"
-            android:textColor="@color/secondary_text_color"
-            android:textSize="16sp"
-            android:visibility="@{viewModel.noCurrentMedicationsVisibility}"
-            app:layout_constraintTop_toBottomOf="@id/tv_current_medications"
-            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginTop="8dp" />
 
-        <!-- Current Medications RecyclerView -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_current_medications"
+        <!-- ViewPager2 -->
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/view_pager"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:background="@color/surface"
-            android:contentDescription="List of current medications"
-            app:layout_constraintTop_toBottomOf="@id/tv_no_current_medications"
-            app:layout_constraintBottom_toTopOf="@id/tv_past_medications"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHeight_percent="0.35"
-            android:layout_marginBottom="16dp"
-            tools:listitem="@layout/item_medication" />
-
-        <!-- Past Medications Title -->
-
-        <!-- No Past Medications Message -->
-
-        <TextView
-            android:id="@+id/tv_past_medications"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="44dp"
-            android:text="Past Medications"
-            android:textColor="@color/primary_text_color"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/rv_current_medications" />
-
-        <TextView
-            android:id="@+id/tv_no_past_medications"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="No past medications available"
-            android:textColor="@color/secondary_text_color"
-            android:textSize="16sp"
-            android:visibility="@{viewModel.noPastMedicationsVisibility}"
-            app:layout_constraintTop_toBottomOf="@id/tv_past_medications"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="8dp" />
-
-        <!-- Past Medications RecyclerView -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_past_medications"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:background="@color/surface"
-            android:contentDescription="List of past medications"
+            app:layout_constraintTop_toBottomOf="@id/tab_layout"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_no_past_medications"
-            tools:listitem="@layout/item_medication" />
+            app:layout_constraintEnd_toEndOf="parent" />
 
         <!-- Floating Action Button to Add Medication -->
         <com.google.android.material.floatingactionbutton.FloatingActionButton

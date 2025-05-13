@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.healthcareproject.databinding.FragmentMedicineBinding
 import com.example.healthcareproject.domain.model.MedicalVisit
 import com.example.healthcareproject.present.navigation.MainNavigator
+import com.example.healthcareproject.present.viewmodel.medicine.MedicineViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 import javax.inject.Inject
