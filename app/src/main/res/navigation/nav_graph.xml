@@ -21,8 +21,8 @@
             android:id="@+id/action_homeFragment_to_ecgFragment"
             app:destination="@id/ecgFragment" />
         <action
-            android:id="@+id/action_homeFragment_to_weightFragment"
-            app:destination="@id/weightFragment" />
+            android:id="@+id/action_homeFragment_to_alarmFragment"
+            app:destination="@id/alarmFragment" />
     </fragment>
 
     <fragment
@@ -56,9 +56,13 @@
         android:label="ECG" />
 
     <fragment
-        android:id="@+id/weightFragment"
-        android:name="com.example.healthcareproject.present.ui.home.WeightFragment"
-        android:label="Weight" />
+        android:id="@+id/alarmFragment"
+        android:name="com.example.healthcareproject.present.ui.home.alarm.AlarmFragment"
+        android:label="Alarm">
+        <action
+            android:id="@+id/action_back_alarm_to_home"
+            app:destination="@id/homeFragment" />
+    </fragment>
 
     <!-- Pill Fragment -->
     <fragment
@@ -171,7 +175,7 @@
             app:destination="@id/ecgFragment" />
         <action
             android:id="@+id/action_notificationFragment_to_weightFragment"
-            app:destination="@id/weightFragment" />
+            app:destination="@id/alarmFragment" />
     </fragment>
 
     <!-- Settings Fragment -->

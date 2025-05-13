@@ -49,7 +49,7 @@ class HomeFragment : Fragment() {
         }
 
         binding.cvWeight.setOnClickListener {
-            findNavController().navigate(R.id.action_homeFragment_to_weightFragment)
+            findNavController().navigate(R.id.action_homeFragment_to_alarmFragment)
         }
     }
 
