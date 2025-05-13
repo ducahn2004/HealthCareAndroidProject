@@ -92,7 +92,7 @@ class MedicineFragment : Fragment() {
 
         viewModel.error.observe(viewLifecycleOwner) { errorMsg ->
             errorMsg?.let {
-                Log.e("MedicineFragment", "Error: $it")
+                Timber.tag("MedicineFragment").e("Error: $it")
                 Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
                 viewModel.error.value = null
             }
