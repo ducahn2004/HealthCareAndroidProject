@@ -7,7 +7,7 @@ import javax.inject.Inject
 class GetMeasurementsUseCase @Inject constructor(
     private val measurementRepository: MeasurementRepository
 ) {
-    suspend operator fun invoke(forceUpdate: Boolean = false): List<Measurement> {
+    suspend operator fun invoke(forceUpdate: Boolean = true): List<Measurement> {
         return measurementRepository.getMeasurements(forceUpdate)
     }
 }

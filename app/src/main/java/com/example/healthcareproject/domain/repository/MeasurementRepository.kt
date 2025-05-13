@@ -27,11 +27,11 @@ interface MeasurementRepository {
 
     fun getMeasurementStream(measurementId: String): Flow<Measurement?>
 
-    suspend fun getMeasurements(forceUpdate: Boolean = false): List<Measurement>
+    suspend fun getMeasurements(forceUpdate: Boolean): List<Measurement>
 
     suspend fun refresh()
 
-    suspend fun getMeasurement(measurementId: String, forceUpdate: Boolean = false): Measurement?
+    suspend fun getMeasurement(measurementId: String, forceUpdate: Boolean = true): Measurement?
 
     suspend fun refreshMeasurement(measurementId: String)
 
