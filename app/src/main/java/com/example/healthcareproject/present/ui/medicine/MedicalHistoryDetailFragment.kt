@@ -1,6 +1,7 @@
 package com.example.healthcareproject.present.ui.medicine
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -79,8 +80,13 @@ class MedicalHistoryDetailFragment : Fragment() {
 
     private fun setupRecyclerView() {
         medicationAdapter = MedicationAdapter(
-            onEdit = { /* Editing not supported in history view */ },
-            onDelete = { /* Deleting not supported in history view */ }
+            onEdit = { medication ->
+                showEditMedicationDialog(medication)
+            },
+            onDelete = { medication ->
+                showDeleteConfirmationDialog(medication)
+            },
+            isHistoryView = false // Hiển thị icon edit/delete
         )
         binding.rvMedications.apply {
             layoutManager = LinearLayoutManager(requireContext())
@@ -122,13 +128,31 @@ class MedicalHistoryDetailFragment : Fragment() {
             if (bundle.getBoolean("medicationAdded", false)) {
                 val source = bundle.getString("sourceFragment")
                 if (source == AddMedicationDialogFragment.SOURCE_MEDICAL_HISTORY_DETAIL_FRAGMENT) {
-                    val visitId = arguments?.getString("visitId")
-                    if (visitId != null) {
-                        viewModel.loadDetails(visitId)
+                    val updatedMedication = bundle.getParcelable<Medication>("updatedMedication")
+                    if (updatedMedication != null) {
+                        viewModel.updateMedication(updatedMedication)
                         Toast.makeText(context, "Medication updated successfully", Toast.LENGTH_SHORT).show()
+                    } else {
+                        val visitId = arguments?.getString("visitId")
+                        if (visitId != null) {
+                            viewModel.loadDetails(visitId)
+                            Toast.makeText(context, "Medication updated successfully", Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
             }
         }
     }
+
+    private fun showDeleteConfirmationDialog(medication: Medication) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Delete Medication")
+            .setMessage("Are you sure you want to delete ${medication.name}?")
+            .setPositiveButton("Delete") { _, _ ->
+                viewModel.deleteMedication(medication.medicationId)
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
 }
