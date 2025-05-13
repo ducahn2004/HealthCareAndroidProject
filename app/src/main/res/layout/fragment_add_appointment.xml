@@ -166,35 +166,8 @@
                         android:visibility="@{viewModel.clinicNameError != null ? View.VISIBLE : View.GONE}" />
 
                     <!-- Treatment -->
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:text="@string/treatment"
-                        android:textColor="@color/secondary_text_color"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
-
-                    <EditText
-                        android:id="@+id/et_treatment"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:hint="@string/enter_treatment"
-                        android:inputType="text"
-                        android:textColor="@color/secondary_text_color"
-                        android:textSize="18sp"
-                        android:text="@={viewModel.treatment}" />
 
                     <!-- Treatment Error -->
-                    <TextView
-                        android:id="@+id/tv_treatment_error"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@{viewModel.treatmentError}"
-                        android:textColor="@color/alert_text_color"
-                        android:textSize="12sp"
-                        android:visibility="@{viewModel.treatmentError != null ? View.VISIBLE : View.GONE}" />
 
                     <!-- Date -->
                     <TextView

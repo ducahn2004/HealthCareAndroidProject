@@ -56,11 +56,7 @@ class MedicineFragment : Fragment() {
             Timber.tag("MedicineFragment").d("Navigating with visitId: ${visit.visitId}")
             mainNavigator.navigateMedicineToMedicalHistoryDetail(visit.visitId)
         }
-        appointmentAdapter = AppointmentAdapter { appointment ->
-            val id = appointment.visitId ?: appointment.appointmentId
-            Timber.tag("MedicineFragment").d("Navigating with id: $id")
-            mainNavigator.navigateMedicineToMedicalHistoryDetail(appointment.visitId ?: appointment.appointmentId)
-        }
+        appointmentAdapter = AppointmentAdapter ()
 
         binding.recyclerViewBefore.apply {
             layoutManager = LinearLayoutManager(context)
