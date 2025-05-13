@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.*
 import com.example.healthcareproject.domain.model.MedicalVisit
 import com.example.healthcareproject.domain.model.Medication
+import com.example.healthcareproject.domain.repository.MedicationRepository
 import com.example.healthcareproject.domain.usecase.medicalvisit.MedicalVisitUseCases
 import com.example.healthcareproject.domain.usecase.medication.MedicationUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,7 +16,8 @@ import javax.inject.Inject
 @HiltViewModel
 class MedicalHistoryDetailViewModel @Inject constructor(
     private val medicalVisitUseCases: MedicalVisitUseCases,
-    private val medicationUseCases: MedicationUseCases
+    private val medicationUseCases: MedicationUseCases,
+    private val medicationRepository: MedicationRepository
 ) : ViewModel() {
 
     private val _medicalVisit = MutableLiveData<MedicalVisit?>()

@@ -9,12 +9,15 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.healthcareproject.R
 import com.example.healthcareproject.databinding.FragmentMedicalHistoryDetailBinding
+import com.example.healthcareproject.domain.model.Medication
 import com.example.healthcareproject.present.navigation.MainNavigator
+import com.example.healthcareproject.present.ui.medication.AddMedicationDialogFragment
 import com.example.healthcareproject.present.ui.medication.MedicationAdapter
 import com.example.healthcareproject.present.viewmodel.medicine.MedicalHistoryDetailViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -70,6 +73,7 @@ class MedicalHistoryDetailFragment : Fragment() {
         }
 
         setupRecyclerView()
+        setupFragmentResultListener()
         observeViewModel()
     }
 
@@ -103,6 +107,27 @@ class MedicalHistoryDetailFragment : Fragment() {
                 binding.tvError.text = it
                 binding.tvError.visibility = View.VISIBLE
                 Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+    private fun showEditMedicationDialog(medication: Medication) {
+        val dialog = AddMedicationDialogFragment.newInstance(
+            medication = medication,
+            sourceFragment = AddMedicationDialogFragment.SOURCE_MEDICAL_HISTORY_DETAIL_FRAGMENT
+        )
+        dialog.show(parentFragmentManager, "EditMedicationDialog")
+    }
+    private fun setupFragmentResultListener() {
+        setFragmentResultListener(AddMedicationDialogFragment.RESULT_KEY_DEFAULT) { _, bundle ->
+            if (bundle.getBoolean("medicationAdded", false)) {
+                val source = bundle.getString("sourceFragment")
+                if (source == AddMedicationDialogFragment.SOURCE_MEDICAL_HISTORY_DETAIL_FRAGMENT) {
+                    val visitId = arguments?.getString("visitId")
+                    if (visitId != null) {
+                        viewModel.loadDetails(visitId)
+                        Toast.makeText(context, "Medication updated successfully", Toast.LENGTH_SHORT).show()
+                    }
+                }
             }
         }
     }
