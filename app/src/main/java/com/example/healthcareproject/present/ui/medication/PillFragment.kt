@@ -1,19 +1,18 @@
 package com.example.healthcareproject.present.ui.medication
 
-import android.annotation.SuppressLint
-import android.app.AlertDialog
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import com.example.healthcareproject.R
-import android.text.Editable
-import android.text.TextWatcher
 import com.example.healthcareproject.databinding.FragmentPillBinding
 import com.example.healthcareproject.present.navigation.MainNavigator
 import com.example.healthcareproject.present.viewmodel.medication.PillViewModel
@@ -50,9 +49,9 @@ class PillFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         Timber.d("PillFragment onViewCreated")
         setupViewPager()
-        setupSearch()
         setupClickListeners()
         setupObservers()
+        setupSearch()
         setupFragmentResultListener()
         if (savedInstanceState == null) {
             viewModel.loadMedications()
@@ -87,44 +86,51 @@ class PillFragment : Fragment() {
         }
     }
 
-    @SuppressLint("ClickableViewAccessibility")
     private fun setupSearch() {
+        Timber.d("Setting up search functionality")
         binding.etSearch.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-                // Not needed
+                // Không cần xử lý
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                // Not needed
+                // Hiển thị/ẩn nút xóa
+                binding.clearSearchButton.isVisible = !s.isNullOrEmpty()
             }
 
             override fun afterTextChanged(editable: Editable?) {
                 val query = editable?.toString() ?: ""
-                Timber.d("Search input: $query")
+                Timber.d("Search query changed: '$query'")
                 viewModel.onSearchQueryChanged(query)
             }
         })
 
-        binding.etSearch.setOnTouchListener { _, event ->
-            if (event.action == android.view.MotionEvent.ACTION_UP) {
-                val drawableEnd = binding.etSearch.compoundDrawables[2]
-                if (drawableEnd != null && event.rawX >= (binding.etSearch.right - drawableEnd.bounds.width())) {
-                    binding.etSearch.text?.clear()
-                    viewModel.onSearchQueryChanged("")
-                    return@setOnTouchListener true
-                }
-            }
-            false
+        binding.clearSearchButton.setOnClickListener {
+            Timber.d("Clear search button clicked")
+            binding.etSearch.text?.clear()
+            viewModel.onSearchQueryChanged("")
         }
     }
 
     private fun setupObservers() {
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
-            Timber.d("Loading state: $isLoading")
+            binding.progressBar.isVisible = isLoading
+            Timber.d("Loading state changed: $isLoading")
         }
+
+        viewModel.currentMedications.observe(viewLifecycleOwner) { medications ->
+            Timber.d("Current medications updated: ${medications.size} items")
+            // Cập nhật adapter nếu cần
+        }
+
+        viewModel.pastMedications.observe(viewLifecycleOwner) { medications ->
+            Timber.d("Past medications updated: ${medications.size} items")
+            // Cập nhật adapter nếu cần
+        }
+
         viewModel.error.observe(viewLifecycleOwner) { errorMessage ->
             errorMessage?.let {
-                Timber.e("Error: $it")
+                Timber.e("Error received: $it")
                 Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
                 viewModel.clearError()
             }
@@ -145,14 +151,6 @@ class PillFragment : Fragment() {
                     viewModel.loadMedications()
                     Toast.makeText(context, "Medication added successfully", Toast.LENGTH_SHORT).show()
                 }
-            }
-        }
-    }
-
-    private fun observeErrors() {
-        viewModel.error.observe(viewLifecycleOwner) { errorMessage ->
-            errorMessage?.let {
-                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
             }
         }
     }

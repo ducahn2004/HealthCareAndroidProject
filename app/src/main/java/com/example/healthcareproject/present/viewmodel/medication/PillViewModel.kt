@@ -18,7 +18,6 @@ import javax.inject.Inject
 class PillViewModel @Inject constructor(
     private val medicationUseCases: MedicationUseCases
 ) : ViewModel() {
-    // LiveData for directly binding to views
     private val _isLoading = MutableLiveData<Boolean>(false)
     val isLoading: LiveData<Boolean> = _isLoading
 
@@ -31,14 +30,16 @@ class PillViewModel @Inject constructor(
     private val _error = MutableLiveData<String?>(null)
     val error: LiveData<String?> = _error
 
-    // Visibility helpers for data binding
     private val _noCurrentMedicationsVisible = MutableLiveData<Boolean>(false)
     val noCurrentMedicationsVisible: LiveData<Boolean> = _noCurrentMedicationsVisible
 
     private val _noPastMedicationsVisible = MutableLiveData<Boolean>(false)
     val noPastMedicationsVisible: LiveData<Boolean> = _noPastMedicationsVisible
 
-    // Convenience properties for direct binding in layout
+    private var allMedications: List<Medication> = emptyList()
+    private var currentSearchQuery: String = ""
+    private var lastChar: Char? = null
+
     val loadingVisibility: Int
         get() = if (_isLoading.value == true) View.VISIBLE else View.GONE
 
@@ -56,29 +57,24 @@ class PillViewModel @Inject constructor(
         viewModelScope.launch {
             _isLoading.value = true
             _error.value = null
+            Timber.d("Loading medications")
+
             when (val result = medicationUseCases.getMedications()) {
                 is Result.Success -> {
-                    val current = result.data.filter { medication ->
-                        val today = LocalDate.now()
-                        !today.isBefore(medication.startDate) && !today.isAfter(medication.endDate)
+                    allMedications = result.data
+                    Timber.d("Loaded ${allMedications.size} medications from source")
+                    if (currentSearchQuery.isNotEmpty()) {
+                        Timber.d("Applying existing filter: '$currentSearchQuery'")
+                        onSearchQueryChanged(currentSearchQuery)
+                    } else {
+                        updateMedicationLists(allMedications)
                     }
-                    val past = result.data.filterNot { medication ->
-                        val today = LocalDate.now()
-                        !today.isBefore(medication.startDate) && !today.isAfter(medication.endDate)
-                    }
-                    _currentMedications.value = current.sortedWith(
-                        compareByDescending<Medication> { it.startDate }.thenBy { it.name }
-                    )
-                    _pastMedications.value = past.sortedWith(
-                        compareByDescending<Medication> { it.endDate }.thenBy { it.name }
-                    )
-                    _noCurrentMedicationsVisible.value = current.isEmpty()
-                    _noPastMedicationsVisible.value = past.isEmpty()
                     _isLoading.value = false
                 }
                 is Result.Error -> {
                     _error.value = result.exception.message ?: "Failed to load medications"
                     _isLoading.value = false
+                    Timber.e(result.exception, "Error loading medications")
                 }
                 is Result.Loading -> {
                     _isLoading.value = true
@@ -88,42 +84,59 @@ class PillViewModel @Inject constructor(
     }
 
     fun onSearchQueryChanged(query: String) {
+        Timber.d("Search query changed: '$query'")
+        currentSearchQuery = query
+
+        val currentChar = query.lastOrNull()
+        if (currentChar != null && currentChar == lastChar) {
+            Timber.d("Duplicate character detected: '$currentChar'. Resetting list.")
+        }
+        lastChar = currentChar
+
         viewModelScope.launch {
             _isLoading.value = true
-            _error.value = null
-            when (val result = medicationUseCases.getMedications()) {
-                is Result.Success -> {
-                    val filteredMedications = result.data.filter { medication ->
+            try {
+                val filteredMedications = if (query.isEmpty()) {
+                    Timber.d("Empty query - showing all medications")
+                    allMedications
+                } else {
+                    Timber.d("Filtering medications by query: '$query'")
+                    allMedications.filter { medication ->
                         medication.name.contains(query, ignoreCase = true) ||
                                 medication.notes.contains(query, ignoreCase = true)
                     }
-                    val current = filteredMedications.filter { medication ->
-                        val today = LocalDate.now()
-                        !today.isBefore(medication.startDate) && !today.isAfter(medication.endDate)
-                    }
-                    val past = filteredMedications.filterNot { medication ->
-                        val today = LocalDate.now()
-                        !today.isBefore(medication.startDate) && !today.isAfter(medication.endDate)
-                    }
-                    _currentMedications.value = current.sortedWith(
-                        compareByDescending<Medication> { it.startDate }.thenBy { it.name }
-                    )
-                    _pastMedications.value = past.sortedWith(
-                        compareByDescending<Medication> { it.endDate }.thenBy { it.name }
-                    )
-                    _noCurrentMedicationsVisible.value = current.isEmpty()
-                    _noPastMedicationsVisible.value = past.isEmpty()
-                    _isLoading.value = false
                 }
-                is Result.Error -> {
-                    _error.value = result.exception.message ?: "Search failed"
-                    _isLoading.value = false
-                }
-                is Result.Loading -> {
-                    _isLoading.value = true
-                }
+                Timber.d("Filter result: ${filteredMedications.size} medications")
+                updateMedicationLists(filteredMedications)
+            } catch (e: Exception) {
+                _error.value = "Search failed: ${e.message}"
+            } finally {
+                _isLoading.value = false
             }
         }
+    }
+
+    private fun updateMedicationLists(medications: List<Medication>) {
+        val today = LocalDate.now()
+
+        val current = medications.filter { medication ->
+            !today.isBefore(medication.startDate) && !today.isAfter(medication.endDate)
+        }.sortedWith(
+            compareByDescending<Medication> { it.startDate }.thenBy { it.name }
+        )
+
+        val past = medications.filter { medication ->
+            today.isAfter(medication.endDate)
+        }.sortedWith(
+            compareByDescending<Medication> { it.endDate }.thenBy { it.name }
+        )
+
+        Timber.d("Current medications: ${current.size}, Past medications: ${past.size}")
+
+        _currentMedications.value = current
+        _pastMedications.value = past
+        _noCurrentMedicationsVisible.value = current.isEmpty()
+        _noPastMedicationsVisible.value = past.isEmpty()
     }
 
     fun deleteMedication(medicationId: String) {
@@ -131,12 +144,9 @@ class PillViewModel @Inject constructor(
             _isLoading.value = true
             _error.value = null
 
-            val result = medicationUseCases.deleteMedication(medicationId)
-
-            when (result) {
+            when (val result = medicationUseCases.deleteMedication(medicationId)) {
                 is Result.Success<*> -> {
-                    loadMedications() // Refresh the list after deletion
-                    _isLoading.value = false
+                    loadMedications()
                 }
                 is Result.Error -> {
                     _error.value = result.exception.message ?: "Failed to delete medication"
@@ -152,5 +162,4 @@ class PillViewModel @Inject constructor(
     fun clearError() {
         _error.value = null
     }
-
 }
