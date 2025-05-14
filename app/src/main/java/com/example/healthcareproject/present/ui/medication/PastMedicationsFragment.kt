@@ -132,8 +132,7 @@ class PastMedicationsFragment : Fragment() {
         // Observe search events from ViewModel
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.searchEvent.collectLatest { query ->
-                Timber.d("PastMedicationsFragment received search event: $query")
-                // Khi có sự kiện tìm kiếm, danh sách sẽ được cập nhật thông qua LiveData
+                Timber.d("Fragment received search event: $query")
             }
         }
     }

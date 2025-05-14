@@ -90,24 +90,11 @@ class PillFragment : Fragment() {
 
     private fun setupSearch() {
         Timber.d("Setting up search functionality")
-        // Thêm delay ngắn để tránh search từng ký tự
-        var searchJob: kotlinx.coroutines.Job? = null
 
         binding.etSearch.addTextChangedListener { text ->
             Timber.d("Search input: $text")
             val query = text.toString()
-
-            // Cancel any previous search job
-            searchJob?.cancel()
-
-            // Create a new search job with a slight delay
-            searchJob = viewLifecycleOwner.lifecycleScope.launch {
-                delay(300) // Wait 300ms before executing search
-                viewModel.onSearchQueryChanged(query)
-
-                // After search is executed, notify both fragments
-                notifyFragmentsToRefresh()
-            }
+            viewModel.onSearchQueryChanged(query)
 
             // Update clear button visibility
             binding.clearSearchButton.isVisible = query.isNotEmpty()
@@ -117,19 +104,9 @@ class PillFragment : Fragment() {
             Timber.d("Clear search button clicked")
             binding.etSearch.text?.clear()
             viewModel.onSearchQueryChanged("")
-            notifyFragmentsToRefresh()
         }
     }
 
-    private fun notifyFragmentsToRefresh() {
-        // Find and notify both fragments to refresh their views
-        childFragmentManager.fragments.forEach { fragment ->
-            when (fragment) {
-                is CurrentMedicationsFragment -> fragment.triggerMedicationRefresh()
-                is PastMedicationsFragment -> fragment.triggerMedicationRefresh()
-            }
-        }
-    }
 
     private fun setupObservers() {
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->

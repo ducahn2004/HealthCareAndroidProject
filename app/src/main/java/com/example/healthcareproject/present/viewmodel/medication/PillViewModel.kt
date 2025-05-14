@@ -85,18 +85,40 @@ class PillViewModel @Inject constructor(
 
     fun onSearchQueryChanged(query: String) {
         Timber.d("Search query changed: '$query'")
-        if (currentSearchQuery != query) {
-            currentSearchQuery = query
 
-            viewModelScope.launch {
-                // Emit search event to notify subscribers
-                _searchEvent.emit(query)
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val result = medicationUseCases.getMedications()
+                if (result is Result.Success) {
+                    val medications = result.data
 
-                // Filter medications directly
-                filterAndUpdateMedications(query)
+                    val filteredMedications = if (query.isBlank()) {
+                        medications
+                    } else {
+                        medications.filter {
+                            it.name.contains(query, ignoreCase = true) ||
+                                    it.notes.contains(query, ignoreCase = true) ||
+                                    it.dosageUnit.name.contains(query, ignoreCase = true) || // optional
+                                    it.dosageAmount.toString().contains(query)               // optional
+                        }
+                    }
+
+                    Timber.d("Filtered ${filteredMedications.size} medications for query: '$query'")
+                    updateMedicationLists(filteredMedications)
+                    _searchEvent.emit(query)
+                }
+                _isLoading.value = false
+            } catch (e: Exception) {
+                _error.value = "Search failed: ${e.message}"
+                Timber.e(e, "Unexpected error during search")
+                _isLoading.value = false
             }
         }
     }
+
+
+
 
     private fun filterAndUpdateMedications(query: String) {
         viewModelScope.launch {
