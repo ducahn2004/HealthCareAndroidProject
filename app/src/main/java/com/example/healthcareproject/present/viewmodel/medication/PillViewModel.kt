@@ -38,15 +38,11 @@ class PillViewModel @Inject constructor(
     private val _noPastMedicationsVisible = MutableLiveData<Boolean>(false)
     val noPastMedicationsVisible: LiveData<Boolean> = _noPastMedicationsVisible
 
-    // Event khi tìm kiếm thay đổi
     private val _searchEvent = MutableSharedFlow<String>()
     val searchEvent: SharedFlow<String> = _searchEvent
 
     private var allMedications: List<Medication> = emptyList()
     private var currentSearchQuery: String = ""
-
-    val loadingVisibility: Int
-        get() = if (_isLoading.value == true) View.VISIBLE else View.GONE
 
     val noCurrentMedicationsVisibility: Int
         get() = if (_noCurrentMedicationsVisible.value == true) View.VISIBLE else View.GONE
@@ -84,41 +80,17 @@ class PillViewModel @Inject constructor(
     }
 
     fun onSearchQueryChanged(query: String) {
-        Timber.d("Search query changed: '$query'")
-
+        currentSearchQuery = query
         viewModelScope.launch {
-            _isLoading.value = true
             try {
-                val result = medicationUseCases.getMedications()
-                if (result is Result.Success) {
-                    val medications = result.data
-
-                    val filteredMedications = if (query.isBlank()) {
-                        medications
-                    } else {
-                        medications.filter {
-                            it.name.contains(query, ignoreCase = true) ||
-                                    it.notes.contains(query, ignoreCase = true) ||
-                                    it.dosageUnit.name.contains(query, ignoreCase = true) || // optional
-                                    it.dosageAmount.toString().contains(query)               // optional
-                        }
-                    }
-
-                    Timber.d("Filtered ${filteredMedications.size} medications for query: '$query'")
-                    updateMedicationLists(filteredMedications)
-                    _searchEvent.emit(query)
-                }
-                _isLoading.value = false
+                filterAndUpdateMedications(query)
+                _searchEvent.emit(query)
             } catch (e: Exception) {
                 _error.value = "Search failed: ${e.message}"
                 Timber.e(e, "Unexpected error during search")
-                _isLoading.value = false
             }
         }
     }
-
-
-
 
     private fun filterAndUpdateMedications(query: String) {
         viewModelScope.launch {
@@ -128,11 +100,13 @@ class PillViewModel @Inject constructor(
                 } else {
                     allMedications.filter {
                         it.name.contains(query, ignoreCase = true) ||
-                                (it.notes?.contains(query, ignoreCase = true) ?: false)
+                                it.notes.contains(query, ignoreCase = true) ||
+                                it.dosageUnit.name.contains(query, ignoreCase = true) ||
+                                it.dosageAmount.toString().contains(query)
                     }
                 }
                 Timber.d("Filtered ${filteredMedications.size} medications for query: '$query'")
-                updateMedicationLists(filteredMedications)
+                updateMedicationLists(filteredMedications.toList()) // New list
             } catch (e: Exception) {
                 _error.value = "Search failed: ${e.message}"
                 Timber.e(e, "Unexpected error during search")

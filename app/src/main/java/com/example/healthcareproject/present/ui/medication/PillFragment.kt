@@ -89,19 +89,12 @@ class PillFragment : Fragment() {
     }
 
     private fun setupSearch() {
-        Timber.d("Setting up search functionality")
-
         binding.etSearch.addTextChangedListener { text ->
-            Timber.d("Search input: $text")
             val query = text.toString()
             viewModel.onSearchQueryChanged(query)
-
-            // Update clear button visibility
             binding.clearSearchButton.isVisible = query.isNotEmpty()
         }
-
         binding.clearSearchButton.setOnClickListener {
-            Timber.d("Clear search button clicked")
             binding.etSearch.text?.clear()
             viewModel.onSearchQueryChanged("")
         }

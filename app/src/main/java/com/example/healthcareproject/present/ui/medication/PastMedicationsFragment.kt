@@ -121,10 +121,14 @@ class PastMedicationsFragment : Fragment() {
 
     private fun observeMedications() {
         viewModel.pastMedications.observe(viewLifecycleOwner) { medications ->
-            Timber.d("Past medications received: size=${medications?.size}")
-            medicationAdapter.submitList(medications)
+            Timber.d("PastMedicationsFragment: Received ${medications?.size ?: 0} medications: ${medications?.map { it.name }?.joinToString()}")
+            medicationAdapter.submitList(medications?.toList())
+            medicationAdapter.notifyDataSetChanged() // Fallback
             binding.tvNoPastMedications.visibility =
                 if (medications.isNullOrEmpty()) View.VISIBLE else View.GONE
+            binding.rvPastMedications.invalidate()
+            binding.rvPastMedications.requestLayout()
+            Timber.d("PastMedicationsFragment: Adapter updated with ${medicationAdapter.itemCount} items")
         }
     }
 
@@ -145,7 +149,7 @@ class PastMedicationsFragment : Fragment() {
                 Timber.d("Medication updated/added: ${it.name}, id=${it.medicationId}")
                 // Check if medication belongs to current tab
                 val today = LocalDate.now()
-                val endDate = it.endDate ?: LocalDate.now().plusYears(1)
+                val endDate = it.endDate ?: LocalDate.now().plusMonths(1)
                 val isCurrent = today in it.startDate..endDate
                 if (isCurrent) {
                     // If it's a current medication, ensure CurrentMedicationsFragment refreshes
