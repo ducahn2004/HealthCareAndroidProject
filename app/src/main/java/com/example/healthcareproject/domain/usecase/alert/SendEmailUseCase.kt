@@ -1,4 +1,4 @@
-package com.example.healthcareproject.domain.usecase.sos
+package com.example.healthcareproject.domain.usecase.alert
 
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport
 import com.google.api.client.json.JsonFactory

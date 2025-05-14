@@ -8,9 +8,8 @@ import androidx.room.TypeConverters
 import com.example.healthcareproject.data.source.local.Converters
 import java.time.LocalDateTime
 
-
 @Entity(
-    tableName = "sos",
+    tableName = "alert",
     foreignKeys = [
         ForeignKey(
             entity = RoomUser::class,
@@ -34,8 +33,8 @@ import java.time.LocalDateTime
     indices = [Index("userId"), Index("measurementId"), Index("emergencyId")]
 )
 @TypeConverters(Converters::class)
-data class RoomSos(
-    @PrimaryKey val sosId: String,
+data class RoomAlert(
+    @PrimaryKey val alertId: String,
     val userId: String,
     val measurementId: String?,
     val emergencyId: String?,

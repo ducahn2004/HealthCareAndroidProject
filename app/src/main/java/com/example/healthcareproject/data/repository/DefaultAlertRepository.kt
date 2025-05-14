@@ -3,13 +3,13 @@ package com.example.healthcareproject.data.repository
 import com.example.healthcareproject.data.mapper.toExternal
 import com.example.healthcareproject.data.mapper.toLocal
 import com.example.healthcareproject.data.mapper.toNetwork
-import com.example.healthcareproject.data.source.local.dao.SosDao
+import com.example.healthcareproject.data.source.local.dao.AlertDao
 import com.example.healthcareproject.data.source.network.datasource.AuthDataSource
-import com.example.healthcareproject.data.source.network.datasource.SosDataSource
+import com.example.healthcareproject.data.source.network.datasource.AlertDataSource
 import com.example.healthcareproject.di.ApplicationScope
 import com.example.healthcareproject.di.DefaultDispatcher
-import com.example.healthcareproject.domain.model.Sos
-import com.example.healthcareproject.domain.repository.SosRepository
+import com.example.healthcareproject.domain.model.Alert
+import com.example.healthcareproject.domain.repository.AlertRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -23,29 +23,29 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class DefaultSosRepository @Inject constructor(
-    private val networkDataSource: SosDataSource,
-    private val localDataSource: SosDao,
+class DefaultAlertRepository @Inject constructor(
+    private val networkDataSource: AlertDataSource,
+    private val localDataSource: AlertDao,
     private val authDataSource: AuthDataSource,
     @DefaultDispatcher private val dispatcher: CoroutineDispatcher,
     @ApplicationScope private val scope: CoroutineScope,
-) : SosRepository {
+) : AlertRepository {
 
     private val userId: String
         get() = authDataSource.getCurrentUserId() ?: throw Exception("User not logged in")
 
-    override suspend fun createSos(
+    override suspend fun createAlert(
         measurementId: String?,
         emergencyId: String?,
         triggerReason: String,
         contacted: Boolean,
         timestamp: LocalDateTime
     ): String {
-        val sosId = withContext(dispatcher) {
+        val alertId = withContext(dispatcher) {
             UUID.randomUUID().toString()
         }
-        val sos = Sos(
-            sosId = sosId,
+        val alert = Alert(
+            alertId = alertId,
             userId = userId,
             measurementId = measurementId,
             emergencyId = emergencyId,
@@ -53,44 +53,44 @@ class DefaultSosRepository @Inject constructor(
             contacted = contacted,
             timestamp = timestamp
         )
-        localDataSource.upsert(sos.toLocal())
-        saveSosToNetwork()
-        return sosId
+        localDataSource.upsert(alert.toLocal())
+        saveAlertToNetwork()
+        return alertId
     }
 
-    override suspend fun updateSos(
-        sosId: String,
+    override suspend fun updateAlert(
+        alertId: String,
         measurementId: String?,
         emergencyId: String?,
         triggerReason: String,
         contacted: Boolean,
         timestamp: LocalDateTime
     ) {
-        val sos = getSos(sosId)?.copy(
+        val alert = getAlert(alertId)?.copy(
             measurementId = measurementId,
             emergencyId = emergencyId,
             triggerReason = triggerReason,
             contacted = contacted,
             timestamp = timestamp
-        ) ?: throw Exception("Sos (id $sosId) not found")
+        ) ?: throw Exception("Alert (id $alertId) not found")
 
-        localDataSource.upsert(sos.toLocal())
-        saveSosToNetwork()
+        localDataSource.upsert(alert.toLocal())
+        saveAlertToNetwork()
     }
 
-    override fun getSosListStream(forceUpdate: Boolean): Flow<List<Sos>> {
+    override fun getAlertListStream(forceUpdate: Boolean): Flow<List<Alert>> {
         return localDataSource.observeAll()
             .map { it.toExternal() }
             .flowOn(dispatcher)
     }
 
-    override fun getSosStream(sosId: String, forceUpdate: Boolean): Flow<Sos?> {
-        return localDataSource.observeById(sosId)
+    override fun getAlertStream(alertId: String, forceUpdate: Boolean): Flow<Alert?> {
+        return localDataSource.observeById(alertId)
             .map { it.toExternal() }
             .flowOn(dispatcher)
     }
 
-    override suspend fun getSosList(forceUpdate: Boolean): List<Sos> {
+    override suspend fun getAlertList(forceUpdate: Boolean): List<Alert> {
         if (forceUpdate) {
             refresh()
         }
@@ -101,60 +101,60 @@ class DefaultSosRepository @Inject constructor(
 
     override suspend fun refresh() {
         withContext(dispatcher) {
-            val remoteSos = networkDataSource.loadSos(userId)
+            val remoteAlerts = networkDataSource.loadAlerts(userId)
             localDataSource.deleteAll()
-            localDataSource.upsertAll(remoteSos.toLocal())
+            localDataSource.upsertAll(remoteAlerts.toLocal())
         }
     }
 
-    override suspend fun getSos(sosId: String, forceUpdate: Boolean): Sos? {
+    override suspend fun getAlert(alertId: String, forceUpdate: Boolean): Alert? {
         if (forceUpdate) {
             refresh()
         }
-        return localDataSource.getById(sosId)?.toExternal()
+        return localDataSource.getById(alertId)?.toExternal()
     }
 
-    override suspend fun refreshSos(sosId: String) {
+    override suspend fun refreshAlert(alertId: String) {
         refresh()
     }
 
-    override suspend fun activateSos(sosId: String) {
-        val sos = getSos(sosId)?.copy(contacted = true)
-            ?: throw Exception("Sos (id $sosId) not found")
-        localDataSource.upsert(sos.toLocal())
-        saveSosToNetwork()
+    override suspend fun activateAlert(alertId: String) {
+        val alert = getAlert(alertId)?.copy(contacted = true)
+            ?: throw Exception("Alert (id $alertId) not found")
+        localDataSource.upsert(alert.toLocal())
+        saveAlertToNetwork()
     }
 
-    override suspend fun deactivateSos(sosId: String) {
-        val sos = getSos(sosId)?.copy(contacted = false)
-            ?: throw Exception("Sos (id $sosId) not found")
-        localDataSource.upsert(sos.toLocal())
-        saveSosToNetwork()
+    override suspend fun deactivateAlert(alertId: String) {
+        val alert = getAlert(alertId)?.copy(contacted = false)
+            ?: throw Exception("Alert (id $alertId) not found")
+        localDataSource.upsert(alert.toLocal())
+        saveAlertToNetwork()
     }
 
-    override suspend fun clearInactiveSos() {
+    override suspend fun clearInactiveAlerts() {
         localDataSource.deleteByUserId(userId)
-        saveSosToNetwork()
+        saveAlertToNetwork()
     }
 
-    override suspend fun deleteAllSos() {
+    override suspend fun deleteAllAlerts() {
         localDataSource.deleteAll()
-        saveSosToNetwork()
+        saveAlertToNetwork()
     }
 
-    override suspend fun deleteSos(sosId: String) {
-        localDataSource.deleteById(sosId)
-        saveSosToNetwork()
+    override suspend fun deleteAlert(alertId: String) {
+        localDataSource.deleteById(alertId)
+        saveAlertToNetwork()
     }
 
-    private fun saveSosToNetwork() {
+    private fun saveAlertToNetwork() {
         scope.launch {
             try {
-                val localSos = localDataSource.getAll()
-                val networkSos = withContext(dispatcher) {
-                    localSos.toNetwork()
+                val localAlerts = localDataSource.getAll()
+                val networkAlerts = withContext(dispatcher) {
+                    localAlerts.toNetwork()
                 }
-                networkDataSource.saveSos(networkSos)
+                networkDataSource.saveAlerts(networkAlerts)
             } catch (e: Exception) {
                 // Log or handle the exception
             }

@@ -1,14 +1,14 @@
 package com.example.healthcareproject.data.mapper
 
-import com.example.healthcareproject.data.source.local.entity.RoomSos
-import com.example.healthcareproject.data.source.network.model.FirebaseSos
-import com.example.healthcareproject.domain.model.Sos
+import com.example.healthcareproject.data.source.local.entity.RoomAlert
+import com.example.healthcareproject.data.source.network.model.FirebaseAlert
+import com.example.healthcareproject.domain.model.Alert
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 // External to Local
-fun Sos.toLocal() = RoomSos(
-    sosId = sosId,
+fun Alert.toLocal() = RoomAlert(
+    alertId = alertId,
     userId = userId,
     measurementId = measurementId,
     emergencyId = emergencyId,
@@ -17,11 +17,11 @@ fun Sos.toLocal() = RoomSos(
     timestamp = timestamp
 )
 
-fun List<Sos>.toLocal() = map(Sos::toLocal)
+fun List<Alert>.toLocal() = map(Alert::toLocal)
 
 // Local to External
-fun RoomSos.toExternal() = Sos(
-    sosId = sosId,
+fun RoomAlert.toExternal() = Alert(
+    alertId = alertId,
     userId = userId,
     measurementId = measurementId,
     emergencyId = emergencyId,
@@ -31,11 +31,11 @@ fun RoomSos.toExternal() = Sos(
 )
 
 @JvmName("localToExternal")
-fun List<RoomSos>.toExternal() = map(RoomSos::toExternal)
+fun List<RoomAlert>.toExternal() = map(RoomAlert::toExternal)
 
 // Network to Local
-fun FirebaseSos.toLocal() = RoomSos(
-    sosId = sosId,
+fun FirebaseAlert.toLocal() = RoomAlert(
+    alertId = alertId,
     userId = userId,
     measurementId = measurementId,
     emergencyId = emergencyId,
@@ -45,11 +45,11 @@ fun FirebaseSos.toLocal() = RoomSos(
 )
 
 @JvmName("networkToLocal")
-fun List<FirebaseSos>.toLocal() = map(FirebaseSos::toLocal)
+fun List<FirebaseAlert>.toLocal() = map(FirebaseAlert::toLocal)
 
 // Local to Network
-fun RoomSos.toNetwork() = FirebaseSos(
-    sosId = sosId,
+fun RoomAlert.toNetwork() = FirebaseAlert(
+    alertId = alertId,
     userId = userId,
     measurementId = measurementId,
     emergencyId = emergencyId,
@@ -58,16 +58,16 @@ fun RoomSos.toNetwork() = FirebaseSos(
     timestamp = timestamp.format(DateTimeFormatter.ISO_DATE_TIME)
 )
 
-fun List<RoomSos>.toNetwork() = map(RoomSos::toNetwork)
+fun List<RoomAlert>.toNetwork() = map(RoomAlert::toNetwork)
 
 // External to Network
-fun Sos.toNetwork() = toLocal().toNetwork()
+fun Alert.toNetwork() = toLocal().toNetwork()
 
 @JvmName("externalToNetwork")
-fun List<Sos>.toNetwork() = map(Sos::toNetwork)
+fun List<Alert>.toNetwork() = map(Alert::toNetwork)
 
 // Network to External
-fun FirebaseSos.toExternal() = toLocal().toExternal()
+fun FirebaseAlert.toExternal() = toLocal().toExternal()
 
 @JvmName("networkToExternal")
-fun List<FirebaseSos>.toExternal() = map(FirebaseSos::toExternal)
+fun List<FirebaseAlert>.toExternal() = map(FirebaseAlert::toExternal)

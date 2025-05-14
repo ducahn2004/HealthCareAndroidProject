@@ -17,7 +17,7 @@ abstract class DataSourceModule {
 
     @Singleton
     @Binds
-    abstract fun bindSosDataSource(dataSource: SosFirebaseDataSource): SosDataSource
+    abstract fun bindAlertDataSource(dataSource: AlertFirebaseDataSource): AlertDataSource
 
     @Singleton
     @Binds

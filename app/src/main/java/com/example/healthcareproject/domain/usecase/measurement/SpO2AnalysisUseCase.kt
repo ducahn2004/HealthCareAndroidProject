@@ -1,13 +1,13 @@
 package com.example.healthcareproject.domain.usecase.measurement
 
 import com.example.healthcareproject.domain.repository.MeasurementRepository
-import com.example.healthcareproject.domain.usecase.sos.SendSosUseCase
+import com.example.healthcareproject.domain.usecase.alert.SendAlertUseCase
 import kotlinx.coroutines.flow.mapNotNull
 import javax.inject.Inject
 
 class SpO2AnalysisUseCase @Inject constructor(
     private val measurementRepository: MeasurementRepository,
-    private val sendSosUseCase: SendSosUseCase
+    private val sendAlertUseCase: SendAlertUseCase
 ) {
     suspend operator fun invoke() {
 //         Observe real-time measurement stream
@@ -29,7 +29,7 @@ class SpO2AnalysisUseCase @Inject constructor(
                 }
 
                 triggerReason?.let {
-                    sendSosUseCase(
+                    sendAlertUseCase(
                         measurementId = latestSpO2.measurementId,
                         triggerReason = it
                     )

@@ -1,13 +1,13 @@
-package com.example.healthcareproject.domain.usecase.sos
+package com.example.healthcareproject.domain.usecase.alert
 
 import com.example.healthcareproject.domain.repository.EmergencyInfoRepository
 import java.time.LocalDateTime
 import javax.inject.Inject
 
-class SendSosUseCase @Inject constructor(
+class SendAlertUseCase @Inject constructor(
     private val emergencyInfoRepository: EmergencyInfoRepository,
-    private val createSosUseCase: CreateSosUseCase,
-    private val sosEmergencyCallUseCase: SosEmergencyCallUseCase
+    private val createAlertUseCase: CreateAlertUseCase,
+    private val alertCallUseCase: AlertCallUseCase
 ) {
     suspend operator fun invoke(measurementId: String, triggerReason: String) {
         // Retrieve the list of emergency contacts sorted by priority
@@ -17,8 +17,8 @@ class SendSosUseCase @Inject constructor(
         // Call the first contact in the sorted list
         emergencyInfos.firstOrNull()?.let { emergencyInfo ->
 
-            // Create a new SOS event
-            createSosUseCase(
+            // Create a new alert event
+            createAlertUseCase(
                 measurementId = measurementId,
                 emergencyId = emergencyInfo.emergencyId,
                 triggerReason = triggerReason,
@@ -26,7 +26,7 @@ class SendSosUseCase @Inject constructor(
                 timestamp = LocalDateTime.now()
             )
 
-            sosEmergencyCallUseCase.call(emergencyInfo.emergencyPhone)
+            alertCallUseCase.call(emergencyInfo.emergencyPhone)
         }
     }
 }

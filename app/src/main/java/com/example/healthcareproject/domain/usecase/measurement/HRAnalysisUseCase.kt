@@ -2,7 +2,7 @@ package com.example.healthcareproject.domain.usecase.measurement
 
 import com.example.healthcareproject.domain.repository.MeasurementRepository
 import com.example.healthcareproject.domain.usecase.medicalvisit.GetMedicalVisitsUseCase
-import com.example.healthcareproject.domain.usecase.sos.SendSosUseCase
+import com.example.healthcareproject.domain.usecase.alert.SendAlertUseCase
 import com.example.healthcareproject.domain.usecase.user.GetUserUseCase
 import kotlinx.coroutines.flow.mapNotNull
 import java.util.Calendar
@@ -12,7 +12,7 @@ class HRAnalysisUseCase @Inject constructor(
     private val measurementRepository: MeasurementRepository,
     private val getUserUseCase: GetUserUseCase,
     private val getMedicalVisitUseCase: GetMedicalVisitsUseCase,
-    private val sendSosUseCase: SendSosUseCase
+    private val sendAlertUseCase: SendAlertUseCase
 ) {
     private fun calculateAge(birthDate: String): Int {
         val birthYear = birthDate.split("-")[0].toInt()
@@ -65,7 +65,7 @@ class HRAnalysisUseCase @Inject constructor(
                 val heartRate = latestHR.bpm
                 if (heartRate < adjustedMin || heartRate > adjustedMax) {
                     val triggerReason = "Abnormal heart rate detected: $heartRate bpm"
-                    sendSosUseCase(
+                    sendAlertUseCase(
                         measurementId = latestHR.measurementId,
                         triggerReason = triggerReason
                     )

@@ -1,11 +1,11 @@
-package com.example.healthcareproject.domain.usecase.sos
+package com.example.healthcareproject.domain.usecase.alert
 
-import com.example.healthcareproject.domain.repository.SosRepository
+import com.example.healthcareproject.domain.repository.AlertRepository
 import java.time.LocalDateTime
 import javax.inject.Inject
 
-class CreateSosUseCase @Inject constructor(
-    private val sosRepository: SosRepository
+class CreateAlertUseCase @Inject constructor(
+    private val alertRepository: AlertRepository
 ) {
     suspend operator fun invoke(
         measurementId: String?,
@@ -14,7 +14,7 @@ class CreateSosUseCase @Inject constructor(
         contacted: Boolean,
         timestamp: LocalDateTime
     ): String {
-        return sosRepository.createSos(
+        return alertRepository.createAlert(
             measurementId = measurementId,
             emergencyId = emergencyId,
             triggerReason = triggerReason,

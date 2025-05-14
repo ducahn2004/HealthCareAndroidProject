@@ -11,7 +11,7 @@ import com.example.healthcareproject.domain.usecase.medicalvisit.*
 import com.example.healthcareproject.domain.usecase.medication.*
 import com.example.healthcareproject.domain.usecase.measurement.*
 import com.example.healthcareproject.domain.usecase.notification.*
-import com.example.healthcareproject.domain.usecase.sos.*
+import com.example.healthcareproject.domain.usecase.alert.*
 import com.example.healthcareproject.domain.usecase.user.*
 import dagger.Module
 import dagger.Provides
@@ -100,7 +100,7 @@ object UseCaseModule {
         measurementRepository: MeasurementRepository,
         getUserUseCase: GetUserUseCase,
         getMedicalVisitUseCase: GetMedicalVisitsUseCase,
-        sendSosUseCase: SendSosUseCase
+        sendAlertUseCase: SendAlertUseCase
 
     ): MeasurementUseCases {
         return MeasurementUseCases(
@@ -111,11 +111,11 @@ object UseCaseModule {
                 measurementRepository,
                 getUserUseCase,
                 getMedicalVisitUseCase,
-                sendSosUseCase
+                sendAlertUseCase
             ),
             spO2AnalysisUseCase = SpO2AnalysisUseCase(
                 measurementRepository,
-                sendSosUseCase
+                sendAlertUseCase
             )
         )
     }
@@ -133,23 +133,21 @@ object UseCaseModule {
     }
 
     @Provides
-    fun provideSosUseCases(
-        sosRepository: SosRepository,
+    fun provideAlertUseCases(
+        alertRepository: AlertRepository,
         context: Context,
         emergencyInfoRepository: EmergencyInfoRepository,
-        createSosUseCase: CreateSosUseCase,
-        sosEmergencyCallUseCase: SosEmergencyCallUseCase
-    ): SosUseCases {
-        return SosUseCases(
-            createSos = CreateSosUseCase(sosRepository),
-            getSosEvents = GetSosEventsUseCase(sosRepository),
-            updateSos = UpdateSosUseCase(sosRepository),
-            deleteSos = DeleteSosUseCase(sosRepository),
-            emergencyCall = SosEmergencyCallUseCase(context),
-            sendSos = SendSosUseCase(
+        createAlertUseCase: CreateAlertUseCase,
+        alertCallUseCase: AlertCallUseCase
+    ): AlertUseCases {
+        return AlertUseCases(
+            createAlert = CreateAlertUseCase(alertRepository),
+            deleteAlert = DeleteAlertUseCase(alertRepository),
+            emergencyCall = AlertCallUseCase(context),
+            sendAlert = SendAlertUseCase(
                 emergencyInfoRepository,
-                createSosUseCase,
-                sosEmergencyCallUseCase
+                createAlertUseCase,
+                alertCallUseCase
             )
         )
     }

@@ -1,7 +1,7 @@
 package com.example.healthcareproject.data.source.network.model
 
-data class FirebaseSos(
-    var sosId: String = "",
+data class FirebaseAlert(
+    var alertId: String = "",
     var userId: String = "",
     var measurementId: String? = null,
     var emergencyId: String? = null,
