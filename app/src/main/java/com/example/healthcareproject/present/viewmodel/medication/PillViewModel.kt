@@ -10,6 +10,7 @@ import com.example.healthcareproject.domain.model.Result
 import com.example.healthcareproject.domain.usecase.medication.MedicationUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.time.LocalDate
 import javax.inject.Inject
 
@@ -55,38 +56,67 @@ class PillViewModel @Inject constructor(
         viewModelScope.launch {
             _isLoading.value = true
             _error.value = null
-
-            val result = medicationUseCases.getMedications()
-
-            when (result) {
+            when (val result = medicationUseCases.getMedications()) {
                 is Result.Success -> {
-                    val (current, past) = result.data.partition { medication ->
+                    val current = result.data.filter { medication ->
                         val today = LocalDate.now()
-                        val endDate = medication.endDate ?: LocalDate.now().plusYears(1)
-                        today in medication.startDate..endDate
+                        !today.isBefore(medication.startDate) && !today.isAfter(medication.endDate)
                     }
-
-                    val sortedCurrent = current.sortedWith(
-                        compareByDescending<Medication> { it.startDate }
-                            .thenBy { it.name }
+                    val past = result.data.filterNot { medication ->
+                        val today = LocalDate.now()
+                        !today.isBefore(medication.startDate) && !today.isAfter(medication.endDate)
+                    }
+                    _currentMedications.value = current.sortedWith(
+                        compareByDescending<Medication> { it.startDate }.thenBy { it.name }
                     )
-
-                    val sortedPast = past.sortedWith(
-                        compareByDescending<Medication> { it.endDate }
-                            .thenBy { it.name }
+                    _pastMedications.value = past.sortedWith(
+                        compareByDescending<Medication> { it.endDate }.thenBy { it.name }
                     )
-
-                    _currentMedications.value = sortedCurrent
-                    _pastMedications.value = sortedPast
-
-                    // Update empty state indicators
-                    _noCurrentMedicationsVisible.value = sortedCurrent.isEmpty()
-                    _noPastMedicationsVisible.value = sortedPast.isEmpty()
-
+                    _noCurrentMedicationsVisible.value = current.isEmpty()
+                    _noPastMedicationsVisible.value = past.isEmpty()
                     _isLoading.value = false
                 }
                 is Result.Error -> {
-                    _error.value = result.exception.message
+                    _error.value = result.exception.message ?: "Failed to load medications"
+                    _isLoading.value = false
+                }
+                is Result.Loading -> {
+                    _isLoading.value = true
+                }
+            }
+        }
+    }
+
+    fun onSearchQueryChanged(query: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            _error.value = null
+            when (val result = medicationUseCases.getMedications()) {
+                is Result.Success -> {
+                    val filteredMedications = result.data.filter { medication ->
+                        medication.name.contains(query, ignoreCase = true) ||
+                                medication.notes.contains(query, ignoreCase = true)
+                    }
+                    val current = filteredMedications.filter { medication ->
+                        val today = LocalDate.now()
+                        !today.isBefore(medication.startDate) && !today.isAfter(medication.endDate)
+                    }
+                    val past = filteredMedications.filterNot { medication ->
+                        val today = LocalDate.now()
+                        !today.isBefore(medication.startDate) && !today.isAfter(medication.endDate)
+                    }
+                    _currentMedications.value = current.sortedWith(
+                        compareByDescending<Medication> { it.startDate }.thenBy { it.name }
+                    )
+                    _pastMedications.value = past.sortedWith(
+                        compareByDescending<Medication> { it.endDate }.thenBy { it.name }
+                    )
+                    _noCurrentMedicationsVisible.value = current.isEmpty()
+                    _noPastMedicationsVisible.value = past.isEmpty()
+                    _isLoading.value = false
+                }
+                is Result.Error -> {
+                    _error.value = result.exception.message ?: "Search failed"
                     _isLoading.value = false
                 }
                 is Result.Loading -> {
@@ -117,6 +147,10 @@ class PillViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun clearError() {
+        _error.value = null
     }
 
 }
