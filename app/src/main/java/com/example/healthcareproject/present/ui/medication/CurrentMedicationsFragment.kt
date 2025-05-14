@@ -16,6 +16,7 @@ import com.example.healthcareproject.present.navigation.MainNavigator
 import com.example.healthcareproject.present.viewmodel.medication.PillViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
+import java.time.LocalDate
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -29,7 +30,8 @@ class CurrentMedicationsFragment : Fragment() {
     private lateinit var medicationAdapter: MedicationAdapter
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         Timber.d("CurrentMedicationsFragment onCreateView")
@@ -69,9 +71,9 @@ class CurrentMedicationsFragment : Fragment() {
                     Timber.d("Navigating to medical history detail: $visitId")
                     mainNavigator.navigatePillFragmentToMedicalHistoryDetail(visitId)
                 }
-            }
+            },
+            isHistoryView = false
         )
-
         binding.rvCurrentMedications.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = medicationAdapter
@@ -117,18 +119,40 @@ class CurrentMedicationsFragment : Fragment() {
         viewModel.currentMedications.observe(viewLifecycleOwner) { medications ->
             Timber.d("Current medications received: size=${medications?.size}")
             medicationAdapter.submitList(medications)
-            binding.tvNoCurrentMedications.visibility = if (medications.isNullOrEmpty()) View.VISIBLE else View.GONE
+            binding.tvNoCurrentMedications.visibility =
+                if (medications.isNullOrEmpty()) View.VISIBLE else View.GONE
         }
     }
 
     private fun setupFragmentResultListener() {
-        setFragmentResultListener("medicationResult") { _, bundle ->
+        setFragmentResultListener(AddMedicationDialogFragment.RESULT_KEY_PILL_FRAGMENT) { _, bundle ->
             Timber.d("Received medication result")
             val medication = bundle.getParcelable<Medication>("medication")
             medication?.let {
-                Timber.d("Medication updated/added: ${it.name}")
+                Timber.d("Medication updated/added: ${it.name}, id=${it.medicationId}")
+                // Check if medication belongs to past tab
+                val today = LocalDate.now()
+                val endDate = it.endDate ?: LocalDate.now().plusYears(1)
+                val isCurrent = today in it.startDate..endDate
+                if (!isCurrent) {
+                    // If it’s a past medication, ensure PastMedicationsFragment refreshes
+                    parentFragmentManager.fragments
+                        .filterIsInstance<PastMedicationsFragment>()
+                        .firstOrNull()
+                        ?.let { pastFragment ->
+                            Timber.d("Triggering loadMedications for PastMedicationsFragment")
+                            pastFragment.triggerMedicationRefresh()
+                        }
+                }
+                // Refresh current medications
                 viewModel.loadMedications()
             }
         }
+    }
+
+    // Allow PastMedicationsFragment to trigger a refresh
+    fun triggerMedicationRefresh() {
+        Timber.d("Triggering loadMedications for CurrentMedicationsFragment")
+        viewModel.loadMedications()
     }
 }
