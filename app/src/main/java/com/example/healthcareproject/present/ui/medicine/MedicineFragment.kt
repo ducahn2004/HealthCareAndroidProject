@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import com.example.healthcareproject.databinding.FragmentMedicineBinding
+import com.example.healthcareproject.domain.model.Appointment
 import com.example.healthcareproject.domain.model.MedicalVisit
 import com.example.healthcareproject.present.navigation.MainNavigator
 import com.example.healthcareproject.present.viewmodel.medicine.MedicineViewModel
@@ -96,12 +97,36 @@ class MedicineFragment : Fragment() {
     private fun setupFragmentResultListener() {
         setFragmentResultListener("requestKey") { _, bundle ->
             val newVisit = bundle.getParcelable<MedicalVisit>("newVisit")
-            newVisit?.let {
-                Timber.d("New visit added, reloading data")
-                viewModel.loadMedicalVisits()
+            val newAppointment = bundle.getParcelable<Appointment>("newAppointment")
+            if (newVisit != null) {
+                Timber.d("New visit added: ${newVisit.diagnosis}")
+                // Temporarily update MedicalVisitsFragment
+                parentFragmentManager.fragments
+                    .filterIsInstance<MedicalVisitsFragment>()
+                    .firstOrNull()
+                    ?.let { fragment ->
+                        val currentList = fragment.getCurrentMedicalVisits().toMutableList()
+                        currentList.add(newVisit)
+                        fragment.updateMedicalVisits(currentList.sortedByDescending { it.visitDate })
+                    }
             }
+            if (newAppointment != null) {
+                Timber.d("New appointment added: ${newAppointment.doctorName}")
+                // Temporarily update AppointmentsFragment
+                parentFragmentManager.fragments
+                    .filterIsInstance<AppointmentsFragment>()
+                    .firstOrNull()
+                    ?.let { fragment ->
+                        val currentList = fragment.getCurrentAppointments().toMutableList()
+                        currentList.add(newAppointment)
+                        fragment.updateAppointments(currentList.sortedBy { it.appointmentTime })
+                    }
+            }
+            Timber.d("Reloading data from database")
+            viewModel.loadMedicalVisits()
         }
     }
+
 
     override fun onDestroyView() {
         super.onDestroyView()

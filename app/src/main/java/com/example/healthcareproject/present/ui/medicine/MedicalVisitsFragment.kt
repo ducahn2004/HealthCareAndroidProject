@@ -10,6 +10,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.healthcareproject.R
 import com.example.healthcareproject.databinding.FragmentMedicalVisitsBinding
+import com.example.healthcareproject.domain.model.MedicalVisit
 import com.example.healthcareproject.present.navigation.MainNavigator
 import com.example.healthcareproject.present.viewmodel.medicine.MedicineViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -45,6 +46,7 @@ class MedicalVisitsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         Timber.d("MedicalVisitsFragment onViewCreated")
+        viewModel.loadMedicalVisits()
         setupRecyclerView()
         setupFab()
         observeMedicalVisits()
@@ -71,9 +73,16 @@ class MedicalVisitsFragment : Fragment() {
 
     private fun observeMedicalVisits() {
         viewModel.medicalVisits.observe(viewLifecycleOwner) { visits ->
-            Timber.d("Medical visits received: size=${visits?.size}")
+            Timber.d("MedicalVisitsFragment: Received ${visits?.size} visits")
             medicalVisitAdapter.submitList(visits)
             binding.tvNoMedicalVisits.visibility = if (visits.isNullOrEmpty()) View.VISIBLE else View.GONE
         }
+    }
+
+    fun getCurrentMedicalVisits(): List<MedicalVisit> = medicalVisitAdapter.currentList
+
+    fun updateMedicalVisits(visits: List<MedicalVisit>) {
+        medicalVisitAdapter.submitList(visits)
+        binding.tvNoMedicalVisits.visibility = if (visits.isEmpty()) View.VISIBLE else View.GONE
     }
 }

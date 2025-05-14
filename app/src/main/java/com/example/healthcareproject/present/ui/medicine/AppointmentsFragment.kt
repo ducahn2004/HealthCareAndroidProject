@@ -10,9 +10,11 @@ import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.healthcareproject.R
 import com.example.healthcareproject.databinding.FragmentAppointmentsBinding
+import com.example.healthcareproject.domain.model.Appointment
 import com.example.healthcareproject.present.navigation.MainNavigator
 import com.example.healthcareproject.present.viewmodel.medicine.MedicineViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -38,6 +40,7 @@ class AppointmentsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewModel.loadMedicalVisits()
         setupRecyclerView()
         setupFab()
         observeAppointments()
@@ -59,11 +62,19 @@ class AppointmentsFragment : Fragment() {
 
     private fun observeAppointments() {
         viewModel.appointments.observe(viewLifecycleOwner) { appointments ->
+            Timber.d("AppointmentsFragment: Received ${appointments.size} appointments")
             appointmentAdapter.submitList(appointments)
             binding.tvNoAppointments.visibility = if (appointments.isEmpty()) View.VISIBLE else View.GONE
         }
         viewModel.navigateToAddAppointmentEvent.observe(viewLifecycleOwner) {
             mainNavigator.navigateToAddAppointment()
         }
+    }
+
+    fun getCurrentAppointments(): List<Appointment> = appointmentAdapter.currentList
+
+    fun updateAppointments(appointments: List<Appointment>) {
+        appointmentAdapter.submitList(appointments)
+        binding.tvNoAppointments.visibility = if (appointments.isEmpty()) View.VISIBLE else View.GONE
     }
 }
