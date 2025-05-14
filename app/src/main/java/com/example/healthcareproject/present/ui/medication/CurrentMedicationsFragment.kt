@@ -8,6 +8,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.healthcareproject.R
 import com.example.healthcareproject.databinding.FragmentCurrentMedicationsBinding
@@ -15,6 +16,8 @@ import com.example.healthcareproject.domain.model.Medication
 import com.example.healthcareproject.present.navigation.MainNavigator
 import com.example.healthcareproject.present.viewmodel.medication.PillViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.time.LocalDate
 import javax.inject.Inject
@@ -53,6 +56,7 @@ class CurrentMedicationsFragment : Fragment() {
         setupFab()
         observeMedications()
         setupFragmentResultListener()
+        observeSearchEvents()
     }
 
     private fun setupRecyclerView() {
@@ -124,6 +128,16 @@ class CurrentMedicationsFragment : Fragment() {
         }
     }
 
+    private fun observeSearchEvents() {
+        // Observe search events from ViewModel
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.searchEvent.collectLatest { query ->
+                Timber.d("CurrentMedicationsFragment received search event: $query")
+                // Khi có sự kiện tìm kiếm, danh sách sẽ được cập nhật thông qua LiveData
+            }
+        }
+    }
+
     private fun setupFragmentResultListener() {
         setFragmentResultListener(AddMedicationDialogFragment.RESULT_KEY_PILL_FRAGMENT) { _, bundle ->
             Timber.d("Received medication result")
@@ -135,7 +149,7 @@ class CurrentMedicationsFragment : Fragment() {
                 val endDate = it.endDate ?: LocalDate.now().plusYears(1)
                 val isCurrent = today in it.startDate..endDate
                 if (!isCurrent) {
-                    // If it’s a past medication, ensure PastMedicationsFragment refreshes
+                    // If it's a past medication, ensure PastMedicationsFragment refreshes
                     parentFragmentManager.fragments
                         .filterIsInstance<PastMedicationsFragment>()
                         .firstOrNull()

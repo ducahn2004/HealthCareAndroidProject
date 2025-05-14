@@ -1,23 +1,25 @@
 package com.example.healthcareproject.present.ui.medication
 
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.view.isVisible
+import androidx.core.widget.addTextChangedListener
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import com.example.healthcareproject.R
 import com.example.healthcareproject.databinding.FragmentPillBinding
 import com.example.healthcareproject.present.navigation.MainNavigator
 import com.example.healthcareproject.present.viewmodel.medication.PillViewModel
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -88,27 +90,44 @@ class PillFragment : Fragment() {
 
     private fun setupSearch() {
         Timber.d("Setting up search functionality")
-        binding.etSearch.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-                // Không cần xử lý
-            }
+        // Thêm delay ngắn để tránh search từng ký tự
+        var searchJob: kotlinx.coroutines.Job? = null
 
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                // Hiển thị/ẩn nút xóa
-                binding.clearSearchButton.isVisible = !s.isNullOrEmpty()
-            }
+        binding.etSearch.addTextChangedListener { text ->
+            Timber.d("Search input: $text")
+            val query = text.toString()
 
-            override fun afterTextChanged(editable: Editable?) {
-                val query = editable?.toString() ?: ""
-                Timber.d("Search query changed: '$query'")
+            // Cancel any previous search job
+            searchJob?.cancel()
+
+            // Create a new search job with a slight delay
+            searchJob = viewLifecycleOwner.lifecycleScope.launch {
+                delay(300) // Wait 300ms before executing search
                 viewModel.onSearchQueryChanged(query)
+
+                // After search is executed, notify both fragments
+                notifyFragmentsToRefresh()
             }
-        })
+
+            // Update clear button visibility
+            binding.clearSearchButton.isVisible = query.isNotEmpty()
+        }
 
         binding.clearSearchButton.setOnClickListener {
             Timber.d("Clear search button clicked")
             binding.etSearch.text?.clear()
             viewModel.onSearchQueryChanged("")
+            notifyFragmentsToRefresh()
+        }
+    }
+
+    private fun notifyFragmentsToRefresh() {
+        // Find and notify both fragments to refresh their views
+        childFragmentManager.fragments.forEach { fragment ->
+            when (fragment) {
+                is CurrentMedicationsFragment -> fragment.triggerMedicationRefresh()
+                is PastMedicationsFragment -> fragment.triggerMedicationRefresh()
+            }
         }
     }
 
@@ -120,12 +139,10 @@ class PillFragment : Fragment() {
 
         viewModel.currentMedications.observe(viewLifecycleOwner) { medications ->
             Timber.d("Current medications updated: ${medications.size} items")
-            // Cập nhật adapter nếu cần
         }
 
         viewModel.pastMedications.observe(viewLifecycleOwner) { medications ->
             Timber.d("Past medications updated: ${medications.size} items")
-            // Cập nhật adapter nếu cần
         }
 
         viewModel.error.observe(viewLifecycleOwner) { errorMessage ->
