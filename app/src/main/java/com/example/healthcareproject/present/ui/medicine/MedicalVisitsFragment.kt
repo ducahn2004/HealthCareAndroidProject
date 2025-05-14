@@ -82,6 +82,7 @@ class MedicalVisitsFragment : Fragment() {
     fun getCurrentMedicalVisits(): List<MedicalVisit> = medicalVisitAdapter.currentList
 
     fun updateMedicalVisits(visits: List<MedicalVisit>) {
+        Timber.d("Updating medical visits: ${visits.size} items")
         medicalVisitAdapter.submitList(visits)
         binding.tvNoMedicalVisits.visibility = if (visits.isEmpty()) View.VISIBLE else View.GONE
     }

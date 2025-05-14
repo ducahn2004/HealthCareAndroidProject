@@ -46,13 +46,16 @@ class MedicineFragment : Fragment() {
         setupSearch()
         setupObservers()
         setupFragmentResultListener()
-        viewModel.loadMedicalVisits()
+        if (savedInstanceState == null) {
+            viewModel.loadMedicalVisits()
+        }
     }
 
     private fun setupViewPager() {
         Timber.d("Setting up ViewPager")
         val pagerAdapter = MedicinePagerAdapter(this)
         binding.viewPager.adapter = pagerAdapter
+        binding.viewPager.offscreenPageLimit = 2
         TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
             tab.text = when (position) {
                 0 -> "Upcoming Visits"
@@ -100,7 +103,6 @@ class MedicineFragment : Fragment() {
             val newAppointment = bundle.getParcelable<Appointment>("newAppointment")
             if (newVisit != null) {
                 Timber.d("New visit added: ${newVisit.diagnosis}")
-                // Temporarily update MedicalVisitsFragment
                 parentFragmentManager.fragments
                     .filterIsInstance<MedicalVisitsFragment>()
                     .firstOrNull()
@@ -112,7 +114,6 @@ class MedicineFragment : Fragment() {
             }
             if (newAppointment != null) {
                 Timber.d("New appointment added: ${newAppointment.doctorName}")
-                // Temporarily update AppointmentsFragment
                 parentFragmentManager.fragments
                     .filterIsInstance<AppointmentsFragment>()
                     .firstOrNull()
@@ -122,8 +123,7 @@ class MedicineFragment : Fragment() {
                         fragment.updateAppointments(currentList.sortedBy { it.appointmentTime })
                     }
             }
-            Timber.d("Reloading data from database")
-            viewModel.loadMedicalVisits()
+            Timber.d("Updated UI without reloading from database")
         }
     }
 

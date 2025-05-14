@@ -43,7 +43,7 @@
 
         <!-- Floating Action Button for Adding Medical Visit -->
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab_add_medical_visit"
+            android:id="@+id/fabAddMedicalVisit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@android:drawable/ic_input_add"

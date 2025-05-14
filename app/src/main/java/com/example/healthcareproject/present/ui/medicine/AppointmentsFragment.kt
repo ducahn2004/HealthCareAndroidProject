@@ -40,7 +40,6 @@ class AppointmentsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.loadMedicalVisits()
         setupRecyclerView()
         setupFab()
         observeAppointments()
@@ -76,5 +75,10 @@ class AppointmentsFragment : Fragment() {
     fun updateAppointments(appointments: List<Appointment>) {
         appointmentAdapter.submitList(appointments)
         binding.tvNoAppointments.visibility = if (appointments.isEmpty()) View.VISIBLE else View.GONE
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }
