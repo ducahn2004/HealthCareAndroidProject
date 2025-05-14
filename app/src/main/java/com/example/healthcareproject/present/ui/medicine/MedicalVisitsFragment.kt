@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.healthcareproject.R
 import com.example.healthcareproject.databinding.FragmentMedicalVisitsBinding
@@ -20,7 +21,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MedicalVisitsFragment : Fragment() {
     private lateinit var binding: FragmentMedicalVisitsBinding
-    private val viewModel: MedicineViewModel by activityViewModels()
+    private val viewModel: MedicineViewModel by viewModels({ requireParentFragment() })
 
     @Inject
     lateinit var mainNavigator: MainNavigator

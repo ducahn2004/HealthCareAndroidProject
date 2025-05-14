@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.healthcareproject.R
 import com.example.healthcareproject.databinding.FragmentAppointmentsBinding
@@ -21,7 +22,7 @@ import javax.inject.Inject
 class AppointmentsFragment : Fragment() {
     private var _binding: FragmentAppointmentsBinding? = null
     private val binding get() = _binding!!
-    private val viewModel: MedicineViewModel by activityViewModels()
+    private val viewModel: MedicineViewModel by viewModels({ requireParentFragment() })
 
     private lateinit var appointmentAdapter: AppointmentAdapter
 
@@ -64,9 +65,6 @@ class AppointmentsFragment : Fragment() {
             Timber.d("AppointmentsFragment: Received ${appointments.size} appointments")
             appointmentAdapter.submitList(appointments)
             binding.tvNoAppointments.visibility = if (appointments.isEmpty()) View.VISIBLE else View.GONE
-        }
-        viewModel.navigateToAddAppointmentEvent.observe(viewLifecycleOwner) {
-            mainNavigator.navigateToAddAppointment()
         }
     }
 
