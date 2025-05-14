@@ -1,24 +1,24 @@
-package com.example.healthcareproject.domain.usecase.alert
+package com.example.healthcareproject.domain.usecase.reminder
 
 import com.example.healthcareproject.domain.model.RepeatPattern
-import com.example.healthcareproject.domain.repository.AlertRepository
+import com.example.healthcareproject.domain.repository.ReminderRepository
 import java.time.LocalTime
 import javax.inject.Inject
 
-class CreateAlertUseCase @Inject constructor(
-    private val alertRepository: AlertRepository
+class CreateReminderUseCase @Inject constructor(
+    private val reminderRepository: ReminderRepository
 ) {
     suspend operator fun invoke(
         title: String,
         message: String,
-        alertTime: LocalTime,
+        reminderTime: LocalTime,
         repeatPattern: RepeatPattern,
         status: Boolean
     ): String {
-        return alertRepository.createAlert(
+        return reminderRepository.createReminder(
             title = title,
             message = message,
-            alertTime = alertTime,
+            reminderTime = reminderTime,
             repeatPattern = repeatPattern,
             status = status
         )

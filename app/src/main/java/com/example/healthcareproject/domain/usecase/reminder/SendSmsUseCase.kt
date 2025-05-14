@@ -1,4 +1,4 @@
-package com.example.healthcareproject.domain.usecase.alert
+package com.example.healthcareproject.domain.usecase.reminder
 
 import android.telephony.SmsManager
 import com.example.healthcareproject.domain.usecase.emergencyinfo.GetEmergencyInfosUseCase

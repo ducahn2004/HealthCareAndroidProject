@@ -3,7 +3,7 @@ package com.example.healthcareproject.di
 import android.content.Context
 import com.example.healthcareproject.domain.repository.*
 import com.example.healthcareproject.domain.repository.MedicationRepository
-import com.example.healthcareproject.domain.usecase.alert.*
+import com.example.healthcareproject.domain.usecase.reminder.*
 import com.example.healthcareproject.domain.usecase.appointment.*
 import com.example.healthcareproject.domain.usecase.user.LogoutUseCase
 import com.example.healthcareproject.domain.usecase.emergencyinfo.*
@@ -23,16 +23,15 @@ import dagger.hilt.components.SingletonComponent
 object UseCaseModule {
 
     @Provides
-    fun provideAlertUseCases(
-        alertRepository: AlertRepository,
-    ): AlertUseCases {
-        return AlertUseCases(
-            createAlert = CreateAlertUseCase(alertRepository),
-            deleteAlert = DeleteAlertUseCase(alertRepository),
-            updateAlert = UpdateAlertUseCase(alertRepository),
-            getAlerts = GetAlertsUseCase(alertRepository),
-            getAlertById = GetAlertByIdUseCase(alertRepository),
-            alertLogic = AlertLogicUseCase(alertRepository)
+    fun provideReminderUseCases(
+        reminderRepository: ReminderRepository,
+    ): ReminderUseCases {
+        return ReminderUseCases(
+            createReminder = CreateReminderUseCase(reminderRepository),
+            deleteReminder = DeleteReminderUseCase(reminderRepository),
+            updateReminder = UpdateReminderUseCase(reminderRepository),
+            getReminders = GetRemindersUseCase(reminderRepository),
+            getReminderById = GetReminderByIdUseCase(reminderRepository)
         )
     }
 
@@ -84,7 +83,6 @@ object UseCaseModule {
     @Provides
     fun provideMedicationUseCases(
         medicationRepository: MedicationRepository,
-        alertRepository: AlertRepository
     ): MedicationUseCases {
         return MedicationUseCases(
             createMedication = CreateMedicationUseCase(medicationRepository),
@@ -92,9 +90,7 @@ object UseCaseModule {
             updateMedication = UpdateMedicationUseCase(medicationRepository),
             deleteMedication = DeleteMedicationUseCase(medicationRepository),
             getMedicationById = GetMedicationByIdUseCase(medicationRepository),
-            getMedicationsByVisitId = GetMedicationsByVisitIdUseCase(medicationRepository),
-            medicationLogic =  MedicationLogicUseCase(medicationRepository, alertRepository),
-            medicationReminderLogic = MedicationReminderLogicUseCase(medicationRepository, alertRepository)
+            getMedicationsByVisitId = GetMedicationsByVisitIdUseCase(medicationRepository)
         )
     }
 
@@ -162,11 +158,8 @@ object UseCaseModule {
     fun provideAppointmentUseCases(
         appointmentRepository: AppointmentRepository,
         userRepository: UserRepository,
-        getAppointmentsUseCase: GetAppointmentsUseCase,
-        createAlertUseCase: CreateAlertUseCase
     ): AppointmentUseCases {
         return AppointmentUseCases(
-            reminderLogic = AppointmentReminderLogicUseCase(getAppointmentsUseCase, createAlertUseCase),
             createAppointment = CreateAppointmentUseCase(appointmentRepository, userRepository),
             getAppointments = GetAppointmentsUseCase(appointmentRepository),
             updateAppointment = UpdateAppointmentUseCase(appointmentRepository),

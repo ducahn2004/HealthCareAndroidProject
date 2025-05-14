@@ -15,14 +15,13 @@ abstract class DataSourceModule {
     @Binds
     abstract fun bindUserDataSource(dataSource: UserFirebaseDataSource): UserDataSource
 
-
     @Singleton
     @Binds
     abstract fun bindSosDataSource(dataSource: SosFirebaseDataSource): SosDataSource
 
     @Singleton
     @Binds
-    abstract fun bindAlertDataSource(dataSource: AlertFirebaseDataSource): AlertDataSource
+    abstract fun bindReminderDataSource(dataSource: ReminderFirebaseDataSource): ReminderDataSource
 
     @Singleton
     @Binds

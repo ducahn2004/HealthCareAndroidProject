@@ -36,7 +36,7 @@ object DatabaseModule {
     }
 
     @Provides
-    fun provideAlertDao(database: AppDatabase): AlertDao = database.alertDao()
+    fun provideReminderDao(database: AppDatabase): ReminderDao = database.reminderDao()
 
     @Provides
     fun provideAppointmentDao(database: AppDatabase): AppointmentDao = database.appointmentDao()
