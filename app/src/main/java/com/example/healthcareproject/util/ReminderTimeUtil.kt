@@ -18,7 +18,7 @@ class ReminderTimeUtil {
                 nextTime = when (reminder.repeatPattern) {
                     RepeatPattern.Daily -> nextTime.plusDays(1)
                     RepeatPattern.Weekly -> nextTime.plusWeeks(1)
-                    else -> nextTime  // NONE: still keep the past time
+                    else -> nextTime
                 }
             }
 

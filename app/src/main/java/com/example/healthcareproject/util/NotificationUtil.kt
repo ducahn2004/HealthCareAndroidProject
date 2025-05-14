@@ -14,7 +14,7 @@ import com.example.healthcareproject.present.ui.MainActivity
 object NotificationUtil {
 
     private const val CHANNEL_ID = "medication_reminders"
-    private const val CHANNEL_NAME = "Nhắc nhở uống thuốc"
+    private const val CHANNEL_NAME = "Medication Reminders"
 
     fun showReminderNotification(
         context: Context,
@@ -24,14 +24,13 @@ object NotificationUtil {
     ) {
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-        // Tạo channel nếu cần (chỉ Android 8+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 CHANNEL_ID,
                 CHANNEL_NAME,
                 NotificationManager.IMPORTANCE_HIGH
             ).apply {
-                description = "Thông báo nhắc nhở uống thuốc"
+                description = "Medication reminders"
                 enableLights(true)
                 lightColor = Color.BLUE
                 enableVibration(true)
@@ -39,7 +38,6 @@ object NotificationUtil {
             notificationManager.createNotificationChannel(channel)
         }
 
-        // Intent mở app khi người dùng nhấn vào thông báo
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
@@ -51,9 +49,8 @@ object NotificationUtil {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        // Tạo thông báo
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_notification) // cần có icon
+            .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(title)
             .setContentText(message)
             .setPriority(NotificationCompat.PRIORITY_HIGH)

@@ -25,11 +25,12 @@ object UseCaseModule {
     @Provides
     fun provideReminderUseCases(
         reminderRepository: ReminderRepository,
+        context: Context
     ): ReminderUseCases {
         return ReminderUseCases(
-            createReminder = CreateReminderUseCase(reminderRepository),
-            deleteReminder = DeleteReminderUseCase(reminderRepository),
-            updateReminder = UpdateReminderUseCase(reminderRepository),
+            createReminder = CreateReminderUseCase(reminderRepository, context),
+            deleteReminder = DeleteReminderUseCase(reminderRepository, context),
+            updateReminder = UpdateReminderUseCase(reminderRepository, context),
             getReminders = GetRemindersUseCase(reminderRepository),
             getReminderById = GetReminderByIdUseCase(reminderRepository)
         )
@@ -126,7 +127,6 @@ object UseCaseModule {
         return NotificationUseCases(
             getNotificationsUseCase = GetNotificationsUseCase(notificationRepository),
             getNotificationUseCase = GetNotificationUseCase(notificationRepository),
-            createNotificationUseCase = CreateNotificationUseCase(notificationRepository),
             updateNotificationUseCase = UpdateNotificationUseCase(notificationRepository),
             deleteNotificationUseCase = DeleteNotificationUseCase(notificationRepository)
         )
