@@ -63,7 +63,7 @@ class PillFragment : Fragment() {
     private fun setupViewPager() {
         val pagerAdapter = MedicationPagerAdapter(this)
         binding.viewPager.adapter = pagerAdapter
-
+        binding.viewPager.offscreenPageLimit = 2 // Keep both fragments in memory
         TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
             tab.text = when (position) {
                 0 -> "Current Medications"
@@ -91,12 +91,14 @@ class PillFragment : Fragment() {
     private fun setupSearch() {
         binding.etSearch.addTextChangedListener { text ->
             val query = text.toString()
+            Timber.d("Search input: $query")
             viewModel.onSearchQueryChanged(query)
             binding.clearSearchButton.isVisible = query.isNotEmpty()
         }
         binding.clearSearchButton.setOnClickListener {
             binding.etSearch.text?.clear()
             viewModel.onSearchQueryChanged("")
+            binding.clearSearchButton.isVisible = false
         }
     }
 

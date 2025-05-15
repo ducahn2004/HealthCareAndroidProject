@@ -8,6 +8,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.healthcareproject.R
@@ -25,7 +26,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class CurrentMedicationsFragment : Fragment() {
     private lateinit var binding: FragmentCurrentMedicationsBinding
-    private val viewModel: PillViewModel by activityViewModels()
+    private val viewModel: PillViewModel by viewModels({ requireParentFragment() })
 
     @Inject
     lateinit var mainNavigator: MainNavigator
@@ -122,13 +123,10 @@ class CurrentMedicationsFragment : Fragment() {
     private fun observeMedications() {
         viewModel.currentMedications.observe(viewLifecycleOwner) { medications ->
             Timber.d("CurrentMedicationsFragment: Received ${medications?.size ?: 0} medications: ${medications?.map { it.name }?.joinToString()}")
-            medicationAdapter.submitList(medications?.toList())
-            medicationAdapter.notifyDataSetChanged() // Fallback
-            binding.tvNoCurrentMedications.visibility =
-                if (medications.isNullOrEmpty()) View.VISIBLE else View.GONE
-            binding.rvCurrentMedications.invalidate()
-            binding.rvCurrentMedications.requestLayout()
-            Timber.d("CurrentMedicationsFragment: Adapter updated with ${medicationAdapter.itemCount} items")
+            medicationAdapter.submitList(medications?.toList()) {
+                Timber.d("CurrentMedicationsFragment: Adapter updated with ${medicationAdapter.itemCount} items")
+                binding.tvNoCurrentMedications.visibility = if (medications.isNullOrEmpty()) View.VISIBLE else View.GONE
+            }
         }
     }
 

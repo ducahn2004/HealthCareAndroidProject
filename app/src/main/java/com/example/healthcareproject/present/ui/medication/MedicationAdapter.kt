@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.healthcareproject.databinding.ItemMedicationBinding
 import com.example.healthcareproject.domain.model.DosageUnit
 import com.example.healthcareproject.domain.model.Medication
+import timber.log.Timber
 import java.time.format.DateTimeFormatter
 
 class MedicationAdapter(
@@ -30,6 +31,8 @@ class MedicationAdapter(
     }
 
     override fun onBindViewHolder(holder: MedicationViewHolder, position: Int) {
+        val medication = getItem(position)
+        Timber.d("Binding medication: ${medication.name} at position $position")
         holder.bind(getItem(position))
     }
 
