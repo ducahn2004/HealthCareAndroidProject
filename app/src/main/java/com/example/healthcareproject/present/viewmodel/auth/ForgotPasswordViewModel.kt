@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.healthcareproject.domain.usecase.auth.SendVerificationCodeUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -34,6 +35,9 @@ class ForgotPasswordViewModel @Inject constructor(
     private val _navigateToVerifyCode = MutableLiveData<Boolean>()
     val navigateToVerifyCode: LiveData<Boolean> = _navigateToVerifyCode
 
+    private val _resetRequestSuccess = MutableLiveData<String?>()
+    val resetRequestSuccess: LiveData<String?> = _resetRequestSuccess
+
     fun afterEmailChange(value: Editable){
         _email.value = value.toString()
     }
@@ -56,12 +60,17 @@ class ForgotPasswordViewModel @Inject constructor(
         _isLoading.value = true
         viewModelScope.launch {
             try {
+                Timber.d("Attempting to send verification code for password reset to: $emailValue")
                 sendVerificationCodeUseCase(emailValue)
                 _isCodeSent.value = true
+                _resetRequestSuccess.value = "Password reset requested! Check your email for the verification code."
                 _navigateToVerifyCode.value = true
                 _error.value = null
+                Timber.d("Verification code sent successfully for password reset")
             } catch (e: Exception) {
+                Timber.e(e, "Failed to send verification code for password reset")
                 _error.value = e.message ?: "Failed to send verification code"
+                _resetRequestSuccess.value = null
             } finally {
                 _isLoading.value = false
             }
@@ -70,6 +79,7 @@ class ForgotPasswordViewModel @Inject constructor(
 
     fun resetNavigationStates() {
         _navigateToVerifyCode.value = false
+        _resetRequestSuccess.value = null
     }
 
     fun clearError() {

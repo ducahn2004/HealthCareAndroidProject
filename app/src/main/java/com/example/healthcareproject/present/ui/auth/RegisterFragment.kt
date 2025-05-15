@@ -107,6 +107,13 @@ class RegisterFragment : Fragment() {
             }
         }
 
+        // Observe registration success notification
+        viewModel.registrationSuccess.observe(viewLifecycleOwner) { message ->
+            if (!message.isNullOrEmpty()) {
+                Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
+            }
+        }
+
         // Observe registration result
         viewModel.registerResult.observe(viewLifecycleOwner) { uid ->
             if (uid != null) {
@@ -132,6 +139,7 @@ class RegisterFragment : Fragment() {
         // Error observer
         viewModel.error.observe(viewLifecycleOwner) { error ->
             if (!error.isNullOrEmpty()) {
+                Timber.e("Error in RegisterFragment: $error")
                 Snackbar.make(binding.root, error, Snackbar.LENGTH_LONG)
                     .setAction("Retry") { viewModel.onRegisterClicked() }
                     .show()

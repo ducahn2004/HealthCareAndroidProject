@@ -11,6 +11,7 @@ import com.example.healthcareproject.domain.usecase.user.CreateUserUseCase
 import com.example.healthcareproject.domain.usecase.auth.SendVerificationCodeUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
@@ -84,6 +85,9 @@ class RegisterViewModel @Inject constructor(
 
     private val _registerResult = MutableLiveData<String?>() // Lưu UID
     val registerResult: LiveData<String?> = _registerResult
+
+    private val _registrationSuccess = MutableLiveData<String?>()
+    val registrationSuccess: LiveData<String?> = _registrationSuccess
 
     /**
      * Updates the name field.
@@ -262,8 +266,9 @@ class RegisterViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
+                Timber.d("Attempting to register user with email: $email")
                 val inputFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
-                val outputFormatter = DateTimeFormatter.ISO_LOCAL_DATE // yyyy-MM-dd
+                val outputFormatter = DateTimeFormatter.ISO_LOCAL_DATE
                 val parsedDate = LocalDate.parse(dateOfBirth, inputFormatter)
                 val formattedDate = parsedDate.format(outputFormatter)
 
@@ -279,8 +284,11 @@ class RegisterViewModel @Inject constructor(
                 )
                 sendVerificationCodeUseCase(email)
                 _registerResult.value = uid
+                _registrationSuccess.value = "Registration successful! Check your email for the verification code."
                 _error.value = null
+                Timber.d("Registration successful, UID: $uid")
             } catch (e: Exception) {
+                Timber.e(e, "Registration failed: ${e.message}")
                 _error.value = when {
                     e.message?.contains("email address is already in use") == true ->
                         "This email is already registered. Please use a different email or log in."
@@ -289,6 +297,7 @@ class RegisterViewModel @Inject constructor(
                     else -> e.message ?: "Registration failed"
                 }
                 _registerResult.value = null
+                _registrationSuccess.value = null
             } finally {
                 _isLoading.value = false
             }
@@ -298,20 +307,21 @@ class RegisterViewModel @Inject constructor(
     fun linkGoogleAccount(idToken: String) {
         _isLoading.value = true
         viewModelScope.launch {
-            val result = linkGoogleCredentialUseCase(idToken, email.toString(), password.toString())
+            Timber.d("Attempting to link Google account for email: ${email.value}")
+            val result = linkGoogleCredentialUseCase(idToken, email.value.orEmpty(), password.value.orEmpty())
             result.onSuccess {
                 _error.value = null
+                Timber.d("Google account linked successfully")
             }.onFailure {
                 _error.value = "Failed to link Google account: ${it.message}"
+                Timber.e(it, "Failed to link Google account")
             }
             _isLoading.value = false
         }
     }
 
-    /**
-     * Resets navigation states.
-     */
     fun resetNavigationStates() {
         _registerResult.value = null
+        _registrationSuccess.value = null
     }
 }

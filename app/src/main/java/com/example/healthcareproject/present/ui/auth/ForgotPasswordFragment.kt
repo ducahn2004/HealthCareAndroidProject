@@ -44,6 +44,13 @@ class ForgotPasswordFragment : androidx.fragment.app.Fragment() {
             navigator.fromForgotPasswordToLoginMethod()
         }
 
+        // Observe password reset success notification
+        viewModel.resetRequestSuccess.observe(viewLifecycleOwner) { message ->
+            if (!message.isNullOrEmpty()) {
+                Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
+            }
+        }
+
         // Observe navigation to VerifyCode
         viewModel.navigateToVerifyCode.observe(viewLifecycleOwner) { navigate ->
             if (navigate) {
