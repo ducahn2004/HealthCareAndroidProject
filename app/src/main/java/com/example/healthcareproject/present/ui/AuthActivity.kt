@@ -64,16 +64,27 @@ class AuthActivity : AppCompatActivity() {
 
             auth.signInWithEmailLink(email, emailLink)
                 .addOnCompleteListener { task ->
+                    // In AuthActivity.kt (assumed based on your flow)
                     if (task.isSuccessful) {
                         Timber.d("Signed in with email link")
-                        sharedPreferences.edit().remove("pending_email").remove("auth_flow").apply()
+                        val email = sharedPreferences.getString("pending_email", null)
+                        val authFlow = sharedPreferences.getString("auth_flow", null)
+                        sharedPreferences.edit()
+                            .remove("pending_email")
+                            .remove("auth_flow")
+                            .apply()
                         when (authFlow) {
-                            "FORGOT_PASSWORD" -> navController.navigate(R.id.action_global_createNewPasswordFragment)
+                            "FORGOT_PASSWORD" -> {
+                                if (email != null) {
+                                    val bundle = Bundle().apply { putString("email", email) }
+                                    navController.navigate(R.id.action_global_createNewPasswordFragment, bundle)
+                                } else {
+                                    Timber.e("Email missing for Forgot Password flow")
+                                    // Handle error (e.g., show error message and navigate back)
+                                }
+                            }
                             else -> startActivity(Intent(this, MainActivity::class.java)).also { finish() }
                         }
-                    } else {
-                        Timber.e(task.exception, "Sign-in failed")
-                        Snackbar.make(findViewById(R.id.fragment_container), "Sign-in failed: ${task.exception?.message}", Snackbar.LENGTH_LONG).show()
                     }
                 }
         }

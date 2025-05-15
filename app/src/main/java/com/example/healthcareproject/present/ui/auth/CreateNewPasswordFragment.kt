@@ -1,5 +1,6 @@
 package com.example.healthcareproject.present.ui.auth
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -7,8 +8,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-
-
 import com.example.healthcareproject.R
 import com.example.healthcareproject.databinding.FragmentCreateNewPasswordBinding
 import com.example.healthcareproject.present.viewmodel.auth.CreateNewPasswordViewModel
@@ -16,11 +15,8 @@ import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 
-/**
- * Fragment for resetting the user's password in the Forgot Password flow.
- */
 @AndroidEntryPoint
-class CreateNewPasswordFragment : androidx.fragment.app.Fragment() {
+class CreateNewPasswordFragment : Fragment() {
 
     private var _binding: FragmentCreateNewPasswordBinding? = null
     private val binding get() = _binding!!
@@ -41,8 +37,14 @@ class CreateNewPasswordFragment : androidx.fragment.app.Fragment() {
 
         Timber.d("CreateNewPasswordFragment: onViewCreated")
 
-        // Set email from navigation arguments
-        val email = arguments?.getString("email")
+        // Get email from navigation arguments or SharedPreferences
+        var email = arguments?.getString("email")
+        if (email.isNullOrEmpty()) {
+            val sharedPreferences = requireContext().getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
+            email = sharedPreferences.getString("pending_email", null)
+            Timber.d("Email from SharedPreferences: $email")
+        }
+
         if (email.isNullOrEmpty()) {
             Timber.e("Email is null or empty in CreateNewPasswordFragment")
             Snackbar.make(
@@ -55,16 +57,22 @@ class CreateNewPasswordFragment : androidx.fragment.app.Fragment() {
             return
         }
         viewModel.setEmail(email)
-        Timber.d("Email set to $email from navigation arguments")
+        Timber.d("Email set to $email")
 
         // Back button
         binding.btnBackCreateNewPassword.setOnClickListener {
             findNavController().navigateUp()
         }
 
+        // Reset Password button (explicit click listener)
+        binding.btnResetPassword.setOnClickListener {
+            Timber.d("Reset Password button clicked")
+            viewModel.onResetPasswordClicked()
+        }
+
         // Observe navigation to Login
         viewModel.navigateToLogin.observe(viewLifecycleOwner) { navigate ->
-            if (navigate) {
+            if (navigate == true) {
                 Timber.d("Navigating to LoginFragment after successful password reset")
                 Snackbar.make(
                     binding.root,
@@ -94,6 +102,7 @@ class CreateNewPasswordFragment : androidx.fragment.app.Fragment() {
 
         // Observe loading state
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            Timber.d("Loading state: $isLoading")
             binding.btnResetPassword.isEnabled = !isLoading
         }
     }
