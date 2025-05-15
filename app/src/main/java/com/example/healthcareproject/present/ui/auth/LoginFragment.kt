@@ -11,7 +11,9 @@ import com.example.healthcareproject.databinding.FragmentLoginBinding
 import com.example.healthcareproject.present.navigation.AuthNavigator
 import com.example.healthcareproject.present.ui.MainActivity
 import com.example.healthcareproject.present.viewmodel.auth.LoginViewModel
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 
 @AndroidEntryPoint
 class LoginFragment : androidx.fragment.app.Fragment() {
@@ -65,7 +67,10 @@ class LoginFragment : androidx.fragment.app.Fragment() {
 
         // Observe error messages
         viewModel.error.observe(viewLifecycleOwner) { error: String? ->
-            // Handled by Data Binding in XML
+            if (!error.isNullOrEmpty()) {
+                Timber.e("Error in LoginFragment: $error")
+                Snackbar.make(binding.root, error, Snackbar.LENGTH_LONG).show()
+            }
         }
 
         // Observe email and password errors
@@ -73,7 +78,7 @@ class LoginFragment : androidx.fragment.app.Fragment() {
             binding.etEmail.error = error
         }
         viewModel.passwordError.observe(viewLifecycleOwner) { error: String? ->
-            binding.etPassword.error = error
+            binding.etPassword.error = error // Fixed from "Avocado"
         }
 
         // Observe loading state

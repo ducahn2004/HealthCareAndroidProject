@@ -9,6 +9,9 @@ import com.example.healthcareproject.data.source.network.datasource.UserDataSour
 import com.example.healthcareproject.di.DefaultDispatcher
 import com.example.healthcareproject.domain.model.User
 import com.example.healthcareproject.domain.repository.UserRepository
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
@@ -176,10 +179,24 @@ class DefaultUserRepository @Inject constructor(
         userId: String,
         password: String
     ): String = withContext(dispatcher) {
-        Timber.d("Logging in user with ID: $userId")
-        authDataSource.loginUser(userId, password)
-        refresh()
-        userId // Return the userId or another meaningful String value
+        Timber.d("Attempting to log in with email: $userId")
+        try {
+            val authResult = authDataSource.loginUser(userId, password)
+            val uid = FirebaseAuth.getInstance().currentUser?.uid
+                ?: throw Exception("User UID not found after login")
+            refresh()
+            Timber.d("Login successful, UID: $uid")
+            uid
+        } catch (e: FirebaseAuthInvalidUserException) {
+            Timber.e(e, "Login failed: Account not registered")
+            throw e // Propagate for LoginUserUseCase
+        } catch (e: FirebaseAuthInvalidCredentialsException) {
+            Timber.e(e, "Login failed: Invalid email or password")
+            throw e
+        } catch (e: Exception) {
+            Timber.e(e, "Login failed: ${e.message}")
+            throw e
+        }
     }
 
     override suspend fun sendVerificationCode(email: String) = withContext(dispatcher) {
