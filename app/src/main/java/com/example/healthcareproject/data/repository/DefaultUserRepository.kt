@@ -35,7 +35,7 @@ class DefaultUserRepository @Inject constructor(
         get() = authDataSource.getCurrentUserId() ?: throw Exception("User not logged in")
 
     override suspend fun createUser(
-        userId: String,
+        userId: String, // Input email
         password: String,
         name: String,
         address: String?,
@@ -44,12 +44,9 @@ class DefaultUserRepository @Inject constructor(
         bloodType: String,
         phone: String
     ): String = withContext(dispatcher) {
-        Timber.d("Creating user with ID: $userId")
-        val generatedUserId = withContext(dispatcher) {
-            userId.ifEmpty { java.util.UUID.randomUUID().toString() }
-        }
+        Timber.d("Creating user with email: $userId")
         val user = User(
-            userId = generatedUserId,
+            userId = "", // Will be updated with UID
             password = password,
             name = name,
             address = address,
@@ -62,13 +59,14 @@ class DefaultUserRepository @Inject constructor(
         )
 
         try {
-            val uid = authDataSource.registerUser(userId, password)
-            networkDataSource.saveUser(user.toNetwork())
-            localDataSource.upsert(user.toLocal())
+            val uid = authDataSource.registerUser(userId, password) // Returns Firebase Auth UID
+            val userWithUid = user.copy(userId = uid)
+            networkDataSource.saveUser(userWithUid.toNetwork()) // Use UID, not email
+            localDataSource.upsert(userWithUid.toLocal())
             uid
         } catch (e: Exception) {
-            Timber.e(e, "Failed to create user: $userId")
-            throw Exception("Cannot create user with ID $userId: ${e.message}")
+            Timber.e(e, "Failed to create user with email: $userId")
+            throw Exception("Cannot create user with email $userId: ${e.message}")
         }
     }
 

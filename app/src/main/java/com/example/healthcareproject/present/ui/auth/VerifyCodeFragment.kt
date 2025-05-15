@@ -12,6 +12,7 @@ import com.example.healthcareproject.present.navigation.AuthNavigator
 import com.example.healthcareproject.present.viewmodel.auth.VerifyCodeViewModel
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 
 @AndroidEntryPoint
 class VerifyCodeFragment : Fragment() {
@@ -35,7 +36,7 @@ class VerifyCodeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Initialize ViewModel with email and authFlow from arguments
+        // Initialize ViewModel with email and authFlow
         val email = arguments?.getString("email") ?: ""
         val authFlowString = arguments?.getString("authFlow") ?: "REGISTRATION"
         viewModel.setEmailAndAuthFlow(
@@ -47,19 +48,20 @@ class VerifyCodeFragment : Fragment() {
             }
         )
 
+        // Check for email link (fallback)
+        activity?.intent?.data?.toString()?.let { emailLink ->
+            viewModel.verifyEmailLink(emailLink)
+        }
+
         // Back button
         binding.btnBackVerifyCode.setOnClickListener {
             navigator.fromVerifyCodeToLogin()
         }
 
-        // Resend code
-        binding.tvResend.setOnClickListener {
-            if (viewModel.timerCount.value == 0) {
-                viewModel.sendVerificationCode()
-            }
-        }
+        // Show Snackbar for email link prompt
+        Snackbar.make(binding.root, "Check your email for the verification link", Snackbar.LENGTH_LONG).show()
 
-        // Observe navigation to CreateNewPassword
+        // Observe navigation (fallback)
         viewModel.navigateToCreateNewPassword.observe(viewLifecycleOwner) { navigate ->
             if (navigate) {
                 navigator.fromVerifyCodeToCreateNewPassword()
@@ -67,7 +69,6 @@ class VerifyCodeFragment : Fragment() {
             }
         }
 
-        // Observe navigation to Login
         viewModel.navigateToLogin.observe(viewLifecycleOwner) { navigate ->
             if (navigate) {
                 navigator.fromVerifyCodeToLogin()
@@ -78,17 +79,14 @@ class VerifyCodeFragment : Fragment() {
         // Observe errors
         viewModel.error.observe(viewLifecycleOwner) { error ->
             if (!error.isNullOrEmpty()) {
-                Snackbar.make(binding.root, error, Snackbar.LENGTH_LONG)
-                    .setAction("Retry") { viewModel.sendVerificationCode() }
-                    .show()
+                Snackbar.make(binding.root, error, Snackbar.LENGTH_LONG).show()
                 viewModel.setError(null)
             }
         }
 
         // Observe loading state
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
-            binding.btnVerify.isEnabled = !isLoading
-            binding.tvResend.isEnabled = !isLoading
+            binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
         }
     }
 

@@ -1,5 +1,7 @@
 package com.example.healthcareproject.present.viewmodel.auth
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.text.Editable
 import android.util.Patterns
 import androidx.lifecycle.LiveData
@@ -7,15 +9,23 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.healthcareproject.domain.usecase.auth.SendVerificationCodeUseCase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ActionCodeSettings
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
 class ForgotPasswordViewModel @Inject constructor(
-    private val sendVerificationCodeUseCase: SendVerificationCodeUseCase
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
+
+    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
+    private val sharedPreferences: SharedPreferences =
+        context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
+
 
     private val _isCodeSent = MutableLiveData<Boolean>()
     val isCodeSent: LiveData<Boolean> get() = _isCodeSent
@@ -42,39 +52,38 @@ class ForgotPasswordViewModel @Inject constructor(
         _email.value = value.toString()
     }
 
+    private fun getActionCodeSettings(): ActionCodeSettings {
+        return ActionCodeSettings.newBuilder()
+            .setUrl("https://heart-careproject.firebaseapp.com/resetPassword")
+            .setHandleCodeInApp(true)
+            .setAndroidPackageName("com.example.healthcareproject", true, "1")
+            .build()
+    }
 
     fun onResetPasswordClicked() {
         val emailValue = email.value ?: ""
-
-        _emailError.value = null
-        _error.value = null
-
-        if (emailValue.isBlank()) {
-            _emailError.value = "Email is required"
-            return
-        } else if (!Patterns.EMAIL_ADDRESS.matcher(emailValue).matches()) {
-            _emailError.value = "Invalid email format"
+        if (emailValue.isBlank() || !Patterns.EMAIL_ADDRESS.matcher(emailValue).matches()) {
+            _emailError.value = if (emailValue.isBlank()) "Email is required" else "Invalid email format"
             return
         }
 
         _isLoading.value = true
-        viewModelScope.launch {
-            try {
-                Timber.d("Attempting to send verification code for password reset to: $emailValue")
-                sendVerificationCodeUseCase(emailValue)
-                _isCodeSent.value = true
-                _resetRequestSuccess.value = "Password reset requested! Check your email for the verification code."
-                _navigateToVerifyCode.value = true
-                _error.value = null
-                Timber.d("Verification code sent successfully for password reset")
-            } catch (e: Exception) {
-                Timber.e(e, "Failed to send verification code for password reset")
-                _error.value = e.message ?: "Failed to send verification code"
-                _resetRequestSuccess.value = null
-            } finally {
+        auth.sendSignInLinkToEmail(emailValue, getActionCodeSettings())
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Timber.d("Reset email link sent to $emailValue")
+                    _resetRequestSuccess.value = "Check your email for the reset link!"
+                    _navigateToVerifyCode.value = true
+                    sharedPreferences.edit()
+                        .putString("pending_email", emailValue)
+                        .putString("auth_flow", "FORGOT_PASSWORD")
+                        .apply()
+                } else {
+                    Timber.e(task.exception, "Failed to send reset link")
+                    _error.value = task.exception?.message ?: "Failed to send reset link"
+                }
                 _isLoading.value = false
             }
-        }
     }
 
     fun resetNavigationStates() {

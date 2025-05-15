@@ -1,6 +1,7 @@
 package com.example.healthcareproject.data.source.network.datasource
 
 import com.example.healthcareproject.data.source.network.model.FirebaseUser
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
@@ -9,7 +10,8 @@ import timber.log.Timber
 import javax.inject.Inject
 
 class UserFirebaseDataSource @Inject constructor(
-    firebaseDatabase: FirebaseDatabase
+    firebaseDatabase: FirebaseDatabase,
+    private val firebaseAuth: FirebaseAuth
 ) : UserDataSource {
 
     private val usersRef = firebaseDatabase.getReference("users")
@@ -25,7 +27,6 @@ class UserFirebaseDataSource @Inject constructor(
             throw Exception("Cannot save user with UID ${user.userId}: ${e.message}")
         }
     }
-
 
     override suspend fun loadUser(uid: String): FirebaseUser? {
         return try {
@@ -72,9 +73,12 @@ class UserFirebaseDataSource @Inject constructor(
     override suspend fun getEmailByUid(uid: String): String? {
         return try {
             withContext(Dispatchers.IO) {
-                val snapshot = usersRef.child(uid).get().await()
-                val user = snapshot.getValue(FirebaseUser::class.java)
-                val email = user?.userId
+                val currentUser = firebaseAuth.currentUser
+                val email = if (currentUser != null && currentUser.uid == uid) {
+                    currentUser.email
+                } else {
+                    null
+                }
                 if (email == null) {
                     Timber.tag("Firebase").w("Email not found for UID $uid")
                 } else {

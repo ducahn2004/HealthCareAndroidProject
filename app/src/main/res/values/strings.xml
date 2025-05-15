@@ -167,6 +167,8 @@
     <string name="alarms">Alarm</string>
     <string name="alarm">Alarm</string>
     <string name="current">Curnent</string>
+    <string name="check_email_for_link">Check your email for the verification link: </string>
+    <string name="check_email_for_link_default">Check your email for the verification link.</string>
     <string-array name="gender_options">
         <item>Male</item>
         <item>Female</item>

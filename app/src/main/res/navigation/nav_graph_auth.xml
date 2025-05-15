@@ -125,4 +125,7 @@
             android:id="@+id/action_createNewPasswordFragment_to_loginFragment"
             app:destination="@id/loginFragment" />
     </fragment>
+    <action
+        android:id="@+id/action_global_createNewPasswordFragment"
+        app:destination="@id/createNewPasswordFragment" />
 </navigation>

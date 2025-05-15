@@ -153,11 +153,19 @@ class RegisterFragment : Fragment() {
 
         // Back button
         binding.btnBackRegisterToLoginMethod.setOnClickListener {
-            try {
-                navigator.fromRegisterToLoginMethod()
-            } catch (e: Exception) {
-                Timber.e("Navigation failed: ${e.message}")
-                Snackbar.make(binding.root, "Navigation failed: ${e.message}", Snackbar.LENGTH_LONG).show()
+            navigator.fromRegisterToLoginMethod()
+        }
+
+        viewModel.emailLinkSent.observe(viewLifecycleOwner) { sent ->
+            if (sent) {
+                Snackbar.make(binding.root, "Check your email for the sign-in link!", Snackbar.LENGTH_LONG).show()
+                // Optionally, navigate to a waiting screen or stay on the current screen
+            }
+        }
+
+        viewModel.registerResult.observe(viewLifecycleOwner) { uid ->
+            if (uid != null) {
+                // Wait for email link verification; no immediate navigation
             }
         }
     }

@@ -1,7 +1,9 @@
 package com.example.healthcareproject.present.viewmodel.auth
 
+import android.content.SharedPreferences
 import android.text.Editable
 import android.util.Patterns
+import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -9,7 +11,10 @@ import androidx.lifecycle.viewModelScope
 import com.example.healthcareproject.domain.usecase.auth.LinkGoogleCredentialUseCase
 import com.example.healthcareproject.domain.usecase.user.CreateUserUseCase
 import com.example.healthcareproject.domain.usecase.auth.SendVerificationCodeUseCase
+import com.google.firebase.auth.ActionCodeSettings
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.time.LocalDate
@@ -19,9 +24,13 @@ import javax.inject.Inject
 @HiltViewModel
 class RegisterViewModel @Inject constructor(
     private val createUserUseCase: CreateUserUseCase,
-    private val sendVerificationCodeUseCase: SendVerificationCodeUseCase,
-    private val linkGoogleCredentialUseCase: LinkGoogleCredentialUseCase
+    private val linkGoogleCredentialUseCase: LinkGoogleCredentialUseCase,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
+
+    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
+    private val sharedPreferences: SharedPreferences =
+        context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
 
     private val _name = MutableLiveData<String>("")
     val name: LiveData<String> = _name
@@ -88,6 +97,9 @@ class RegisterViewModel @Inject constructor(
 
     private val _registrationSuccess = MutableLiveData<String?>()
     val registrationSuccess: LiveData<String?> = _registrationSuccess
+
+    private val _emailLinkSent = MutableLiveData<Boolean>()
+    val emailLinkSent: LiveData<Boolean> = _emailLinkSent
 
     /**
      * Updates the name field.
@@ -251,7 +263,7 @@ class RegisterViewModel @Inject constructor(
     /**
      * Registers a new user and sends a verification code.
      */
-    private fun register(
+    fun register(
         email: String,
         password: String,
         name: String,
@@ -282,11 +294,11 @@ class RegisterViewModel @Inject constructor(
                     bloodType = bloodType,
                     phone = phone
                 )
-                sendVerificationCodeUseCase(email)
+                // Send email link instead of verification code
+                sendEmailLink(email)
                 _registerResult.value = uid
-                _registrationSuccess.value = "Registration successful! Check your email for the verification code."
                 _error.value = null
-                Timber.d("Registration successful, UID: $uid")
+                Timber.d("Registration initiated, UID: $uid")
             } catch (e: Exception) {
                 Timber.e(e, "Registration failed: ${e.message}")
                 _error.value = when {
@@ -302,6 +314,33 @@ class RegisterViewModel @Inject constructor(
                 _isLoading.value = false
             }
         }
+    }
+    private fun getActionCodeSettings(): ActionCodeSettings {
+        return ActionCodeSettings.newBuilder()
+            .setUrl("https://heart-careproject.firebaseapp.com/finishSignUp")
+            .setHandleCodeInApp(true)
+            .setAndroidPackageName("com.example.healthcareproject", true, "1")
+            .build()
+    }
+
+    fun sendEmailLink(email: String) {
+        _isLoading.value = true
+        auth.sendSignInLinkToEmail(email, getActionCodeSettings())
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Timber.d("Email link sent to $email")
+                    _emailLinkSent.value = true
+                    _registrationSuccess.value = "Check your email for the sign-in link!"
+                    sharedPreferences.edit()
+                        .putString("pending_email", email)
+                        .putString("auth_flow", "REGISTRATION")
+                        .apply()
+                } else {
+                    Timber.e(task.exception, "Failed to send email link")
+                    _error.value = task.exception?.message ?: "Failed to send email link"
+                }
+                _isLoading.value = false
+            }
     }
 
     fun linkGoogleAccount(idToken: String) {

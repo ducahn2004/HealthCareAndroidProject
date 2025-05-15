@@ -39,11 +39,6 @@ class ForgotPasswordFragment : androidx.fragment.app.Fragment() {
 
         Timber.d("ForgotPasswordFragment: onViewCreated")
 
-        // Back button
-        binding.btnBackForgotPasswordToLogin.setOnClickListener {
-            navigator.fromForgotPasswordToLoginMethod()
-        }
-
         // Observe password reset success notification
         viewModel.resetRequestSuccess.observe(viewLifecycleOwner) { message ->
             if (!message.isNullOrEmpty()) {
@@ -51,6 +46,7 @@ class ForgotPasswordFragment : androidx.fragment.app.Fragment() {
             }
         }
 
+        // Observe navigation to VerifyCode
         // Observe navigation to VerifyCode
         viewModel.navigateToVerifyCode.observe(viewLifecycleOwner) { navigate ->
             if (navigate) {
@@ -62,9 +58,6 @@ class ForgotPasswordFragment : androidx.fragment.app.Fragment() {
                     }
                     findNavController().navigate(R.id.action_forgotPasswordFragment_to_verifyCodeFragment, bundle)
                     viewModel.resetNavigationStates()
-                } else {
-                    Timber.e("Email is null or blank, cannot navigate to VerifyCodeFragment")
-                    Snackbar.make(binding.root, "Email is required", Snackbar.LENGTH_LONG).show()
                 }
             }
         }
@@ -88,6 +81,11 @@ class ForgotPasswordFragment : androidx.fragment.app.Fragment() {
         // Observe email errors
         viewModel.emailError.observe(viewLifecycleOwner) { error ->
             binding.etEmail.error = error
+        }
+
+        // Back button
+        binding.btnBackForgotPasswordToLogin.setOnClickListener {
+            navigator.fromForgotPasswordToLoginMethod()
         }
     }
 
