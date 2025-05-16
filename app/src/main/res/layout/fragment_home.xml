@@ -181,7 +181,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/check_heart_rate"
-                            android:textSize="15sp"
+                            android:textSize="18sp"
                             android:textStyle="bold"
                             android:textColor="@color/primary_text_color" />
                         <TextView
@@ -190,7 +190,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
                             android:text="@string/default_heart_rate_current"
-                            android:textSize="13sp"
+                            android:textSize="16sp"
                             android:textColor="?attr/android:textColorSecondary" />
                     </LinearLayout>
                     <ImageView
@@ -232,7 +232,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/check_oxygen_level"
-                            android:textSize="15sp"
+                            android:textSize="18sp"
                             android:textStyle="bold"
                             android:textColor="@color/primary_text_color" />
                         <TextView
@@ -241,7 +241,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
                             android:text="@string/default_oxygen_level_current"
-                            android:textSize="13sp"
+                            android:textSize="16sp"
                             android:textColor="?attr/android:textColorSecondary" />
                     </LinearLayout>
                     <ImageView
@@ -283,7 +283,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/check_ecg"
-                            android:textSize="15sp"
+                            android:textSize="18sp"
                             android:textStyle="bold"
                             android:textColor="@color/primary_text_color" />
                         <TextView
@@ -292,7 +292,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
                             android:text="@string/default_ecg_current"
-                            android:textSize="13sp"
+                            android:textSize="16sp"
                             android:textColor="?attr/android:textColorSecondary" />
                     </LinearLayout>
                     <ImageView
@@ -334,7 +334,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Change Alarm"
-                            android:textSize="15sp"
+                            android:textSize="18sp"
                             android:textStyle="bold"
                             android:textColor="@color/primary_text_color" />
                         <TextView
@@ -343,7 +343,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
                             android:text="@string/current"
-                            android:textSize="13sp"
+                            android:textSize="16sp"
                             android:textColor="?attr/android:textColorSecondary" />
                     </LinearLayout>
                     <ImageView
