@@ -1,24 +1,20 @@
 package com.example.healthcareproject.domain.usecase.medicalvisit
 
-import com.example.healthcareproject.domain.usecase.medication.CreateMedicationUseCase
 import com.example.healthcareproject.domain.model.DosageUnit
 import com.example.healthcareproject.domain.model.MealRelation
-import com.example.healthcareproject.domain.model.MedicalVisit
-import com.example.healthcareproject.domain.model.Medication
 import com.example.healthcareproject.domain.model.Result
 import com.example.healthcareproject.domain.repository.MedicalVisitRepository
-import com.example.healthcareproject.domain.repository.MedicationRepository
-import com.example.healthcareproject.domain.usecase.medication.MedicationUseCases
+import com.example.healthcareproject.domain.usecase.medication.CreateMedicationUseCase
+import com.example.healthcareproject.domain.usecase.medication.GetMedicationsByVisitIdUseCase
 import timber.log.Timber
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.UUID
 import javax.inject.Inject
 
-
 class AddMedicalVisitWithMedicationsUseCase @Inject constructor(
     private val medicalVisitRepository: MedicalVisitRepository,
-    private val medicationUseCases: MedicationUseCases
+    private val createMedicationUseCase: CreateMedicationUseCase,
+    private val getMedicationsByVisitIdUseCase: GetMedicationsByVisitIdUseCase
 ) {
     suspend operator fun invoke(
         visitReason: String,
@@ -62,7 +58,7 @@ class AddMedicalVisitWithMedicationsUseCase @Inject constructor(
                     val dosageAmount = data["dosageAmount"] as? Number ?: throw IllegalArgumentException("dosageAmount must be a number for medication: $name")
                     val frequency = data["frequency"] as? Number ?: throw IllegalArgumentException("frequency must be a number for medication: $name")
 
-                    val result = medicationUseCases.createMedication(
+                    val result = createMedicationUseCase(
                         visitId = savedVisitId,
                         name = name,
                         dosageUnit = data["dosageUnit"] as? DosageUnit ?: DosageUnit.Mg,
@@ -89,7 +85,7 @@ class AddMedicalVisitWithMedicationsUseCase @Inject constructor(
                 }
                 Timber.d("Syncing medications to network")
 
-                val medicationsInRoom = medicationUseCases.getMedicationsByVisitId(savedVisitId)
+                val medicationsInRoom = getMedicationsByVisitIdUseCase(savedVisitId)
                 medicationsInRoom.forEach { med ->
                     if (med.visitId == null) {
                         Timber.e("Medication ${med.name} has null visitId after sync")
@@ -103,7 +99,7 @@ class AddMedicalVisitWithMedicationsUseCase @Inject constructor(
             Timber.e(e, "Error in AddMedicalVisitWithMedicationsUseCase: ${e.message}")
             throw e
         }
-        val finalMedications = medicationUseCases.getMedicationsByVisitId(visitId)
+        val finalMedications = getMedicationsByVisitIdUseCase(visitId)
         finalMedications.forEach { med ->
             if (med.visitId == null) {
                 Timber.e("Final check failed: Medication ${med.name} has null visitId after sync")

@@ -1,13 +1,16 @@
 package com.example.healthcareproject.present.viewmodel.setting
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.healthcareproject.domain.model.EmergencyInfo
 import com.example.healthcareproject.domain.model.Relationship
-import com.example.healthcareproject.domain.usecase.emergencyinfo.EmergencyInfoUseCases
+import com.example.healthcareproject.domain.usecase.emergencyinfo.CreateEmergencyInfoUseCase
+import com.example.healthcareproject.domain.usecase.emergencyinfo.DeleteEmergencyInfoUseCase
+import com.example.healthcareproject.domain.usecase.emergencyinfo.GetEmergencyInfoByIdUseCase
+import com.example.healthcareproject.domain.usecase.emergencyinfo.GetEmergencyInfosUseCase
+import com.example.healthcareproject.domain.usecase.emergencyinfo.UpdateEmergencyInfoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -15,11 +18,15 @@ import javax.inject.Inject
 
 @HiltViewModel
 class EmergencyViewModel @Inject constructor(
-    private val emergencyInfoUseCases: EmergencyInfoUseCases
-) : ViewModel() {
+    private val createEmergencyInfoUseCase: CreateEmergencyInfoUseCase,
+    private val updateEmergencyInfoUseCase: UpdateEmergencyInfoUseCase,
+    private val deleteEmergencyInfoUseCase: DeleteEmergencyInfoUseCase,
+    private val getEmergencyInfosUseCase: GetEmergencyInfosUseCase,
+    private val getEmergencyInfoByIdUseCase: GetEmergencyInfoByIdUseCase
+    ) : ViewModel() {
 
     sealed class ContactsUiState {
-        object Loading : ContactsUiState()
+        data object Loading : ContactsUiState()
         data class Success(val contacts: List<EmergencyInfo>) : ContactsUiState()
         data class Error(val message: String) : ContactsUiState()
     }
@@ -27,10 +34,10 @@ class EmergencyViewModel @Inject constructor(
     private val _contacts = MutableLiveData<ContactsUiState>()
     val contacts: LiveData<ContactsUiState> get() = _contacts
 
-    private val _isLoading = MutableLiveData<Boolean>(false)
+    private val _isLoading = MutableLiveData(false)
     val isLoading: LiveData<Boolean> get() = _isLoading
 
-    private val _isEmpty = MutableLiveData<Boolean>(false)
+    private val _isEmpty = MutableLiveData(false)
     val isEmpty: LiveData<Boolean> get() = _isEmpty
 
     private val _availablePriorities = MutableLiveData<List<Int>>()
@@ -49,13 +56,13 @@ class EmergencyViewModel @Inject constructor(
         loadContacts()
     }
 
-    fun loadContacts() {
+    private fun loadContacts() {
         _contacts.value = ContactsUiState.Loading
         _isLoading.value = true
         _isEmpty.value = false
         viewModelScope.launch {
             try {
-                val contacts = emergencyInfoUseCases.getEmergencyInfos()
+                val contacts = getEmergencyInfosUseCase()
                 _contacts.value = ContactsUiState.Success(contacts.sortedBy { it.priority })
                 _isLoading.value = false
                 _isEmpty.value = contacts.isEmpty()
@@ -79,7 +86,7 @@ class EmergencyViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 if (editingEmergencyId == null) {
-                    emergencyInfoUseCases.createEmergencyInfo(
+                    createEmergencyInfoUseCase(
                         contactName = name,
                         contactNumber = phone,
                         relationship = relationship,
@@ -88,7 +95,7 @@ class EmergencyViewModel @Inject constructor(
                     Timber.tag("EmergencyViewModel")
                         .d("Added contact: $name with priority $priority")
                 } else {
-                    emergencyInfoUseCases.updateEmergencyInfo(
+                    updateEmergencyInfoUseCase(
                         emergencyInfoId = editingEmergencyId!!,
                         contactName = name,
                         contactNumber = phone,
@@ -112,7 +119,7 @@ class EmergencyViewModel @Inject constructor(
     fun deleteContact(emergencyId: String) {
         viewModelScope.launch {
             try {
-                emergencyInfoUseCases.deleteEmergencyInfo(emergencyId)
+                deleteEmergencyInfoUseCase(emergencyId)
                 Timber.tag("EmergencyViewModel").d("Deleted contact: $emergencyId")
                 loadContacts()
             } catch (e: Exception) {
@@ -127,7 +134,7 @@ class EmergencyViewModel @Inject constructor(
     fun prepareEditContact(emergencyId: String) {
         viewModelScope.launch {
             try {
-                val contact = emergencyInfoUseCases.getEmergencyInfoById(emergencyId)
+                val contact = getEmergencyInfoByIdUseCase(emergencyId)
                 contact?.let {
                     editingEmergencyId = it.emergencyId
                     emergencyName.value = it.emergencyName
@@ -135,7 +142,7 @@ class EmergencyViewModel @Inject constructor(
                     _selectedRelationship.value = it.relationship
                     _selectedPriority.value = it.priority
                     // Update available priorities, including the current contact's priority
-                    val contacts = emergencyInfoUseCases.getEmergencyInfos()
+                    val contacts = getEmergencyInfosUseCase()
                     updateAvailablePriorities(contacts, it.priority)
                     Timber.tag("EmergencyViewModel")
                         .d("Prepared edit for contact: ${it.emergencyName}")

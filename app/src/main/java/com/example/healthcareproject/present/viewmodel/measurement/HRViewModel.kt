@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.healthcareproject.domain.model.Measurement
-import com.example.healthcareproject.domain.usecase.measurement.MeasurementUseCases
+import com.example.healthcareproject.domain.usecase.measurement.GetMeasurementRealTimeUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -13,7 +13,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HRViewModel @Inject constructor(
-    private val measurementUseCases: MeasurementUseCases
+    private val getMeasurementRealTimeUseCase: GetMeasurementRealTimeUseCase
 ) : ViewModel() {
 
     private val _heartRate = MutableLiveData<Float>()
@@ -26,7 +26,7 @@ class HRViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            measurementUseCases.getMeasurementRealTimeUseCase().collectLatest { measurements ->
+            getMeasurementRealTimeUseCase().collectLatest { measurements ->
                 val latestMeasurements = measurements.takeLast(maxDataPoints)
                 _heartRateHistory.postValue(latestMeasurements)
 

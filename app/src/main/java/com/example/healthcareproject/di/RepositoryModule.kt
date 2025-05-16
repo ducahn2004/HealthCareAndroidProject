@@ -8,7 +8,7 @@ import com.example.healthcareproject.domain.repository.MeasurementRepository
 import com.example.healthcareproject.domain.repository.MedicalVisitRepository
 import com.example.healthcareproject.domain.repository.MedicationRepository
 import com.example.healthcareproject.domain.repository.NotificationRepository
-import com.example.healthcareproject.domain.repository.SosRepository
+import com.example.healthcareproject.domain.repository.AlertRepository
 import com.example.healthcareproject.domain.repository.UserRepository
 import dagger.Binds
 import dagger.Module
@@ -54,5 +54,5 @@ abstract class RepositoryModule {
 
     @Singleton
     @Binds
-    abstract fun bindSosRepository(repository: DefaultSosRepository): SosRepository
+    abstract fun bindAlertRepository(repository: DefaultAlertRepository): AlertRepository
 }

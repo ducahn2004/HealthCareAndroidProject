@@ -1,21 +1,17 @@
 package com.example.healthcareproject.domain.usecase.measurement
 
-import com.example.healthcareproject.domain.repository.MeasurementRepository
-import com.example.healthcareproject.domain.usecase.medicalvisit.GetMedicalVisitsUseCase
-import com.example.healthcareproject.domain.usecase.sos.SendSosUseCase
-import com.example.healthcareproject.domain.usecase.user.GetUserUseCase
-import kotlinx.coroutines.flow.mapNotNull
+import com.example.healthcareproject.domain.repository.MedicalVisitRepository
+import com.example.healthcareproject.domain.repository.UserRepository
 import java.util.Calendar
 import javax.inject.Inject
 
 class HRAnalysisUseCase @Inject constructor(
-    private val measurementRepository: MeasurementRepository,
-    private val getUserUseCase: GetUserUseCase,
-    private val getMedicalVisitUseCase: GetMedicalVisitsUseCase,
-    private val sendSosUseCase: SendSosUseCase
+    private val userRepository: UserRepository,
+    private val medicationRepository: MedicalVisitRepository
 ) {
-    private fun calculateAge(birthDate: String): Int {
-        val birthYear = birthDate.split("-")[0].toInt()
+    private fun calculateAge(birthDate: String?): Int {
+        if (birthDate.isNullOrEmpty()) return 0
+        val birthYear = birthDate.split("-").getOrNull(0)?.toIntOrNull() ?: return 0
         return Calendar.getInstance().get(Calendar.YEAR) - birthYear
     }
 
@@ -31,13 +27,14 @@ class HRAnalysisUseCase @Inject constructor(
         minNormal: Int,
         maxNormal: Int
     ): Pair<Int, Int> {
-        val medicalVisits = getMedicalVisitUseCase(forceUpdate = true)
+        val medicalVisits = medicationRepository.getMedicalVisits(forceUpdate = true)
         var adjustedMin = minNormal
         var adjustedMax = maxNormal
 
         medicalVisits.forEach { visit ->
+            val diagnosis = visit.diagnosis.lowercase()
             if (visit.treatment == "Inactive") {
-                when (visit.diagnosis.lowercase()) {
+                when (diagnosis) {
                     "hypertension" -> adjustedMax += 10
                     "hypotension" -> adjustedMin -= 10
                     "arrhythmia" -> {
@@ -50,26 +47,15 @@ class HRAnalysisUseCase @Inject constructor(
         return adjustedMin to adjustedMax
     }
 
-    suspend operator fun invoke() {
-        val user = getUserUseCase(forceUpdate = true) ?: return
-        val age = calculateAge(user.dateOfBirth.toString())
+    suspend fun isAbnormal(heartRate: Float): Boolean {
+        val user = userRepository.getUser(forceUpdate = true)
+        val age = calculateAge(user?.dateOfBirth.toString())
         val (minNormal, maxNormal) = getNormalHeartRateRange(age)
-        val (adjustedMin, adjustedMax) = adjustHeartRateRangeBasedOnMedicalHistory(minNormal, maxNormal)
+        val (adjustedMin, adjustedMax) = adjustHeartRateRangeBasedOnMedicalHistory(
+            minNormal,
+            maxNormal
+        )
 
-        measurementRepository.getMeasurementsStream()
-            .mapNotNull { measurements ->
-                measurements
-                    .maxByOrNull { it.measurementId }
-            }
-            .collect { latestHR ->
-                val heartRate = latestHR.bpm
-                if (heartRate < adjustedMin || heartRate > adjustedMax) {
-                    val triggerReason = "Abnormal heart rate detected: $heartRate bpm"
-                    sendSosUseCase(
-                        measurementId = latestHR.measurementId,
-                        triggerReason = triggerReason
-                    )
-                }
-            }
+        return heartRate !in adjustedMin.toFloat()..adjustedMax.toFloat()
     }
 }

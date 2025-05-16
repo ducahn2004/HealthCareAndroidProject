@@ -57,7 +57,7 @@ object DatabaseModule {
     fun provideNotificationDao(database: AppDatabase): NotificationDao = database.notificationDao()
 
     @Provides
-    fun provideSosDao(database: AppDatabase): SosDao = database.sosDao()
+    fun provideAlertDao(database: AppDatabase): AlertDao = database.alertDao()
 
     @Provides
     fun provideUserDao(database: AppDatabase): UserDao = database.userDao()

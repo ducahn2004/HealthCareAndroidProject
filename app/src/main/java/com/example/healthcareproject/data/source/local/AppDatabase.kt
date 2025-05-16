@@ -15,10 +15,10 @@ import com.example.healthcareproject.data.source.local.entity.*
         RoomMedicalVisit::class,
         RoomMedication::class,
         RoomNotification::class,
-        RoomSos::class,
+        RoomAlert::class,
         RoomUser::class
     ],
-    version = 14,
+    version = 15,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -38,7 +38,7 @@ abstract class AppDatabase : RoomDatabase() {
 
     abstract fun notificationDao(): NotificationDao
 
-    abstract fun sosDao(): SosDao
+    abstract fun alertDao(): AlertDao
 
     abstract fun userDao(): UserDao
 }

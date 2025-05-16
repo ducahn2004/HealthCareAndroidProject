@@ -1,16 +1,14 @@
 package com.example.healthcareproject.present.viewmodel.medicine
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.healthcareproject.domain.model.MedicalVisit
 import com.example.healthcareproject.domain.model.Result
-import com.example.healthcareproject.domain.usecase.appointment.AppointmentUseCases
+import com.example.healthcareproject.domain.usecase.appointment.CreateAppointmentUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.LocalDateTime
@@ -18,8 +16,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AddAppointmentViewModel @Inject constructor(
-    private val appointmentUseCases: AppointmentUseCases
-) : ViewModel() {
+    private val createAppointmentUseCase: CreateAppointmentUseCase
+    ) : ViewModel() {
 
     // Error handling
     private val _errorMessage = MutableLiveData<String?>(null)
@@ -66,14 +64,14 @@ class AddAppointmentViewModel @Inject constructor(
     val timeError: LiveData<String?> = _timeError
 
     // Navigation trigger
-    private val _navigateBack = MutableLiveData<Boolean>(false)
+    private val _navigateBack = MutableLiveData(false)
     val navigateBack: LiveData<Boolean> = _navigateBack
 
     // Date/Time picker triggers
-    private val _showDatePicker = MutableLiveData<Boolean>(false)
+    private val _showDatePicker = MutableLiveData(false)
     val showDatePicker: LiveData<Boolean> = _showDatePicker
 
-    private val _showTimePicker = MutableLiveData<Boolean>(false)
+    private val _showTimePicker = MutableLiveData(false)
     val showTimePicker: LiveData<Boolean> = _showTimePicker
 
     fun updateVisitDate(visitDate: LocalDate) {
@@ -89,10 +87,6 @@ class AddAppointmentViewModel @Inject constructor(
     fun onBackClicked() {
         _navigateBack.value = true
         _navigateBack.postValue(false)
-    }
-
-    fun resetNavigateBack() {
-        _navigateBack.value = false
     }
 
     fun onDateClicked() {
@@ -113,95 +107,91 @@ class AddAppointmentViewModel @Inject constructor(
 
     fun saveAppointment() {
         var hasError = false
-        Timber.tag("AddAppointment")
-            .d("Saving: Diagnosis=${diagnosis.value}, Doctor=${doctorName.value}, Clinic=${clinicName.value}, Treatment=${treatment.value}, Date=${_visitDate.value}, Time=${_time.value}")
 
         // Validation
         if (diagnosis.value.isNullOrBlank()) {
-            _diagnosisError.value = "Diagnosis is required"
+            _diagnosisError.value = "Required"
             hasError = true
         } else {
             _diagnosisError.value = null
         }
 
         if (doctorName.value.isNullOrBlank()) {
-            _doctorNameError.value = "Doctor name is required"
+            _doctorNameError.value = "Required"
             hasError = true
         } else {
             _doctorNameError.value = null
         }
 
         if (clinicName.value.isNullOrBlank()) {
-            _clinicNameError.value = "Clinic name is required"
+            _clinicNameError.value = "Required"
             hasError = true
         } else {
             _clinicNameError.value = null
         }
 
+        if (treatment.value.isNullOrBlank()) {
+            _treatmentError.value = "Required"
+            hasError = true
+        } else {
+            _treatmentError.value = null
+        }
+
         if (_visitDate.value == null) {
-            _dateError.value = "Date is required"
+            _dateError.value = "Required"
             hasError = true
         } else {
             _dateError.value = null
         }
 
         if (_time.value == null) {
-            _timeError.value = "Time is required"
+            _timeError.value = "Required"
             hasError = true
         } else {
             _timeError.value = null
         }
 
-        if (hasError) {
-            Timber.tag("AddAppointment").d("Validation failed")
-            return
-        }
+        if (hasError) return
 
         viewModelScope.launch {
             _isLoading.value = true
-            try {
-                val createdAt = LocalDateTime.of(_visitDate.value, _time.value)
-                val result = appointmentUseCases.createAppointment(
-                    doctorName = doctorName.value ?: "",
-                    location = clinicName.value ?: "",
-                    appointmentTime = createdAt,
-                    note = "${diagnosis.value}"
-                )
+            _errorMessage.value = null
 
-                when (result) {
-                    is Result.Success -> {
-                        Timber.tag("AddAppointment").d("Save success: ${result.data}")
-                        val medicalVisit = MedicalVisit(
-                            visitId = result.data,
-                            userId = "",
-                            visitDate = _visitDate.value!!,
-                            clinicName = clinicName.value!!,
-                            doctorName = doctorName.value!!,
-                            diagnosis = diagnosis.value!!,
-                            treatment = treatment.value!!,
-                            createdAt = createdAt
-                        )
-                        _successWithVisit.value = medicalVisit
-                        //_successWithVisit.value = null
-                    }
-                    is Result.Error -> {
-                        Timber.tag("AddAppointment").e("Save failed: ${result.exception.message}")
-                        _errorMessage.value = result.exception.message ?: "Failed to save appointment"
-                    }
-                    is Result.Loading -> {
-                        Timber.tag("AddAppointment").d("Saving in progress")
-                    }
+            // Combine date and time
+            val createdAt = LocalDateTime.of(_visitDate.value, _time.value)
+
+            // Call use case
+            val result = createAppointmentUseCase(
+                doctorName = doctorName.value ?: "",
+                location = clinicName.value ?: "",
+                appointmentTime = createdAt,
+                note = "${diagnosis.value}"
+            )
+
+            when (result) {
+                is Result.Success -> {
+                    _isLoading.value = false
+                    val medicalVisit = MedicalVisit(
+                        visitId = result.data, // Sử dụng appointmentId làm visitId
+                        userId = "", // Repository sẽ gán userId
+                        visitDate = _visitDate.value!!,
+                        clinicName = clinicName.value!!,
+                        doctorName = doctorName.value!!,
+                        diagnosis = diagnosis.value!!,
+                        treatment = treatment.value!!,
+                        createdAt = createdAt
+                    )
+                    _successWithVisit.value = medicalVisit
                 }
-            } catch (e: Exception) {
-                Timber.tag("AddAppointment").e("Exception: ${e.message}")
-                _errorMessage.value = "Error saving appointment: ${e.message}"
-            } finally {
-                _isLoading.value = false
+                is Result.Error -> {
+                    _isLoading.value = false
+                    _errorMessage.value = result.exception.message ?: "Failed to save appointment"
+                }
+                is Result.Loading -> {
+                    _isLoading.value = true
+                }
             }
         }
-    }
-    fun resetSuccessWithVisit() {
-        _successWithVisit.value = null
     }
 
     fun clearError() {
