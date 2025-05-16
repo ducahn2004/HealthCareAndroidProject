@@ -5,7 +5,7 @@
     <data>
         <variable
             name="viewmodel"
-            type="com.example.healthcareproject.present.viewmodel.setting.EmergencyViewModel" />
+            type="com.example.healthcareproject.presentation.viewmodel.setting.EmergencyViewModel" />
         <import type="android.view.View" />
     </data>
 
@@ -59,7 +59,7 @@
             android:text="@string/no_emergency_contacts"
             android:textColor="@color/secondary_text_color"
             android:textSize="16sp"
-            android:visibility="@{viewmodel.contacts instanceof com.example.healthcareproject.present.viewmodel.setting.EmergencyViewModel.ContactsUiState.Success &amp;&amp; ((com.example.healthcareproject.present.viewmodel.setting.EmergencyViewModel.ContactsUiState.Success) viewmodel.contacts).contacts.isEmpty() ? View.VISIBLE : View.GONE}"
+            android:visibility="@{viewmodel.contacts instanceof com.example.healthcareproject.presentation.viewmodel.setting.EmergencyViewModel.ContactsUiState.Success &amp;&amp; ((com.example.healthcareproject.presentation.viewmodel.setting.EmergencyViewModel.ContactsUiState.Success) viewmodel.contacts).contacts.isEmpty() ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -83,7 +83,7 @@
             android:id="@+id/progress_bar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:visibility="@{viewmodel.contacts instanceof com.example.healthcareproject.present.viewmodel.setting.EmergencyViewModel.ContactsUiState.Loading ? View.VISIBLE : View.GONE}"
+            android:visibility="@{viewmodel.contacts instanceof com.example.healthcareproject.presentation.viewmodel.setting.EmergencyViewModel.ContactsUiState.Loading ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

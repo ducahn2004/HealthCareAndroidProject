@@ -4,7 +4,7 @@
     <data>
         <variable
             name="viewModel"
-            type="com.example.healthcareproject.present.viewmodel.medicine.AddMedicalVisitViewModel" />
+            type="com.example.healthcareproject.presentation.viewmodel.medicine.AddMedicalVisitViewModel" />
     </data>
     <ScrollView
         android:layout_width="match_parent"

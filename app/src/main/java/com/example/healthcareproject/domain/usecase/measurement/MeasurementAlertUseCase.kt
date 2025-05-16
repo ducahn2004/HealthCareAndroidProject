@@ -5,8 +5,8 @@ import android.content.Intent
 import com.example.healthcareproject.domain.model.Measurement
 import com.example.healthcareproject.domain.repository.AlertRepository
 import com.example.healthcareproject.domain.repository.EmergencyInfoRepository
-import com.example.healthcareproject.present.receiver.CallAlertReceiver
-import com.example.healthcareproject.present.util.NotificationUtil
+import com.example.healthcareproject.presentation.receiver.CallAlertReceiver
+import com.example.healthcareproject.presentation.util.NotificationUtil
 import javax.inject.Inject
 
 class MeasurementAlertUseCase @Inject constructor(

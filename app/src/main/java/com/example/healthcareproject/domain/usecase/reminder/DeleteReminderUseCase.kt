@@ -2,7 +2,7 @@ package com.example.healthcareproject.domain.usecase.reminder
 
 import android.content.Context
 import com.example.healthcareproject.domain.repository.ReminderRepository
-import com.example.healthcareproject.present.util.AlarmManagerUtil
+import com.example.healthcareproject.presentation.util.AlarmManagerUtil
 import javax.inject.Inject
 
 class DeleteReminderUseCase @Inject constructor(

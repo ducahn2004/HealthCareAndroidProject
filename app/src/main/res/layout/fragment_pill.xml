@@ -7,7 +7,7 @@
         <import type="android.view.View" />
         <variable
             name="viewModel"
-            type="com.example.healthcareproject.present.viewmodel.medication.PillViewModel" />
+            type="com.example.healthcareproject.presentation.viewmodel.PillViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

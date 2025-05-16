@@ -29,7 +29,7 @@
 
         <!-- SplashActivity: Launcher activity -->
         <activity
-            android:name=".present.ui.SplashActivity"
+            android:name=".presentation.ui.activity.SplashActivity"
             android:exported="true">
 
 
@@ -41,19 +41,19 @@
 
         <!-- MainActivity -->
         <activity
-            android:name=".present.ui.MainActivity"
+            android:name=".presentation.ui.activity.MainActivity"
             android:exported="false" />
 
 
         <!-- AuthActivity -->
         <activity
-            android:name=".present.ui.AuthActivity"
+            android:name=".presentation.ui.activity.AuthActivity"
             android:exported="false" />
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
 
-        <receiver android:name=".present.receiver.BootReceiver"
+        <receiver android:name=".presentation.receiver.BootReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -61,7 +61,7 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".present.receiver.CallAlertReceiver" android:exported="false" />
+        <receiver android:name=".presentation.receiver.CallAlertReceiver" android:exported="false" />
 
 
     </application>

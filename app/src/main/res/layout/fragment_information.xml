@@ -5,7 +5,7 @@
     <data>
         <variable
             name="viewModel"
-            type="com.example.healthcareproject.present.viewmodel.setting.information.InformationViewModel" />
+            type="com.example.healthcareproject.presentation.viewmodel.setting.information.InformationViewModel" />
     </data>
 
     <LinearLayout

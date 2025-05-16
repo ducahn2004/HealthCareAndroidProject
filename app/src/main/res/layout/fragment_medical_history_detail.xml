@@ -6,7 +6,7 @@
         <import type="android.view.View" />
         <variable
             name="viewModel"
-            type="com.example.healthcareproject.present.viewmodel.medicine.MedicalHistoryDetailViewModel" />
+            type="com.example.healthcareproject.presentation.viewmodel.medicine.MedicalHistoryDetailViewModel" />
     </data>
     <ScrollView
         android:layout_width="match_parent"

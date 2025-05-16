@@ -5,7 +5,7 @@
     <data>
         <variable
             name="viewModel"
-            type="com.example.healthcareproject.present.viewmodel.medication.AddMedicationViewModel" />
+            type="com.example.healthcareproject.presentation.viewmodel.medication.AddMedicationViewModel" />
     </data>
 
     <ScrollView
@@ -65,7 +65,8 @@
             <Spinner
                 android:id="@+id/spinner_dosage_unit"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="48dp"
+                android:padding="8dp"
                 android:layout_marginTop="8dp" />
 
             <EditText
@@ -100,7 +101,8 @@
             <Spinner
                 android:id="@+id/spinner_meal_relation"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="48dp"
+                android:padding="8dp"
                 android:layout_marginTop="8dp"
                 android:focusable="false"
                 android:focusableInTouchMode="false" />

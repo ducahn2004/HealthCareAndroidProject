@@ -6,7 +6,7 @@
     <data>
         <variable
             name="viewmodel"
-            type="com.example.healthcareproject.present.viewmodel.setting.EmergencyViewModel" />
+            type="com.example.healthcareproject.presentation.viewmodel.setting.EmergencyViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -33,6 +33,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            android:autofillHints=""
             android:contentDescription="@string/enter_contact_name"
             android:inputType="textPersonName"
             android:text="@={viewmodel.emergencyName}"
@@ -41,7 +42,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tv_name_label"
-            tools:text="John Doe" />
+            tools:text="John Doe"
+            tools:ignore="LabelFor" />
 
         <!-- Phone Number Label -->
         <TextView
@@ -70,7 +72,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tv_phone_label"
-            tools:text="+1 123-456-7890" />
+            tools:text="+1 123-456-7890"
+            tools:ignore="LabelFor" />
 
         <!-- Relationship Label -->
         <TextView
@@ -89,7 +92,7 @@
         <Spinner
             android:id="@+id/sp_relationship"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:layout_marginTop="8dp"
             android:contentDescription="@string/select_relationship"
             app:layout_constraintEnd_toEndOf="parent"
@@ -113,7 +116,7 @@
         <Spinner
             android:id="@+id/sp_priority"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:layout_marginTop="8dp"
             android:contentDescription="@string/select_priority"
             app:layout_constraintEnd_toEndOf="parent"

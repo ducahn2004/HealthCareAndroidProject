@@ -8,7 +8,7 @@
     <!-- Home Fragment -->
     <fragment
         android:id="@+id/homeFragment"
-        android:name="com.example.healthcareproject.present.ui.home.HomeFragment"
+        android:name="com.example.healthcareproject.presentation.ui.fragment.HomeFragment"
         android:label="Home"
         tools:layout="@layout/fragment_home">
         <action
@@ -27,7 +27,7 @@
 
     <fragment
         android:id="@+id/heartRateFragment"
-        android:name="com.example.healthcareproject.present.ui.home.HeartRateFragment"
+        android:name="com.example.healthcareproject.presentation.ui.fragment.HeartRateFragment"
         android:label="Heart Rate"
         android:layout="@layout/fragment_heart_rate">
     <action
@@ -40,7 +40,7 @@
 
     <fragment
         android:id="@+id/oxygenFragment"
-        android:name="com.example.healthcareproject.present.ui.home.OxygenFragment"
+        android:name="com.example.healthcareproject.presentation.ui.fragment.OxygenFragment"
         android:label="Oxygen Level">
         <action
             android:id="@+id/action_back_oxygen_to_home"
@@ -52,12 +52,12 @@
 
     <fragment
         android:id="@+id/ecgFragment"
-        android:name="com.example.healthcareproject.present.ui.home.ECGFragment"
+        android:name="com.example.healthcareproject.presentation.ui.fragment.ECGFragment"
         android:label="ECG" />
 
     <fragment
         android:id="@+id/alarmFragment"
-        android:name="com.example.healthcareproject.present.ui.home.alarm.AlarmFragment"
+        android:name="com.example.healthcareproject.presentation.ui.fragment.AlarmFragment"
         android:label="Alarm">
         <action
             android:id="@+id/action_back_alarm_to_home"
@@ -67,7 +67,7 @@
     <!-- Pill Fragment -->
     <fragment
         android:id="@+id/pillFragment"
-        android:name="com.example.healthcareproject.present.ui.medication.PillFragment"
+        android:name="com.example.healthcareproject.presentation.ui.fragment.PillFragment"
         android:label="Pill"
         tools:layout="@layout/fragment_pill">
         <action
@@ -84,7 +84,7 @@
 
     <fragment
         android:id="@+id/addMedicationFragment"
-        android:name="com.example.healthcareproject.present.ui.medication.AddMedicationDialogFragment"
+        android:name="com.example.healthcareproject.presentation.ui.fragment.AddMedicationDialogFragment"
         android:label="Add Medication"
         tools:layout="@layout/dialog_add_medication">
         <action
@@ -97,7 +97,7 @@
     <!-- Medicine Fragment -->
     <fragment
         android:id="@+id/medicineFragment"
-        android:name="com.example.healthcareproject.present.ui.medicine.MedicineFragment"
+        android:name="com.example.healthcareproject.presentation.ui.fragment.MedicineFragment"
         android:label="Medicine">
         <action
             android:id="@+id/action_medicineFragment_to_medicalHistoryDetailFragment"
@@ -119,7 +119,7 @@
     <!-- Add Appointment Fragment -->
     <fragment
         android:id="@+id/addAppointmentFragment"
-        android:name="com.example.healthcareproject.present.ui.medicine.AddAppointmentFragment"
+        android:name="com.example.healthcareproject.presentation.ui.fragment.AddAppointmentFragment"
         android:label="Add Appointment"
         tools:layout="@layout/fragment_add_appointment">
         <action
@@ -131,7 +131,7 @@
 
     <fragment
         android:id="@+id/addMedicalVisitFragment"
-        android:name="com.example.healthcareproject.present.ui.medicine.AddMedicalVisitFragment"
+        android:name="com.example.healthcareproject.presentation.ui.fragment.AddMedicalVisitFragment"
         android:label="Add Medical Visit"
         tools:layout="@layout/fragment_add_medical_visit">
         <action
@@ -143,7 +143,7 @@
 
     <fragment
         android:id="@+id/medicalHistoryDetailFragment"
-        android:name="com.example.healthcareproject.present.ui.medicine.MedicalHistoryDetailFragment"
+        android:name="com.example.healthcareproject.presentation.ui.fragment.MedicalHistoryDetailFragment"
         android:label="Medical History Detail">
         <argument
             android:name="visitId"
@@ -161,7 +161,7 @@
     <!-- Notification Fragment -->
     <fragment
         android:id="@+id/notificationFragment"
-        android:name="com.example.healthcareproject.present.ui.notification.NotificationFragment"
+        android:name="com.example.healthcareproject.presentation.ui.fragment.NotificationFragment"
         android:label="Notification"
         tools:layout="@layout/fragment_notification">
         <action
@@ -181,7 +181,7 @@
     <!-- Settings Fragment -->
     <fragment
         android:id="@+id/settingsFragment"
-        android:name="com.example.healthcareproject.present.ui.setting.SettingsFragment"
+        android:name="com.example.healthcareproject.presentation.ui.fragment.SettingsFragment"
         android:label="Settings"
         tools:layout="@layout/fragment_settings">
         <action
@@ -201,7 +201,7 @@
     <!-- Theme Fragment -->
     <fragment
         android:id="@+id/themeFragment"
-        android:name="com.example.healthcareproject.present.ui.setting.ThemeFragment"
+        android:name="com.example.healthcareproject.presentation.ui.fragment.ThemeFragment"
         android:label="Theme Settings"
         tools:layout="@layout/fragment_theme">
         <action
@@ -215,7 +215,7 @@
     <!-- Information Fragment -->
     <fragment
         android:id="@+id/informationFragment"
-        android:name="com.example.healthcareproject.present.ui.setting.information.InformationFragment"
+        android:name="com.example.healthcareproject.presentation.ui.fragment.InformationFragment"
         android:label="Information"
         tools:layout="@layout/fragment_information">
         <action
@@ -239,7 +239,7 @@
     <!-- Emergency Fragment -->
     <fragment
         android:id="@+id/emergencyFragment"
-        android:name="com.example.healthcareproject.present.ui.setting.emergency.EmergencyFragment"
+        android:name="com.example.healthcareproject.presentation.ui.fragment.EmergencyFragment"
         android:label="Emergency Contacts"
         tools:layout="@layout/fragment_emergency">
         <action
@@ -252,7 +252,7 @@
     <!-- Change Password In Fragment -->
     <fragment
         android:id="@+id/changePasswordFragment"
-        android:name="com.example.healthcareproject.present.ui.setting.ChangePasswordFragment"
+        android:name="com.example.healthcareproject.presentation.ui.fragment.ChangePasswordFragment"
         android:label="Change Password"
         tools:layout="@layout/fragment_change_password">
         <action

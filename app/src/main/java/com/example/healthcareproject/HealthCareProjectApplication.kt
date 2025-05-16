@@ -1,7 +1,7 @@
 package com.example.healthcareproject
 
 import android.app.Application
-import com.example.healthcareproject.present.util.NotificationUtil
+import com.example.healthcareproject.presentation.util.NotificationUtil
 import com.google.firebase.FirebaseApp
 import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber

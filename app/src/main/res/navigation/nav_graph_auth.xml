@@ -6,7 +6,7 @@
 
     <fragment
         android:id="@+id/loginMethodFragment"
-        android:name="com.example.healthcareproject.present.ui.auth.LoginMethodFragment"
+        android:name="com.example.healthcareproject.presentation.ui.fragment.LoginMethodFragment"
         android:label="LoginMethodFragment">
         <action
             android:id="@+id/action_loginMethodFragment_to_registerFragment"
@@ -21,7 +21,7 @@
 
     <fragment
         android:id="@+id/registerFragment"
-        android:name="com.example.healthcareproject.present.ui.auth.RegisterFragment"
+        android:name="com.example.healthcareproject.presentation.ui.fragment.RegisterFragment"
         android:label="RegisterFragment">
         <action
             android:id="@+id/action_registerFragment_to_verifyCodeFragment"
@@ -42,7 +42,7 @@
 
     <fragment
         android:id="@+id/loginFragment"
-        android:name="com.example.healthcareproject.present.ui.auth.LoginFragment"
+        android:name="com.example.healthcareproject.presentation.ui.fragment.LoginFragment"
         android:label="LoginFragment">
         <action
             android:id="@+id/action_loginFragment_to_forgotPasswordFragment"
@@ -57,7 +57,7 @@
 
     <fragment
         android:id="@+id/googleLoginFragment"
-        android:name="com.example.healthcareproject.present.ui.auth.GoogleLoginFragment"
+        android:name="com.example.healthcareproject.presentation.ui.fragment.GoogleLoginFragment"
         android:label="GoogleLoginFragment">
         <action
             android:id="@+id/action_googleLoginFragment_to_loginMethodFragment"
@@ -72,7 +72,7 @@
 
     <fragment
         android:id="@+id/forgotPasswordFragment"
-        android:name="com.example.healthcareproject.present.ui.auth.ForgotPasswordFragment"
+        android:name="com.example.healthcareproject.presentation.ui.fragment.ForgotPasswordFragment"
         android:label="ForgotPasswordFragment">
         <action
             android:id="@+id/action_forgotPasswordFragment_to_loginMethodFragment"
@@ -95,7 +95,7 @@
 
     <fragment
         android:id="@+id/verifyCodeFragment"
-        android:name="com.example.healthcareproject.present.ui.auth.VerifyCodeFragment"
+        android:name="com.example.healthcareproject.presentation.ui.fragment.VerifyCodeFragment"
         android:label="VerifyCodeFragment">
         <argument
             android:name="email"
@@ -115,7 +115,7 @@
 
     <fragment
         android:id="@+id/createNewPasswordFragment"
-        android:name="com.example.healthcareproject.present.ui.auth.CreateNewPasswordFragment"
+        android:name="com.example.healthcareproject.presentation.ui.fragment.CreateNewPasswordFragment"
         android:label="CreateNewPasswordFragment">
         <argument
             android:name="email"
