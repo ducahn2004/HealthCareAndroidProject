@@ -2,6 +2,7 @@ package com.example.healthcareproject.present.navigation
 
 import androidx.navigation.NavController
 import com.example.healthcareproject.R
+import timber.log.Timber
 
 class AuthNavigator(private val navController: NavController) {
 
@@ -30,7 +31,12 @@ class AuthNavigator(private val navController: NavController) {
     }
 
     fun fromRegisterToLoginMethod() {
-        navController.navigate(R.id.action_registerFragment_to_loginMethodFragment)
+        Timber.d("Navigating from RegisterFragment to LoginMethodFragment")
+        val popped = navController.popBackStack(R.id.loginMethodFragment, false)
+        if (!popped) {
+            Timber.d("PopBackStack failed, navigating manually")
+            navController.navigate(R.id.action_registerFragment_to_loginMethodFragment)
+        }
     }
 
     fun fromGoogleLoginToLoginMethod() {

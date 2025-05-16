@@ -1,13 +1,11 @@
 package com.example.healthcareproject.present.ui.auth
 
 import android.app.DatePickerDialog
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
-import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -16,23 +14,31 @@ import com.example.healthcareproject.R
 import com.example.healthcareproject.databinding.FragmentRegisterBinding
 import com.example.healthcareproject.present.navigation.AuthNavigator
 import com.example.healthcareproject.present.viewmodel.auth.RegisterViewModel
-import com.google.android.gms.auth.api.signin.*
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @AndroidEntryPoint
 class RegisterFragment : Fragment() {
-
     private var _binding: FragmentRegisterBinding? = null
     private val binding get() = _binding!!
     private val viewModel: RegisterViewModel by viewModels()
     private lateinit var navigator: AuthNavigator
     private lateinit var googleSignInClient: GoogleSignInClient
-    private lateinit var googleSignInLauncher: ActivityResultLauncher<Intent>
+    private lateinit var googleSignInLauncher: androidx.activity.result.ActivityResultLauncher<android.content.Intent>
+
+    // Flag to track if setup has been done
+    private var isSetupComplete = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -42,19 +48,31 @@ class RegisterFragment : Fragment() {
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
         navigator = AuthNavigator(findNavController())
-
         setupGoogleSignIn()
         setupGoogleSignInLauncher()
-
         return binding.root
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        if (!isSetupComplete) {
+            Timber.d("Setting up observers and listeners for RegisterFragment")
+            setupObservers()
+            setupListeners()
+            isSetupComplete = true
+        } else {
+            Timber.d("Setup already complete, skipping")
+        }
+    }
+
     private fun setupGoogleSignIn() {
-        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.default_web_client_id)) // from Firebase Console
-            .requestEmail()
-            .build()
-        googleSignInClient = GoogleSignIn.getClient(requireActivity(), gso)
+        viewModelScope.launch(Dispatchers.IO) {
+            val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build()
+            googleSignInClient = GoogleSignIn.getClient(requireActivity(), gso)
+        }
     }
 
     private fun setupGoogleSignInLauncher() {
@@ -74,10 +92,7 @@ class RegisterFragment : Fragment() {
         }
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        // Date picker
+    private fun setupListeners() {
         binding.etDob.setOnClickListener {
             val today = LocalDate.now()
             DatePickerDialog(requireContext(), { _, year, month, dayOfMonth ->
@@ -87,7 +102,6 @@ class RegisterFragment : Fragment() {
             }, today.year, today.monthValue - 1, today.dayOfMonth).show()
         }
 
-        // Gender spinner
         binding.spinnerGender.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                 viewModel.setGender(parent.getItemAtPosition(position).toString())
@@ -97,7 +111,6 @@ class RegisterFragment : Fragment() {
             }
         }
 
-        // Blood type spinner
         binding.spinnerBloodType.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                 viewModel.setBloodType(parent.getItemAtPosition(position).toString())
@@ -107,28 +120,38 @@ class RegisterFragment : Fragment() {
             }
         }
 
-        // Observe registration success notification
+        // Set back button listener only once
+        binding.btnBackRegisterToLoginMethod.setOnClickListener {
+            Timber.d("Back button clicked in RegisterFragment")
+
+            // Prevent multiple clicks
+            binding.btnBackRegisterToLoginMethod.isEnabled = false
+
+            // Use the ViewModel to handle navigation
+            viewModel.onBackClicked()
+        }
+
+        Timber.d("Back button listener set for RegisterFragment")
+    }
+
+    private fun setupObservers() {
         viewModel.registrationSuccess.observe(viewLifecycleOwner) { message ->
             if (!message.isNullOrEmpty()) {
                 Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
             }
         }
 
-        // Observe registration result
         viewModel.registerResult.observe(viewLifecycleOwner) { uid ->
             if (uid != null) {
                 val email = viewModel.email.value
                 if (!email.isNullOrBlank()) {
-                    // Step 1: Start Google Sign-In to get ID Token
-                    val signInIntent = googleSignInClient.signInIntent
-                    googleSignInLauncher.launch(signInIntent)
-
-                    // Step 2: Navigate to code verification screen
                     val bundle = Bundle().apply {
                         putString("email", email)
                         putString("authFlow", "REGISTRATION")
                     }
-                    findNavController().navigate(R.id.action_registerFragment_to_verifyCodeFragment, bundle)
+                    view?.postDelayed({
+                        findNavController().navigate(R.id.action_registerFragment_to_verifyCodeFragment, bundle)
+                    }, 100)
                     viewModel.resetNavigationStates()
                 } else {
                     Snackbar.make(binding.root, "Email is required", Snackbar.LENGTH_LONG).show()
@@ -136,7 +159,6 @@ class RegisterFragment : Fragment() {
             }
         }
 
-        // Error observer
         viewModel.error.observe(viewLifecycleOwner) { error ->
             if (!error.isNullOrEmpty()) {
                 Timber.e("Error in RegisterFragment: $error")
@@ -146,26 +168,23 @@ class RegisterFragment : Fragment() {
             }
         }
 
-        // Loading observer
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             binding.btnCreateAccount.isEnabled = !isLoading
-        }
-
-        // Back button
-        binding.btnBackRegisterToLoginMethod.setOnClickListener {
-            navigator.fromRegisterToLoginMethod()
+            binding.btnBackRegisterToLoginMethod.isEnabled = !isLoading
         }
 
         viewModel.emailLinkSent.observe(viewLifecycleOwner) { sent ->
             if (sent) {
                 Snackbar.make(binding.root, "Check your email for the sign-in link!", Snackbar.LENGTH_LONG).show()
-                // Optionally, navigate to a waiting screen or stay on the current screen
             }
         }
 
-        viewModel.registerResult.observe(viewLifecycleOwner) { uid ->
-            if (uid != null) {
-                // Wait for email link verification; no immediate navigation
+        // Handle navigation through ViewModel
+        viewModel.navigateBack.observe(viewLifecycleOwner) { shouldNavigate ->
+            if (shouldNavigate) {
+                Timber.d("Navigating back from RegisterFragment")
+                findNavController().popBackStack(R.id.loginMethodFragment, false)
+                viewModel.resetNavigateBack()
             }
         }
     }
@@ -174,4 +193,6 @@ class RegisterFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
+
+    private val viewModelScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 }

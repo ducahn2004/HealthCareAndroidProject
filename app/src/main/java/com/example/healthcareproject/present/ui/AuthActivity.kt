@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import com.example.healthcareproject.R
 import com.google.firebase.auth.FirebaseAuth
@@ -41,6 +42,17 @@ class AuthActivity : AppCompatActivity() {
         }
 
         handleEmailLink(intent)
+    }
+
+    override fun onBackPressed() {
+        val navController = findNavController(R.id.nav_host_fragment)
+        Timber.d("System back pressed, current destination: ${navController.currentDestination?.id}")
+        if (!navController.navigateUp()) {
+            Timber.d("NavController navigateUp failed, calling super.onBackPressed")
+            super.onBackPressed()
+        } else {
+            Timber.d("NavController navigateUp successful")
+        }
     }
 
     override fun onNewIntent(intent: Intent) {

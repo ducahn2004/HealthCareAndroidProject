@@ -1,3 +1,4 @@
+
 package com.example.healthcareproject.present.viewmodel.auth
 
 import android.content.SharedPreferences
@@ -100,6 +101,9 @@ class RegisterViewModel @Inject constructor(
 
     private val _emailLinkSent = MutableLiveData<Boolean>()
     val emailLinkSent: LiveData<Boolean> = _emailLinkSent
+
+    private val _navigateBack = MutableLiveData<Boolean>(false)
+    val navigateBack: LiveData<Boolean> = _navigateBack
 
     /**
      * Updates the name field.
@@ -321,6 +325,21 @@ class RegisterViewModel @Inject constructor(
             .setHandleCodeInApp(true)
             .setAndroidPackageName("com.example.healthcareproject", true, "1")
             .build()
+    }
+
+    /**
+     * Handles back button click
+     */
+    fun onBackClicked() {
+        Timber.d("onBackClicked called in ViewModel")
+        _navigateBack.value = true
+    }
+
+    /**
+     * Resets navigation back flag after navigation is complete
+     */
+    fun resetNavigateBack() {
+        _navigateBack.value = false
     }
 
     fun sendEmailLink(email: String) {
