@@ -149,7 +149,7 @@
                 android:layout_marginBottom="8dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="6dp"
-                app:cardBackgroundColor="@android:color/white">
+                app:cardBackgroundColor="?attr/colorSurface">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -202,47 +202,41 @@
                 android:layout_marginBottom="8dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="6dp"
-                app:cardBackgroundColor="@android:color/white">
-
+                app:cardBackgroundColor="?attr/colorSurface">
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center_vertical"
+                    android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:padding="16dp">
-
+                    android:padding="16dp"
+                    android:gravity="center_vertical">
                     <ImageView
                         android:layout_width="36dp"
                         android:layout_height="36dp"
                         android:contentDescription="@string/oxygen_level_icon"
                         android:src="@drawable/ic_oxygen" />
-
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:layout_marginEnd="8dp"
                         android:layout_weight="1"
-                        android:orientation="vertical">
-
+                        android:orientation="vertical"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginEnd="8dp">
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/check_oxygen_level"
-                            android:textColor="@color/primary_text_color"
                             android:textSize="20sp"
-                            android:textStyle="bold" />
-
+                            android:textStyle="bold"
+                            android:textColor="@color/primary_text_color" />
                         <TextView
                             android:id="@+id/tv_oxygen_level_current"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
                             android:text="@string/default_oxygen_level_current"
-                            android:textColor="?attr/android:textColorSecondary"
-                            android:textSize="18sp" />
+                            android:textSize="18sp"
+                            android:textColor="?attr/android:textColorSecondary" />
                     </LinearLayout>
-
                     <ImageView
                         android:layout_width="24dp"
                         android:layout_height="24dp"
@@ -261,7 +255,7 @@
                 android:layout_marginBottom="8dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="6dp"
-                app:cardBackgroundColor="@android:color/white">
+                app:cardBackgroundColor="?attr/colorSurface">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -314,7 +308,7 @@
                 android:layout_marginBottom="8dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="6dp"
-                app:cardBackgroundColor="@android:color/white">
+                app:cardBackgroundColor="?attr/colorSurface">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
