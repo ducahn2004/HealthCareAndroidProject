@@ -1,7 +1,7 @@
 package com.example.healthcareproject.di
 
 import com.example.healthcareproject.data.repository.*
-import com.example.healthcareproject.domain.repository.AlertRepository
+import com.example.healthcareproject.domain.repository.ReminderRepository
 import com.example.healthcareproject.domain.repository.AppointmentRepository
 import com.example.healthcareproject.domain.repository.EmergencyInfoRepository
 import com.example.healthcareproject.domain.repository.MeasurementRepository
@@ -26,7 +26,7 @@ abstract class RepositoryModule {
 
     @Singleton
     @Binds
-    abstract fun bindAlertRepository(repository: DefaultAlertRepository): AlertRepository
+    abstract fun bindReminderRepository(repository: DefaultReminderRepository): ReminderRepository
 
     @Singleton
     @Binds

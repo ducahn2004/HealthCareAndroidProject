@@ -7,5 +7,4 @@ data class AppointmentUseCases @Inject constructor(
     val getAppointments: GetAppointmentsUseCase,
     val updateAppointment: UpdateAppointmentUseCase,
     val deleteAppointment: DeleteAppointmentUseCase,
-    val reminderLogic: AppointmentReminderLogicUseCase
 )

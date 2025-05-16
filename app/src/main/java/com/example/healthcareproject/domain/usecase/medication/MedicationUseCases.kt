@@ -7,6 +7,4 @@ data class MedicationUseCases(
     val deleteMedication: DeleteMedicationUseCase,
     val getMedicationById: GetMedicationByIdUseCase,
     val getMedicationsByVisitId: GetMedicationsByVisitIdUseCase,
-    val medicationLogic: MedicationLogicUseCase,
-    val medicationReminderLogic: MedicationReminderLogicUseCase
 )

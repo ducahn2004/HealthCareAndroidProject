@@ -11,7 +11,7 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 
 @Entity(
-    tableName = "alerts",
+    tableName = "reminders",
     foreignKeys = [
         ForeignKey(
             entity = RoomUser::class,
@@ -23,14 +23,13 @@ import java.time.LocalTime
     indices = [Index("userId")]
 )
 @TypeConverters(Converters::class)
-data class RoomAlert(
-    @PrimaryKey val alertId: String,
+data class RoomReminder(
+    @PrimaryKey val reminderId: String,
     val userId: String,
     val title: String,
     val message: String,
-    val alertTime: LocalTime,
+    val reminderTime: LocalTime,
     val repeatPattern: RepeatPattern,
     val status: Boolean,
     val createdAt: LocalDateTime
 )
-

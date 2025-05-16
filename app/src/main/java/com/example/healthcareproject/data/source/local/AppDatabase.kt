@@ -8,7 +8,7 @@ import com.example.healthcareproject.data.source.local.entity.*
 
 @Database(
     entities = [
-        RoomAlert::class,
+        RoomReminder::class,
         RoomAppointment::class,
         RoomEmergencyInfo::class,
         RoomMeasurement::class,
@@ -24,7 +24,7 @@ import com.example.healthcareproject.data.source.local.entity.*
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
 
-    abstract fun alertDao(): AlertDao
+    abstract fun reminderDao(): ReminderDao
 
     abstract fun appointmentDao(): AppointmentDao
 

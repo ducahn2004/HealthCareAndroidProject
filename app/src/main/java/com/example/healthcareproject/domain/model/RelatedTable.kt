@@ -1,10 +1,8 @@
 package com.example.healthcareproject.domain.model
 
 enum class RelatedTable {
-    Appointment,
-    Alert,
+    Reminder,
     Sos,
-    EmergencyInfo,
-    Measurement,
+    Alert,
     None
 }

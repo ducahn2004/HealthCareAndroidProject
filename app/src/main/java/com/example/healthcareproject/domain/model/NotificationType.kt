@@ -1,10 +1,8 @@
 package com.example.healthcareproject.domain.model
 
 enum class NotificationType {
-    Appointment,
+    Reminder,
     Alert,
     Sos,
-    EmergencyInfo,
-    Measurement,
     None
 }
