@@ -1,7 +1,9 @@
 package com.example.healthcareproject.present.viewmodel.auth
 
+import android.content.SharedPreferences
 import android.text.Editable
 import android.util.Patterns
+import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -9,8 +11,12 @@ import androidx.lifecycle.viewModelScope
 import com.example.healthcareproject.domain.usecase.auth.LinkGoogleCredentialUseCase
 import com.example.healthcareproject.domain.usecase.user.CreateUserUseCase
 import com.example.healthcareproject.domain.usecase.auth.SendVerificationCodeUseCase
+import com.google.firebase.auth.ActionCodeSettings
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
@@ -18,9 +24,13 @@ import javax.inject.Inject
 @HiltViewModel
 class RegisterViewModel @Inject constructor(
     private val createUserUseCase: CreateUserUseCase,
-    private val sendVerificationCodeUseCase: SendVerificationCodeUseCase,
-    private val linkGoogleCredentialUseCase: LinkGoogleCredentialUseCase
+    private val linkGoogleCredentialUseCase: LinkGoogleCredentialUseCase,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
+
+    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
+    private val sharedPreferences: SharedPreferences =
+        context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
 
     private val _name = MutableLiveData<String>("")
     val name: LiveData<String> = _name
@@ -84,6 +94,12 @@ class RegisterViewModel @Inject constructor(
 
     private val _registerResult = MutableLiveData<String?>() // Lưu UID
     val registerResult: LiveData<String?> = _registerResult
+
+    private val _registrationSuccess = MutableLiveData<String?>()
+    val registrationSuccess: LiveData<String?> = _registrationSuccess
+
+    private val _emailLinkSent = MutableLiveData<Boolean>()
+    val emailLinkSent: LiveData<Boolean> = _emailLinkSent
 
     /**
      * Updates the name field.
@@ -247,7 +263,7 @@ class RegisterViewModel @Inject constructor(
     /**
      * Registers a new user and sends a verification code.
      */
-    private fun register(
+    fun register(
         email: String,
         password: String,
         name: String,
@@ -262,8 +278,9 @@ class RegisterViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
+                Timber.d("Attempting to register user with email: $email")
                 val inputFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
-                val outputFormatter = DateTimeFormatter.ISO_LOCAL_DATE // yyyy-MM-dd
+                val outputFormatter = DateTimeFormatter.ISO_LOCAL_DATE
                 val parsedDate = LocalDate.parse(dateOfBirth, inputFormatter)
                 val formattedDate = parsedDate.format(outputFormatter)
 
@@ -277,10 +294,13 @@ class RegisterViewModel @Inject constructor(
                     bloodType = bloodType,
                     phone = phone
                 )
-                sendVerificationCodeUseCase(email)
+                // Send email link instead of verification code
+                sendEmailLink(email)
                 _registerResult.value = uid
                 _error.value = null
+                Timber.d("Registration initiated, UID: $uid")
             } catch (e: Exception) {
+                Timber.e(e, "Registration failed: ${e.message}")
                 _error.value = when {
                     e.message?.contains("email address is already in use") == true ->
                         "This email is already registered. Please use a different email or log in."
@@ -289,29 +309,58 @@ class RegisterViewModel @Inject constructor(
                     else -> e.message ?: "Registration failed"
                 }
                 _registerResult.value = null
+                _registrationSuccess.value = null
             } finally {
                 _isLoading.value = false
             }
         }
     }
+    private fun getActionCodeSettings(): ActionCodeSettings {
+        return ActionCodeSettings.newBuilder()
+            .setUrl("https://heart-careproject.firebaseapp.com/finishSignUp")
+            .setHandleCodeInApp(true)
+            .setAndroidPackageName("com.example.healthcareproject", true, "1")
+            .build()
+    }
+
+    fun sendEmailLink(email: String) {
+        _isLoading.value = true
+        auth.sendSignInLinkToEmail(email, getActionCodeSettings())
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Timber.d("Email link sent to $email")
+                    _emailLinkSent.value = true
+                    _registrationSuccess.value = "Check your email for the sign-in link!"
+                    sharedPreferences.edit()
+                        .putString("pending_email", email)
+                        .putString("auth_flow", "REGISTRATION")
+                        .apply()
+                } else {
+                    Timber.e(task.exception, "Failed to send email link")
+                    _error.value = task.exception?.message ?: "Failed to send email link"
+                }
+                _isLoading.value = false
+            }
+    }
 
     fun linkGoogleAccount(idToken: String) {
         _isLoading.value = true
         viewModelScope.launch {
-            val result = linkGoogleCredentialUseCase(idToken, email.toString(), password.toString())
+            Timber.d("Attempting to link Google account for email: ${email.value}")
+            val result = linkGoogleCredentialUseCase(idToken, email.value.orEmpty(), password.value.orEmpty())
             result.onSuccess {
                 _error.value = null
+                Timber.d("Google account linked successfully")
             }.onFailure {
                 _error.value = "Failed to link Google account: ${it.message}"
+                Timber.e(it, "Failed to link Google account")
             }
             _isLoading.value = false
         }
     }
 
-    /**
-     * Resets navigation states.
-     */
     fun resetNavigationStates() {
         _registerResult.value = null
+        _registrationSuccess.value = null
     }
 }

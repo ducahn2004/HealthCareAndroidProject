@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.databinding.Observable
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -18,6 +19,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.healthcareproject.databinding.FragmentAddMedicalVisitBinding
+import com.example.healthcareproject.domain.model.MedicalVisit
 import com.example.healthcareproject.domain.model.Medication
 import com.example.healthcareproject.present.navigation.AuthNavigator
 import com.example.healthcareproject.present.navigation.MainNavigator
@@ -27,6 +29,7 @@ import com.example.healthcareproject.present.viewmodel.medicine.AddMedicalVisitV
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 import javax.inject.Inject
@@ -227,7 +230,21 @@ class AddMedicalVisitFragment : Fragment() {
         viewModel.isFinished.observe(viewLifecycleOwner) { isFinished ->
             if (isFinished == true) {
                 Toast.makeText(requireContext(), "Medical visit saved successfully", Toast.LENGTH_SHORT).show()
-                requireActivity().onBackPressed()
+                val medicalVisit = MedicalVisit(
+                    visitId = viewModel.getVisitId(),
+                    userId = "",
+                    visitDate = viewModel.visitDateTime.get()?.toLocalDate() ?: LocalDate.now(),
+                    clinicName = viewModel.clinicName.get() ?: "",
+                    doctorName = viewModel.doctorName.get() ?: "",
+                    diagnosis = viewModel.diagnosis.get() ?: "",
+                    treatment = "",
+                    createdAt = viewModel.visitDateTime.get() ?: LocalDateTime.now()
+                )
+                setFragmentResult("requestKey", Bundle().apply {
+                    putParcelable("newVisit", medicalVisit)
+                })
+                Timber.d("Navigating back after saving MedicalVisit")
+                navigator.navigateBackToMedicineFromAddMedicalVisit()
             }
         }
 
@@ -242,6 +259,7 @@ class AddMedicalVisitFragment : Fragment() {
         viewModel.medications.observe(viewLifecycleOwner) { medications ->
             medicationAdapter.submitList(medications)
         }
+
     }
 
     override fun onDestroyView() {

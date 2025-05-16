@@ -21,8 +21,8 @@ class MainNavigatorImpl @Inject constructor(
         navController.navigate(R.id.action_homeFragment_to_ecgFragment)
     }
 
-    override fun navigateToWeight() {
-        navController.navigate(R.id.action_homeFragment_to_weightFragment)
+    override fun navigateToAlarm() {
+        navController.navigate(R.id.action_homeFragment_to_alarmFragment)
     }
 
     override fun navigateBackToHomeFromHeartRate() {
@@ -35,6 +35,10 @@ class MainNavigatorImpl @Inject constructor(
 
     override fun navigateBackToHomeFromOxygen() {
         navController.navigate(R.id.action_back_oxygen_to_home)
+    }
+
+    override fun navigateBackToHomeFromAlarm() {
+        navController.navigate(R.id.action_back_alarm_to_home)
     }
 
     override fun navigateToNotificationFromOxygen() {

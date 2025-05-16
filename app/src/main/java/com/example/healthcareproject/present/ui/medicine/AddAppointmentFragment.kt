@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.viewModels
 import com.example.healthcareproject.databinding.FragmentAddAppointmentBinding
+import com.example.healthcareproject.domain.model.Appointment
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.LocalDate
 import java.time.LocalTime
@@ -18,6 +19,7 @@ import java.util.*
 import javax.inject.Inject
 import com.example.healthcareproject.present.navigation.MainNavigator
 import com.example.healthcareproject.present.viewmodel.medicine.AddAppointmentViewModel
+import timber.log.Timber
 
 @AndroidEntryPoint
 class AddAppointmentFragment : Fragment() {
@@ -71,12 +73,26 @@ class AddAppointmentFragment : Fragment() {
             }
         }
 
-        // Observe success state with MedicalVisit
         viewModel.successWithVisit.observe(viewLifecycleOwner) { medicalVisit ->
             medicalVisit?.let {
-                setFragmentResult("requestKey", Bundle().apply {
+                val appointment = Appointment(
+                    appointmentId = it.visitId,
+                    userId = it.userId,
+                    visitId = it.visitId,
+                    doctorName = it.doctorName,
+                    location = it.clinicName,
+                    appointmentTime = it.createdAt,
+                    note = it.diagnosis
+                )
+
+                val bundle = Bundle().apply {
                     putParcelable("newVisit", it)
-                })
+                    putParcelable("newAppointment", appointment)
+                }
+
+                setFragmentResult("requestKey", bundle)
+                Timber.d("Setting fragment result and navigating back")
+                viewModel.resetSuccessWithVisit()
                 mainNavigator.navigateBackToMedicineFromAddAppointment()
             }
         }
@@ -115,6 +131,7 @@ class AddAppointmentFragment : Fragment() {
             false
         ).show()
     }
+
 
     override fun onDestroyView() {
         super.onDestroyView()

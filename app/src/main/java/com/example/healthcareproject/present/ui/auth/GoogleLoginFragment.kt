@@ -19,6 +19,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 import java.net.UnknownHostException
@@ -31,6 +32,7 @@ class GoogleLoginFragment : androidx.fragment.app.Fragment() {
     private val viewModel: GoogleLoginViewModel by viewModels()
     private lateinit var navigator: AuthNavigator
     private lateinit var googleSignInClient: GoogleSignInClient
+    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
 
     private val signInLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         try {
@@ -72,6 +74,14 @@ class GoogleLoginFragment : androidx.fragment.app.Fragment() {
         return binding.root
     }
 
+    override fun onStart() {
+        super.onStart()
+        if (auth.currentUser != null) {
+            Timber.d("User already signed in, navigating to MainActivity")
+            navigateToMainActivity()
+        }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -102,12 +112,7 @@ class GoogleLoginFragment : androidx.fragment.app.Fragment() {
             if (isAuthenticated) {
                 Timber.d("Google Sign-In successful, navigating to MainActivity")
                 saveLoginState(true)
-                val intent = Intent(requireContext(), MainActivity::class.java).apply {
-                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                }
-                startActivity(intent)
-                requireActivity().finish()
-                viewModel.resetNavigationStates()
+                navigateToMainActivity()
             }
         }
 
@@ -115,19 +120,19 @@ class GoogleLoginFragment : androidx.fragment.app.Fragment() {
         viewModel.error.observe(viewLifecycleOwner) { error ->
             if (!error.isNullOrEmpty()) {
                 Timber.e("Error in GoogleLoginFragment: $error")
-                Snackbar.make(binding.root, error, Snackbar.LENGTH_LONG).apply {
-                    if (error.contains("Please log in with your email")) {
-                        addCallback(object : Snackbar.Callback() {
-                            override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
-                                navigator.fromGoogleLoginToLogin()
-                            }
-                        })
-                    }
-                    show()
-                }
+                Snackbar.make(binding.root, error, Snackbar.LENGTH_LONG).show()
                 viewModel.setError(null)
             }
         }
+    }
+
+    private fun navigateToMainActivity() {
+        val intent = Intent(requireContext(), MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        startActivity(intent)
+        requireActivity().finish()
+        viewModel.resetNavigationStates()
     }
 
     private fun saveLoginState(isLoggedIn: Boolean) {

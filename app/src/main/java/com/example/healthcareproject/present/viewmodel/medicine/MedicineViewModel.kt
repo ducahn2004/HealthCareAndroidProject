@@ -1,4 +1,4 @@
-package com.example.healthcareproject.present.ui.medicine
+package com.example.healthcareproject.present.viewmodel.medicine
 
 import android.view.View
 import androidx.lifecycle.LiveData
@@ -11,6 +11,7 @@ import com.example.healthcareproject.domain.usecase.appointment.GetAppointmentsU
 import com.example.healthcareproject.domain.usecase.medicalvisit.GetMedicalVisitsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -44,9 +45,12 @@ class MedicineViewModel @Inject constructor(
                 val appointments = getAppointmentsUseCase()
                 _medicalVisits.value = medicalVisits
                 _appointments.value = appointments
+
             } catch (e: Exception) {
+                Timber.e(e, "Error loading data")
                 error.value = "Failed to load visits: ${e.message}"
             } finally {
+                Timber.d("Finished loadMedicalVisits")
                 _isLoading.value = false
             }
         }

@@ -2,6 +2,9 @@ package com.example.healthcareproject.data.source.network.datasource
 
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthException
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.Dispatchers
@@ -23,7 +26,7 @@ class AuthFirebaseDataSource @Inject constructor(
 ) : AuthDataSource {
 
     private val codesRef = firebaseDatabase.getReference("verification_codes")
-    private val codeExpirationMillis = TimeUnit.MINUTES.toMillis(5) // Mã hết hạn sau 5 phút
+    private val codeExpirationMillis = TimeUnit.MINUTES.toMillis(5)
 
     override suspend fun loginUser(email: String, password: String): String {
         if (email.isBlank() || password.isBlank()) {
@@ -42,8 +45,14 @@ class AuthFirebaseDataSource @Inject constructor(
                 Timber.tag("FirebaseAuth").d("Logged in user with email $email, UID: $uid")
                 uid
             }
+        } catch (e: FirebaseAuthInvalidUserException) {
+            Timber.tag("FirebaseAuth").e(e, "Login failed: Account not registered for email $email")
+            throw e // Propagate for UserRepository
+        } catch (e: FirebaseAuthInvalidCredentialsException) {
+            Timber.tag("FirebaseAuth").e(e, "Login failed: Invalid email or password for $email")
+            throw e
         } catch (e: Exception) {
-            Timber.tag("FirebaseAuth").e(e, "Failed to login user with email $email")
+            Timber.tag("FirebaseAuth").e(e, "Login failed for email $email: ${e.message}")
             throw Exception("Cannot login user with email $email: ${e.message}")
         }
     }
@@ -80,8 +89,11 @@ class AuthFirebaseDataSource @Inject constructor(
                 Timber.tag("FirebaseAuth").d("Signed in with Google, UID: $uid")
                 uid
             }
+        } catch (e: FirebaseAuthException) {
+            Timber.tag("FirebaseAuth").e(e, "Google sign-in failed: ${e.errorCode}")
+            throw e // Propagate for GoogleSignInUseCase
         } catch (e: Exception) {
-            Timber.tag("FirebaseAuth").e(e, "Failed to sign in with Google")
+            Timber.tag("FirebaseAuth").e(e, "Google sign-in failed: ${e.message}")
             throw Exception("Cannot sign in with Google: ${e.message}")
         }
     }

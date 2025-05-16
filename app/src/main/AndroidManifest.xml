@@ -2,6 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CALL_PHONE"
+        tools:ignore="ManifestOrder" />
+    <uses-permission android:name="android.permission.SEND_SMS" />
 
     <uses-feature
         android:name="android.hardware.telephony"
@@ -35,16 +38,25 @@
             android:name=".present.ui.MainActivity"
             android:exported="false" />
 
-
         <!-- AuthActivity -->
         <activity
             android:name=".present.ui.AuthActivity"
-            android:exported="false" />
+            android:exported="true">
+            <!-- Giữ intent-filter cho xử lý liên kết sâu (deep links) -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="https"
+                    android:host="heart-careproject.firebaseapp.com"
+                    android:pathPrefix="/__/auth/links" />
+            </intent-filter>
+        </activity>
+
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
-        
-
     </application>
 
     <!-- Permissions -->

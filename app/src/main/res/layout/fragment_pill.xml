@@ -7,7 +7,7 @@
         <import type="android.view.View" />
         <variable
             name="viewModel"
-            type="com.example.healthcareproject.present.ui.medication.PillViewModel" />
+            type="com.example.healthcareproject.present.viewmodel.medication.PillViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -21,13 +21,56 @@
             android:id="@+id/tv_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Pill Management"
+            android:text="Medication Management"
             android:textColor="@color/primary_text_color"
             android:textSize="26sp"
             android:textStyle="bold"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             android:layout_marginBottom="16dp" />
+
+        <!-- Search container with EditText and Clear button -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/search_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/tv_title"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="8dp">
+
+            <!-- Search EditText -->
+            <EditText
+                android:id="@+id/et_search"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:hint="Search medications..."
+                android:textColor="@color/primary_text_color"
+                android:textColorHint="@color/secondary_text_color"
+                android:backgroundTint="@color/light_gray"
+                android:drawableStart="@android:drawable/ic_menu_search"
+                android:drawablePadding="8dp"
+                android:paddingEnd="40dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <!-- Clear Search Button -->
+            <ImageButton
+                android:id="@+id/clearSearchButton"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@android:drawable/ic_menu_close_clear_cancel"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Clear search"
+                android:visibility="gone"
+                app:layout_constraintTop_toTopOf="@id/et_search"
+                app:layout_constraintBottom_toBottomOf="@id/et_search"
+                app:layout_constraintEnd_toEndOf="@id/et_search"
+                android:layout_marginEnd="4dp" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <!-- ProgressBar -->
         <ProgressBar
@@ -36,94 +79,33 @@
             android:layout_height="wrap_content"
             android:visibility="@{viewModel.isLoading ? View.VISIBLE : View.GONE}"
             android:contentDescription="Loading medications"
-            app:layout_constraintTop_toBottomOf="@id/tv_title"
+            app:layout_constraintTop_toBottomOf="@id/search_container"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="8dp" />
+
+        <!-- TabLayout -->
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tab_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/search_container"
+            app:tabGravity="fill"
+            app:tabMode="fixed" />
+
+        <!-- ViewPager2 -->
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/view_pager"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintTop_toBottomOf="@id/tab_layout"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
-
-        <!-- Current Medications Title -->
-        <TextView
-            android:id="@+id/tv_current_medications"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Current Medications"
-            android:textColor="@color/primary_text_color"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            app:layout_constraintTop_toBottomOf="@id/progress_bar"
-            app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp" />
-
-        <!-- No Current Medications Message -->
-        <TextView
-            android:id="@+id/tv_no_current_medications"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="No current medications available"
-            android:textColor="@color/secondary_text_color"
-            android:textSize="16sp"
-            android:visibility="@{viewModel.noCurrentMedicationsVisibility}"
-            app:layout_constraintTop_toBottomOf="@id/tv_current_medications"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="8dp" />
-
-        <!-- Current Medications RecyclerView -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_current_medications"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:background="@color/surface"
-            android:contentDescription="List of current medications"
-            app:layout_constraintTop_toBottomOf="@id/tv_no_current_medications"
-            app:layout_constraintBottom_toTopOf="@id/tv_past_medications"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHeight_percent="0.35"
-            android:layout_marginBottom="16dp"
-            tools:listitem="@layout/item_medication" />
-
-        <!-- Past Medications Title -->
-
-        <!-- No Past Medications Message -->
-
-        <TextView
-            android:id="@+id/tv_past_medications"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="56dp"
-            android:text="Past Medications"
-            android:textColor="@color/primary_text_color"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/rv_current_medications" />
-
-        <TextView
-            android:id="@+id/tv_no_past_medications"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="No past medications available"
-            android:textColor="@color/secondary_text_color"
-            android:textSize="16sp"
-            android:visibility="@{viewModel.noPastMedicationsVisibility}"
-            app:layout_constraintTop_toBottomOf="@id/tv_past_medications"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="8dp" />
-
-        <!-- Past Medications RecyclerView -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_past_medications"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:background="@color/surface"
-            android:contentDescription="List of past medications"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_no_past_medications"
-            tools:listitem="@layout/item_medication" />
 
         <!-- Floating Action Button to Add Medication -->
         <com.google.android.material.floatingactionbutton.FloatingActionButton

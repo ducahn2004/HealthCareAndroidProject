@@ -9,6 +9,9 @@ import com.example.healthcareproject.data.source.network.datasource.UserDataSour
 import com.example.healthcareproject.di.DefaultDispatcher
 import com.example.healthcareproject.domain.model.User
 import com.example.healthcareproject.domain.repository.UserRepository
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
@@ -32,7 +35,7 @@ class DefaultUserRepository @Inject constructor(
         get() = authDataSource.getCurrentUserId() ?: throw Exception("User not logged in")
 
     override suspend fun createUser(
-        userId: String,
+        userId: String, // Input email
         password: String,
         name: String,
         address: String?,
@@ -41,12 +44,9 @@ class DefaultUserRepository @Inject constructor(
         bloodType: String,
         phone: String
     ): String = withContext(dispatcher) {
-        Timber.d("Creating user with ID: $userId")
-        val generatedUserId = withContext(dispatcher) {
-            userId.ifEmpty { java.util.UUID.randomUUID().toString() }
-        }
+        Timber.d("Creating user with email: $userId")
         val user = User(
-            userId = generatedUserId,
+            userId = "", // Will be updated with UID
             password = password,
             name = name,
             address = address,
@@ -59,13 +59,14 @@ class DefaultUserRepository @Inject constructor(
         )
 
         try {
-            val uid = authDataSource.registerUser(userId, password)
-            networkDataSource.saveUser(user.toNetwork())
-            localDataSource.upsert(user.toLocal())
+            val uid = authDataSource.registerUser(userId, password) // Returns Firebase Auth UID
+            val userWithUid = user.copy(userId = uid)
+            networkDataSource.saveUser(userWithUid.toNetwork()) // Use UID, not email
+            localDataSource.upsert(userWithUid.toLocal())
             uid
         } catch (e: Exception) {
-            Timber.e(e, "Failed to create user: $userId")
-            throw Exception("Cannot create user with ID $userId: ${e.message}")
+            Timber.e(e, "Failed to create user with email: $userId")
+            throw Exception("Cannot create user with email $userId: ${e.message}")
         }
     }
 
@@ -176,10 +177,24 @@ class DefaultUserRepository @Inject constructor(
         userId: String,
         password: String
     ): String = withContext(dispatcher) {
-        Timber.d("Logging in user with ID: $userId")
-        authDataSource.loginUser(userId, password)
-        refresh()
-        userId // Return the userId or another meaningful String value
+        Timber.d("Attempting to log in with email: $userId")
+        try {
+            val authResult = authDataSource.loginUser(userId, password)
+            val uid = FirebaseAuth.getInstance().currentUser?.uid
+                ?: throw Exception("User UID not found after login")
+            refresh()
+            Timber.d("Login successful, UID: $uid")
+            uid
+        } catch (e: FirebaseAuthInvalidUserException) {
+            Timber.e(e, "Login failed: Account not registered")
+            throw e // Propagate for LoginUserUseCase
+        } catch (e: FirebaseAuthInvalidCredentialsException) {
+            Timber.e(e, "Login failed: Invalid email or password")
+            throw e
+        } catch (e: Exception) {
+            Timber.e(e, "Login failed: ${e.message}")
+            throw e
+        }
     }
 
     override suspend fun sendVerificationCode(email: String) = withContext(dispatcher) {

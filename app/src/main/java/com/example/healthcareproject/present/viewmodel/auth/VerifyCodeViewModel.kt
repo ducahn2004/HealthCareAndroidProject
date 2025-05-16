@@ -1,24 +1,34 @@
 package com.example.healthcareproject.present.viewmodel.auth
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.text.Editable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
 import com.example.healthcareproject.domain.usecase.auth.SendVerificationCodeUseCase
 import com.example.healthcareproject.domain.usecase.auth.VerifyCodeUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
 class VerifyCodeViewModel @Inject constructor(
     private val verifyCodeUseCase: VerifyCodeUseCase,
-    private val sendVerificationCodeUseCase: SendVerificationCodeUseCase
+    private val sendVerificationCodeUseCase: SendVerificationCodeUseCase,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
+    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
+    private val sharedPreferences: SharedPreferences =
+        context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
 
+    // Existing LiveData fields (email, authFlow, verificationCode, etc.)
     private val _email = MutableLiveData<String>()
     val email: LiveData<String> get() = _email
 
@@ -54,25 +64,17 @@ class VerifyCodeViewModel @Inject constructor(
 
     private var timerJob: Job? = null
 
-    /**
-     * Sets the email and authentication flow for verification.
-     */
     fun setEmailAndAuthFlow(email: String, authFlow: AuthFlow) {
         _email.value = email
         _authFlow.value = authFlow
+        sharedPreferences.edit().putString("auth_flow", authFlow.name).apply()
     }
 
-    /**
-     * Updates the verification code input.
-     */
     fun afterVerificationCodeChange(code: Editable) {
         _verificationCode.value = code.toString()
         _verificationCodeError.value = null
     }
 
-    /**
-     * Verifies the entered code for the email.
-     */
     fun verifyCode() {
         val code = _verificationCode.value ?: ""
         if (code.isEmpty()) {
@@ -106,9 +108,38 @@ class VerifyCodeViewModel @Inject constructor(
         }
     }
 
-    /**
-     * Sends a new verification code to the email.
-     */
+    fun verifyEmailLink(emailLink: String) {
+        val email = sharedPreferences.getString("pending_email", "") ?: run {
+            _error.value = "Email is missing"
+            return
+        }
+
+        if (auth.isSignInWithEmailLink(emailLink)) {
+            _isLoading.value = true
+            auth.signInWithEmailLink(email, emailLink)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        Timber.d("Verified with email link")
+                        _isVerified.value = true
+                        _error.value = null
+                        sharedPreferences.edit().remove("pending_email").apply()
+                        if (_authFlow.value == AuthFlow.FORGOT_PASSWORD) {
+                            _navigateToCreateNewPassword.value = true
+                        } else {
+                            _navigateToLogin.value = true
+                        }
+                    } else {
+                        Timber.e(task.exception, "Link verification failed")
+                        _error.value = task.exception?.message ?: "Invalid email link"
+                        _isVerified.value = false
+                    }
+                    _isLoading.value = false
+                }
+        } else {
+            _error.value = "Invalid email link"
+        }
+    }
+
     fun sendVerificationCode() {
         val email = _email.value ?: run {
             _error.value = "Email is missing"
@@ -129,10 +160,6 @@ class VerifyCodeViewModel @Inject constructor(
         }
     }
 
-    /**
-     * Starts a timer to limit resending verification codes.
-     * @param duration The timer duration in seconds (default: 60).
-     */
     fun startTimer(duration: Int = 60) {
         stopTimer()
         _timerCount.value = duration
@@ -146,9 +173,6 @@ class VerifyCodeViewModel @Inject constructor(
         }
     }
 
-    /**
-     * Stops the resend timer.
-     */
     fun stopTimer() {
         timerJob?.cancel()
         timerJob = null
@@ -156,24 +180,15 @@ class VerifyCodeViewModel @Inject constructor(
         _timerText.value = "Resend Code"
     }
 
-    /**
-     * Resets navigation states.
-     */
     fun resetNavigationStates() {
         _navigateToCreateNewPassword.value = false
         _navigateToLogin.value = false
     }
 
-    /**
-     * Sets an error message.
-     */
     fun setError(error: String?) {
         _error.value = error
     }
 
-    /**
-     * Clears the error message.
-     */
     fun clearError() {
         _error.value = null
     }

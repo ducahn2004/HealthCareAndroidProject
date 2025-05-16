@@ -35,7 +35,7 @@ class ECGFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_e_c_g, container, false)
+        return inflater.inflate(R.layout.fragment_alarm, container, false)
     }
 
     companion object {

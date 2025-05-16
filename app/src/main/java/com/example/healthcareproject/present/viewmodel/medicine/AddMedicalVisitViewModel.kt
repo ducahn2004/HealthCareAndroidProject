@@ -51,6 +51,7 @@ class AddMedicalVisitViewModel @Inject constructor(
                 updateFormattedVisitDateTime()
             }
         })
+        Timber.d("Initialized AddMedicalVisitViewModel with visitId: $visitId")
     }
 
     fun getVisitId(): String = visitId

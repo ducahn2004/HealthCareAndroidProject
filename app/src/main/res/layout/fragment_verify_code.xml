@@ -13,6 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="16dp">
+
         <ImageButton
             android:id="@+id/btn_back_verify_code"
             android:layout_width="wrap_content"
@@ -22,7 +23,7 @@
             android:padding="16dp"
             android:src="@drawable/ic_back"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/tv_title"
@@ -41,58 +42,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:text="@{viewModel.email != null ? @string/code_has_been_send_to + viewModel.email : @string/code_has_been_send_to_default}"
+            android:text="@{viewModel.email != null ? @string/check_email_for_link + viewModel.email : @string/check_email_for_link_default}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tv_title" />
-
-        <EditText
-            android:id="@+id/et_code"
-            android:layout_width="0dp"
-            android:layout_height="48dp"
-            android:layout_marginTop="12dp"
-            android:hint="@string/_4_digit_code"
-            android:inputType="number"
-            android:text="@{viewModel.verificationCode}"
-            android:afterTextChanged="@{viewModel::afterVerificationCodeChange}"
-            android:backgroundTint="@{viewModel.verificationCodeError != null ? @android:color/holo_red_light : null}"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_description" />
-
-        <TextView
-            android:id="@+id/tv_code_error"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@{viewModel.verificationCodeError}"
-            android:textColor="@android:color/holo_red_light"
-            android:visibility="@{viewModel.verificationCodeError != null ? View.VISIBLE : View.GONE}"
-            app:layout_constraintStart_toStartOf="@id/et_code"
-            app:layout_constraintTop_toBottomOf="@id/et_code" />
-
-        <TextView
-            android:id="@+id/tv_resend"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="@{@string/didnt_receive_code_resend_with_timer(viewModel.timerText)}"
-            android:textColor="@android:color/holo_blue_dark"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_code_error" />
-
-        <Button
-            android:id="@+id/btn_verify"
-            android:layout_width="0dp"
-            android:layout_height="48dp"
-            android:layout_marginTop="8dp"
-            android:backgroundTint="#6200EE"
-            android:onClick="@{() -> viewModel.verifyCode()}"
-            android:text="@string/verify_account"
-            android:textColor="@android:color/white"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_resend" />
 
         <ProgressBar
             android:id="@+id/progressBar"

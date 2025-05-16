@@ -8,9 +8,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.healthcareproject.domain.usecase.auth.LoginUserUseCase
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
+import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.GoogleAuthProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -98,34 +102,33 @@ class LoginViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
+                Timber.d("Attempting to log in with email: $email")
                 val uid = loginUserUseCase(email, password)
-
-                val user = auth.currentUser
-                val providerData = user?.providerData
-
-                val isGoogleProviderLinked = providerData?.any { it.providerId == GoogleAuthProvider.PROVIDER_ID } == true
-
-                if (isGoogleProviderLinked) {
-                    // Show error message in English
-                    _error.value = "This account is linked with Google. Please log in using Google."
-                    _loginResult.value = null // Reset login result
-                } else {
-                    _loginResult.value = uid
-                    _error.value = null
-                    _emailError.value = null
-                    _passwordError.value = null
-                }
+                _loginResult.value = uid
+                _error.value = null
+                _emailError.value = null
+                _passwordError.value = null
+                Timber.d("Login successful, UID: $uid")
+            } catch (e: FirebaseAuthInvalidUserException) {
+                Timber.e(e, "Login blocked: Account not registered")
+                _error.value = "Account not registered. Please register first."
+                _loginResult.value = null
+            } catch (e: FirebaseAuthInvalidCredentialsException) {
+                Timber.e(e, "Login failed: Invalid email or password")
+                _error.value = "Invalid email or password."
+                _loginResult.value = null
+            } catch (e: FirebaseAuthUserCollisionException) {
+                Timber.e(e, "Login failed: Email linked with another provider")
+                _error.value = "This email is linked with another provider. Please use the correct login method."
+                _loginResult.value = null
             } catch (e: Exception) {
-                // Handle error in case of failure
-                _error.value = e.message ?: "Login failed"
+                Timber.e(e, "Login failed: Unknown error")
+                _error.value = e.message ?: "Login failed."
                 _loginResult.value = null
             } finally {
-                // Ensure loading state is updated
                 _isLoading.value = false
+                Timber.d("Login attempt completed")
             }
         }
     }
-
-
-
 }

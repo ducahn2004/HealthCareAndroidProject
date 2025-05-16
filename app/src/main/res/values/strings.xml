@@ -164,6 +164,12 @@
     <string name="enter_phone_number">Enter phone number</string>
     <string name="select_relationship">Select relationship</string>
     <string name="select_priority">Select priority</string>
+    <string name="alarms">Alarm</string>
+    <string name="alarm">Alarm</string>
+    <string name="current">Curnent</string>
+    <string name="check_email_for_link">Check your email for the verification link: </string>
+    <string name="check_email_for_link_default">Check your email for the verification link.</string>
+    <string name="arrow_icon">Arrow Right Icon\n</string>
     <string-array name="gender_options">
         <item>Male</item>
         <item>Female</item>
@@ -175,5 +181,10 @@
         <item>B</item>
         <item>AB</item>
         <item>O</item>
+    </string-array>
+    <string-array name="repeat_patterns">
+        <item>Once</item>
+        <item>Daily</item>
+        <item>Weekly</item>
     </string-array>
 </resources>
