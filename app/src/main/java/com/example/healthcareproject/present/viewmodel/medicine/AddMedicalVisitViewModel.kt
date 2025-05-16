@@ -5,7 +5,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.healthcareproject.data.source.network.datasource.AuthDataSource
 import com.example.healthcareproject.data.source.network.datasource.MedicationDataSource
 import com.example.healthcareproject.domain.model.Medication
 import com.example.healthcareproject.domain.usecase.medicalvisit.AddMedicalVisitWithMedicationsUseCase
@@ -28,7 +27,7 @@ class AddMedicalVisitViewModel @Inject constructor(
     val diagnosis = ObservableField<String>("")
     val doctorName = ObservableField<String>("")
     val clinicName = ObservableField<String>("")
-    val visitDateTime = ObservableField<LocalDateTime>()
+    private val visitDateTime = ObservableField<LocalDateTime>()
     val formattedVisitDateTime = ObservableField<String>("Select Date and Time")
     val isLoading = ObservableField<Boolean>(false)
 
@@ -124,8 +123,8 @@ class AddMedicalVisitViewModel @Inject constructor(
             val medicationData = getMedications().map { medication ->
                 val timeOfDayList = when (val tod = medication.timeOfDay) {
                     is String -> tod.split(",").map { it.trim() }
-                    is List<*> -> tod as? List<String> ?: emptyList()
-                    else -> emptyList<String>()
+                    is List<*> -> tod.filterIsInstance<String>()
+                    else -> emptyList()
                 }
 
                 medication.name to mapOf(

@@ -24,7 +24,6 @@ class UpdateMedicationUseCase @Inject constructor(
         notes: String
     ): Result<Unit> {
         return try {
-            // Kiểm tra dữ liệu đầu vào
             require(medicationId.isNotBlank()) { "Medication ID cannot be empty" }
             require(name.isNotBlank()) { "Medication name cannot be empty" }
             require(dosageAmount > 0) { "Dosage amount must be positive" }
@@ -35,7 +34,6 @@ class UpdateMedicationUseCase @Inject constructor(
                 require(isValidTimeFormat(time)) { "Invalid time format: $time" }
             }
 
-            // Kiểm tra sự tồn tại của thuốc
             val existingMedication = medicationRepository.getMedication(medicationId)
             if (existingMedication == null) {
                 Result.Error(Exception("Medication not found"))

@@ -1,11 +1,10 @@
 package com.example.healthcareproject.present.viewmodel.medicine
 
-import android.util.Log
 import androidx.lifecycle.*
 import com.example.healthcareproject.domain.model.MedicalVisit
 import com.example.healthcareproject.domain.model.Medication
-import com.example.healthcareproject.domain.usecase.medicalvisit.MedicalVisitUseCases
-import com.example.healthcareproject.domain.usecase.medication.MedicationUseCases
+import com.example.healthcareproject.domain.usecase.medicalvisit.GetMedicalVisitUseCase
+import com.example.healthcareproject.domain.usecase.medication.GetMedicationsByVisitIdUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -14,8 +13,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MedicalHistoryDetailViewModel @Inject constructor(
-    private val medicalVisitUseCases: MedicalVisitUseCases,
-    private val medicationUseCases: MedicationUseCases
+    private val getMedicalVisitUseCase: GetMedicalVisitUseCase,
+    private val getMedicationsByVisitId: GetMedicationsByVisitIdUseCase
 ) : ViewModel() {
 
     private val _medicalVisit = MutableLiveData<MedicalVisit?>()
@@ -44,8 +43,8 @@ class MedicalHistoryDetailViewModel @Inject constructor(
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                val medicalVisit = medicalVisitUseCases.getMedicalVisitUseCase(visitId)
-                val medicationsList = medicationUseCases.getMedicationsByVisitId(visitId)
+                val medicalVisit = getMedicalVisitUseCase(visitId)
+                val medicationsList = getMedicationsByVisitId(visitId)
                 Timber.tag("MedicalHistoryDetail")
                     .d("Visit: $medicalVisit, Medications: $medicationsList")
                 if (medicalVisit != null) {

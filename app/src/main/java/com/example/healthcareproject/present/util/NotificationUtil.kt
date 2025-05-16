@@ -1,4 +1,4 @@
-package com.example.healthcareproject.util
+package com.example.healthcareproject.present.util
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -59,5 +59,36 @@ object NotificationUtil {
             .build()
 
         notificationManager.notify(reminderId.hashCode(), notification)
+    }
+
+    fun createAlertNotificationChannel(context: Context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                "alert_channel",
+                "Alert Measurement Health",
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                description = "Alert Measurement Health Over Threshold"
+                enableLights(true)
+                enableVibration(true)
+            }
+
+            val manager =
+                context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            manager.createNotificationChannel(channel)
+        }
+    }
+
+    fun showWarningNotification(context: Context, title: String, message: String) {
+        val notificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        val builder = NotificationCompat.Builder(context, "alert_channel")
+            .setContentTitle(title)
+            .setContentText(message)
+            .setSmallIcon(R.drawable.ic_warning)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+
+        notificationManager.notify(System.currentTimeMillis().toInt(), builder.build())
     }
 }

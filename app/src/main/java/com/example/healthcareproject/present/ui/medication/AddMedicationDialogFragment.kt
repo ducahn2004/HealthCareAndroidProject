@@ -13,7 +13,6 @@ import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import com.example.healthcareproject.data.source.network.datasource.MedicationDataSource
-import com.example.healthcareproject.present.ui.utils.getOnPropertyChangedCallbacks
 import com.example.healthcareproject.databinding.DialogAddMedicationBinding
 import com.example.healthcareproject.domain.model.DosageUnit
 import com.example.healthcareproject.domain.model.MealRelation
@@ -24,7 +23,6 @@ import timber.log.Timber
 import java.time.LocalDate
 import java.util.*
 import javax.inject.Inject
-import kotlin.jvm.java
 
 @AndroidEntryPoint
 class AddMedicationDialogFragment : DialogFragment() {

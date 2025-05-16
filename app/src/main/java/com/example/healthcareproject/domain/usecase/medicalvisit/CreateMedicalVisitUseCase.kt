@@ -17,17 +17,15 @@ class CreateMedicalVisitUseCase @Inject constructor(
         status: Boolean = true
     ): Result<String> {
         return try {
-            // Validate inputs
             if (visitReason.isBlank()) throw IllegalArgumentException("Visit reason cannot be empty")
             if (doctorName.isBlank()) throw IllegalArgumentException("Doctor name cannot be empty")
             if (visitDate.isAfter(LocalDate.now())) throw IllegalArgumentException("Visit date cannot be in the feature")
 
-            // Combine diagnosis and treatment into notes
             val notes = buildString {
                 if (!diagnosis.isNullOrBlank()) append("Diagnosis: $diagnosis\n")
             }.takeIf { it.isNotBlank() }
             val visitId = UUID.randomUUID().toString()
-            // Call repository to create medical visit
+
             val resultVisitId = medicalVisitRepository.createMedicalVisit(
                 visitId = visitId,
                 visitReason = visitReason,

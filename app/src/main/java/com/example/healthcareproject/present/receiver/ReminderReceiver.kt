@@ -1,4 +1,4 @@
-package com.example.healthcareproject.receiver
+package com.example.healthcareproject.present.receiver
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -7,9 +7,9 @@ import com.example.healthcareproject.domain.model.NotificationType
 import com.example.healthcareproject.domain.model.RelatedTable
 import com.example.healthcareproject.domain.repository.NotificationRepository
 import com.example.healthcareproject.domain.repository.ReminderRepository
-import com.example.healthcareproject.util.NotificationUtil
-import com.example.healthcareproject.util.AlarmManagerUtil
-import com.example.healthcareproject.util.ReminderTimeUtil
+import com.example.healthcareproject.present.util.NotificationUtil
+import com.example.healthcareproject.present.util.AlarmManagerUtil
+import com.example.healthcareproject.present.util.ReminderTimeUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

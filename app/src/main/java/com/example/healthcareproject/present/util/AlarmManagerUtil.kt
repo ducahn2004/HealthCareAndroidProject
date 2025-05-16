@@ -1,11 +1,11 @@
-package com.example.healthcareproject.util
+package com.example.healthcareproject.present.util
 
 import android.annotation.SuppressLint
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import com.example.healthcareproject.receiver.ReminderReceiver
+import com.example.healthcareproject.present.receiver.ReminderReceiver
 import java.time.LocalDateTime
 import java.time.ZoneId
 

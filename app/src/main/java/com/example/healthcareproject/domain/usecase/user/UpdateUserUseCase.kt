@@ -11,17 +11,6 @@ import javax.inject.Inject
 class UpdateUserUseCase @Inject constructor(
     private val userRepository: UserRepository
 ) {
-    /**
-     * Updates the user's profile with the provided details.
-     * @param userId The user's email.
-     * @param name The user's name.
-     * @param address The user's address (optional).
-     * @param dateOfBirth The user's date of birth (format: dd/MM/yyyy).
-     * @param gender The user's gender (e.g., "Male", "Female").
-     * @param bloodType The user's blood type (e.g., "A_POSITIVE", "B_NEGATIVE").
-     * @param phone The user's phone number.
-     * @throws Exception if the operation fails (e.g., user not found, invalid data).
-     */
     suspend operator fun invoke(
         userId: String,
         name: String,

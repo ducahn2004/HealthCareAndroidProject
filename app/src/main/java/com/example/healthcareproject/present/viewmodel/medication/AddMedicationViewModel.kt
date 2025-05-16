@@ -9,9 +9,9 @@ import com.example.healthcareproject.data.source.network.datasource.AuthDataSour
 import com.example.healthcareproject.domain.model.DosageUnit
 import com.example.healthcareproject.domain.model.MealRelation
 import com.example.healthcareproject.domain.model.Result
-import com.example.healthcareproject.domain.usecase.medication.MedicationUseCases
-import com.example.healthcareproject.domain.usecase.medicalvisit.MedicalVisitUseCases
-import com.example.healthcareproject.present.ui.utils.toLocalDate
+import com.example.healthcareproject.domain.usecase.medication.CreateMedicationUseCase
+import com.example.healthcareproject.domain.usecase.medication.UpdateMedicationUseCase
+import com.example.healthcareproject.present.util.toLocalDate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -23,27 +23,27 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AddMedicationViewModel @Inject constructor(
-    private val medicationUseCases: MedicationUseCases,
-    private val medicalVisitUseCases: MedicalVisitUseCases,
+    private val createMedicationUseCase: CreateMedicationUseCase,
+    private val updateMedicationUseCase: UpdateMedicationUseCase,
     private val authDataSource: AuthDataSource
 ) : ViewModel() {
     // Observable fields for two-way data binding with the layout
-    val medicationName = ObservableField<String>("")
-    val dosageAmount = ObservableField<String>("")
-    val dosageUnit = ObservableField<DosageUnit>(DosageUnit.None)
-    val frequency = ObservableField<String>("")
-    val timeOfDay = ObservableField<String>("")
-    val mealRelation = ObservableField<MealRelation>(MealRelation.None)
+    val medicationName = ObservableField("")
+    val dosageAmount = ObservableField("")
+    val dosageUnit = ObservableField(DosageUnit.None)
+    val frequency = ObservableField("")
+    val timeOfDay = ObservableField("")
+    val mealRelation = ObservableField(MealRelation.None)
     val startDate = ObservableField<LocalDate>()
     val endDate = ObservableField<LocalDate>()
-    val notes = ObservableField<String>("")
+    val notes = ObservableField("")
 
     // Formatted date fields for TextView binding
-    val formattedStartDate = ObservableField<String>("")
-    val formattedEndDate = ObservableField<String>("Select End Date (optional)")
+    val formattedStartDate = ObservableField("")
+    val formattedEndDate = ObservableField("Select End Date (optional)")
 
     // Observable for loading state
-    val isLoading = ObservableField<Boolean>(false)
+    val isLoading = ObservableField(false)
 
     // LiveData for error messages and navigation
     private val _error = MutableLiveData<String?>()
@@ -136,7 +136,7 @@ class AddMedicationViewModel @Inject constructor(
         isLoading.set(true)
         viewModelScope.launch {
             try {
-                val result = medicationUseCases.createMedication(
+                val result = createMedicationUseCase(
                     visitId = visitId,
                     name = medicationName.get()
                         ?: throw IllegalArgumentException("Medication name is required"),
@@ -202,7 +202,7 @@ class AddMedicationViewModel @Inject constructor(
 
         viewModelScope.launch {
             isLoading.set(true)
-            val result = medicationUseCases.updateMedication(
+            val result = updateMedicationUseCase(
                 medicationId = medicationId,
                 name = medicationName.get() ?: "",
                 dosageUnit = dosageUnit.get() ?: DosageUnit.None,

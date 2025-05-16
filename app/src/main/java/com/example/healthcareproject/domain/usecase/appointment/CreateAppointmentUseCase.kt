@@ -17,7 +17,6 @@ class CreateAppointmentUseCase @Inject constructor(
         note: String?
     ): Result<String> {
         return try {
-
             // Validate inputs
             if (doctorName.isBlank())
                 throw IllegalArgumentException("Doctor name cannot be empty")

@@ -1,7 +1,6 @@
 package com.example.healthcareproject.domain.usecase.auth
 
 import com.example.healthcareproject.domain.repository.UserRepository
-import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.FirebaseUser

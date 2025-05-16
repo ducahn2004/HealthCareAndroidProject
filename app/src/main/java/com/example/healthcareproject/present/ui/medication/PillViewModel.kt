@@ -7,7 +7,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.healthcareproject.domain.model.Medication
 import com.example.healthcareproject.domain.model.Result
-import com.example.healthcareproject.domain.usecase.medication.MedicationUseCases
+import com.example.healthcareproject.domain.usecase.medication.DeleteMedicationUseCase
+import com.example.healthcareproject.domain.usecase.medication.GetMedicationsUseCase
+
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -15,10 +17,11 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PillViewModel @Inject constructor(
-    private val medicationUseCases: MedicationUseCases
+    private val getMedicationsUseCase: GetMedicationsUseCase,
+    private val deleteMedicationUseCase: DeleteMedicationUseCase
 ) : ViewModel() {
     // LiveData for directly binding to views
-    private val _isLoading = MutableLiveData<Boolean>(false)
+    private val _isLoading = MutableLiveData(false)
     val isLoading: LiveData<Boolean> = _isLoading
 
     private val _currentMedications = MutableLiveData<List<Medication>>(emptyList())
@@ -31,10 +34,10 @@ class PillViewModel @Inject constructor(
     val error: LiveData<String?> = _error
 
     // Visibility helpers for data binding
-    private val _noCurrentMedicationsVisible = MutableLiveData<Boolean>(false)
+    private val _noCurrentMedicationsVisible = MutableLiveData(false)
     val noCurrentMedicationsVisible: LiveData<Boolean> = _noCurrentMedicationsVisible
 
-    private val _noPastMedicationsVisible = MutableLiveData<Boolean>(false)
+    private val _noPastMedicationsVisible = MutableLiveData(false)
     val noPastMedicationsVisible: LiveData<Boolean> = _noPastMedicationsVisible
 
     // Convenience properties for direct binding in layout
@@ -56,9 +59,7 @@ class PillViewModel @Inject constructor(
             _isLoading.value = true
             _error.value = null
 
-            val result = medicationUseCases.getMedications()
-
-            when (result) {
+            when (val result = getMedicationsUseCase()) {
                 is Result.Success -> {
                     val (current, past) = result.data.partition { medication ->
                         val today = LocalDate.now()
@@ -101,9 +102,7 @@ class PillViewModel @Inject constructor(
             _isLoading.value = true
             _error.value = null
 
-            val result = medicationUseCases.deleteMedication(medicationId)
-
-            when (result) {
+            when (val result = deleteMedicationUseCase(medicationId)) {
                 is Result.Success<*> -> {
                     loadMedications() // Refresh the list after deletion
                     _isLoading.value = false

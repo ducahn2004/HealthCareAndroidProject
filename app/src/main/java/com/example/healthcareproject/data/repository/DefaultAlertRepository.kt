@@ -38,8 +38,7 @@ class DefaultAlertRepository @Inject constructor(
         measurementId: String?,
         emergencyId: String?,
         triggerReason: String,
-        contacted: Boolean,
-        timestamp: LocalDateTime
+        contacted: Boolean
     ): String {
         val alertId = withContext(dispatcher) {
             UUID.randomUUID().toString()
@@ -51,7 +50,7 @@ class DefaultAlertRepository @Inject constructor(
             emergencyId = emergencyId,
             triggerReason = triggerReason,
             contacted = contacted,
-            timestamp = timestamp
+            timestamp = LocalDateTime.now()
         )
         localDataSource.upsert(alert.toLocal())
         saveAlertToNetwork()
@@ -60,18 +59,10 @@ class DefaultAlertRepository @Inject constructor(
 
     override suspend fun updateAlert(
         alertId: String,
-        measurementId: String?,
-        emergencyId: String?,
-        triggerReason: String,
         contacted: Boolean,
-        timestamp: LocalDateTime
     ) {
         val alert = getAlert(alertId)?.copy(
-            measurementId = measurementId,
-            emergencyId = emergencyId,
-            triggerReason = triggerReason,
             contacted = contacted,
-            timestamp = timestamp
         ) ?: throw Exception("Alert (id $alertId) not found")
 
         localDataSource.upsert(alert.toLocal())

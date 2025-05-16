@@ -1,8 +1,8 @@
 package com.example.healthcareproject.domain.usecase.reminder
 
 import android.content.Context
-import com.example.healthcareproject.util.ReminderTimeUtil
-import com.example.healthcareproject.util.AlarmManagerUtil
+import com.example.healthcareproject.present.util.ReminderTimeUtil
+import com.example.healthcareproject.present.util.AlarmManagerUtil
 import com.example.healthcareproject.domain.model.RepeatPattern
 import com.example.healthcareproject.domain.repository.ReminderRepository
 import java.time.LocalTime

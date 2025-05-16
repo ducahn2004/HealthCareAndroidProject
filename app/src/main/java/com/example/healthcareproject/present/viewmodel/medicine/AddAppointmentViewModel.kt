@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.healthcareproject.domain.model.MedicalVisit
 import com.example.healthcareproject.domain.model.Result
-import com.example.healthcareproject.domain.usecase.appointment.AppointmentUseCases
+import com.example.healthcareproject.domain.usecase.appointment.CreateAppointmentUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -16,8 +16,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AddAppointmentViewModel @Inject constructor(
-    private val appointmentUseCases: AppointmentUseCases
-) : ViewModel() {
+    private val createAppointmentUseCase: CreateAppointmentUseCase
+    ) : ViewModel() {
 
     // Error handling
     private val _errorMessage = MutableLiveData<String?>(null)
@@ -64,14 +64,14 @@ class AddAppointmentViewModel @Inject constructor(
     val timeError: LiveData<String?> = _timeError
 
     // Navigation trigger
-    private val _navigateBack = MutableLiveData<Boolean>(false)
+    private val _navigateBack = MutableLiveData(false)
     val navigateBack: LiveData<Boolean> = _navigateBack
 
     // Date/Time picker triggers
-    private val _showDatePicker = MutableLiveData<Boolean>(false)
+    private val _showDatePicker = MutableLiveData(false)
     val showDatePicker: LiveData<Boolean> = _showDatePicker
 
-    private val _showTimePicker = MutableLiveData<Boolean>(false)
+    private val _showTimePicker = MutableLiveData(false)
     val showTimePicker: LiveData<Boolean> = _showTimePicker
 
     fun updateVisitDate(visitDate: LocalDate) {
@@ -161,7 +161,7 @@ class AddAppointmentViewModel @Inject constructor(
             val createdAt = LocalDateTime.of(_visitDate.value, _time.value)
 
             // Call use case
-            val result = appointmentUseCases.createAppointment(
+            val result = createAppointmentUseCase(
                 doctorName = doctorName.value ?: "",
                 location = clinicName.value ?: "",
                 appointmentTime = createdAt,

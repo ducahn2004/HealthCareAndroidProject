@@ -1,7 +1,6 @@
-package com.example.healthcareproject.present.ui.utils
+package com.example.healthcareproject.present.util
 
 import androidx.databinding.Observable
-import androidx.databinding.ObservableField
 import java.lang.reflect.Field
 
 /**

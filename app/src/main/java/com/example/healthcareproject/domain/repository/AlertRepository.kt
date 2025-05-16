@@ -2,7 +2,6 @@ package com.example.healthcareproject.domain.repository
 
 import com.example.healthcareproject.domain.model.Alert
 import kotlinx.coroutines.flow.Flow
-import java.time.LocalDateTime
 
 /**
  * Interface to the data layer for Alerts.
@@ -14,16 +13,11 @@ interface AlertRepository {
         emergencyId: String?,
         triggerReason: String,
         contacted: Boolean,
-        timestamp: LocalDateTime
     ): String
 
     suspend fun updateAlert(
         alertId: String,
-        measurementId: String?,
-        emergencyId: String?,
-        triggerReason: String,
         contacted: Boolean,
-        timestamp: LocalDateTime
     )
 
     fun getAlertListStream(forceUpdate: Boolean = false): Flow<List<Alert>>
