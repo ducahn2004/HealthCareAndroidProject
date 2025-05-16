@@ -197,4 +197,8 @@ class AddAppointmentViewModel @Inject constructor(
     fun clearError() {
         _errorMessage.value = null
     }
+
+    fun resetSuccessWithVisit() {
+        TODO("Not yet implemented")
+    }
 }

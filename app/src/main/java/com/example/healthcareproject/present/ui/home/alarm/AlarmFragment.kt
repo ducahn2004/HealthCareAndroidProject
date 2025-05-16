@@ -8,9 +8,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.healthcareproject.databinding.FragmentAlarmBinding
-import com.example.healthcareproject.domain.model.Alert
 import com.example.healthcareproject.present.navigation.MainNavigator
-import com.example.healthcareproject.present.viewmodel.home.alarm.AlarmViewModel
+import com.example.healthcareproject.present.viewmodel.home.alarm.ReminderViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -19,10 +18,11 @@ class AlarmFragment : Fragment() {
 
     private var _binding: FragmentAlarmBinding? = null
     private val binding get() = _binding!!
-    private val viewModel: AlarmViewModel by viewModels()
+    private val viewModel: ReminderViewModel by viewModels()
     private lateinit var adapter: AlarmAdapter
     @Inject
     lateinit var mainNavigator: MainNavigator
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -44,11 +44,11 @@ class AlarmFragment : Fragment() {
 
     private fun setupRecyclerView() {
         adapter = AlarmAdapter(
-            onEditClick = { alert ->
-                EditAlarmDialog.newInstance(alert).show(parentFragmentManager, "EditAlarmDialog")
+            onEditClick = { reminder ->
+                EditAlarmDialog.newInstance(reminder).show(parentFragmentManager, "EditAlarmDialog")
             },
-            onStatusChange = { alertId, status ->
-                viewModel.updateAlertStatus(alertId, status)
+            onStatusChange = { reminderId, status ->
+                viewModel.updateReminderStatus(reminderId, status)
             }
         )
         binding.recyclerViewAlarms.layoutManager = LinearLayoutManager(context)
@@ -56,10 +56,10 @@ class AlarmFragment : Fragment() {
     }
 
     private fun observeViewModel() {
-        viewModel.alerts.observe(viewLifecycleOwner) { alerts ->
-            adapter.submitList(alerts)
+        viewModel.reminders.observe(viewLifecycleOwner) { reminders ->
+            adapter.submitList(reminders)
         }
-        viewModel.loadAlarms()
+        viewModel.loadReminders()
     }
 
     override fun onDestroyView() {

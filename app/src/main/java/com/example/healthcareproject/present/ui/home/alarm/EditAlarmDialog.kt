@@ -7,9 +7,9 @@ import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
 import com.example.healthcareproject.databinding.DialogEditAlarmBinding
-import com.example.healthcareproject.domain.model.Alert
+import com.example.healthcareproject.domain.model.Reminder
 import com.example.healthcareproject.domain.model.RepeatPattern
-import com.example.healthcareproject.present.viewmodel.home.alarm.AlarmViewModel
+import com.example.healthcareproject.present.viewmodel.home.alarm.ReminderViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.LocalTime
 
@@ -18,7 +18,7 @@ class EditAlarmDialog : DialogFragment() {
 
     private var _binding: DialogEditAlarmBinding? = null
     private val binding get() = _binding!!
-    private val viewModel: AlarmViewModel by viewModels()
+    private val viewModel: ReminderViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -31,35 +31,35 @@ class EditAlarmDialog : DialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val alert = arguments?.getParcelable("alert") as? Alert
-        alert?.let { setupUI(it) }
+        val reminder = arguments?.getParcelable("reminder") as? Reminder
+        reminder?.let { setupUI(it) }
 
-        binding.btnSave.setOnClickListener { saveAlert() }
+        binding.btnSave.setOnClickListener { saveReminder() }
     }
 
-    private fun setupUI(alert: Alert) {
-        binding.etTitle.setText(alert.title)
-        binding.etMessage.setText(alert.message)
-        binding.timePicker.hour = alert.alertTime.hour
-        binding.timePicker.minute = alert.alertTime.minute
-        binding.spinnerRepeat.setSelection(RepeatPattern.values().indexOf(alert.repeatPattern))
+    private fun setupUI(reminder: Reminder) {
+        binding.etTitle.setText(reminder.title)
+        binding.etMessage.setText(reminder.message)
+        binding.timePicker.hour = reminder.reminderTime.hour
+        binding.timePicker.minute = reminder.reminderTime.minute
+        binding.spinnerRepeat.setSelection(RepeatPattern.values().indexOf(reminder.repeatPattern))
     }
 
-    private fun saveAlert() {
+    private fun saveReminder() {
         val title = binding.etTitle.text.toString()
         val message = binding.etMessage.text.toString()
         val time = LocalTime.of(binding.timePicker.hour, binding.timePicker.minute)
-        val repeatPattern = RepeatPattern.values()[binding.spinnerRepeat.selectedItemPosition]
+        val repeatPattern = RepeatPattern.entries[binding.spinnerRepeat.selectedItemPosition]
 
-        val alert = arguments?.getParcelable("alert") as? Alert
-        alert?.let {
-            viewModel.updateAlert(
-                alertId = it.alertId,
+        val reminder = arguments?.getParcelable("reminder") as? Reminder
+        reminder?.let {
+            viewModel.updateReminder(
+                reminderId = it.reminderId,
                 title = title,
                 message = message,
-                alertTime = time,
+                reminderTime = time,
                 repeatPattern = repeatPattern,
-                status = it.status // Giữ nguyên trạng thái hiện tại
+                status = it.status // Keep the current status
             )
         }
         dismiss()
@@ -71,10 +71,10 @@ class EditAlarmDialog : DialogFragment() {
     }
 
     companion object {
-        fun newInstance(alert: Alert): EditAlarmDialog {
+        fun newInstance(reminder: Reminder): EditAlarmDialog {
             return EditAlarmDialog().apply {
                 arguments = Bundle().apply {
-                    putParcelable("alert", alert)
+                    putParcelable("reminder", reminder)
                 }
             }
         }

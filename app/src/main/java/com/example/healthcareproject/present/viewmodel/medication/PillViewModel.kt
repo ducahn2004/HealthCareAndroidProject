@@ -7,7 +7,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.healthcareproject.domain.model.Medication
 import com.example.healthcareproject.domain.model.Result
-import com.example.healthcareproject.domain.usecase.medication.MedicationUseCases
+import com.example.healthcareproject.domain.usecase.medication.DeleteMedicationUseCase
+import com.example.healthcareproject.domain.usecase.medication.GetMedicationsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -18,7 +19,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PillViewModel @Inject constructor(
-    private val medicationUseCases: MedicationUseCases
+    private val getMedicationsUseCase: GetMedicationsUseCase,
+    private val deleteMedicationUseCase: DeleteMedicationUseCase
 ) : ViewModel() {
     private val _isLoading = MutableLiveData<Boolean>(false)
     val isLoading: LiveData<Boolean> = _isLoading
@@ -60,7 +62,7 @@ class PillViewModel @Inject constructor(
             _error.value = null
             Timber.d("Loading medications")
 
-            when (val result = medicationUseCases.getMedications()) {
+            when (val result = getMedicationsUseCase()) {
                 is Result.Success -> {
                     allMedications = result.data
                     Timber.d("Loaded ${allMedications.size} medications from source")
@@ -144,7 +146,7 @@ class PillViewModel @Inject constructor(
             _isLoading.value = true
             _error.value = null
 
-            when (val result = medicationUseCases.deleteMedication(medicationId)) {
+            when (val result = deleteMedicationUseCase(medicationId)) {
                 is Result.Success<*> -> {
                     loadMedications()
                 }

@@ -27,7 +27,7 @@ class AddMedicalVisitViewModel @Inject constructor(
     val diagnosis = ObservableField<String>("")
     val doctorName = ObservableField<String>("")
     val clinicName = ObservableField<String>("")
-    private val visitDateTime = ObservableField<LocalDateTime>()
+    val visitDateTime = ObservableField<LocalDateTime>()
     val formattedVisitDateTime = ObservableField<String>("Select Date and Time")
     val isLoading = ObservableField<Boolean>(false)
 

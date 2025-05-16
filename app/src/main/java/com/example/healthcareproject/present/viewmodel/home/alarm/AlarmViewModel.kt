@@ -4,69 +4,67 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.healthcareproject.domain.model.Alert
+import com.example.healthcareproject.domain.model.Reminder
 import com.example.healthcareproject.domain.model.RepeatPattern
-import com.example.healthcareproject.domain.usecase.alert.GetAlertsUseCase
-import com.example.healthcareproject.domain.usecase.alert.UpdateAlertUseCase
+import com.example.healthcareproject.domain.usecase.reminder.GetRemindersUseCase
+import com.example.healthcareproject.domain.usecase.reminder.UpdateReminderUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.time.LocalTime
 import javax.inject.Inject
 
 @HiltViewModel
-class AlarmViewModel @Inject constructor(
-    private val getAlertsUseCase: GetAlertsUseCase,
-    private val updateAlertUseCase: UpdateAlertUseCase
+class ReminderViewModel @Inject constructor(
+    private val getRemindersUseCase: GetRemindersUseCase,
+    private val updateReminderUseCase: UpdateReminderUseCase
 ) : ViewModel() {
 
-    private val _alerts = MutableLiveData<List<Alert>>()
-    val alerts: LiveData<List<Alert>> get() = _alerts
+    private val _reminders = MutableLiveData<List<Reminder>>()
+    val reminders: LiveData<List<Reminder>> get() = _reminders
 
     init {
-        loadAlarms()
+        loadReminders()
     }
 
-    fun loadAlarms() {
+    fun loadReminders() {
         viewModelScope.launch {
             try {
-                val alerts = getAlertsUseCase()
-                _alerts.postValue(alerts)
+                val reminders = getRemindersUseCase()
+                _reminders.postValue(reminders)
             } catch (e: Exception) {
-                _alerts.postValue(emptyList())
+                _reminders.postValue(emptyList())
             }
         }
     }
 
-    fun updateAlertStatus(alertId: String, status: Boolean) {
+    fun updateReminderStatus(reminderId: String, status: Boolean) {
         viewModelScope.launch {
-            val alert = _alerts.value?.find { it.alertId == alertId } ?: return@launch
-            updateAlertUseCase(
-                alertId = alertId,
-                title = alert.title,
-                message = alert.message,
-                alertTime = alert.alertTime,
-                repeatPattern = alert.repeatPattern,
+            val reminder = _reminders.value?.find { it.reminderId == reminderId } ?: return@launch
+            updateReminderUseCase(
+                reminderId = reminderId,
+                title = reminder.title,
+                message = reminder.message,
+                reminderTime = reminder.reminderTime,
+                repeatPattern = reminder.repeatPattern,
                 status = status
             )
         }
     }
 
-    fun updateAlert(
-        alertId: String,
+    fun updateReminder(
+        reminderId: String,
         title: String,
         message: String,
-        alertTime: LocalTime,
+        reminderTime: LocalTime,
         repeatPattern: RepeatPattern,
         status: Boolean
     ) {
         viewModelScope.launch {
-            updateAlertUseCase(
-                alertId = alertId,
+            updateReminderUseCase(
+                reminderId = reminderId,
                 title = title,
                 message = message,
-                alertTime = alertTime,
+                reminderTime = reminderTime,
                 repeatPattern = repeatPattern,
                 status = status
             )

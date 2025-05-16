@@ -6,13 +6,13 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.healthcareproject.databinding.ItemAlarmBinding
-import com.example.healthcareproject.domain.model.Alert
+import com.example.healthcareproject.domain.model.Reminder
 import java.time.format.DateTimeFormatter
 
 class AlarmAdapter(
-    private val onEditClick: (Alert) -> Unit,
+    private val onEditClick: (Reminder) -> Unit,
     private val onStatusChange: (String, Boolean) -> Unit
-) : ListAdapter<Alert, AlarmAdapter.AlarmViewHolder>(AlertDiffCallback()) {
+) : ListAdapter<Reminder, AlarmAdapter.AlarmViewHolder>(ReminderDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AlarmViewHolder {
         val binding = ItemAlarmBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -20,37 +20,35 @@ class AlarmAdapter(
     }
 
     override fun onBindViewHolder(holder: AlarmViewHolder, position: Int) {
-        val alert = getItem(position)
-        holder.bind(alert)
+        val reminder = getItem(position)
+        holder.bind(reminder)
     }
 
     inner class AlarmViewHolder(private val binding: ItemAlarmBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        fun bind(alert: Alert) {
-            binding.tvTitle.text = alert.title
-            binding.tvTime.text = alert.alertTime.format(DateTimeFormatter.ofPattern("HH:mm"))
-            binding.tvRepeat.text = alert.repeatPattern.name
-            binding.switchStatus.isChecked = alert.status
+        fun bind(reminder: Reminder) {
+            binding.tvTitle.text = reminder.title
+            binding.tvTime.text = reminder.reminderTime.format(DateTimeFormatter.ofPattern("HH:mm"))
+            binding.tvRepeat.text = reminder.repeatPattern.name
+            binding.switchStatus.isChecked = reminder.status
 
-            // Click vào item để mở EditAlarmDialog
             binding.root.setOnClickListener {
-                onEditClick(alert)
+                onEditClick(reminder)
             }
 
-            // Xử lý thay đổi trạng thái qua Switch
             binding.switchStatus.setOnCheckedChangeListener { _, isChecked ->
-                onStatusChange(alert.alertId, isChecked)
+                onStatusChange(reminder.reminderId, isChecked)
             }
         }
     }
 }
 
-class AlertDiffCallback : DiffUtil.ItemCallback<Alert>() {
-    override fun areItemsTheSame(oldItem: Alert, newItem: Alert): Boolean {
-        return oldItem.alertId == newItem.alertId
+class ReminderDiffCallback : DiffUtil.ItemCallback<Reminder>() {
+    override fun areItemsTheSame(oldItem: Reminder, newItem: Reminder): Boolean {
+        return oldItem.reminderId == newItem.reminderId
     }
 
-    override fun areContentsTheSame(oldItem: Alert, newItem: Alert): Boolean {
+    override fun areContentsTheSame(oldItem: Reminder, newItem: Reminder): Boolean {
         return oldItem == newItem
     }
 }

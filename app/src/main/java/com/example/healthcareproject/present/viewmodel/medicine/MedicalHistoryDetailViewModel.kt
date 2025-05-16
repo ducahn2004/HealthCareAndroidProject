@@ -67,4 +67,14 @@ class MedicalHistoryDetailViewModel @Inject constructor(
     private fun handleError(message: String) {
         _error.value = message
     }
+
+    fun updateMedication(updatedMedication: Medication) {
+
+    }
+
+    fun deleteMedication(medicationId: String) {
+
+    }
+
+
 }
