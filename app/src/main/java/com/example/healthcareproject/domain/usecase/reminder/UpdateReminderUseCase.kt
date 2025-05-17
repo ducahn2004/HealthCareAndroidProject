@@ -5,6 +5,7 @@ import com.example.healthcareproject.domain.model.RepeatPattern
 import com.example.healthcareproject.domain.repository.ReminderRepository
 import com.example.healthcareproject.presentation.util.AlarmManagerUtil
 import com.example.healthcareproject.presentation.util.ReminderTimeUtil
+import java.time.LocalDate
 import java.time.LocalTime
 import javax.inject.Inject
 
@@ -18,6 +19,8 @@ class UpdateReminderUseCase @Inject constructor(
         message: String,
         reminderTime: LocalTime,
         repeatPattern: RepeatPattern,
+        startDate: LocalDate,
+        endDate: LocalDate,
         status: Boolean
     ) {
 
@@ -29,6 +32,8 @@ class UpdateReminderUseCase @Inject constructor(
             message = message,
             reminderTime = reminderTime,
             repeatPattern = repeatPattern,
+            startDate = startDate,
+            endDate = endDate,
             status = status
         )
 

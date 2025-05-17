@@ -9,6 +9,7 @@ import com.example.healthcareproject.data.source.local.Converters
 import com.example.healthcareproject.domain.model.RepeatPattern
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.LocalDate
 
 @Entity(
     tableName = "reminders",
@@ -31,5 +32,7 @@ data class RoomReminder(
     val reminderTime: LocalTime,
     val repeatPattern: RepeatPattern,
     val status: Boolean,
-    val createdAt: LocalDateTime
+    val createdAt: LocalDateTime,
+    val startDate: LocalDate,
+    val endDate: LocalDate,
 )

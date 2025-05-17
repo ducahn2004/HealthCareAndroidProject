@@ -3,6 +3,7 @@ package com.example.healthcareproject.domain.repository
 import com.example.healthcareproject.domain.model.Reminder
 import com.example.healthcareproject.domain.model.RepeatPattern
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDate
 import java.time.LocalTime
 
 /**
@@ -15,6 +16,8 @@ interface ReminderRepository {
         message: String,
         reminderTime: LocalTime,
         repeatPattern: RepeatPattern,
+        startDate: LocalDate,
+        endDate: LocalDate,
         status: Boolean
     ): String
 
@@ -24,6 +27,8 @@ interface ReminderRepository {
         message: String,
         reminderTime: LocalTime,
         repeatPattern: RepeatPattern,
+        startDate: LocalDate,
+        endDate: LocalDate,
         status: Boolean
     )
 

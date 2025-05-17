@@ -18,7 +18,7 @@ import com.example.healthcareproject.data.source.local.entity.*
         RoomAlert::class,
         RoomUser::class
     ],
-    version = 15,
+    version = 19,
     exportSchema = false
 )
 @TypeConverters(Converters::class)

@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import java.time.LocalDateTime
 import java.util.UUID
 import javax.inject.Inject
@@ -57,6 +58,9 @@ class DefaultNotificationRepository @Inject constructor(
         )
         localDataSource.upsert(notification.toLocal())
         saveNotificationsToNetwork()
+
+        Timber.tag("DefaultNotificationRepository")
+            .d("Created notification: $notificationId")
         return notificationId
     }
 

@@ -9,7 +9,7 @@ class AlertFirebaseDataSource @Inject constructor(
     firebaseDatabase: FirebaseDatabase
 ) : AlertDataSource {
 
-    private val alertRef = firebaseDatabase.getReference("alert")
+    private val alertRef = firebaseDatabase.getReference("alerts")
 
     override suspend fun loadAlerts(userId: String): List<FirebaseAlert> = try {
         alertRef

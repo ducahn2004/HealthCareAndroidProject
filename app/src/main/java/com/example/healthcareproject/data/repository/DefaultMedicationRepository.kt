@@ -106,7 +106,7 @@ class DefaultMedicationRepository @Inject constructor(
         )
         Timber.d("Updating medication: name=$name, id=$medicationId, visitId=${medication.visitId}")
         localDataSource.upsert(medication.toLocal())
-        Timber.d("Upserted medication to Room: name=$name, id=$medicationId, visitId=${medication.visitId}")
+        Timber.d("Upsert medication to Room: name=$name, id=$medicationId, visitId=${medication.visitId}")
         saveMedicationsToNetwork()
     }
 

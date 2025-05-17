@@ -2,15 +2,18 @@ package com.example.healthcareproject.domain.usecase.medication
 
 import com.example.healthcareproject.domain.model.DosageUnit
 import com.example.healthcareproject.domain.model.MealRelation
+import com.example.healthcareproject.domain.model.RepeatPattern
 import com.example.healthcareproject.domain.repository.MedicationRepository
 import com.example.healthcareproject.domain.model.Result
+import com.example.healthcareproject.domain.usecase.reminder.CreateReminderUseCase
 import timber.log.Timber
 import java.time.LocalDate
 import java.time.LocalTime
 import javax.inject.Inject
 
 class CreateMedicationUseCase @Inject constructor(
-    private val medicationRepository: MedicationRepository
+    private val medicationRepository: MedicationRepository,
+    private val createReminderUseCase: CreateReminderUseCase
 ) {
     suspend operator fun invoke(
         visitId: String?,
@@ -48,6 +51,28 @@ class CreateMedicationUseCase @Inject constructor(
                 notes = notes,
                 syncToNetwork = syncToNetwork
             )
+
+            if (isTodayInRange(endDate)) {
+                val message = reminderMessage(
+                    name = name,
+                    dosageUnit = dosageUnit,
+                    dosageAmount = dosageAmount,
+                    mealRelation = mealRelation
+                )
+                val repeatPattern = determineRepeatPattern(startDate, endDate)
+                timeOfDay.forEach { time ->
+                    createReminderUseCase(
+                        title = "Medication Reminder: $name",
+                        message = message,
+                        reminderTime = LocalTime.parse(time),
+                        repeatPattern = repeatPattern,
+                        startDate = startDate,
+                        endDate = endDate,
+                        status = true
+                    )
+                }
+            }
+
             Result.Success(medicationId)
         } catch (e: IllegalArgumentException) {
             Timber.e(e, "Validation failed: ${e.message}")
@@ -64,6 +89,29 @@ class CreateMedicationUseCase @Inject constructor(
             true
         } catch (e: Exception) {
             false
+        }
+    }
+
+    private fun isTodayInRange(endDate: LocalDate): Boolean {
+        val today = LocalDate.now()
+        return !today.isAfter(endDate)
+    }
+
+    private fun reminderMessage(
+        name: String,
+        dosageUnit: DosageUnit,
+        dosageAmount: Float,
+        mealRelation: MealRelation
+    ): String {
+        return "Take $dosageAmount ${dosageUnit.name.lowercase()} " +
+                "of $name ${mealRelation.name.lowercase()}."
+    }
+
+    private fun determineRepeatPattern(startDate: LocalDate, endDate: LocalDate): RepeatPattern {
+        return if (startDate == endDate) {
+            RepeatPattern.Once
+        } else {
+            RepeatPattern.Daily
         }
     }
 }

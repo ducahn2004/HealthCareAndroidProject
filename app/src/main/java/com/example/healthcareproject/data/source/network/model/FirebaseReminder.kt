@@ -10,5 +10,7 @@ data class FirebaseReminder(
     var reminderTime: String = "",
     var repeatPattern: RepeatPattern = RepeatPattern.None,
     var status: Boolean,
-    var createdAt: String = ""
+    var createdAt: String = "",
+    var startDate: String = "",
+    var endDate: String = "",
 )

@@ -3,6 +3,7 @@ package com.example.healthcareproject.data.mapper
 import com.example.healthcareproject.data.source.local.entity.RoomReminder
 import com.example.healthcareproject.data.source.network.model.FirebaseReminder
 import com.example.healthcareproject.domain.model.Reminder
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -16,7 +17,9 @@ fun Reminder.toLocal() = RoomReminder(
     reminderTime = reminderTime,
     repeatPattern = repeatPattern,
     status = status,
-    createdAt = createdAt
+    createdAt = createdAt,
+    startDate = startDate,
+    endDate = endDate
 )
 
 fun List<Reminder>.toLocal() = map(Reminder::toLocal)
@@ -30,7 +33,9 @@ fun RoomReminder.toExternal() = Reminder(
     reminderTime = reminderTime,
     repeatPattern = repeatPattern,
     status = status,
-    createdAt = createdAt
+    createdAt = createdAt,
+    startDate = startDate,
+    endDate = endDate
 )
 
 @JvmName("localToExternal")
@@ -45,7 +50,9 @@ fun FirebaseReminder.toLocal() = RoomReminder(
     reminderTime = LocalTime.parse(reminderTime, DateTimeFormatter.ISO_TIME),
     repeatPattern = repeatPattern,
     status = status,
-    createdAt = LocalDateTime.parse(createdAt, DateTimeFormatter.ISO_DATE_TIME)
+    createdAt = LocalDateTime.parse(createdAt, DateTimeFormatter.ISO_DATE_TIME),
+    startDate = LocalDate.parse(startDate, DateTimeFormatter.ISO_DATE),
+    endDate = LocalDate.parse(endDate, DateTimeFormatter.ISO_DATE)
 )
 
 @JvmName("networkToLocal")
@@ -60,7 +67,9 @@ fun RoomReminder.toNetwork() = FirebaseReminder(
     reminderTime = reminderTime.format(DateTimeFormatter.ISO_TIME),
     repeatPattern = repeatPattern,
     status = status,
-    createdAt = createdAt.format(DateTimeFormatter.ISO_DATE_TIME)
+    createdAt = createdAt.format(DateTimeFormatter.ISO_DATE_TIME),
+    startDate = startDate.format(DateTimeFormatter.ISO_DATE),
+    endDate = endDate.format(DateTimeFormatter.ISO_DATE)
 )
 
 fun List<RoomReminder>.toNetwork() = map(RoomReminder::toNetwork)

@@ -59,6 +59,8 @@ class EditAlarmDialog : DialogFragment() {
                 message = message,
                 reminderTime = time,
                 repeatPattern = repeatPattern,
+                startDate = it.startDate,
+                endDate = it.endDate,
                 status = it.status // Keep the current status
             )
         }

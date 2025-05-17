@@ -10,6 +10,7 @@ import com.example.healthcareproject.domain.usecase.reminder.GetRemindersUseCase
 import com.example.healthcareproject.domain.usecase.reminder.UpdateReminderUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import java.time.LocalTime
 import javax.inject.Inject
 
@@ -46,6 +47,8 @@ class ReminderViewModel @Inject constructor(
                 message = reminder.message,
                 reminderTime = reminder.reminderTime,
                 repeatPattern = reminder.repeatPattern,
+                startDate = reminder.startDate,
+                endDate = reminder.endDate,
                 status = status
             )
         }
@@ -57,6 +60,8 @@ class ReminderViewModel @Inject constructor(
         message: String,
         reminderTime: LocalTime,
         repeatPattern: RepeatPattern,
+        startDate: LocalDate,
+        endDate: LocalDate,
         status: Boolean
     ) {
         viewModelScope.launch {
@@ -66,6 +71,8 @@ class ReminderViewModel @Inject constructor(
                 message = message,
                 reminderTime = reminderTime,
                 repeatPattern = repeatPattern,
+                startDate = startDate,
+                endDate = endDate,
                 status = status
             )
         }

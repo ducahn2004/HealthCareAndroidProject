@@ -25,7 +25,7 @@ object DatabaseModule {
             AppDatabase::class.java,
             "AppDatabase.db"
         )
-            .fallbackToDestructiveMigration(false)
+            .fallbackToDestructiveMigration(true)
             .addCallback(object : RoomDatabase.Callback() {
                 override fun onOpen(db: SupportSQLiteDatabase) {
                     super.onOpen(db)

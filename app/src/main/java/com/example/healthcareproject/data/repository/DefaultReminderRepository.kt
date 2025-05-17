@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.util.UUID
@@ -41,6 +42,8 @@ class DefaultReminderRepository @Inject constructor(
         message: String,
         reminderTime: LocalTime,
         repeatPattern: RepeatPattern,
+        startDate: LocalDate,
+        endDate: LocalDate,
         status: Boolean
     ): String {
         val reminderId = withContext(dispatcher) {
@@ -53,6 +56,8 @@ class DefaultReminderRepository @Inject constructor(
             message = message,
             reminderTime = reminderTime,
             repeatPattern = repeatPattern,
+            startDate = startDate,
+            endDate = endDate,
             status = status,
             createdAt = LocalDateTime.now()
         )
@@ -67,6 +72,8 @@ class DefaultReminderRepository @Inject constructor(
         message: String,
         reminderTime: LocalTime,
         repeatPattern: RepeatPattern,
+        startDate: LocalDate,
+        endDate: LocalDate,
         status: Boolean
     ) {
         val reminder = getReminder(reminderId)?.copy(
@@ -74,6 +81,8 @@ class DefaultReminderRepository @Inject constructor(
             message = message,
             reminderTime = reminderTime,
             repeatPattern = repeatPattern,
+            startDate = startDate,
+            endDate = endDate,
             status = status
         ) ?: throw Exception("Reminder (id $reminderId) not found")
 

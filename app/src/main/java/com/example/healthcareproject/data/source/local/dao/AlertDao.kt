@@ -9,22 +9,22 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface AlertDao {
 
-    @Query("SELECT * FROM alert")
+    @Query("SELECT * FROM alerts")
     fun observeAll(): Flow<List<RoomAlert>>
 
-    @Query("SELECT * FROM alert WHERE alertId = :alertId")
+    @Query("SELECT * FROM alerts WHERE alertId = :alertId")
     fun observeById(alertId: String): Flow<RoomAlert>
 
-    @Query("SELECT * FROM alert WHERE userId = :userId")
+    @Query("SELECT * FROM alerts WHERE userId = :userId")
     fun observeByUserId(userId: String): Flow<List<RoomAlert>>
 
-    @Query("SELECT * FROM alert")
+    @Query("SELECT * FROM alerts")
     suspend fun getAll(): List<RoomAlert>
 
-    @Query("SELECT * FROM alert WHERE alertId = :alertId")
+    @Query("SELECT * FROM alerts WHERE alertId = :alertId")
     suspend fun getById(alertId: String): RoomAlert?
 
-    @Query("SELECT * FROM alert WHERE userId = :userId")
+    @Query("SELECT * FROM alerts WHERE userId = :userId")
     suspend fun getByUserId(userId: String): List<RoomAlert>
 
     @Upsert
@@ -33,12 +33,12 @@ interface AlertDao {
     @Upsert
     suspend fun upsertAll(alertList: List<RoomAlert>)
 
-    @Query("DELETE FROM alert WHERE alertId = :alertId")
+    @Query("DELETE FROM alerts WHERE alertId = :alertId")
     suspend fun deleteById(alertId: String): Int
 
-    @Query("DELETE FROM alert WHERE userId = :userId")
+    @Query("DELETE FROM alerts WHERE userId = :userId")
     suspend fun deleteByUserId(userId: String): Int
 
-    @Query("DELETE FROM alert")
+    @Query("DELETE FROM alerts")
     suspend fun deleteAll()
 }

@@ -1,10 +1,7 @@
 package com.example.healthcareproject.presentation.util
 
-import android.Manifest
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
-import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 
 object AlertManagerUtil {
@@ -13,13 +10,10 @@ object AlertManagerUtil {
             data = "tel:$phoneNumber".toUri()
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
-        if (ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.CALL_PHONE
-        ) == PackageManager.PERMISSION_GRANTED) {
+        if (CallPermissionUtil.hasCallPermission(context)) {
             context.startActivity(intent)
         } else {
-            // Có thể gửi notification yêu cầu cấp quyền
+            CallPermissionUtil.notifyRequestCallPermission(context)
         }
     }
 }

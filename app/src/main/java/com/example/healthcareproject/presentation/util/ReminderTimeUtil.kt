@@ -9,6 +9,7 @@ class ReminderTimeUtil {
     companion object {
         fun nextTriggerTime(reminder: Reminder): LocalDateTime {
             val now = LocalDateTime.now()
+
             var nextTime = now.withHour(reminder.reminderTime.hour)
                 .withMinute(reminder.reminderTime.minute)
                 .withSecond(0)
@@ -20,6 +21,16 @@ class ReminderTimeUtil {
                     RepeatPattern.Weekly -> nextTime.plusWeeks(1)
                     else -> nextTime
                 }
+            }
+
+            val startDateTime = reminder.startDate.atTime(reminder.reminderTime)
+            if (nextTime.isBefore(startDateTime)) {
+                nextTime = startDateTime
+            }
+
+            val endDateTime = reminder.endDate.atTime(23, 59)
+            if (nextTime.isAfter(endDateTime)) {
+                return LocalDateTime.MIN
             }
 
             return nextTime

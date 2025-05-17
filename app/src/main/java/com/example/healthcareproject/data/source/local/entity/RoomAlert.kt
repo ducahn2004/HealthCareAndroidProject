@@ -9,7 +9,7 @@ import com.example.healthcareproject.data.source.local.Converters
 import java.time.LocalDateTime
 
 @Entity(
-    tableName = "alert",
+    tableName = "alerts",
     foreignKeys = [
         ForeignKey(
             entity = RoomUser::class,

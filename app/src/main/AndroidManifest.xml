@@ -7,12 +7,12 @@
         android:required="false" />
 
     <uses-permission android:name="android.permission.INTERNET" />
-
     <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.SEND_SMS" />
-
-    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT"/>
 
     <application
         android:name=".HealthCareProjectApplication"
@@ -27,33 +27,40 @@
         android:enableOnBackInvokedCallback="true"
         tools:targetApi="33">
 
-        <!-- SplashActivity: Launcher activity -->
+        <!-- Activities -->
         <activity
             android:name=".presentation.ui.activity.SplashActivity"
             android:exported="true">
-
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <!-- MainActivity -->
         <activity
             android:name=".presentation.ui.activity.MainActivity"
             android:exported="false" />
 
-
-        <!-- AuthActivity -->
         <activity
             android:name=".presentation.ui.activity.AuthActivity"
             android:exported="false" />
+
+        <activity
+            android:name=".presentation.ui.activity.ReminderActivity"
+            android:launchMode="singleTop"
+            android:showWhenLocked="true"
+            android:turnScreenOn="true"
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar" />
+
+        <!-- MetaData -->
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
 
-        <receiver android:name=".presentation.receiver.BootReceiver"
+        <!-- BootReceiver -->
+        <receiver
+            android:name=".presentation.receiver.BootReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -61,8 +68,22 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".presentation.receiver.CallAlertReceiver" android:exported="false" />
+        <!-- ReminderReceiver -->
+        <receiver
+            android:name=".presentation.receiver.ReminderReceiver"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.SCHEDULE_EXACT_ALARM">
+            <intent-filter>
+                <action android:name="ACTION_REMINDER" />
+            </intent-filter>
+        </receiver>
 
+        <!-- CallAlertReceiver -->
+        <receiver
+            android:name=".presentation.receiver.CallAlertReceiver"
+            android:exported="true"
+            android:permission="android.permission.CALL_PHONE" />
 
     </application>
 

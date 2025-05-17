@@ -6,6 +6,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import com.example.healthcareproject.presentation.receiver.ReminderReceiver
+import timber.log.Timber
 import java.time.LocalDateTime
 import java.time.ZoneId
 
@@ -20,6 +21,7 @@ object AlarmManagerUtil {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
         val intent = Intent(context, ReminderReceiver::class.java).apply {
+            action = "ACTION_REMINDER"
             putExtra("reminderId", reminderId)
         }
 
@@ -37,6 +39,9 @@ object AlarmManagerUtil {
             triggerMillis,
             pendingIntent
         )
+
+        Timber.tag("AlarmManagerUtil")
+            .d("Set alarm for reminderId=$reminderId at $triggerTime ($triggerMillis)")
     }
 
     fun cancelReminderAlarm(context: Context, reminderId: String) {
