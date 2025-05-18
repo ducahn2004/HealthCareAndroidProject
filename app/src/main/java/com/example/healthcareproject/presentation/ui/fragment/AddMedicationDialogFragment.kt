@@ -1,6 +1,5 @@
 package com.example.healthcareproject.presentation.ui.fragment
 
-import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -164,7 +163,6 @@ class AddMedicationDialogFragment : DialogFragment() {
         }
     }
 
-    @SuppressLint("SetTextI18n")
     private fun setupButtons() {
         if (medicationToEdit != null) {
             binding.btnAdd.text = "Update"
@@ -203,7 +201,7 @@ class AddMedicationDialogFragment : DialogFragment() {
             Toast.makeText(requireContext(), "Valid frequency is required", Toast.LENGTH_SHORT).show()
             return false
         }
-        if (viewModel.timeOfDay.get()?.split(",")?.map { it.trim() }?.none { it.isNotEmpty() } != false) {
+        if (viewModel.timeOfDay.get()?.split(",")?.map { it.trim() }?.filter { it.isNotEmpty() }?.isEmpty() != false) {
             Toast.makeText(requireContext(), "At least one time of day is required", Toast.LENGTH_SHORT).show()
             return false
         }

@@ -22,7 +22,7 @@ class PillViewModel @Inject constructor(
     private val getMedicationsUseCase: GetMedicationsUseCase,
     private val deleteMedicationUseCase: DeleteMedicationUseCase
 ) : ViewModel() {
-    private val _isLoading = MutableLiveData(false)
+    private val _isLoading = MutableLiveData<Boolean>(false)
     val isLoading: LiveData<Boolean> = _isLoading
 
     private val _currentMedications = MutableLiveData<List<Medication>>(emptyList())
@@ -34,10 +34,10 @@ class PillViewModel @Inject constructor(
     private val _error = MutableLiveData<String?>(null)
     val error: LiveData<String?> = _error
 
-    private val _noCurrentMedicationsVisible = MutableLiveData(false)
+    private val _noCurrentMedicationsVisible = MutableLiveData<Boolean>(false)
     val noCurrentMedicationsVisible: LiveData<Boolean> = _noCurrentMedicationsVisible
 
-    private val _noPastMedicationsVisible = MutableLiveData(false)
+    private val _noPastMedicationsVisible = MutableLiveData<Boolean>(false)
     val noPastMedicationsVisible: LiveData<Boolean> = _noPastMedicationsVisible
 
     private val _searchEvent = MutableSharedFlow<String>()
@@ -56,7 +56,7 @@ class PillViewModel @Inject constructor(
         loadMedications()
     }
 
-    private fun loadMedications() {
+    fun loadMedications() {
         viewModelScope.launch {
             _isLoading.value = true
             _error.value = null
@@ -120,14 +120,14 @@ class PillViewModel @Inject constructor(
         val today = LocalDate.now()
 
         val current = medications.filter { medication ->
-            val endDate = medication.endDate
+            val endDate = medication.endDate ?: LocalDate.now().plusYears(1)
             !today.isBefore(medication.startDate) && !today.isAfter(endDate)
         }.sortedWith(
             compareByDescending<Medication> { it.startDate }.thenBy { it.name }
         )
 
         val past = medications.filter { medication ->
-            val endDate = medication.endDate
+            val endDate = medication.endDate ?: LocalDate.now().plusYears(1)
             today.isAfter(endDate)
         }.sortedWith(
             compareByDescending<Medication> { it.endDate }.thenBy { it.name }
