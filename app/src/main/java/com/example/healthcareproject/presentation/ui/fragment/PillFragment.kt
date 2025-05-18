@@ -61,7 +61,7 @@ class PillFragment : Fragment() {
     private fun setupViewPager() {
         val pagerAdapter = MedicationPagerAdapter(this)
         binding.viewPager.adapter = pagerAdapter
-        binding.viewPager.offscreenPageLimit = 2 // Keep both fragments in memory
+        binding.viewPager.offscreenPageLimit = 2
         TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
             tab.text = when (position) {
                 0 -> "Current Medications"

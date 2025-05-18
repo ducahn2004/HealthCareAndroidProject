@@ -16,9 +16,6 @@ class HRViewModel @Inject constructor(
     private val getMeasurementRealTimeUseCase: GetMeasurementRealTimeUseCase
 ) : ViewModel() {
 
-    private val _heartRate = MutableLiveData<Float>()
-    val heartRate: LiveData<Float> get() = _heartRate
-
     private val _heartRateHistory = MutableLiveData<List<Measurement>>()
     val heartRateHistory: LiveData<List<Measurement>> get() = _heartRateHistory
 
@@ -27,14 +24,15 @@ class HRViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             getMeasurementRealTimeUseCase().collectLatest { measurements ->
-                val latestMeasurements = measurements.takeLast(maxDataPoints)
-                _heartRateHistory.postValue(latestMeasurements)
-
-                val latestBpm = latestMeasurements.lastOrNull()?.bpm
-                latestBpm?.let {
-                    _heartRate.postValue(it)
+                val sortedMeasurements = measurements.sortedBy { it.dateTime }
+                val latestMeasurements = if (sortedMeasurements.size > maxDataPoints) {
+                    sortedMeasurements.takeLast(maxDataPoints)
+                } else {
+                    sortedMeasurements
                 }
+                _heartRateHistory.postValue(latestMeasurements)
             }
         }
     }
 }
+

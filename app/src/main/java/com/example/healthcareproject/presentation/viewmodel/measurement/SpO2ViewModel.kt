@@ -16,9 +16,6 @@ class SpO2ViewModel @Inject constructor(
     private val getMeasurementRealTimeUseCase: GetMeasurementRealTimeUseCase
 ) : ViewModel() {
 
-    private val _spO2 = MutableLiveData<Float>()
-    val spO2: LiveData<Float> get() = _spO2
-
     private val _spO2History = MutableLiveData<List<Measurement>>()
     val spO2History: LiveData<List<Measurement>> get() = _spO2History
 
@@ -27,13 +24,13 @@ class SpO2ViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             getMeasurementRealTimeUseCase().collectLatest { measurements ->
-                val latestMeasurements = measurements.takeLast(maxDataPoints)
-                _spO2History.postValue(latestMeasurements)
-
-                val latestSpO2 = latestMeasurements.lastOrNull()?.spO2
-                latestSpO2?.let {
-                    _spO2.postValue(it)
+                val sortedMeasurements = measurements.sortedBy { it.dateTime }
+                val latestMeasurements = if (sortedMeasurements.size > maxDataPoints) {
+                    sortedMeasurements.takeLast(maxDataPoints)
+                } else {
+                    sortedMeasurements
                 }
+                _spO2History.postValue(latestMeasurements)
             }
         }
     }

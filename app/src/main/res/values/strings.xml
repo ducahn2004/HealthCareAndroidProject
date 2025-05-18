@@ -166,10 +166,27 @@
     <string name="select_priority">Select priority</string>
     <string name="alarms">Alarm</string>
     <string name="alarm">Alarm</string>
-    <string name="current">Curnent</string>
+    <string name="current">Current</string>
     <string name="check_email_for_link">Check your email for the verification link: </string>
     <string name="check_email_for_link_default">Check your email for the verification link.</string>
     <string name="arrow_icon">Arrow Right Icon\n</string>
+    <string name="loading_medications">Loading medications</string>
+    <string name="clear_search">Clear search</string>
+    <string name="search_medications">Search medications</string>
+    <string name="medication_management">Medication</string>
+    <string name="medication_filter_tabs">Medication filter tabs</string>
+    <string name="add_medication">Add medication</string>
+
+    <string name="dosage">Dosage:</string>
+    <string name="frequency">Frequency:</string>
+    <string name="from">From:</string>
+    <string name="to">To:</string>
+    <string name="time_of_day">Time of Day:</string>
+    <string name="meal_relation">Meal Relation:</string>
+    <string name="notes">Notes:</string>
+    <string name="edit_medication">Edit Medication</string>
+    <string name="delete_medication">Delete Medication</string>
+
     <string-array name="gender_options">
         <item>Male</item>
         <item>Female</item>

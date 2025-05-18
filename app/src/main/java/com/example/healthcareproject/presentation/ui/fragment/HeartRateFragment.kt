@@ -42,6 +42,8 @@ class HeartRateFragment : Fragment() {
     private val timeStamps = mutableListOf<Long>()
     private lateinit var timeFrame: String
 
+    private val maxDataPoints = 100
+
     private val viewModel: HRViewModel by viewModels()
 
     override fun onCreateView(
@@ -62,11 +64,7 @@ class HeartRateFragment : Fragment() {
         ivHeartIcon = view.findViewById(R.id.iv_heart_icon)
 
         view.findViewById<ImageView>(R.id.ic_back_heart_rate_to_home).setOnClickListener {
-            val previousDestinationId = findNavController().previousBackStackEntry?.destination?.id
-            when (previousDestinationId) {
-                R.id.notificationFragment -> findNavController().navigate(R.id.action_back_heart_rate_to_notification)
-                else -> findNavController().navigate(R.id.action_back_heart_rate_to_home)
-            }
+            findNavController().popBackStack()
         }
 
         setupTabLayout()
@@ -83,25 +81,26 @@ class HeartRateFragment : Fragment() {
         viewModel.heartRateHistory.observe(viewLifecycleOwner) { measurements ->
             if (measurements.isNullOrEmpty()) return@observe
 
-            heartRateData.clear()
-            timeStamps.clear()
+            val lastTimestamp = if (timeStamps.isEmpty()) 0L else timeStamps.last()
 
-            measurements.forEach {
-                heartRateData.add(it.bpm)
-
-                // Convert LocalDateTime to epoch millis
-                val epochMillis = it.dateTime
+            for (m in measurements) {
+                val epochMillis = m.dateTime
                     .atZone(java.time.ZoneId.systemDefault())
                     .toInstant()
                     .toEpochMilli()
 
-                timeStamps.add(epochMillis)
+                if (epochMillis > lastTimestamp) {
+                    if (heartRateData.size >= maxDataPoints) {
+                        heartRateData.removeAt(0)
+                        timeStamps.removeAt(0)
+                    }
+                    heartRateData.add(m.bpm)
+                    timeStamps.add(epochMillis)
+                }
             }
-
             updateChartData()
         }
     }
-
 
     private fun setupTabLayout() {
         tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
@@ -115,7 +114,6 @@ class HeartRateFragment : Fragment() {
                 }
                 updateChartData()
             }
-
             override fun onTabUnselected(tab: TabLayout.Tab?) {}
             override fun onTabReselected(tab: TabLayout.Tab?) {}
         })
@@ -183,8 +181,9 @@ class HeartRateFragment : Fragment() {
         tvMaxValue.text = "${maxValue.toInt()}"
         tvAverageLabel.text = "Average ${averageValue.toInt()} BPM"
 
-        val alertThreshold = 120f
-        val isAlert = heartRateData.any { it > alertThreshold }
+        val maxAlertThreshold = 120f
+        val minAlertThreshold = 55f
+        val isAlert = heartRateData.any { it > maxAlertThreshold || it < minAlertThreshold}
 
         val gradientColors = if (isAlert) {
             intArrayOf(
@@ -210,15 +209,17 @@ class HeartRateFragment : Fragment() {
         val chartValueColor = if (isAlert) R.color.alert_text_color else R.color.chart_value_text_normal
 
         val dataSet = LineDataSet(entries, "Heart Rate (BPM)").apply {
+            mode = LineDataSet.Mode.CUBIC_BEZIER
+            cubicIntensity = 0.2f
             color = resources.getColor(R.color.chart_line_color, null)
-            setCircleColor(Color.BLACK)
-            lineWidth = 2f
-            circleRadius = 4f
+            setDrawCircles(false)
+//            setCircleColor(Color.BLACK)
+            lineWidth = 2.5f
+            circleRadius = 5f
             setDrawCircleHole(false)
             setDrawValues(true)
             valueTextColor = resources.getColor(chartValueColor, null)
             valueTextSize = 10f
-            enableDashedLine(10f, 5f, 0f)
             setDrawFilled(true)
             fillDrawable = GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, gradientColors)
         }

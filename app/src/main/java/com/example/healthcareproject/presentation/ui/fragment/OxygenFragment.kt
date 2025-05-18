@@ -75,11 +75,11 @@ class OxygenFragment : Fragment() {
             }
         }
 
-        timeFrame = "MINUTE"
         setupTabLayout()
         setupLineChart()
-
         observeSpO2()
+
+        timeFrame = "MINUTE"
 
         return view
     }
@@ -88,21 +88,23 @@ class OxygenFragment : Fragment() {
         viewModel.spO2History.observe(viewLifecycleOwner) { measurements ->
             if (measurements.isNullOrEmpty()) return@observe
 
-            spo2Data.clear()
-            timeStamps.clear()
+            val lastTimestamp = timeStamps.lastOrNull() ?: 0L
 
-            measurements.forEach {
-                spo2Data.add(it.spO2)
-
-                // Convert LocalDateTime to epoch millis
-                val epochMillis = it.dateTime
+            for (m in measurements) {
+                val epochMillis = m.dateTime
                     .atZone(java.time.ZoneId.systemDefault())
                     .toInstant()
                     .toEpochMilli()
 
-                timeStamps.add(epochMillis)
+                if (epochMillis > lastTimestamp) {
+                    if (spo2Data.size >= 100) {
+                        spo2Data.removeAt(0)
+                        timeStamps.removeAt(0)
+                    }
+                    spo2Data.add(m.spO2)
+                    timeStamps.add(epochMillis)
+                }
             }
-
             updateChartData()
         }
     }
@@ -119,7 +121,6 @@ class OxygenFragment : Fragment() {
                 }
                 updateChartData()
             }
-
             override fun onTabUnselected(tab: TabLayout.Tab?) {}
             override fun onTabReselected(tab: TabLayout.Tab?) {}
         })
@@ -133,42 +134,43 @@ class OxygenFragment : Fragment() {
             setScaleEnabled(true)
             setPinchZoom(true)
             legend.isEnabled = false
-
             xAxis.apply {
                 setDrawGridLines(false)
-                setDrawLabels(true)
                 position = XAxis.XAxisPosition.BOTTOM
-                textColor = ContextCompat.getColor(requireContext(), R.color.chart_axis_text_color)
+                textColor = Color.BLACK
                 textSize = 10f
                 labelRotationAngle = 45f
             }
-
             axisLeft.apply {
                 setDrawGridLines(true)
                 axisMinimum = 80f
-                axisMaximum = 100f
+                axisMaximum = 110f
             }
             axisRight.isEnabled = false
-
             setBackgroundColor(Color.TRANSPARENT)
         }
     }
 
     @SuppressLint("SetTextI18n")
     private fun updateChartData() {
-        if (spo2Data.isEmpty()) return
+        val entries = spo2Data.mapIndexed { index, value ->
+            Entry(index.toFloat(), value)
+        }
 
-        val entries = spo2Data.mapIndexed { index, value -> Entry(index.toFloat(), value) }
-
-        val labels = timeStamps.take(entries.size).map {
+        val labels = timeStamps.map {
             when (timeFrame) {
                 "MINUTE" -> "${(it / 1000) % 60}s"
                 "HOUR" -> "${(it / 1000 / 60) % 60}m"
                 "DAY" -> "${(it / 1000 / 3600) % 24}h"
                 "WEEK" -> {
                     when ((it / 1000 / 86400).toInt() % 7) {
-                        0 -> "Mon"; 1 -> "Tue"; 2 -> "Wed"; 3 -> "Thu"
-                        4 -> "Fri"; 5 -> "Sat"; else -> "Sun"
+                        0 -> "Mon"
+                        1 -> "Tue"
+                        2 -> "Wed"
+                        3 -> "Thu"
+                        4 -> "Fri"
+                        5 -> "Sat"
+                        else -> "Sun"
                     }
                 }
                 else -> "${(it / 1000) % 60}s"
@@ -177,23 +179,26 @@ class OxygenFragment : Fragment() {
 
         val minValue = spo2Data.minOrNull() ?: 0f
         val maxValue = spo2Data.maxOrNull() ?: 0f
-        val avgValue = spo2Data.average().toFloat()
-        tvSpO2Value.text = "${spo2Data.last().toInt()}"
+        val averageValue = spo2Data.average().toFloat()
+        val latestSpO2 = spo2Data.lastOrNull()?.toInt() ?: 0
+
+        tvSpO2Value.text = "$latestSpO2"
         tvMinValue.text = "${minValue.toInt()}"
         tvMaxValue.text = "${maxValue.toInt()}"
-        tvAverageLabel.text = "Average ${avgValue.toInt()}%"
+        tvAverageLabel.text = "Average ${averageValue.toInt()} %"
 
-        val isAlert = spo2Data.any { it < 95f }
+        val alertThreshold = 93f
+        val isAlert = spo2Data.any { it < alertThreshold }
 
         val gradientColors = if (isAlert) {
             intArrayOf(
-                ContextCompat.getColor(requireContext(), R.color.chart_gradient_alert_top),
-                ContextCompat.getColor(requireContext(), R.color.chart_gradient_alert_bottom)
+                resources.getColor(R.color.chart_gradient_alert_top, null),
+                resources.getColor(R.color.chart_gradient_alert_bottom, null)
             )
         } else {
             intArrayOf(
-                ContextCompat.getColor(requireContext(), R.color.chart_gradient_normal_top),
-                ContextCompat.getColor(requireContext(), R.color.chart_gradient_normal_bottom)
+                resources.getColor(R.color.chart_gradient_normal_top, null),
+                resources.getColor(R.color.chart_gradient_normal_bottom, null)
             )
         }
 
@@ -209,20 +214,18 @@ class OxygenFragment : Fragment() {
         val chartValueColor = if (isAlert) R.color.alert_text_color else R.color.chart_value_text_normal
 
         val dataSet = LineDataSet(entries, "SpO2 (%)").apply {
-            color = ContextCompat.getColor(requireContext(), R.color.chart_line_color)
-            setCircleColor(Color.BLACK)
-            lineWidth = 2f
-            circleRadius = 4f
+            mode = LineDataSet.Mode.CUBIC_BEZIER
+            cubicIntensity = 0.2f
+            color = resources.getColor(R.color.chart_line_color, null)
+            setDrawCircles(false)
+            lineWidth = 2.5f
+            circleRadius = 5f
             setDrawCircleHole(false)
             setDrawValues(true)
-            valueTextColor = ContextCompat.getColor(requireContext(), chartValueColor)
+            valueTextColor = resources.getColor(chartValueColor, null)
             valueTextSize = 10f
-            enableDashedLine(10f, 5f, 0f)
             setDrawFilled(true)
-            fillDrawable = GradientDrawable(
-                GradientDrawable.Orientation.TOP_BOTTOM,
-                gradientColors
-            )
+            fillDrawable = GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, gradientColors)
         }
 
         lineChart.xAxis.valueFormatter = IndexAxisValueFormatter(labels)
