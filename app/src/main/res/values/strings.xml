@@ -186,6 +186,7 @@
     <string name="notes">Notes:</string>
     <string name="edit_medication">Edit Medication</string>
     <string name="delete_medication">Delete Medication</string>
+    <string name="search_icon">Search Icon</string>
 
     <string-array name="gender_options">
         <item>Male</item>

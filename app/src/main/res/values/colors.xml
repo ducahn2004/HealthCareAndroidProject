@@ -48,5 +48,6 @@
     <color name="purple_800">#6A1B9A</color>
     <color name="error">#D32F2F</color>
     <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
 
 </resources>

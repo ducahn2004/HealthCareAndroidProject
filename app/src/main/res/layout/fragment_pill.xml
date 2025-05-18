@@ -21,66 +21,82 @@
             android:id="@+id/tv_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Medication Management"
+            android:text="@string/medications"
             android:textColor="@color/primary_text_color"
-            android:textSize="26sp"
+            android:textSize="28sp"
+            android:fontFamily="sans-serif-medium"
             android:textStyle="bold"
+            android:layout_marginTop="16dp"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginBottom="16dp" />
+            app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- Search container with EditText and Clear button -->
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <!-- Search container -->
+        <androidx.cardview.widget.CardView
             android:id="@+id/search_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="8dp"
+            app:cardCornerRadius="28dp"
+            app:cardElevation="4dp"
             app:layout_constraintTop_toBottomOf="@id/tv_title"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="8dp">
+            app:layout_constraintEnd_toEndOf="parent">
 
-            <!-- Search EditText -->
-            <EditText
-                android:id="@+id/et_search"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:minHeight="48dp"
-                android:hint="Search medications..."
-                android:textColor="@color/primary_text_color"
-                android:textColorHint="@color/secondary_text_color"
-                android:backgroundTint="@color/light_gray"
-                android:drawableStart="@android:drawable/ic_menu_search"
-                android:drawablePadding="8dp"
-                android:paddingEnd="40dp"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@color/surface"
+                android:paddingStart="16dp"
+                android:paddingEnd="8dp">
 
-            <!-- Clear Search Button -->
-            <ImageButton
-                android:id="@+id/clearSearchButton"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:src="@android:drawable/ic_menu_close_clear_cancel"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Clear search"
-                android:visibility="gone"
-                app:layout_constraintTop_toTopOf="@id/et_search"
-                app:layout_constraintBottom_toBottomOf="@id/et_search"
-                app:layout_constraintEnd_toEndOf="@id/et_search"
-                android:layout_marginEnd="4dp" />
+                <!-- Search Icon -->
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@android:drawable/ic_menu_search"
+                    android:contentDescription="@string/search_icon"
+                    app:tint="@color/black" />
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                <!-- EditText -->
+                <EditText
+                    android:id="@+id/et_search"
+                    android:layout_width="282dp"
+                    android:layout_height="match_parent"
+                    android:autofillHints=""
+                    android:background="@android:color/transparent"
+                    android:hint="@string/search_medications"
+                    android:inputType="text"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:textColor="@color/black"
+                    android:textColorHint="@color/gray_dark"
+                    android:textSize="16sp" />
 
-        <!-- ProgressBar -->
+                <!-- Clear Button -->
+                <ImageButton
+                    android:id="@+id/clearSearchButton"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@android:drawable/ic_menu_close_clear_cancel"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/clear_search"
+                    android:visibility="gone"
+                    app:tint="@color/gray_dark" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Progress Bar -->
         <ProgressBar
             android:id="@+id/progress_bar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:visibility="@{viewModel.isLoading ? View.VISIBLE : View.GONE}"
-            android:contentDescription="Loading medications"
+            android:contentDescription="@string/loading_medications"
             app:layout_constraintTop_toBottomOf="@id/search_container"
-            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -91,29 +107,38 @@
             android:id="@+id/tab_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="8dp"
+            android:contentDescription="@string/medication_filter_tabs"
+            app:tabIndicatorColor="@color/primary"
+            app:tabSelectedTextColor="@color/primary"
+            app:tabTextColor="@color/gray_dark"
+            app:tabTextAppearance="@style/TextAppearance.MaterialComponents.Body1"
+            app:tabRippleColor="@color/ripple"
+            app:tabIndicatorFullWidth="false"
+            app:layout_constraintTop_toBottomOf="@id/search_container"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/search_container"
-            app:tabGravity="fill"
-            app:tabMode="fixed" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:tabMode="fixed"
+            app:tabGravity="fill" />
 
         <!-- ViewPager2 -->
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/view_pager"
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:layout_marginTop="8dp"
             app:layout_constraintTop_toBottomOf="@id/tab_layout"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- Floating Action Button to Add Medication -->
+        <!-- FloatingActionButton -->
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab_add_medication"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@android:drawable/ic_input_add"
-            android:contentDescription="Add new medication"
+            android:contentDescription="@string/add_medication"
             app:backgroundTint="@color/fab_background"
             app:tint="@color/fab_icon_color"
             app:layout_constraintEnd_toEndOf="parent"
