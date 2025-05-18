@@ -28,7 +28,6 @@ class SplashActivity : AppCompatActivity() {
 
     private fun loadThemePreference(): Int {
         val sharedPreferences = getSharedPreferences("theme_prefs", 0)
-        // Lấy theme_mode kiểu int, mặc định là MODE_NIGHT_FOLLOW_SYSTEM
         return sharedPreferences.getInt(
             "theme_mode",
             AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM

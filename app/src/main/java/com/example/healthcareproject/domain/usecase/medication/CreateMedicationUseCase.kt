@@ -53,12 +53,7 @@ class CreateMedicationUseCase @Inject constructor(
             )
 
             if (isTodayInRange(endDate)) {
-                val message = reminderMessage(
-                    name = name,
-                    dosageUnit = dosageUnit,
-                    dosageAmount = dosageAmount,
-                    mealRelation = mealRelation
-                )
+                val message = reminderMessage(name, dosageUnit, dosageAmount, mealRelation)
                 val repeatPattern = determineRepeatPattern(startDate, endDate)
                 timeOfDay.forEach { time ->
                     createReminderUseCase(

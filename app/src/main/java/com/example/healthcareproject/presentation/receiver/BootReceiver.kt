@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import com.example.healthcareproject.presentation.service.MeasurementMonitorService
 import androidx.core.content.ContextCompat
+import timber.log.Timber
 
 class BootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent?) {
@@ -12,5 +13,6 @@ class BootReceiver : BroadcastReceiver() {
             val serviceIntent = Intent(context, MeasurementMonitorService::class.java)
             ContextCompat.startForegroundService(context, serviceIntent)
         }
+        Timber.tag("BootReceiver").d("BootReceiver triggered with action: ${intent?.action}")
     }
 }

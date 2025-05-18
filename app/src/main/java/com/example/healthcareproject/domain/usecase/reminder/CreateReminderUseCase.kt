@@ -3,9 +3,9 @@ package com.example.healthcareproject.domain.usecase.reminder
 import android.content.Context
 import com.example.healthcareproject.presentation.util.ReminderTimeUtil
 import com.example.healthcareproject.presentation.util.AlarmManagerUtil
+import com.example.healthcareproject.presentation.util.PermissionManager
 import com.example.healthcareproject.domain.model.RepeatPattern
 import com.example.healthcareproject.domain.repository.ReminderRepository
-import com.example.healthcareproject.presentation.util.ExactAlarmPermissionUtil
 import java.time.LocalDate
 import java.time.LocalTime
 import javax.inject.Inject
@@ -37,7 +37,8 @@ class CreateReminderUseCase @Inject constructor(
 
         val nextTriggerTime = ReminderTimeUtil.nextTriggerTime(reminder)
 
-        val hasPermission = ExactAlarmPermissionUtil.checkAndRequestPermission(context)
+        val hasPermission = PermissionManager.checkAndRequestExactAlarmPermission(context)
+
         if (hasPermission) {
             AlarmManagerUtil.setReminderAlarm(context, reminder.reminderId, nextTriggerTime)
         }

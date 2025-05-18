@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import java.time.LocalDateTime
 import java.util.UUID
 import javax.inject.Inject
@@ -54,6 +55,9 @@ class DefaultAlertRepository @Inject constructor(
         )
         localDataSource.upsert(alert.toLocal())
         saveAlertToNetwork()
+
+        Timber.tag("DefaultAlertRepository").d("Alert created with ID: $alertId")
+
         return alertId
     }
 

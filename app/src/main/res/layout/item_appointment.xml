@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
-        <import type="com.example.healthcareproject.presentation.ui.utils.DateFormatter" />
+        <import type="com.example.healthcareproject.presentation.util.DateFormatter" />
         <variable
             name="appointment"
             type="com.example.healthcareproject.domain.model.Appointment" />

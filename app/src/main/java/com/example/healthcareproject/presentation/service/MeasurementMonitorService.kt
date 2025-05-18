@@ -8,6 +8,7 @@ import com.example.healthcareproject.domain.repository.MeasurementRepository
 import com.example.healthcareproject.domain.usecase.measurement.MeasurementAlertUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -30,6 +31,7 @@ class MeasurementMonitorService : LifecycleService() {
             .setSmallIcon(R.drawable.ic_heart_rate)
             .build()
         startForeground(1, notification)
+        Timber.tag("MeasurementMonitorService").d("Foreground service started")
     }
 
     private fun observeMeasurements() {
@@ -37,6 +39,7 @@ class MeasurementMonitorService : LifecycleService() {
             measurementRepository.getMeasurementsRealtime().collect { measurements ->
                 measurements.forEach { measurement ->
                     alertUseCase.checkThresholdAndAlert(this@MeasurementMonitorService, measurement)
+                    Timber.tag("MeasurementMonitorService").d("Measurement: ${measurement.measurementId}")
                 }
             }
         }

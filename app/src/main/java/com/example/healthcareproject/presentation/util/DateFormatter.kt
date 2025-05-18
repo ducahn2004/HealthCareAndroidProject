@@ -1,4 +1,4 @@
-package com.example.healthcareproject.presentation.ui.utils
+package com.example.healthcareproject.presentation.util
 
 import java.time.LocalDate
 import java.time.LocalDateTime

@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -86,6 +87,7 @@ class DefaultEmergencyInfoRepository @Inject constructor(
             refresh()
         }
         return withContext(dispatcher) {
+            Timber.tag("DefaultEmergencyInfoRepository").d("Fetching emergency infos to call")
             localDataSource.getAll().toExternal()
         }
     }
