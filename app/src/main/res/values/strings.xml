@@ -182,7 +182,7 @@
     <string name="from">From:</string>
     <string name="to">To:</string>
     <string name="time_of_day">Time of Day:</string>
-    <string name="meal_relation">Meal Relation:</string>
+    <string name="meal_relation">Meal Relation</string>
     <string name="notes">Notes:</string>
     <string name="edit_medication">Edit Medication</string>
     <string name="delete_medication">Delete Medication</string>
@@ -214,6 +214,13 @@
     <string name="location_icon">Location Icon</string>
     <string name="time_icon">Time Icon</string>
     <string name="date_icon">Date Icon</string>
+    <string name="gender">Gender</string>
+    <string name="blood_type">Blood Type</string>
+    <string name="save_user">Save User</string>
+    <string name="users_will_be_displayed_here">Users will be displayed here</string>
+    <string name="phone">Phone</string>
+    <string name="address">Address</string>
+    <string name="user_id">User ID</string>
 
 
     <string-array name="gender_options">

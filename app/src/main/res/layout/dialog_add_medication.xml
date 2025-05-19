@@ -72,10 +72,10 @@
                 android:layout_height="wrap_content"
                 android:baselineAligned="false"
                 android:orientation="horizontal"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="12dp"
                 android:gravity="center_vertical">
 
-                <!-- Amount: chiếm 1/3 -->
+                <!-- Amount: chiếm 1/5 -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -102,7 +102,7 @@
                         android:text="@={viewModel.dosageAmount}"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- Unit: chiếm 2/3 -->
+                <!-- Unit: chiếm 2/5 -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -110,18 +110,24 @@
                     android:orientation="vertical"
                     android:paddingStart="8dp"
                     tools:ignore="RtlSymmetry">
-
-                    <TextView
-                        android:id="@+id/tv_dosage_unit_label"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/dosage_unit_label"
-                        android:textColor="?android:attr/textColorPrimary"
-                        android:textSize="16sp"
-                        android:labelFor="@id/spinner_dosage_unit" />
-
                     <Spinner
                         android:id="@+id/spinner_dosage_unit"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:background="@drawable/spinner_border"
+                        android:paddingHorizontal="12dp" />
+                </LinearLayout>
+
+                <!-- Relation: chiếm 2/5 -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:orientation="vertical"
+                    android:paddingStart="8dp"
+                    tools:ignore="RtlSymmetry">
+                    <Spinner
+                        android:id="@+id/spinner_meal_relation"
                         android:layout_width="match_parent"
                         android:layout_height="48dp"
                         android:background="@drawable/spinner_border"
@@ -134,7 +140,7 @@
                 android:layout_height="wrap_content"
                 android:baselineAligned="false"
                 android:orientation="horizontal"
-                android:layout_marginTop="8dp">
+                android:layout_marginTop="12dp">
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="0dp"
@@ -191,46 +197,12 @@
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="8dp"
-                android:gravity="center_vertical">
-
-                <!-- Label -->
-                <TextView
-                    android:id="@+id/tv_meal_relation"
-                    android:layout_width="0dp"
-                    android:layout_height="48dp"
-                    android:layout_weight="1"
-                    android:gravity="center_vertical"
-                    android:paddingStart="12dp"
-                    android:text="@string/meal_relation_label"
-                    android:textColor="?android:attr/textColorPrimary"
-                    android:textSize="16sp"
-                    android:background="@drawable/spinner_border"
-                    tools:ignore="RtlSymmetry" />
-
-                <!-- Spinner -->
-                <androidx.appcompat.widget.AppCompatSpinner
-                    android:id="@+id/spinner_meal_relation"
-                    android:layout_width="0dp"
-                    android:layout_height="48dp"
-                    android:layout_weight="2"
-                    android:gravity="center_vertical"
-                    android:spinnerMode="dropdown"
-                    android:background="@drawable/spinner_border"
-                    android:paddingStart="8dp"
-                    android:paddingEnd="12dp" />
-            </LinearLayout>
-
             <!-- Start Date and End Date -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginTop="8dp">
+                android:layout_marginTop="12dp">
 
                 <TextView
                     android:id="@+id/tv_start_date"
