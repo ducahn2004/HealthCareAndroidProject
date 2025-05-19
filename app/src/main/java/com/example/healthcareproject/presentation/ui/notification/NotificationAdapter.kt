@@ -2,60 +2,50 @@ package com.example.healthcareproject.presentation.ui.notification
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
+import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.healthcareproject.R
 import com.example.healthcareproject.databinding.ItemNotificationBinding
+import com.example.healthcareproject.present.viewmodel.notification.NotificationViewModel
 
 class NotificationAdapter(
-    private val onItemClick: (Notification) -> Unit // Callback cho sự kiện nhấn
-) : ListAdapter<Notification, NotificationAdapter.NotificationViewHolder>(NotificationDiffCallback()) {
+    private val viewModel: NotificationViewModel
+) : ListAdapter<NotificationViewModel.FormattedNotification, NotificationAdapter.NotificationViewHolder>(NotificationDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NotificationViewHolder {
-        val binding = ItemNotificationBinding.inflate(
-            LayoutInflater.from(parent.context), parent, false
+        val binding: ItemNotificationBinding = DataBindingUtil.inflate(
+            LayoutInflater.from(parent.context),
+            R.layout.item_notification,
+            parent,
+            false
         )
-        return NotificationViewHolder(binding, onItemClick)
+        return NotificationViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: NotificationViewHolder, position: Int) {
         val notification = getItem(position)
-        holder.bind(notification)
-        val backgroundColor = if (position % 2 == 0) {
-            ContextCompat.getColor(holder.itemView.context, R.color.surface)
-        } else {
-            ContextCompat.getColor(holder.itemView.context, R.color.surface_alternate)
-        }
-        holder.itemView.setBackgroundColor(backgroundColor)
+        holder.bind(notification, viewModel)
     }
 
     class NotificationViewHolder(
-        private val binding: ItemNotificationBinding,
-        private val onItemClick: (Notification) -> Unit
+        private val binding: ItemNotificationBinding
     ) : RecyclerView.ViewHolder(binding.root) {
-
-        fun bind(notification: Notification) {
-            binding.tvTitle.text = notification.title
-            binding.tvMessage.text = notification.message
-            binding.tvTime.text = notification.time
-            binding.ivIcon.setImageResource(notification.iconResId)
-
-            // Xử lý sự kiện nhấn vào item
-            binding.root.setOnClickListener {
-                onItemClick(notification)
-            }
+        fun bind(notification: NotificationViewModel.FormattedNotification, viewModel: NotificationViewModel) {
+            binding.notification = notification
+            binding.viewModel = viewModel
+            binding.executePendingBindings()
         }
     }
-}
 
-class NotificationDiffCallback : DiffUtil.ItemCallback<Notification>() {
-    override fun areItemsTheSame(oldItem: Notification, newItem: Notification): Boolean {
-        return oldItem.id == newItem.id
-    }
+    class NotificationDiffCallback : DiffUtil.ItemCallback<NotificationViewModel.FormattedNotification>() {
+        override fun areItemsTheSame(oldItem: NotificationViewModel.FormattedNotification, newItem: NotificationViewModel.FormattedNotification): Boolean {
+            return oldItem.notificationId == newItem.notificationId
+        }
 
-    override fun areContentsTheSame(oldItem: Notification, newItem: Notification): Boolean {
-        return oldItem == newItem
+        override fun areContentsTheSame(oldItem: NotificationViewModel.FormattedNotification, newItem: NotificationViewModel.FormattedNotification): Boolean {
+            return oldItem == newItem
+        }
     }
 }
