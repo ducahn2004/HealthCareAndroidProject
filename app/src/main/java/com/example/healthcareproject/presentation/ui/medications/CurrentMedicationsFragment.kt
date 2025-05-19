@@ -15,7 +15,7 @@ import com.example.healthcareproject.R
 import com.example.healthcareproject.databinding.FragmentCurrentMedicationsBinding
 import com.example.healthcareproject.domain.model.Medication
 import com.example.healthcareproject.presentation.navigation.MainNavigator
-import com.example.healthcareproject.presentation.viewmodel.PillViewModel
+import com.example.healthcareproject.presentation.viewmodel.medication.PillViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch

@@ -60,19 +60,19 @@ class PillViewModel @Inject constructor(
         viewModelScope.launch {
             _isLoading.value = true
             _error.value = null
-            Timber.d("Loading medications")
+            Timber.Forest.d("Loading medications")
 
             when (val result = getMedicationsUseCase()) {
                 is Result.Success -> {
                     allMedications = result.data
-                    Timber.d("Loaded ${allMedications.size} medications from source")
+                    Timber.Forest.d("Loaded ${allMedications.size} medications from source")
                     filterAndUpdateMedications(currentSearchQuery)
                     _isLoading.value = false
                 }
                 is Result.Error -> {
                     _error.value = result.exception.message ?: "Failed to load medications"
                     _isLoading.value = false
-                    Timber.e(result.exception, "Error loading medications")
+                    Timber.Forest.e(result.exception, "Error loading medications")
                 }
                 is Result.Loading -> {
                     _isLoading.value = true
@@ -89,7 +89,7 @@ class PillViewModel @Inject constructor(
                 _searchEvent.emit(query)
             } catch (e: Exception) {
                 _error.value = "Search failed: ${e.message}"
-                Timber.e(e, "Unexpected error during search")
+                Timber.Forest.e(e, "Unexpected error during search")
             }
         }
     }
@@ -107,11 +107,11 @@ class PillViewModel @Inject constructor(
                                 it.dosageAmount.toString().contains(query)
                     }
                 }
-                Timber.d("Filtered ${filteredMedications.size} medications for query: '$query'")
+                Timber.Forest.d("Filtered ${filteredMedications.size} medications for query: '$query'")
                 updateMedicationLists(filteredMedications.toList()) // New list
             } catch (e: Exception) {
                 _error.value = "Search failed: ${e.message}"
-                Timber.e(e, "Unexpected error during search")
+                Timber.Forest.e(e, "Unexpected error during search")
             }
         }
     }
@@ -133,7 +133,7 @@ class PillViewModel @Inject constructor(
             compareByDescending<Medication> { it.endDate }.thenBy { it.name }
         )
 
-        Timber.d("Current medications: ${current.size}, Past medications: ${past.size}")
+        Timber.Forest.d("Current medications: ${current.size}, Past medications: ${past.size}")
 
         _currentMedications.value = current
         _pastMedications.value = past

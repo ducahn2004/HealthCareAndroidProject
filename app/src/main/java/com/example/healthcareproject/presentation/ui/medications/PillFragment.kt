@@ -15,7 +15,7 @@ import com.example.healthcareproject.R
 import com.example.healthcareproject.databinding.FragmentPillBinding
 import com.example.healthcareproject.presentation.navigation.MainNavigator
 import com.example.healthcareproject.presentation.ui.medications.MedicationPagerAdapter
-import com.example.healthcareproject.presentation.viewmodel.PillViewModel
+import com.example.healthcareproject.presentation.viewmodel.medication.PillViewModel
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
