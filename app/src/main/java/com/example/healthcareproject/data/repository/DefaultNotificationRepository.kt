@@ -134,6 +134,12 @@ class DefaultNotificationRepository @Inject constructor(
         saveNotificationsToNetwork()
     }
 
+    override suspend fun getNotificationsFlow(): Flow<List<Notification>> {
+        return localDataSource.observeAll()
+            .map { it.toExternal() }
+            .flowOn(dispatcher)
+    }
+
     private fun saveNotificationsToNetwork() {
         scope.launch {
             try {

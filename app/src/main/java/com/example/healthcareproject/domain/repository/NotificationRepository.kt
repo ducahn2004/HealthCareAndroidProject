@@ -43,4 +43,6 @@ interface NotificationRepository {
     suspend fun deleteAllNotifications()
 
     suspend fun deleteNotification(notificationId: String)
+
+    suspend fun getNotificationsFlow(): Flow<List<Notification>>
 }

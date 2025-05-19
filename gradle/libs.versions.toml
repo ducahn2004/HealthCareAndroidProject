@@ -25,11 +25,13 @@ lifecycleRuntimeKtx = "2.8.7"
 material = "1.12.0"
 activity = "1.10.1"
 constraintlayout = "2.2.1"
-mpandroidchart = "v3.1.0"
 navigationFragmentKtx = "2.8.9"
 navigationUiKtx = "2.8.9"
 googlePlayServicesAuth = "21.3.0"
 cardview = "1.0.0"
+mpandroidchart = "3.1.0"
+socketio = "2.1.0"
+localbroadcastmanager = "1.1.0"
 gson = "2.11.0"
 roomVersion = "2.7.0"
 places = "4.2.0"
@@ -91,6 +93,8 @@ timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 hilt-android-core = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
 firebase-functions = { module = "com.google.firebase:firebase-functions-ktx" }
+socketio-client = { group = "io.socket", name = "socket.io-client", version.ref = "socketio" }
+androidx-localbroadcastmanager = { group = "androidx.localbroadcastmanager", name = "localbroadcastmanager", version.ref = "localbroadcastmanager" }
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

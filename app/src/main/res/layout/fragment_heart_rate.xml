@@ -52,8 +52,8 @@
 
     <TextView
         android:id="@+id/tv_heart_rate_value"
-        android:layout_width="128dp"
-        android:layout_height="119dp"
+        android:layout_width="181dp"
+        android:layout_height="125dp"
         android:layout_marginStart="20dp"
         android:fontFamily="@font/roboto_slab_medium"
         android:text="@string/_84"
@@ -115,8 +115,8 @@
 
     <TextView
         android:id="@+id/tv_max_value"
-        android:layout_width="36dp"
-        android:layout_height="33dp"
+        android:layout_width="50dp"
+        android:layout_height="32dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:fontFamily="@font/roboto_slab_medium"
@@ -139,8 +139,8 @@
 
     <TextView
         android:id="@+id/tv_min_value"
-        android:layout_width="31dp"
-        android:layout_height="33dp"
+        android:layout_width="49dp"
+        android:layout_height="36dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:fontFamily="@font/roboto_slab_medium"

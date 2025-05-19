@@ -158,6 +158,7 @@
             android:id="@+id/action_back_medical_history_detail_to_pill"
             app:destination="@id/pillFragment"/>
     </fragment>
+
     <!-- Notification Fragment -->
     <fragment
         android:id="@+id/notificationFragment"
@@ -261,4 +262,17 @@
             app:popUpTo="@id/settingsFragment"
             app:popUpToInclusive="false" />
     </fragment>
+
+
+    <!-- Global Actions -->
+    <action
+        android:id="@+id/action_global_heartRateFragment"
+        app:destination="@id/heartRateFragment"
+        app:popUpTo="@id/homeFragment"
+        app:popUpToInclusive="true" />
+    <action
+        android:id="@+id/action_global_oxygenFragment"
+        app:destination="@id/oxygenFragment"
+        app:popUpTo="@id/homeFragment"
+        app:popUpToInclusive="true" />
 </navigation>

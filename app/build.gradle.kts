@@ -25,6 +25,7 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
+
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -37,13 +38,21 @@ android {
     }
 
     buildTypes {
-        release {
+        getByName("debug") {
+            buildConfigField("String", "SOCKET_URL", "\"http://192.168.1.100:3000\"")
+        }
+        getByName("release") {
+            buildConfigField("String", "SOCKET_URL", "\"https://your-production-server.com\"")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
         }
+    }
+
+    viewBinding {
+        enable = true
     }
 
     compileOptions {
@@ -78,6 +87,7 @@ dependencies {
     implementation(libs.androidx.annotation)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
+    implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.cardview)
@@ -135,6 +145,9 @@ dependencies {
     implementation(libs.symbol.processing.api)
 
     // Testing
+    implementation(libs.socketio.client)
+    implementation(libs.androidx.localbroadcastmanager)
+
     testImplementation(libs.junit)
     testImplementation(libs.androidx.core.testing)
     testImplementation(libs.kotlinx.coroutines.test)
