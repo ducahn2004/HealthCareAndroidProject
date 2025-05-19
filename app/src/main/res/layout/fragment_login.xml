@@ -137,8 +137,8 @@
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/til_password"
             android:layout_width="315dp"
-            android:layout_height="53dp"
-            android:layout_marginTop="4dp"
+            android:layout_height="60dp"
+            android:layout_marginTop="6dp"
             android:hint="@string/password"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             app:boxBackgroundMode="outline"

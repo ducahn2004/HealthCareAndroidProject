@@ -19,7 +19,7 @@
             android:id="@+id/tv_no_past_medications"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="No past medications available"
+            android:text="@string/no_past_medications_available"
             android:textColor="@color/secondary_text_color"
             android:textSize="16sp"
             android:visibility="@{viewModel.noPastMedicationsVisibility}"
@@ -34,27 +34,11 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:background="@color/surface"
-            android:contentDescription="List of past medications"
+            android:contentDescription="@string/list_of_past_medications"
             app:layout_constraintTop_toBottomOf="@id/tv_no_past_medications"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             tools:listitem="@layout/item_medication" />
-
-        <!-- Floating Action Button for Adding Medication -->
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab_add_medication"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@android:drawable/ic_input_add"
-            android:contentDescription="Add new medication"
-            app:backgroundTint="@color/fab_background"
-            app:tint="@color/fab_icon_color"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_margin="24dp"
-            app:elevation="8dp"
-            app:useCompatPadding="true" />
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

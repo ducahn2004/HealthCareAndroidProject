@@ -172,7 +172,7 @@
     <string name="arrow_icon">Arrow Right Icon\n</string>
     <string name="loading_medications">Loading medications</string>
     <string name="clear_search">Clear search</string>
-    <string name="search_medications">Search medications</string>
+    <string name="search_medications">Search Medications…</string>
     <string name="medication_management">Medication</string>
     <string name="medication_filter_tabs">Medication filter tabs</string>
     <string name="add_medication">MEDICATION</string>
@@ -200,6 +200,20 @@
     <string name="note_hint">Note (optional)</string>
     <string name="cancel_button">Cancel</string>
     <string name="add_button">Add</string>
+    <string name="no_past_medications_available">No past medications available</string>
+    <string name="list_of_past_medications">List of past medications</string>
+    <string name="Medication">Medication</string>
+    <string name="list_of_current_medications">List of current medications</string>
+    <string name="no_current_medications_available">No current medications available</string>
+    <string name="health_schedule">Health Schedule</string>
+    <string name="search_schedule">Search Schedule…</string>
+    <string name="no_appointment_available">No Appointment Available</string>
+    <string name="list_of_appointments">List of Appointments</string>
+    <string name="appointment">Appointment</string>
+    <string name="doctor_icon">Doctor Icon</string>
+    <string name="location_icon">Location Icon</string>
+    <string name="time_icon">Time Icon</string>
+    <string name="date_icon">Date Icon</string>
 
 
     <string-array name="gender_options">

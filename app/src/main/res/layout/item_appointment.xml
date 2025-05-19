@@ -12,56 +12,77 @@
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginVertical="4dp"
+        android:layout_marginVertical="8dp"
+        android:layout_marginHorizontal="12dp"
         app:cardBackgroundColor="@color/surface_alternate"
-        app:cardCornerRadius="8dp"
-        app:cardElevation="2dp">
+        app:cardCornerRadius="12dp"
+        app:cardElevation="4dp">
 
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="12dp"
+                android:layout_marginBottom="12dp"
+                android:orientation="vertical"
+                android:backgroundTint="@android:color/white"
+                android:elevation="2dp"
+                android:clipToPadding="false"
+                android:clipChildren="false"
+                android:background="@drawable/border_rounded_white">
+
+                <TextView
+                    android:id="@+id/tv_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@{appointment.note != null ? appointment.note : `Appointment with ` + appointment.doctorName}"
+                    android:textAlignment="center"
+                    android:textColor="@color/primary_text_color"
+                    android:fontFamily="sans-serif"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="12dp">
-
-                <!-- Card nhỏ chứa tiêu đề (note hoặc doctorName) -->
-                <androidx.cardview.widget.CardView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    app:cardBackgroundColor="@android:color/white"
-                    app:cardCornerRadius="4dp"
-                    app:cardElevation="1dp">
-
-                    <TextView
-                        android:id="@+id/tv_title"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:padding="8dp"
-                        android:text="@{appointment.note != null ? appointment.note : `Appointment with ` + appointment.doctorName}"
-                        android:textAlignment="center"
-                        android:textColor="@color/primary_text_color"
-                        android:textSize="18sp"
-                        android:textStyle="bold" />
-                </androidx.cardview.widget.CardView>
+                android:divider="@android:color/darker_gray"
+                android:showDividers="middle"
+                android:dividerPadding="8dp">
 
                 <!-- Doctor -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:padding="8dp"
+                    android:background="@drawable/border_rounded_white"
+                    android:layout_marginBottom="4dp"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:contentDescription="@string/doctor_icon"
+                        android:src="@drawable/ic_doctor"
+                        android:layout_marginEnd="8dp"
+                        app:tint="@color/secondary_text_color" />
 
                     <TextView
                         android:id="@+id/tv_doctor_label"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="DOCTOR:"
+                        android:text="@string/doctor"
                         android:textAllCaps="true"
                         android:textColor="@color/secondary_text_color"
+                        android:fontFamily="sans-serif"
                         android:textSize="16sp"
                         android:textStyle="bold" />
 
@@ -72,6 +93,7 @@
                         android:layout_weight="2"
                         android:text="@{appointment.doctorName}"
                         android:textColor="@color/secondary_text_color"
+                        android:fontFamily="sans-serif"
                         android:textSize="16sp" />
                 </LinearLayout>
 
@@ -79,17 +101,29 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:padding="8dp"
+                    android:backgroundTint="@android:color/white"
+                    android:layout_marginBottom="4dp"
+                    android:background="@drawable/border_rounded_white">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:contentDescription="@string/location_icon"
+                        android:src="@drawable/ic_medicine"
+                        android:layout_marginEnd="8dp"
+                        app:tint="@color/secondary_text_color" />
 
                     <TextView
                         android:id="@+id/tv_location_label"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="LOCATION:"
+                        android:text="@string/location"
                         android:textAllCaps="true"
                         android:textColor="@color/secondary_text_color"
+                        android:fontFamily="sans-serif"
                         android:textSize="16sp"
                         android:textStyle="bold" />
 
@@ -100,6 +134,7 @@
                         android:layout_weight="2"
                         android:text="@{appointment.location}"
                         android:textColor="@color/secondary_text_color"
+                        android:fontFamily="sans-serif"
                         android:textSize="16sp" />
                 </LinearLayout>
 
@@ -107,17 +142,29 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:padding="8dp"
+                    android:backgroundTint="@android:color/white"
+                    android:layout_marginBottom="4dp"
+                    android:background="@drawable/border_rounded_white">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:contentDescription="@string/date_icon"
+                        android:src="@drawable/ic_date"
+                        android:layout_marginEnd="8dp"
+                        app:tint="@color/secondary_text_color" />
 
                     <TextView
                         android:id="@+id/tv_date_label"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="DATE:"
+                        android:text="@string/date"
                         android:textAllCaps="true"
                         android:textColor="@color/secondary_text_color"
+                        android:fontFamily="sans-serif"
                         android:textSize="16sp"
                         android:textStyle="bold" />
 
@@ -128,6 +175,7 @@
                         android:layout_weight="2"
                         android:text="@{DateFormatter.formatDate(appointment.appointmentTime)}"
                         android:textColor="@color/secondary_text_color"
+                        android:fontFamily="sans-serif"
                         android:textSize="16sp" />
                 </LinearLayout>
 
@@ -135,17 +183,28 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:padding="8dp"
+                    android:backgroundTint="@android:color/white"
+                    android:background="@drawable/border_rounded_white">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:contentDescription="@string/time_icon"
+                        android:src="@drawable/ic_alarm"
+                        android:layout_marginEnd="8dp"
+                        app:tint="@color/secondary_text_color" />
 
                     <TextView
                         android:id="@+id/tv_time_label"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="TIME:"
+                        android:text="@string/time"
                         android:textAllCaps="true"
                         android:textColor="@color/secondary_text_color"
+                        android:fontFamily="sans-serif"
                         android:textSize="16sp"
                         android:textStyle="bold" />
 
@@ -156,9 +215,10 @@
                         android:layout_weight="2"
                         android:text="@{DateFormatter.formatTime(appointment.appointmentTime)}"
                         android:textColor="@color/secondary_text_color"
+                        android:fontFamily="sans-serif"
                         android:textSize="16sp" />
                 </LinearLayout>
             </LinearLayout>
-        </RelativeLayout>
+        </LinearLayout>
     </androidx.cardview.widget.CardView>
 </layout>

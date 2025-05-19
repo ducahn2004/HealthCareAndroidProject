@@ -50,16 +50,6 @@ class CurrentMedicationsFragment : Fragment() {
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        Timber.d("CurrentMedicationsFragment onViewCreated")
-        setupRecyclerView()
-        setupFab()
-        observeMedications()
-        setupFragmentResultListener()
-        observeSearchEvents()
-    }
-
     private fun setupRecyclerView() {
         Timber.d("Setting up current medications RecyclerView")
         medicationAdapter = MedicationAdapter(
@@ -85,12 +75,6 @@ class CurrentMedicationsFragment : Fragment() {
         }
     }
 
-    private fun setupFab() {
-        binding.fabAddMedication.setOnClickListener {
-            Timber.d("FAB Add Medication clicked")
-            showAddMedicationDialog()
-        }
-    }
 
     private fun showAddMedicationDialog() {
         val dialog = AddMedicationDialogFragment.newInstance(

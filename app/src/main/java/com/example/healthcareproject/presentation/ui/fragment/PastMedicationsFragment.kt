@@ -50,16 +50,6 @@ class PastMedicationsFragment : Fragment() {
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        Timber.d("PastMedicationsFragment onViewCreated")
-        setupRecyclerView()
-        setupFab()
-        observeMedications()
-        setupFragmentResultListener()
-        observeSearchEvents()
-    }
-
     private fun setupRecyclerView() {
         Timber.d("Setting up past medications RecyclerView")
         medicationAdapter = MedicationAdapter(
@@ -82,13 +72,6 @@ class PastMedicationsFragment : Fragment() {
         binding.rvPastMedications.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = medicationAdapter
-        }
-    }
-
-    private fun setupFab() {
-        binding.fabAddMedication.setOnClickListener {
-            Timber.d("FAB Add Medication clicked")
-            showAddMedicationDialog()
         }
     }
 
