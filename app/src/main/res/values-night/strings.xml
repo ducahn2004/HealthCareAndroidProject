@@ -1,5 +1,5 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="app_name">HealthCareProject</string>
+    <string name="app_name">Health Care</string>
     <string name="senior_care_alert">Senior Care Alert</string>
     <string name="explore">Explore</string>
     <string name="medicine">Medicine</string>
@@ -22,12 +22,12 @@
     <string name="create_account">Create Account</string>
     <string name="must_contain_8_char">must contain 8 char.</string>
     <string name="password">Password</string>
-    <string name="e_mail">E-mail</string>
+    <string name="e_mail">Email</string>
     <string name="last_name">Last Name</string>
     <string name="first_name">First Name</string>
     <string name="register">Register</string>
     <string name="login_with_google">Login with Google</string>
-    <string name="or_login_with">or login with</string>
+    <string name="or_login_with">Or login with</string>
     <string name="login">Login</string>
     <string name="forgot_password">Forgot Password?</string>
     <string name="no_worries_enter_your_email_address_below_and_we_will_send_you_a_code_to_reset_password">No worries! Enter your email address below and we will send you a code to reset password.</string>
@@ -109,7 +109,7 @@
     <string name="medical_visit_details">Medical Visit Details</string>
     <string name="information">Information</string>
     <string name="doctor_remarks">Doctor Remarks</string>
-    <string name="medications">Medications</string>
+    <string name="medications">MEDICATIONS</string>
     <string name="condition">CONDITION:</string><string name="doctor">DOCTOR:</string>
     <string name="facility">FACILITY:</string>
     <string name="date">DATE:</string>
@@ -147,10 +147,35 @@
     <string name="select_priority">Select priority</string>
     <string name="alarms">Alarm</string>
     <string name="alarm">Alarm</string>
-    <string name="current">Curnent</string>
+    <string name="current">Current</string>
     <string name="check_email_for_link">Check your email for the verification link: </string>
     <string name="check_email_for_link_default">Check your email for the verification link.</string>
     <string name="arrow_icon">Arrow Right Icon\n</string>
+
+    <string name="dosage">Dosage:</string>
+    <string name="frequency">Frequency:</string>
+    <string name="from">From:</string>
+    <string name="to">To:</string>
+    <string name="time_of_day">Time of Day:</string>
+    <string name="meal_relation">Meal Relation:</string>
+    <string name="notes">Notes:</string>
+    <string name="edit_medication">Edit Medication</string>
+    <string name="delete_medication">Delete Medication</string>
+    <string name="search_icon">Search Icon</string>
+
+    <string name="add_medication_title">MEDICATION</string>
+    <string name="medication_name_hint">Medication</string>
+    <string name="dosage_amount_hint">Amount (e.g., 1)</string>
+    <string name="dosage_unit_label">Unit</string>
+    <string name="frequency_hint">Frequency (e.g., 1)</string>
+    <string name="time_of_day_hint">Time (e.g., 07:00, 19:00)</string>
+    <string name="meal_relation_label">Meal Relation</string>
+    <string name="start_date_hint">Start Date</string>
+    <string name="end_date_hint">End Date</string>
+    <string name="note_hint">Note (optional)</string>
+    <string name="cancel_button">Cancel</string>
+    <string name="add_button">Add</string>
+
     <string-array name="gender_options">
         <item>Male</item>
         <item>Female</item>

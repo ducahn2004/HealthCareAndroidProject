@@ -39,92 +39,126 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/google_login_container"
-            android:layout_width="300dp"
-            android:layout_height="60dp"
+            android:layout_width="315dp"
+            android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:background="@drawable/btn_google"
-            android:paddingStart="16dp"
+            android:paddingStart="20dp"
             android:paddingEnd="16dp"
+            android:minHeight="48dp"
             android:onClick="@{() -> viewModel.navigateToGoogleLogin()}"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.493"
+            app:layout_constraintTop_toBottomOf="@id/tv_or_login_with"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_or_login_with">
+            app:layout_constraintEnd_toEndOf="parent">
 
             <ImageView
                 android:id="@+id/iv_google_logo"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
                 android:contentDescription="@string/google_logo"
                 android:src="@drawable/ic_google_logo"
+                app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintStart_toStartOf="parent" />
 
             <TextView
-                android:layout_width="230dp"
-                android:layout_height="19dp"
-                android:layout_marginStart="12dp"
+                android:id="@+id/tv_google_login"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:text="@string/login_with_google"
-                android:textAlignment="center"
+                android:textSize="16sp"
                 android:textColor="@color/button_google_color"
                 android:textStyle="bold"
-                app:layout_constraintBottom_toBottomOf="parent"
+                android:gravity="center"
                 app:layout_constraintStart_toEndOf="@id/iv_google_logo"
-                app:layout_constraintTop_toTopOf="parent" />
-
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <TextView
             android:id="@+id/tv_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="244dp"
+            android:layout_marginTop="120dp"
             android:text="@string/login"
             android:textSize="24sp"
             android:textStyle="bold"
+            android:drawablePadding="8dp"
+            android:gravity="center"
+            app:drawableTopCompat="@mipmap/ic_launcher"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.501"
+            app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
 
         <TextView
             android:id="@+id/tv_forgot_password"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
+            android:layout_marginEnd="32dp"
+            android:onClick="@{() -> viewModel.navigateToForgotPassword()}"
             android:text="@string/forgot_password"
             android:textColor="@android:color/holo_blue_dark"
-            android:onClick="@{() -> viewModel.navigateToForgotPassword()}"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/et_password" />
+            app:layout_constraintTop_toBottomOf="@id/til_password" />
 
-        <EditText
-            android:id="@+id/et_email"
-            android:layout_width="344dp"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/til_email"
+            android:layout_width="315dp"
             android:layout_height="60dp"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="30dp"
             android:hint="@string/e_mail"
-            android:inputType="textEmailAddress"
-            android:text="@{viewModel.email}"
-            android:afterTextChanged="@{viewModel::afterEmailChange}"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.514"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:boxBackgroundMode="outline"
+            app:boxStrokeColor="@color/white"
+            app:boxCornerRadiusTopStart="8dp"
+            app:boxCornerRadiusTopEnd="8dp"
+            app:boxCornerRadiusBottomStart="8dp"
+            app:boxCornerRadiusBottomEnd="8dp"
+            app:layout_constraintTop_toBottomOf="@id/tv_title"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_title" />
+            app:layout_constraintEnd_toEndOf="parent">
 
-        <EditText
-            android:id="@+id/et_password"
-            android:layout_width="345dp"
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_email"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:inputType="textEmailAddress"
+                android:text="@{viewModel.email}"
+                android:afterTextChanged="@{viewModel::afterEmailChange}" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Password -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/til_password"
+            android:layout_width="315dp"
             android:layout_height="53dp"
             android:layout_marginTop="4dp"
             android:hint="@string/password"
-            android:inputType="textPassword"
-            android:text="@{viewModel.password}"
-            android:afterTextChanged="@{viewModel::afterPasswordChange}"
-            app:layout_constraintEnd_toEndOf="parent"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:boxBackgroundMode="outline"
+            app:boxStrokeColor="@color/white"
+            app:boxCornerRadiusTopStart="8dp"
+            app:boxCornerRadiusTopEnd="8dp"
+            app:boxCornerRadiusBottomStart="8dp"
+            app:boxCornerRadiusBottomEnd="8dp"
+            app:layout_constraintTop_toBottomOf="@id/til_email"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/et_email" />
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_password"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:inputType="textPassword"
+                android:text="@{viewModel.password}"
+                android:afterTextChanged="@{viewModel::afterPasswordChange}" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <TextView
             android:id="@+id/tv_or_login_with"
@@ -159,6 +193,5 @@
             app:layout_constraintBottom_toTopOf="@id/google_login_container"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

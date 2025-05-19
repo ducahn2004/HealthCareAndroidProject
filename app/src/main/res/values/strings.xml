@@ -1,5 +1,5 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="app_name">HealthCareProject</string>
+    <string name="app_name">Health Care</string>
     <string name="senior_care_alert">Senior Care Alert</string>
     <string name="explore">Explore</string>
     <string name="medicine">Medicine</string>
@@ -23,12 +23,12 @@
     <string name="create_account">Create Account</string>
     <string name="must_contain_8_char">must contain 8 char.</string>
     <string name="password">Password</string>
-    <string name="e_mail">E-mail</string>
+    <string name="e_mail">Email</string>
     <string name="last_name">Last Name</string>
     <string name="first_name">First Name</string>
     <string name="register">Register</string>
     <string name="login_with_google">Login with Google</string>
-    <string name="or_login_with">or login with</string>
+    <string name="or_login_with">Or login with</string>
     <string name="login">Login</string>
     <string name="forgot_password">Forgot Password?</string>
     <string name="no_worries_enter_your_email_address_below_and_we_will_send_you_a_code_to_reset_password">No worries! Enter your email address below and we will send you a code to reset password.</string>
@@ -175,7 +175,7 @@
     <string name="search_medications">Search medications</string>
     <string name="medication_management">Medication</string>
     <string name="medication_filter_tabs">Medication filter tabs</string>
-    <string name="add_medication">Add medication</string>
+    <string name="add_medication">MEDICATION</string>
 
     <string name="dosage">Dosage:</string>
     <string name="frequency">Frequency:</string>
@@ -187,6 +187,20 @@
     <string name="edit_medication">Edit Medication</string>
     <string name="delete_medication">Delete Medication</string>
     <string name="search_icon">Search Icon</string>
+
+    <string name="add_medication_title">MEDICATION</string>
+    <string name="medication_name_hint">Medication</string>
+    <string name="dosage_amount_hint">Amount (e.g., 1)</string>
+    <string name="dosage_unit_label">Unit</string>
+    <string name="frequency_hint">Frequency (e.g., 1)</string>
+    <string name="time_of_day_hint">Time (e.g., 07:00, 19:00)</string>
+    <string name="meal_relation_label">Meal Relation</string>
+    <string name="start_date_hint">Start Date</string>
+    <string name="end_date_hint">End Date</string>
+    <string name="note_hint">Note (optional)</string>
+    <string name="cancel_button">Cancel</string>
+    <string name="add_button">Add</string>
+
 
     <string-array name="gender_options">
         <item>Male</item>

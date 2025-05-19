@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
@@ -25,157 +26,298 @@
             android:paddingBottom="32dp">
 
             <TextView
+                android:id="@+id/tv_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Add New Medication"
-                android:textColor="@color/primary_text_color"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                android:text="@string/add_medication_title"
+                android:textColor="?android:attr/textColorPrimary"
                 android:textSize="20sp"
                 android:textStyle="bold"
-                android:layout_marginBottom="16dp" />
+                android:layout_gravity="center" />
 
-            <EditText
-                android:id="@+id/et_medication_name"
+            <!-- Medication Name -->
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minHeight="48dp"
-                android:hint="Medication Name"
-                android:text="@={viewModel.medicationName}"
-                android:textColor="@color/primary_text_color"
-                android:textColorHint="@color/secondary_text_color"
-                android:backgroundTint="@color/light_gray"
                 android:layout_marginTop="8dp"
-                android:imeOptions="actionDone"
-                android:singleLine="true" />
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                app:boxBackgroundMode="outline"
+                app:boxCornerRadiusTopStart="6dp"
+                app:boxCornerRadiusTopEnd="6dp"
+                app:boxCornerRadiusBottomStart="6dp"
+                app:boxCornerRadiusBottomEnd="6dp"
+                app:boxBackgroundColor="@android:color/white"
+                app:boxStrokeColor="@color/primary"
+                app:boxStrokeWidth="1dp"
+                app:boxStrokeWidthFocused="2dp"
+                android:hint="@string/medication_name_hint">
 
-            <EditText
-                android:id="@+id/et_dosage_amount"
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_medication_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text"
+                    android:minHeight="48dp"
+                    android:maxWidth="600dp"
+                    android:textColor="@color/black"
+                    android:textColorHint="@color/gray_dark"
+                    android:text="@={viewModel.medicationName}"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Dosage Section -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minHeight="48dp"
-                android:hint="Dosage Amount (e.g., 1)"
-                android:inputType="numberDecimal"
-                android:text="@={viewModel.dosageAmount}"
-                android:textColor="@color/primary_text_color"
-                android:textColorHint="@color/secondary_text_color"
-                android:backgroundTint="@color/light_gray"
+                android:baselineAligned="false"
+                android:orientation="horizontal"
                 android:layout_marginTop="8dp"
-                android:imeOptions="actionDone"
-                android:singleLine="true" />
+                android:gravity="center_vertical">
 
-            <Spinner
-                android:id="@+id/spinner_dosage_unit"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:padding="8dp"
-                android:layout_marginTop="8dp" />
+                <!-- Amount: chiếm 1/3 -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    app:boxBackgroundMode="outline"
+                    app:boxCornerRadiusTopStart="6dp"
+                    app:boxCornerRadiusTopEnd="6dp"
+                    app:boxCornerRadiusBottomStart="6dp"
+                    app:boxCornerRadiusBottomEnd="6dp"
+                    app:boxBackgroundColor="@android:color/white"
+                    app:boxStrokeColor="@color/primary"
+                    app:boxStrokeWidth="1dp"
+                    app:boxStrokeWidthFocused="2dp"
+                    android:hint="@string/dosage_amount_hint">
 
-            <EditText
-                android:id="@+id/et_frequency"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="48dp"
-                android:hint="Frequency (e.g., 1 for once a day)"
-                android:inputType="number"
-                android:text="@={viewModel.frequency}"
-                android:textColor="@color/primary_text_color"
-                android:textColorHint="@color/secondary_text_color"
-                android:backgroundTint="@color/light_gray"
-                android:layout_marginTop="8dp"
-                android:imeOptions="actionDone"
-                android:singleLine="true" />
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_dosage_amount"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="numberDecimal"
+                        android:minHeight="48dp"
+                        android:textColor="?android:attr/textColorPrimary"
+                        android:text="@={viewModel.dosageAmount}"/>
+                </com.google.android.material.textfield.TextInputLayout>
 
-            <EditText
-                android:id="@+id/et_time_of_day"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="48dp"
-                android:hint="Time of Day (e.g., 08:00,14:00)"
-                android:text="@={viewModel.timeOfDay}"
-                android:textColor="@color/primary_text_color"
-                android:textColorHint="@color/secondary_text_color"
-                android:backgroundTint="@color/light_gray"
-                android:layout_marginTop="8dp"
-                android:imeOptions="actionDone"
-                android:singleLine="true" />
+                <!-- Unit: chiếm 2/3 -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:orientation="vertical"
+                    android:paddingStart="8dp"
+                    tools:ignore="RtlSymmetry">
 
-            <Spinner
-                android:id="@+id/spinner_meal_relation"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:padding="8dp"
-                android:layout_marginTop="8dp"
-                android:focusable="false"
-                android:focusableInTouchMode="false" />
+                    <TextView
+                        android:id="@+id/tv_dosage_unit_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/dosage_unit_label"
+                        android:textColor="?android:attr/textColorPrimary"
+                        android:textSize="16sp"
+                        android:labelFor="@id/spinner_dosage_unit" />
 
-            <TextView
-                android:id="@+id/tv_start_date"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="48dp"
-                android:hint="Select Start Date"
-                android:text="@{viewModel.formattedStartDate}"
-                android:textColor="@color/primary_text_color"
-                android:textColorHint="@color/secondary_text_color"
-                android:background="@drawable/edit_text_background"
-                android:padding="12dp"
-                android:layout_marginTop="8dp" />
-
-            <TextView
-                android:id="@+id/tv_end_date"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="48dp"
-                android:hint="Select End Date (optional)"
-                android:text="@{viewModel.formattedEndDate}"
-                android:textColor="@color/primary_text_color"
-                android:textColorHint="@color/secondary_text_color"
-                android:background="@drawable/edit_text_background"
-                android:padding="12dp"
-                android:layout_marginTop="8dp" />
-
-            <EditText
-                android:id="@+id/et_note"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="48dp"
-                android:hint="Note (optional)"
-                android:text="@={viewModel.notes}"
-                android:textColor="@color/primary_text_color"
-                android:textColorHint="@color/secondary_text_color"
-                android:backgroundTint="@color/light_gray"
-                android:layout_marginTop="8dp"
-                android:imeOptions="actionDone"
-                android:singleLine="true" />
+                    <Spinner
+                        android:id="@+id/spinner_dosage_unit"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:background="@drawable/spinner_border"
+                        android:paddingHorizontal="12dp" />
+                </LinearLayout>
+            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:baselineAligned="false"
                 android:orientation="horizontal"
-                android:gravity="end">
+                android:layout_marginTop="8dp">
 
-                <Button
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    app:boxBackgroundMode="outline"
+                    app:boxCornerRadiusTopStart="6dp"
+                    app:boxCornerRadiusTopEnd="6dp"
+                    app:boxCornerRadiusBottomStart="6dp"
+                    app:boxCornerRadiusBottomEnd="6dp"
+                    app:boxBackgroundColor="@android:color/white"
+                    app:boxStrokeColor="@color/primary"
+                    app:boxStrokeWidth="1dp"
+                    app:boxStrokeWidthFocused="2dp"
+                    android:hint="@string/frequency_hint">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_frequency"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="number"
+                        android:text="@={viewModel.frequency}"
+                        android:minHeight="48dp"
+                        android:textColor="?android:attr/textColorPrimary"
+                        android:maxWidth="600dp" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    app:boxBackgroundMode="outline"
+                    app:boxCornerRadiusTopStart="6dp"
+                    app:boxCornerRadiusTopEnd="6dp"
+                    app:boxCornerRadiusBottomStart="6dp"
+                    app:boxCornerRadiusBottomEnd="6dp"
+                    app:boxBackgroundColor="@android:color/white"
+                    app:boxStrokeColor="@color/primary"
+                    app:boxStrokeWidth="1dp"
+                    app:boxStrokeWidthFocused="2dp"
+                    android:hint="@string/time_of_day_hint"
+                    android:layout_marginStart="8dp">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_time_of_day"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="48dp"
+                        android:textColor="?android:attr/textColorPrimary"
+                        android:text="@={viewModel.timeOfDay}"
+                        android:maxWidth="600dp" />
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="8dp"
+                android:gravity="center_vertical">
+
+                <!-- Label -->
+                <TextView
+                    android:id="@+id/tv_meal_relation"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:gravity="center_vertical"
+                    android:paddingStart="12dp"
+                    android:text="@string/meal_relation_label"
+                    android:textColor="?android:attr/textColorPrimary"
+                    android:textSize="16sp"
+                    android:background="@drawable/spinner_border"
+                    tools:ignore="RtlSymmetry" />
+
+                <!-- Spinner -->
+                <androidx.appcompat.widget.AppCompatSpinner
+                    android:id="@+id/spinner_meal_relation"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="2"
+                    android:gravity="center_vertical"
+                    android:spinnerMode="dropdown"
+                    android:background="@drawable/spinner_border"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="12dp" />
+            </LinearLayout>
+
+            <!-- Start Date and End Date -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="8dp">
+
+                <TextView
+                    android:id="@+id/tv_start_date"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="@string/start_date_hint"
+                    android:text="@{viewModel.formattedStartDate}"
+                    android:padding="12dp"
+                    android:textColor="?android:attr/textColorPrimary"
+                    android:background="@drawable/spinner_border"
+                    android:gravity="center"
+                    android:minHeight="48dp"
+                    android:contentDescription="@string/start_date_hint"
+                    tools:ignore="ContentDescription" />
+
+                <TextView
+                    android:id="@+id/tv_end_date"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:hint="@string/end_date_hint"
+                    android:text="@{viewModel.formattedEndDate}"
+                    android:padding="12dp"
+                    android:textColor="?android:attr/textColorPrimary"
+                    android:gravity="center"
+                    android:background="@drawable/spinner_border"
+                    android:minHeight="48dp"
+                    android:contentDescription="@string/end_date_hint"
+                    tools:ignore="ContentDescription" />
+            </LinearLayout>
+
+            <!-- Note -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                app:boxBackgroundMode="outline"
+                app:boxCornerRadiusTopStart="6dp"
+                app:boxCornerRadiusTopEnd="6dp"
+                app:boxCornerRadiusBottomStart="6dp"
+                app:boxCornerRadiusBottomEnd="6dp"
+                app:boxBackgroundColor="@android:color/white"
+                app:boxStrokeColor="@color/primary"
+                app:boxStrokeWidth="1dp"
+                app:boxStrokeWidthFocused="2dp"
+                android:hint="@string/note_hint">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_note"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:textColor="@color/black"
+                    android:textColorHint="@color/gray_dark"
+                    android:maxWidth="600dp"
+                    android:text="@={viewModel.notes}" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Buttons -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="end"
+                android:layout_marginTop="16dp">
+
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_cancel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:backgroundTint="@color/light_gray"
-                    android:text="Cancel"
-                    android:textColor="@color/primary_text_color"
-                    android:layout_marginEnd="8dp"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:enabled="@{!viewModel.isLoading}" />
+                    android:text="@string/cancel_button"
+                    android:backgroundTint="@color/red_600"
+                    android:textColor="@android:color/white"
+                    android:enabled="@{!viewModel.isLoading}"/>
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_add"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:backgroundTint="@color/button_accent_color"
-                    android:text="Add"
-                    android:textColor="@color/button_text_color"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:enabled="@{!viewModel.isLoading}" />
+                    android:text="@string/add_button"
+                    android:layout_marginStart="8dp"
+                    android:backgroundTint="@color/fab_background"
+                    android:textColor="@android:color/white"
+                    android:enabled="@{!viewModel.isLoading}"/>
             </LinearLayout>
         </LinearLayout>
     </ScrollView>
