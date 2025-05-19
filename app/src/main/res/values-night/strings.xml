@@ -189,6 +189,9 @@
     <string name="location_icon">Location Icon</string>
     <string name="time_icon">Time Icon</string>
     <string name="date_icon">Date Icon</string>
+    <string name="medical_history">Medical History</string>
+    <string name="search_visits">Search visits...</string>
+    <string name="error_google_play_services">Error Google Play Service</string>
 
     <string-array name="gender_options">
         <item>Male</item>

@@ -19,11 +19,16 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.common.GoogleApiAvailability
+import com.google.android.gms.common.ConnectionResult
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 import java.net.UnknownHostException
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.content.Context
 
 @AndroidEntryPoint
 class GoogleLoginFragment : Fragment() {
@@ -52,6 +57,7 @@ class GoogleLoginFragment : Fragment() {
             val errorMessage = when (e.statusCode) {
                 12501 -> getString(R.string.error_sign_in_cancelled)
                 10 -> getString(R.string.error_developer_config)
+                7 -> getString(R.string.error_network) // Handle NETWORK_ERROR
                 else -> getString(R.string.error_sign_in_failed, e.message)
             }
             viewModel.setError(errorMessage)
@@ -86,6 +92,18 @@ class GoogleLoginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Check Google Play Services availability
+        val googleApiAvailability = GoogleApiAvailability.getInstance()
+        val resultCode = googleApiAvailability.isGooglePlayServicesAvailable(requireContext())
+        if (resultCode != ConnectionResult.SUCCESS) {
+            if (googleApiAvailability.isUserResolvableError(resultCode)) {
+                googleApiAvailability.getErrorDialog(requireActivity(), resultCode, 9000)?.show()
+            } else {
+                viewModel.setError(getString(R.string.error_google_play_services))
+            }
+            return
+        }
+
         Timber.Forest.d("GoogleLoginFragment: onViewCreated")
 
         // Configure Google Sign-In
@@ -102,9 +120,14 @@ class GoogleLoginFragment : Fragment() {
 
         // Observe ViewModel's Google Sign-In trigger
         viewModel.googleSignInTrigger.observe(viewLifecycleOwner) {
-            Timber.Forest.d("Launching Google Sign-In intent")
-            googleSignInClient.signOut().addOnCompleteListener {
-                signInLauncher.launch(googleSignInClient.signInIntent)
+            if (isNetworkAvailable()) {
+                Timber.Forest.d("Launching Google Sign-In intent")
+                googleSignInClient.signOut().addOnCompleteListener {
+                    signInLauncher.launch(googleSignInClient.signInIntent)
+                }
+            } else {
+                Timber.Forest.e("No network available for Google Sign-In")
+                viewModel.setError(getString(R.string.error_network))
             }
         }
 
@@ -125,6 +148,15 @@ class GoogleLoginFragment : Fragment() {
                 viewModel.setError(null)
             }
         }
+    }
+
+    private fun isNetworkAvailable(): Boolean {
+        val connectivityManager = requireContext().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val network = connectivityManager.activeNetwork ?: return false
+        val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
+        return capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
+                capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ||
+                capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)
     }
 
     private fun navigateToMainActivity() {

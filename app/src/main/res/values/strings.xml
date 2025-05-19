@@ -221,6 +221,9 @@
     <string name="phone">Phone</string>
     <string name="address">Address</string>
     <string name="user_id">User ID</string>
+    <string name="medical_history">Medical History</string>
+    <string name="search_visits">Search visits...</string>
+    <string name="error_google_play_services">Error Google Play Service</string>
 
 
     <string-array name="gender_options">
