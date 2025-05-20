@@ -170,4 +170,7 @@ dependencies {
 
     // androidx.lifecycle
     implementation(libs.androidx.lifecycle.runtime.ktx)
+
+    // WorkManager
+    implementation(libs.androidx.work.runtime.ktx)
 }

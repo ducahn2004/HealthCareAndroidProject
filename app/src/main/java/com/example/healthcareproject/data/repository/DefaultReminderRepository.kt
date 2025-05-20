@@ -126,8 +126,8 @@ class DefaultReminderRepository @Inject constructor(
     override suspend fun refresh() {
         withContext(dispatcher) {
             val remoteReminders = networkDataSource.loadReminders(userId)
-            localDataSource.deleteAll()
             localDataSource.upsertAll(remoteReminders.toLocal())
+            saveRemindersToNetwork()
         }
     }
 

@@ -72,17 +72,10 @@ class DefaultMeasurementRepository @Inject constructor(
         return networkDataSource.getMeasurementsFirebaseRealtime(userId)
             .map { firebaseMeasurements ->
                 val localMeasurements = firebaseMeasurements.toLocal()
-                scope.launch {
-                    try {
-                        localDataSource.upsertAll(localMeasurements)
-                    } catch (e: Exception) {
-                        // Handle the exception, e.g., log it
-                    }
-                }
+                localDataSource.upsertAll(localMeasurements)
                 localMeasurements.toExternal()
             }
     }
-
 
     override fun getMeasurementsStream(): Flow<List<Measurement>> {
         return localDataSource.observeAll().map { measurements ->
@@ -107,9 +100,10 @@ class DefaultMeasurementRepository @Inject constructor(
 
     override suspend fun refresh() {
         withContext(dispatcher) {
-            val remoteMeasurements = networkDataSource.loadMeasurements(userId)
-            localDataSource.deleteAll()
-            localDataSource.upsertAll(remoteMeasurements.toLocal())
+           networkDataSource.loadMeasurements(userId)
+                .let { remoteMeasurements ->
+                    localDataSource.upsertAll(remoteMeasurements.toLocal())
+                }
         }
     }
 

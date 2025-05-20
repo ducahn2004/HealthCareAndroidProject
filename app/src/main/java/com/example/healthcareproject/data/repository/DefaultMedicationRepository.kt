@@ -2,24 +2,20 @@ package com.example.healthcareproject.data.repository
 
 import com.example.healthcareproject.data.mapper.toExternal
 import com.example.healthcareproject.data.mapper.toLocal
-import com.example.healthcareproject.data.mapper.toNetwork
 import com.example.healthcareproject.data.source.local.dao.MedicalVisitDao
 import com.example.healthcareproject.data.source.local.dao.MedicationDao
 import com.example.healthcareproject.data.source.network.datasource.AuthDataSource
 import com.example.healthcareproject.data.source.network.datasource.MedicationDataSource
 import com.example.healthcareproject.data.source.network.model.FirebaseMedication
-import com.example.healthcareproject.di.ApplicationScope
 import com.example.healthcareproject.di.DefaultDispatcher
 import com.example.healthcareproject.domain.model.DosageUnit
 import com.example.healthcareproject.domain.model.MealRelation
 import com.example.healthcareproject.domain.model.Medication
 import com.example.healthcareproject.domain.repository.MedicationRepository
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.time.LocalDate
@@ -33,8 +29,7 @@ class DefaultMedicationRepository @Inject constructor(
     private val localDataSource: MedicationDao,
     private val medicalVisitDao: MedicalVisitDao,
     private val authDataSource: AuthDataSource,
-    @DefaultDispatcher private val dispatcher: CoroutineDispatcher,
-    @ApplicationScope private val scope: CoroutineScope,
+    @DefaultDispatcher private val dispatcher: CoroutineDispatcher
 ) : MedicationRepository {
 
     private val userId: String
@@ -155,6 +150,7 @@ class DefaultMedicationRepository @Inject constructor(
             updatedLocalMedications.forEach { med ->
                 Timber.d("Room after refresh: name=${med.name}, id=${med.medicationId}, visitId=${med.visitId}, userId=${med.userId}")
             }
+            saveMedicationsToNetwork()
         }
     }
 
@@ -249,7 +245,6 @@ class DefaultMedicationRepository @Inject constructor(
             }
             Timber.d("Firebase medications loaded: ${firebaseMedications.map { "${it.name}: visitId=${it.visitId}" }}")
 
-            val localMedIds = localMedications.map { it.medicationId }.toSet()
             firebaseMedications.forEach { firebaseMed ->
                 val localMed = localMedications.find { it.medicationId == firebaseMed.medicationId }
                 if (localMed != null) {

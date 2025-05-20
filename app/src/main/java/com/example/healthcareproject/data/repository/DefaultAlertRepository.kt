@@ -97,8 +97,8 @@ class DefaultAlertRepository @Inject constructor(
     override suspend fun refresh() {
         withContext(dispatcher) {
             val remoteAlerts = networkDataSource.loadAlerts(userId)
-            localDataSource.deleteAll()
-            localDataSource.upsertAll(remoteAlerts.toLocal())
+            val localAlerts = localDataSource.upsertAll(remoteAlerts.toLocal())
+            saveAlertToNetwork()
         }
     }
 

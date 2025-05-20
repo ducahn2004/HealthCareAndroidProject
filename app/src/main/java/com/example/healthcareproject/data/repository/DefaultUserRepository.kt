@@ -179,7 +179,6 @@ class DefaultUserRepository @Inject constructor(
     ): String = withContext(dispatcher) {
         Timber.d("Attempting to log in with email: $userId")
         try {
-            val authResult = authDataSource.loginUser(userId, password)
             val uid = FirebaseAuth.getInstance().currentUser?.uid
                 ?: throw Exception("User UID not found after login")
             refresh()
