@@ -1,4 +1,4 @@
-package com.example.healthcareproject.present.viewmodel.notification
+package com.example.healthcareproject.presentation.viewmodel.notification
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -11,7 +11,6 @@ import com.example.healthcareproject.domain.usecase.notification.DeleteNotificat
 import com.example.healthcareproject.domain.usecase.notification.GetNotificationsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 

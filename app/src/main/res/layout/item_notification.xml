@@ -6,10 +6,10 @@
         <import type="com.example.healthcareproject.domain.model.NotificationType" />
         <variable
             name="notification"
-            type="com.example.healthcareproject.present.viewmodel.notification.NotificationViewModel.FormattedNotification" />
+            type="com.example.healthcareproject.presentation.viewmodel.notification.NotificationViewModel.FormattedNotification" />
         <variable
             name="viewModel"
-            type="com.example.healthcareproject.present.viewmodel.notification.NotificationViewModel" />
+            type="com.example.healthcareproject.presentation.viewmodel.notification.NotificationViewModel" />
     </data>
 
     <LinearLayout
@@ -23,7 +23,7 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_marginEnd="16dp"
-            android:src="@{notification.type == NotificationType.Alert ? @drawable/ic_heart_rate : notification.type == NotificationType.Measurement ? @drawable/ic_oxygen : notification.type == NotificationType.Sos ? @drawable/ic_sos : @drawable/ic_notification}" />
+            android:src="@{notification.type == NotificationType.Alert ? @drawable/ic_heart_rate : notification.type == NotificationType.Sos ? @drawable/ic_oxygen : notification.type == NotificationType.Reminder ? @drawable/ic_reminder : @drawable/ic_notification}" />
 
         <LinearLayout
             android:layout_width="0dp"

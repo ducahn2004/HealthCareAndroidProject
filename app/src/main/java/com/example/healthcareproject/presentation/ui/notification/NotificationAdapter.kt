@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.healthcareproject.R
 import com.example.healthcareproject.databinding.ItemNotificationBinding
-import com.example.healthcareproject.present.viewmodel.notification.NotificationViewModel
+import com.example.healthcareproject.presentation.viewmodel.notification.NotificationViewModel
 
 class NotificationAdapter(
     private val viewModel: NotificationViewModel
