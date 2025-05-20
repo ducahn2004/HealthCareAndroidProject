@@ -49,6 +49,14 @@ class PastMedicationsFragment : Fragment() {
         binding.lifecycleOwner = viewLifecycleOwner
         return binding.root
     }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        Timber.d("PastMedicationsFragment onViewCreated")
+        setupRecyclerView()
+        observeMedications()
+        setupFragmentResultListener()
+        observeSearchEvents()
+    }
 
     private fun setupRecyclerView() {
         Timber.d("Setting up past medications RecyclerView")
@@ -121,6 +129,7 @@ class PastMedicationsFragment : Fragment() {
             }
         }
     }
+
 
     private fun setupFragmentResultListener() {
         setFragmentResultListener(AddMedicationDialogFragment.RESULT_KEY_PILL_FRAGMENT) { _, bundle ->

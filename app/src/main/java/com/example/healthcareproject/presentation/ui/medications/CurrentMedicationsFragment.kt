@@ -50,6 +50,15 @@ class CurrentMedicationsFragment : Fragment() {
         return binding.root
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        Timber.d("PastMedicationsFragment onViewCreated")
+        setupRecyclerView()
+        observeMedications()
+        setupFragmentResultListener()
+        observeSearchEvents()
+    }
+
     private fun setupRecyclerView() {
         Timber.d("Setting up current medications RecyclerView")
         medicationAdapter = MedicationAdapter(
