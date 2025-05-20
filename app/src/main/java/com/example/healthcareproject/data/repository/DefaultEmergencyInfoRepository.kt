@@ -95,8 +95,8 @@ class DefaultEmergencyInfoRepository @Inject constructor(
     override suspend fun refresh() {
         withContext(dispatcher) {
             val remoteEmergencyInfos = networkDataSource.loadEmergencyInfos(userId)
-            localDataSource.deleteAll()
             localDataSource.upsertAll(remoteEmergencyInfos.toLocal())
+            saveEmergencyInfosToNetwork()
         }
     }
 

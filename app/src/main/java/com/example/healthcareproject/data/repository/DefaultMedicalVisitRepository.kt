@@ -8,13 +8,11 @@ import com.example.healthcareproject.data.source.local.AppDatabase
 import com.example.healthcareproject.data.source.local.dao.MedicalVisitDao
 import com.example.healthcareproject.data.source.network.datasource.AuthDataSource
 import com.example.healthcareproject.data.source.network.datasource.MedicalVisitDataSource
-import com.example.healthcareproject.di.ApplicationScope
 import com.example.healthcareproject.di.DefaultDispatcher
 import com.example.healthcareproject.domain.model.MedicalVisit
 import com.example.healthcareproject.domain.repository.MedicalVisitRepository
 import com.example.healthcareproject.domain.repository.MedicationRepository
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
@@ -31,7 +29,6 @@ class DefaultMedicalVisitRepository @Inject constructor(
     private val authDataSource: AuthDataSource,
     private val medicationRepository: MedicationRepository,
     @DefaultDispatcher private val dispatcher: CoroutineDispatcher,
-    @ApplicationScope private val scope: CoroutineScope,
     private val appDatabase: AppDatabase
 ) : MedicalVisitRepository {
 
@@ -120,6 +117,7 @@ class DefaultMedicalVisitRepository @Inject constructor(
             appDatabase.withTransaction {
                 val remoteVisits = networkDataSource.loadMedicalVisits(userId)
                 localDataSource.upsertAll(remoteVisits.toLocal())
+                saveMedicalVisitsToNetwork()
             }
         }
     }
