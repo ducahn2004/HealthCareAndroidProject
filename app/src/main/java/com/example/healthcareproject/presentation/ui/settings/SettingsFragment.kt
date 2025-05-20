@@ -23,8 +23,6 @@ class SettingsFragment : Fragment() {
     private val SETTINGS = listOf(
         SettingItem(1, "Change Theme", R.drawable.ic_theme),
         SettingItem(2, "Information", R.drawable.ic_account),
-        SettingItem(3, "Notifications", R.drawable.ic_notification),
-        SettingItem(4, "Privacy", R.drawable.ic_privacy),
         SettingItem(5, "Emergency Contacts", R.drawable.ic_emergency),
         SettingItem(6, "Change Password", R.drawable.ic_password),
         SettingItem(7, "Logout", R.drawable.ic_logout)
