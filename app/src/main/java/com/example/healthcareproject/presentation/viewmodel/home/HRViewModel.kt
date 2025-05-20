@@ -19,7 +19,7 @@ class HRViewModel @Inject constructor(
     private val _heartRateHistory = MutableLiveData<List<Measurement>>()
     val heartRateHistory: LiveData<List<Measurement>> get() = _heartRateHistory
 
-    private val maxDataPoints = 100
+    private val maxDataPoints = 20
 
     init {
         viewModelScope.launch {

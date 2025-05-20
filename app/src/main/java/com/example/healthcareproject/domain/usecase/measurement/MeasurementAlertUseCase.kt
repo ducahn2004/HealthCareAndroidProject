@@ -21,7 +21,7 @@ class MeasurementAlertUseCase @Inject constructor(
         Timber.tag("MeasurementAlertUseCase")
             .d("Checking thresholds for measurement: ${measurement.measurementId}")
 
-        if (!AlertThrottleManager.shouldTriggerAlert()) {
+        if (!AlertThrottleManager.shouldTriggerAlert(context)) {
             Timber.tag("MeasurementAlertUseCase")
                 .d("Alert throttled - skipping alert for measurement: ${measurement.measurementId}")
             return

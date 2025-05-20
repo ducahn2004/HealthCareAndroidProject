@@ -19,7 +19,7 @@ class SpO2ViewModel @Inject constructor(
     private val _spO2History = MutableLiveData<List<Measurement>>()
     val spO2History: LiveData<List<Measurement>> get() = _spO2History
 
-    private val maxDataPoints = 100
+    private val maxDataPoints = 20
 
     init {
         viewModelScope.launch {
