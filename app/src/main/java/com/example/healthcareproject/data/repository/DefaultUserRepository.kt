@@ -16,6 +16,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.time.LocalDate
@@ -174,31 +175,34 @@ class DefaultUserRepository @Inject constructor(
     }
 
     override suspend fun loginUser(
-        userId: String,
+        email: String,
         password: String
     ): String = withContext(dispatcher) {
-        Timber.d("Attempting to log in with email: $userId")
+        Timber.d("Attempting to log in with email: $email")
         try {
-            val uid = FirebaseAuth.getInstance().currentUser?.uid
-                ?: throw Exception("User UID not found after login")
+            val authResult = FirebaseAuth.getInstance()
+                .signInWithEmailAndPassword(email, password)
+                .await() // Use await() for coroutine support
+            val uid = authResult.user?.uid
+                ?: throw Exception("Login failed: No user found after authentication")
             refresh()
             Timber.d("Login successful, UID: $uid")
             uid
         } catch (e: FirebaseAuthInvalidUserException) {
             Timber.e(e, "Login failed: Account not registered")
-            throw e // Propagate for LoginUserUseCase
+            throw Exception("Account not found. Please register or try Google Sign-In.")
         } catch (e: FirebaseAuthInvalidCredentialsException) {
             Timber.e(e, "Login failed: Invalid email or password")
-            throw e
+            throw Exception("Invalid email or password")
         } catch (e: Exception) {
             Timber.e(e, "Login failed: ${e.message}")
-            throw e
+            throw Exception("Login failed: ${e.message}")
         }
     }
 
     override suspend fun sendVerificationCode(email: String) = withContext(dispatcher) {
         Timber.d("Sending verification code to: $email")
-        try {
+        try {2
             authDataSource.sendVerificationCode(email)
         } catch (e: Exception) {
             Timber.e(e, "Failed to send verification code to: $email")

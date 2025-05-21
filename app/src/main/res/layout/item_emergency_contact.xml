@@ -95,6 +95,8 @@
             android:src="@drawable/ic_edit"
             app:layout_constraintEnd_toStartOf="@id/btn_delete"
             app:layout_constraintTop_toTopOf="parent"
+            android:minHeight="48dp"
+            android:minWidth="48dp"
             app:tint="@color/purple_500" />
 
         <!-- Delete Button -->
@@ -106,6 +108,8 @@
             android:contentDescription="@string/delete_contact_description"
             android:onClick="@{onDeleteClick}"
             android:src="@drawable/ic_delete"
+            android:minHeight="48dp"
+            android:minWidth="48dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:tint="@color/alert_text_color" />

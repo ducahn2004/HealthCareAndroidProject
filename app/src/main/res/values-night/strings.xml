@@ -192,6 +192,10 @@
     <string name="medical_history">Medical History</string>
     <string name="search_visits">Search visits...</string>
     <string name="error_google_play_services">Error Google Play Service</string>
+    <string name="new_password">New Password</string>
+    <string name="current_password">"Current Password "</string>
+    <string name="repeat_new_password">Repeat_new_password</string>
+    <string name="change_password">Change Password</string>
 
     <string-array name="gender_options">
         <item>Male</item>
