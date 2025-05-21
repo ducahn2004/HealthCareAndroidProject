@@ -2,7 +2,7 @@ package com.example.healthcareproject
 
 import android.app.Application
 import androidx.work.Configuration
-import com.example.healthcareproject.data.woker.WorkerScheduler
+import com.example.healthcareproject.data.worker.WorkerScheduler
 import com.example.healthcareproject.presentation.util.NotificationUtil
 import com.google.firebase.FirebaseApp
 import dagger.hilt.android.HiltAndroidApp

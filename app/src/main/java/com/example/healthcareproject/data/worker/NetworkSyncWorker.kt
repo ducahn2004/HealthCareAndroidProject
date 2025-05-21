@@ -1,4 +1,4 @@
-package com.example.healthcareproject.data.woker
+package com.example.healthcareproject.data.worker
 
 import android.content.Context
 import androidx.work.CoroutineWorker
@@ -8,7 +8,7 @@ import com.example.healthcareproject.domain.repository.AppointmentRepository
 import com.example.healthcareproject.domain.repository.EmergencyInfoRepository
 import com.example.healthcareproject.domain.repository.NotificationRepository
 import com.example.healthcareproject.domain.repository.ReminderRepository
-import com.example.healthcareproject.domain.repository.UserRepository
+import timber.log.Timber
 import javax.inject.Inject
 
 class NetworkSyncWorker @Inject constructor(
@@ -19,17 +19,16 @@ class NetworkSyncWorker @Inject constructor(
     private val emergencyInfoRepository: EmergencyInfoRepository,
     private val notificationRepository: NotificationRepository,
     private val reminderRepository: ReminderRepository,
-    private val userRepository: UserRepository
 ) : CoroutineWorker(context, workerParams) {
 
     override suspend fun doWork(): Result {
+        Timber.tag("NetworkSyncWorker").d("Sync Data Firebase and Room")
         return try {
             alertRepository.refresh()
             appointmentRepository.refresh()
             emergencyInfoRepository.refresh()
             notificationRepository.refresh()
             reminderRepository.refresh()
-            userRepository.refresh()
 
             Result.success()
         } catch (e: Exception) {

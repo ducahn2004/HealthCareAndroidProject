@@ -1,4 +1,4 @@
-package com.example.healthcareproject.data.woker
+package com.example.healthcareproject.data.worker
 
 import android.content.Context
 import androidx.work.Constraints

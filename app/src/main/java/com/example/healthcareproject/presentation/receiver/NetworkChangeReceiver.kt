@@ -6,7 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
-import com.example.healthcareproject.data.woker.WorkerScheduler
+import com.example.healthcareproject.data.worker.WorkerScheduler
 
 class NetworkChangeReceiver : BroadcastReceiver() {
     @SuppressLint("UnsafeProtectedBroadcastReceiver")

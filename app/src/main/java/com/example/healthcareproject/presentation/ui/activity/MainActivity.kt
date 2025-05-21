@@ -21,32 +21,16 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var navController: NavController
 
-    private val requestNotificationPermissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-            if (!isGranted) {
-                Toast.makeText(this, "App needs notification permission to send reminders", Toast.LENGTH_LONG).show()
-            }
-        }
+    private val permissionsQueue = mutableListOf<String>()
 
-    private val requestCallPhonePermissionLauncher =
+    private val permissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-            if (!isGranted) {
-                Toast.makeText(this, "Call permission is required for alerts!", Toast.LENGTH_SHORT).show()
+            val currentPermission = permissionsQueue.removeFirstOrNull()
+            if (!isGranted && currentPermission != null) {
+                Toast.makeText(this, "Permission $currentPermission is required!", Toast.LENGTH_SHORT).show()
             }
-        }
 
-    private val requestBodySensorsPermissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-            if (!isGranted) {
-                Toast.makeText(this, "Body sensors permission is required!", Toast.LENGTH_LONG).show()
-            }
-        }
-
-    private val requestActivityRecognitionPermissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-            if (!isGranted) {
-                Toast.makeText(this, "Activity recognition permission is required!", Toast.LENGTH_LONG).show()
-            }
+            requestNextPermission()
         }
 
     @RequiresApi(Build.VERSION_CODES.Q)
@@ -62,23 +46,7 @@ class MainActivity : AppCompatActivity() {
 
         binding.bottomNavigationView.setupWithNavController(navController)
 
-        if (PermissionManager.shouldRequestNotificationPermission()
-            && !PermissionManager.hasPermission(this, PermissionManager.REQUEST_POST_NOTIFICATIONS)
-        ) {
-            requestNotificationPermissionLauncher.launch(PermissionManager.REQUEST_POST_NOTIFICATIONS)
-        }
-
-        if (!PermissionManager.hasPermission(this, PermissionManager.REQUEST_CALL_PHONE)) {
-            requestCallPhonePermissionLauncher.launch(PermissionManager.REQUEST_CALL_PHONE)
-        }
-
-        if (!PermissionManager.hasPermission(this, PermissionManager.REQUEST_BODY_SENSORS)) {
-            requestBodySensorsPermissionLauncher.launch(PermissionManager.REQUEST_BODY_SENSORS)
-        }
-
-        if (!PermissionManager.hasPermission(this, PermissionManager.REQUEST_ACTIVITY_RECOGNITION)) {
-            requestActivityRecognitionPermissionLauncher.launch(PermissionManager.REQUEST_ACTIVITY_RECOGNITION)
-        }
+        requestAllPermissionsSequentially()
 
         PermissionManager.checkAndRequestExactAlarmPermission(this)
 
@@ -87,5 +55,37 @@ class MainActivity : AppCompatActivity() {
 
     override fun onSupportNavigateUp(): Boolean {
         return navController.navigateUp() || super.onSupportNavigateUp()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private fun requestAllPermissionsSequentially() {
+        permissionsQueue.clear()
+
+        if (PermissionManager.shouldRequestNotificationPermission()
+            && !PermissionManager.hasPermission(this, PermissionManager.REQUEST_POST_NOTIFICATIONS)
+        ) {
+            permissionsQueue.add(PermissionManager.REQUEST_POST_NOTIFICATIONS)
+        }
+
+        if (!PermissionManager.hasPermission(this, PermissionManager.REQUEST_CALL_PHONE)) {
+            permissionsQueue.add(PermissionManager.REQUEST_CALL_PHONE)
+        }
+
+        if (!PermissionManager.hasPermission(this, PermissionManager.REQUEST_BODY_SENSORS)) {
+            permissionsQueue.add(PermissionManager.REQUEST_BODY_SENSORS)
+        }
+
+        if (!PermissionManager.hasPermission(this, PermissionManager.REQUEST_ACTIVITY_RECOGNITION)) {
+            permissionsQueue.add(PermissionManager.REQUEST_ACTIVITY_RECOGNITION)
+        }
+
+        requestNextPermission()
+    }
+
+    private fun requestNextPermission() {
+        if (permissionsQueue.isNotEmpty()) {
+            val permission = permissionsQueue.first()
+            permissionLauncher.launch(permission)
+        }
     }
 }
