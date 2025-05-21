@@ -21,12 +21,6 @@ class MeasurementAlertUseCase @Inject constructor(
         Timber.tag("MeasurementAlertUseCase")
             .d("Checking thresholds for measurement: ${measurement.measurementId}")
 
-        if (!AlertThrottleManager.shouldTriggerAlert()) {
-            Timber.tag("MeasurementAlertUseCase")
-                .d("Alert throttled - skipping alert for measurement: ${measurement.measurementId}")
-            return
-        }
-
         if (hrAnalysisUseCase.isAbnormal(measurement.bpm) || spO2AnalysisUseCase.isAbnormal(measurement.spO2)) {
             val emergencyInfos = emergencyRepo.getEmergencyInfos()
                 .sortedBy { it.priority }
@@ -39,6 +33,12 @@ class MeasurementAlertUseCase @Inject constructor(
                 triggerReason = "Abnormal health indicators",
                 contacted = false
             )
+
+            if (!AlertThrottleManager.shouldTriggerAlert(context)) {
+                Timber.tag("MeasurementAlertUseCase")
+                    .d("Alert throttled - skipping alert for measurement: ${measurement.measurementId}")
+                return
+            }
 
             NotificationUtil.showWarningNotification(
                 context,
