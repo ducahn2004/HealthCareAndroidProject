@@ -119,9 +119,6 @@ class RegisterFragment : Fragment() {
             if (uid != null) {
                 val email = viewModel.email.value
                 if (!email.isNullOrBlank()) {
-                    // Step 1: Start Google Sign-In to get ID Token
-                    val signInIntent = googleSignInClient.signInIntent
-                    googleSignInLauncher.launch(signInIntent)
 
                     // Step 2: Navigate to code verification screen
                     val bundle = Bundle().apply {

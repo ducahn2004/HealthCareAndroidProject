@@ -56,7 +56,17 @@
         <!-- AuthActivity -->
         <activity
             android:name=".presentation.ui.activity.AuthActivity"
-            android:exported="false" />
+            android:exported="true"> <!-- Set exported to true if handling deep links -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="https"
+                    android:host="https://heart-careproject.firebaseapp.com"
+                    android:pathPrefix="/finishSignUp" />
+            </intent-filter>
+        </activity>
 
         <activity
             android:name=".presentation.ui.activity.ReminderActivity"

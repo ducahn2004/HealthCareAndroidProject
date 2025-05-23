@@ -12,8 +12,9 @@ import com.example.healthcareproject.databinding.FragmentForgotPasswordBinding
 import com.example.healthcareproject.presentation.navigation.AuthNavigator
 import com.example.healthcareproject.presentation.viewmodel.auth.ForgotPasswordViewModel
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
-
+@AndroidEntryPoint
 class ForgotPasswordFragment : Fragment() {
 
     private var _binding: FragmentForgotPasswordBinding? = null
