@@ -115,9 +115,9 @@ class DefaultAppointmentRepository @Inject constructor(
 
     override suspend fun refresh() {
         withContext(dispatcher) {
+            saveAppointmentsToNetwork()
             val remoteAppointments = networkDataSource.loadAppointments(userId)
             localDataSource.upsertAll(remoteAppointments.toLocal())
-            saveAppointmentsToNetwork()
         }
     }
 

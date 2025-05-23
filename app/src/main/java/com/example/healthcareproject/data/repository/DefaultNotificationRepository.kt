@@ -107,9 +107,9 @@ class DefaultNotificationRepository @Inject constructor(
 
     override suspend fun refresh() {
         withContext(dispatcher) {
+            saveNotificationsToNetwork()
             val remoteNotifications = networkDataSource.loadNotifications(userId)
             localDataSource.upsertAll(remoteNotifications.toLocal())
-            saveNotificationsToNetwork()
         }
     }
 

@@ -119,15 +119,15 @@ class DefaultReminderRepository @Inject constructor(
 
     override fun getRemindersStream(reminderId: String): Flow<Reminder?> {
         return localDataSource.observeById(reminderId)
-            .map { it?.toExternal() }
+            .map { it.toExternal() }
             .flowOn(dispatcher)
     }
 
     override suspend fun refresh() {
         withContext(dispatcher) {
+            saveRemindersToNetwork()
             val remoteReminders = networkDataSource.loadReminders(userId)
             localDataSource.upsertAll(remoteReminders.toLocal())
-            saveRemindersToNetwork()
         }
     }
 

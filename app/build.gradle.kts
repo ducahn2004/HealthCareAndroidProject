@@ -118,12 +118,14 @@ dependencies {
     implementation(libs.androidx.room.rxjava3)
     implementation(libs.androidx.room.guava)
     implementation(libs.androidx.room.paging)
+    implementation(libs.androidx.hilt.common)
     ksp(libs.androidx.room.compiler)
     testImplementation(libs.androidx.room.testing)
 
     // Dependency Injection (Hilt)
     implementation(libs.hilt.android.core)
     implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.androidx.hilt.work)
     ksp(libs.hilt.compiler)
 
     // Kotlin

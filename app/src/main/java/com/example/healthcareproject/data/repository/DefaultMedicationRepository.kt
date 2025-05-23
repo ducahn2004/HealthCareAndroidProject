@@ -141,6 +141,7 @@ class DefaultMedicationRepository @Inject constructor(
 
     override suspend fun refresh() {
         withContext(dispatcher) {
+            saveMedicationsToNetwork()
             val remoteMedications = networkDataSource.loadMedications(userId)
             remoteMedications.forEach { med ->
                 Timber.d("Firebase medication for refresh: name=${med.name}, id=${med.medicationId}, visitId=${med.visitId}, userId=${med.userId}")
@@ -150,7 +151,6 @@ class DefaultMedicationRepository @Inject constructor(
             updatedLocalMedications.forEach { med ->
                 Timber.d("Room after refresh: name=${med.name}, id=${med.medicationId}, visitId=${med.visitId}, userId=${med.userId}")
             }
-            saveMedicationsToNetwork()
         }
     }
 

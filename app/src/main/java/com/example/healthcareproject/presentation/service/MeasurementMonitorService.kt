@@ -6,6 +6,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.healthcareproject.R
 import com.example.healthcareproject.domain.repository.MeasurementRepository
 import com.example.healthcareproject.domain.usecase.measurement.MeasurementAlertUseCase
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -21,6 +22,13 @@ class MeasurementMonitorService : LifecycleService() {
 
     override fun onCreate() {
         super.onCreate()
+
+        if (!isUserLoggedIn()) {
+            Timber.tag("MeasurementMonitorService").e("User not logged in, stopping service")
+            stopSelf()
+            return
+        }
+
         startForegroundService()
         observeMeasurements()
     }
@@ -43,5 +51,9 @@ class MeasurementMonitorService : LifecycleService() {
                 }
             }
         }
+    }
+
+    private fun isUserLoggedIn(): Boolean {
+        return FirebaseAuth.getInstance().currentUser != null
     }
 }

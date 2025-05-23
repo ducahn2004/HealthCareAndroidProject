@@ -95,7 +95,6 @@
             android:foregroundServiceType="health"
             android:exported="false" />
 
-
         <!-- Receiver -->
         <receiver
             android:name=".presentation.receiver.BootReceiver"

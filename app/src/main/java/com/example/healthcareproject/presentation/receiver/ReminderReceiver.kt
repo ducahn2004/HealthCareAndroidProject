@@ -9,6 +9,7 @@ import com.example.healthcareproject.presentation.util.AlarmManagerUtil
 import com.example.healthcareproject.presentation.util.ReminderTimeUtil
 import com.example.healthcareproject.domain.model.NotificationType
 import com.example.healthcareproject.domain.model.RelatedTable
+import com.example.healthcareproject.presentation.ui.activity.ReminderActivity
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -61,6 +62,13 @@ class ReminderReceiver : BroadcastReceiver() {
                 message = reminder.message,
                 notificationTime = LocalDateTime.now()
             )
+
+            val activityIntent = Intent(context, ReminderActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                putExtra("title", reminder.title)
+                putExtra("message", reminder.message)
+            }
+            context.startActivity(activityIntent)
 
             val nextTime = ReminderTimeUtil.nextTriggerTime(reminder)
 
