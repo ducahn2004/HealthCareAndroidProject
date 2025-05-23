@@ -115,9 +115,9 @@ class DefaultMedicalVisitRepository @Inject constructor(
     override suspend fun refresh() {
         withContext(dispatcher) {
             appDatabase.withTransaction {
+                saveMedicalVisitsToNetwork()
                 val remoteVisits = networkDataSource.loadMedicalVisits(userId)
                 localDataSource.upsertAll(remoteVisits.toLocal())
-                saveMedicalVisitsToNetwork()
             }
         }
     }

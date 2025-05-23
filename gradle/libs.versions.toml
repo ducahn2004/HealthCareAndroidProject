@@ -1,5 +1,5 @@
 [versions]
-agp = "8.9.2"
+agp = "8.10.0"
 annotation = "1.9.1"
 coreTesting = "2.2.0"
 androidGradlePlugin = "8.7.3"
@@ -40,6 +40,8 @@ slf4jSimple = "1.7.36"
 timber = "5.0.1"
 ksp = "2.1.10-1.0.30"
 workRuntimeKtx = "2.10.1"
+hiltCommon = "1.2.0"
+hiltWork = "1.2.0"
 [libraries]
 androidx-annotation = { module = "androidx.annotation:annotation", version.ref = "annotation" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -97,6 +99,8 @@ hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", v
 firebase-functions = { module = "com.google.firebase:firebase-functions-ktx" }
 socketio-client = { group = "io.socket", name = "socket.io-client", version.ref = "socketio" }
 androidx-localbroadcastmanager = { group = "androidx.localbroadcastmanager", name = "localbroadcastmanager", version.ref = "localbroadcastmanager" }
+androidx-hilt-common = { group = "androidx.hilt", name = "hilt-common", version.ref = "hiltCommon" }
+androidx-hilt-work = { group = "androidx.hilt", name = "hilt-work", version.ref = "hiltWork" }
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

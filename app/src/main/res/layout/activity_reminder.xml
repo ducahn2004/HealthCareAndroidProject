@@ -22,4 +22,13 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="Reminder message here." />
+
+    <Button
+        android:id="@+id/btnStopAlarm"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tắt báo thức"
+        android:layout_gravity="center"
+        android:padding="16dp"/>
+
 </LinearLayout>
