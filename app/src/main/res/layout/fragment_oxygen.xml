@@ -18,10 +18,10 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Title: SpO2 -->
+    <!-- Title -->
     <TextView
         android:id="@+id/tv_title"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:fontFamily="@font/roboto_slab_medium"
@@ -30,6 +30,7 @@
         android:textSize="24sp"
         android:textStyle="bold"
         app:layout_constraintStart_toEndOf="@id/ic_back_spo2_to_home"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <!-- Date -->
@@ -37,82 +38,78 @@
         android:id="@+id/tv_date"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
         android:layout_marginTop="12dp"
         android:fontFamily="sans-serif-black"
         android:text="@string/_29_march"
         android:textColor="@color/primary_text_color"
         android:textSize="24sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_title" />
+        app:layout_constraintTop_toBottomOf="@id/tv_title"
+        app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- SpO2 Value -->
+    <!-- SpO2 Value and Icon -->
     <TextView
         android:id="@+id/tv_spo2_value"
-        android:layout_width="127dp"
-        android:layout_height="127dp"
-        android:layout_marginStart="20dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:fontFamily="@font/roboto_slab_medium"
         android:text="@string/_98"
         android:textColor="@color/primary_text_color"
         android:textSize="110sp"
+        android:textAlignment="center"
+        app:layout_constraintTop_toBottomOf="@id/tv_date"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_date" />
+        app:layout_constraintEnd_toStartOf="@id/iv_spo2_icon" />
 
-    <!-- Percent Label -->
+    <ImageView
+        android:id="@+id/iv_spo2_icon"
+        android:layout_width="0dp"
+        android:layout_height="140dp"
+        android:layout_marginStart="8dp"
+        android:contentDescription="@string/spo2_icon"
+        android:src="@drawable/ic_oxygen"
+        app:layout_constraintTop_toTopOf="@id/tv_spo2_value"
+        app:layout_constraintBottom_toBottomOf="@id/tv_spo2_value"
+        app:layout_constraintStart_toEndOf="@id/tv_spo2_value"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:tint="@color/heart_icon_color" />
+
+    <!-- % Label -->
     <TextView
         android:id="@+id/tv_percent_label"
-        android:layout_width="111dp"
-        android:layout_height="32dp"
-        android:layout_marginStart="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:fontFamily="@font/roboto_slab_medium"
         android:text="@string/percent"
         android:textColor="@color/primary_text_color"
         android:textSize="24sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_spo2_value" />
+        app:layout_constraintTop_toBottomOf="@id/tv_spo2_value"
+        app:layout_constraintStart_toStartOf="@id/tv_spo2_value" />
 
-    <!-- SpO2 Icon -->
-    <ImageView
-        android:id="@+id/iv_spo2_icon"
-        android:layout_width="138dp"
-        android:layout_height="140dp"
-        android:layout_marginEnd="35dp"
-        android:contentDescription="@string/spo2_icon"
-        android:src="@drawable/ic_oxygen"
-        app:layout_constraintBottom_toBottomOf="@id/tv_spo2_value"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toEndOf="@+id/tv_spo2_value"
-        app:layout_constraintTop_toTopOf="@id/tv_spo2_value"
-        app:layout_constraintVertical_bias="0.0"
-        app:tint="@color/heart_icon_color" />
-
-    <!-- Min and Max Values -->
+    <!-- Min, Max values -->
     <ImageView
         android:id="@+id/ic_min_spo2_value"
         android:layout_width="33dp"
         android:layout_height="33dp"
-        android:layout_marginStart="20dp"
         android:layout_marginTop="8dp"
-        android:contentDescription="@string/min_spo2"
         android:src="@drawable/ic_min_value"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_percent_label" />
+        android:contentDescription="@string/min_spo2"
+        app:layout_constraintTop_toBottomOf="@id/tv_percent_label"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
         android:id="@+id/tv_min_value"
-        android:layout_width="31dp"
-        android:layout_height="33dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:fontFamily="@font/roboto_slab_medium"
         android:text="@string/_92"
         android:textColor="@color/primary_text_color"
         android:textSize="24sp"
-        app:layout_constraintStart_toEndOf="@+id/ic_min_spo2_value"
-        app:layout_constraintTop_toBottomOf="@+id/tv_percent_label" />
+        app:layout_constraintTop_toBottomOf="@id/tv_percent_label"
+        app:layout_constraintStart_toEndOf="@id/ic_min_spo2_value" />
 
     <ImageView
         android:id="@+id/ic_max_spo2_value"
@@ -120,49 +117,47 @@
         android:layout_height="33dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:contentDescription="@string/max_spo2"
         android:src="@drawable/ic_max_value"
-        app:layout_constraintStart_toEndOf="@+id/tv_min_value"
-        app:layout_constraintTop_toBottomOf="@+id/tv_percent_label" />
+        android:contentDescription="@string/max_spo2"
+        app:layout_constraintTop_toBottomOf="@id/tv_percent_label"
+        app:layout_constraintStart_toEndOf="@id/tv_min_value" />
 
     <TextView
         android:id="@+id/tv_max_value"
-        android:layout_width="36dp"
-        android:layout_height="33dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:fontFamily="@font/roboto_slab_medium"
         android:text="@string/_99"
         android:textColor="@color/primary_text_color"
         android:textSize="24sp"
-        app:layout_constraintStart_toEndOf="@+id/ic_max_spo2_value"
-        app:layout_constraintTop_toBottomOf="@+id/tv_percent_label" />
+        app:layout_constraintTop_toBottomOf="@id/tv_percent_label"
+        app:layout_constraintStart_toEndOf="@id/ic_max_spo2_value" />
 
-    <!-- Average Value -->
+    <!-- Average -->
     <TextView
         android:id="@+id/tv_average_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
         android:layout_marginTop="8dp"
         android:fontFamily="@font/roboto_slab_medium"
         android:text="@string/average_97_percent"
         android:textColor="@color/primary_text_color"
         android:textSize="24sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ic_max_spo2_value" />
+        app:layout_constraintTop_toBottomOf="@id/ic_max_spo2_value"
+        app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- Tabs: Minute, Hour, Day, Week -->
+    <!-- Tab Layout -->
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tab_layout"
-        android:layout_width="366dp"
-        android:layout_height="43dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:background="@color/tab_background"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.461"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_average_label"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:tabIndicatorColor="@color/tab_text_selected"
         app:tabSelectedTextColor="@color/tab_text_selected"
         app:tabTextColor="@color/tab_text_unselected">
@@ -170,39 +165,35 @@
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/roboto_slab_bold"
             android:text="@string/minute" />
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/roboto_slab_bold"
             android:text="@string/hour" />
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/roboto_slab_bold"
             android:text="@string/day" />
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/roboto_slab_bold"
             android:text="@string/week" />
-
     </com.google.android.material.tabs.TabLayout>
+
 
     <!-- Chart -->
     <com.github.mikephil.charting.charts.LineChart
         android:id="@+id/chart_spo2"
-        android:layout_width="363dp"
-        android:layout_height="423dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:layout_marginTop="12dp"
         android:background="@android:color/transparent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.272"
+        app:layout_constraintTop_toBottomOf="@id/tab_layout"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tab_layout" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

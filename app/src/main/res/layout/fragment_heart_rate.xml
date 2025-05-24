@@ -18,7 +18,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Title: Heart Rate -->
+    <!-- Title -->
     <TextView
         android:id="@+id/tv_title"
         android:layout_width="wrap_content"
@@ -33,144 +33,134 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <!-- Date -->
-
-    <!-- Heart Rate Value -->
-
-    <!-- BPM Label -->
     <TextView
         android:id="@+id/tv_date"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
         android:layout_marginTop="12dp"
         android:fontFamily="sans-serif-black"
         android:text="@string/_29_march"
         android:textColor="@color/primary_text_color"
         android:textSize="24sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_title" />
+        app:layout_constraintTop_toBottomOf="@id/tv_title"
+        app:layout_constraintStart_toStartOf="parent" />
 
+    <!-- Heart Rate Value -->
     <TextView
         android:id="@+id/tv_heart_rate_value"
-        android:layout_width="181dp"
-        android:layout_height="125dp"
-        android:layout_marginStart="20dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:fontFamily="@font/roboto_slab_medium"
         android:text="@string/_84"
         android:textColor="@color/primary_text_color"
         android:textSize="110sp"
+        android:textAlignment="center"
+        app:layout_constraintTop_toBottomOf="@id/tv_date"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_date" />
+        app:layout_constraintEnd_toStartOf="@id/iv_heart_icon"
+        app:layout_constraintHorizontal_bias="0.0" />
 
+    <!-- BPM Label -->
     <TextView
         android:id="@+id/tv_bpm_label"
-        android:layout_width="83dp"
-        android:layout_height="28dp"
-        android:layout_marginStart="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:fontFamily="@font/roboto_slab_medium"
         android:text="@string/bpm"
         android:textColor="@color/primary_text_color"
         android:textSize="24sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_heart_rate_value" />
+        app:layout_constraintTop_toBottomOf="@id/tv_heart_rate_value"
+        app:layout_constraintStart_toStartOf="@id/tv_heart_rate_value" />
 
     <!-- Heart Icon -->
-
-    <!-- Min and Max Values -->
-
-    <!-- Average Value -->
-
-    <!-- Tabs: Minute, Hour, Day, Week -->
-
-    <!-- Chart -->
-
     <ImageView
         android:id="@+id/iv_heart_icon"
-        android:layout_width="138dp"
+        android:layout_width="0dp"
         android:layout_height="140dp"
-        android:layout_marginEnd="35dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
         android:contentDescription="@string/heart_rate_icon"
         android:src="@drawable/ic_heart_rate"
-        app:layout_constraintBottom_toBottomOf="@id/tv_heart_rate_value"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toEndOf="@+id/tv_heart_rate_value"
         app:layout_constraintTop_toTopOf="@id/tv_heart_rate_value"
-        app:layout_constraintVertical_bias="0.0"
+        app:layout_constraintBottom_toBottomOf="@id/tv_heart_rate_value"
+        app:layout_constraintStart_toEndOf="@id/tv_heart_rate_value"
+        app:layout_constraintEnd_toEndOf="parent"
         app:tint="@color/heart_icon_color" />
 
-    <TextView
-        android:id="@+id/tv_average_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="8dp"
-        android:fontFamily="@font/roboto_slab_medium"
-        android:text="@string/average_69_bpm"
-        android:textColor="@color/primary_text_color"
-        android:textSize="24sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ic_max_heart_rate_value" />
-
-    <TextView
-        android:id="@+id/tv_max_value"
-        android:layout_width="50dp"
-        android:layout_height="32dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:fontFamily="@font/roboto_slab_medium"
-        android:text="@string/_131"
-        android:textColor="@color/primary_text_color"
-        android:textSize="24sp"
-        app:layout_constraintStart_toEndOf="@+id/ic_max_heart_rate_value"
-        app:layout_constraintTop_toBottomOf="@+id/tv_bpm_label" />
-
+    <!-- Min Icon + Value -->
     <ImageView
         android:id="@+id/ic_min_heart_rate_value"
         android:layout_width="33dp"
         android:layout_height="33dp"
-        android:layout_marginStart="20dp"
         android:layout_marginTop="8dp"
-        android:contentDescription="@string/back"
         android:src="@drawable/ic_min_value"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_bpm_label" />
+        android:contentDescription="@string/min"
+        app:layout_constraintTop_toBottomOf="@id/tv_bpm_label"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
         android:id="@+id/tv_min_value"
-        android:layout_width="49dp"
-        android:layout_height="36dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:fontFamily="@font/roboto_slab_medium"
         android:text="@string/_42"
         android:textColor="@color/primary_text_color"
         android:textSize="24sp"
-        app:layout_constraintStart_toEndOf="@+id/ic_min_heart_rate_value"
-        app:layout_constraintTop_toBottomOf="@+id/tv_bpm_label" />
+        app:layout_constraintStart_toEndOf="@id/ic_min_heart_rate_value"
+        app:layout_constraintTop_toBottomOf="@id/tv_bpm_label" />
 
+    <!-- Max Icon + Value -->
     <ImageView
         android:id="@+id/ic_max_heart_rate_value"
         android:layout_width="33dp"
         android:layout_height="33dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:contentDescription="@string/back"
         android:src="@drawable/ic_max_value"
-        app:layout_constraintStart_toEndOf="@+id/tv_min_value"
-        app:layout_constraintTop_toBottomOf="@+id/tv_bpm_label" />
+        android:contentDescription="@string/max"
+        app:layout_constraintStart_toEndOf="@id/tv_min_value"
+        app:layout_constraintTop_toBottomOf="@id/tv_bpm_label" />
 
+    <TextView
+        android:id="@+id/tv_max_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:fontFamily="@font/roboto_slab_medium"
+        android:text="@string/_131"
+        android:textColor="@color/primary_text_color"
+        android:textSize="24sp"
+        app:layout_constraintStart_toEndOf="@id/ic_max_heart_rate_value"
+        app:layout_constraintTop_toBottomOf="@id/tv_bpm_label" />
+
+    <!-- Average Label -->
+    <TextView
+        android:id="@+id/tv_average_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:fontFamily="@font/roboto_slab_medium"
+        android:text="@string/average_69_bpm"
+        android:textColor="@color/primary_text_color"
+        android:textSize="24sp"
+        app:layout_constraintTop_toBottomOf="@id/ic_max_heart_rate_value"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- Tabs -->
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tab_layout"
-        android:layout_width="366dp"
-        android:layout_height="43dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:background="@color/tab_background"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.461"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_average_label"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:tabIndicatorColor="@color/tab_text_selected"
         app:tabSelectedTextColor="@color/tab_text_selected"
         app:tabTextColor="@color/tab_text_unselected">
@@ -178,38 +168,35 @@
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/roboto_slab_bold"
             android:text="@string/minute" />
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/roboto_slab_bold"
             android:text="@string/hour" />
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/roboto_slab_bold"
             android:text="@string/day" />
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/roboto_slab_bold"
             android:text="@string/week" />
-
     </com.google.android.material.tabs.TabLayout>
 
+
+    <!-- Chart -->
     <com.github.mikephil.charting.charts.LineChart
         android:id="@+id/chart_heart_rate"
-        android:layout_width="357dp"
-        android:layout_height="426dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:layout_marginTop="12dp"
         android:background="@android:color/transparent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.272"
+        app:layout_constraintTop_toBottomOf="@id/tab_layout"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tab_layout" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

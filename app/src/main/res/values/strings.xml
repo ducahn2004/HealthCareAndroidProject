@@ -228,6 +228,8 @@
     <string name="current_password">"Current Password "</string>
     <string name="repeat_new_password">Repeat_new_password</string>
     <string name="change_password">Change Password</string>
+    <string name="min">Min\n</string>
+    <string name="max">Max\n</string>
 
 
     <string-array name="gender_options">
