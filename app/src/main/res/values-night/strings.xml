@@ -196,6 +196,7 @@
     <string name="current_password">"Current Password "</string>
     <string name="repeat_new_password">Repeat_new_password</string>
     <string name="change_password">Change Password</string>
+    <string name="search_medicine">Search Medicine</string>
 
     <string-array name="gender_options">
         <item>Male</item>

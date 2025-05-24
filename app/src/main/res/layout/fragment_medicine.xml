@@ -30,20 +30,63 @@
             android:layout_marginBottom="16dp" />
 
         <!-- Search EditText -->
-        <EditText
-            android:id="@+id/et_search"
+        <!-- Search container -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/search_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="48dp"
-            android:hint="@string/search_visits"
-            android:textColor="@color/primary_text_color"
-            android:textColorHint="@color/secondary_text_color"
-            android:backgroundTint="@color/light_gray"
-            android:drawableEnd="@android:drawable/ic_menu_close_clear_cancel"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="8dp"
+            app:cardCornerRadius="28dp"
+            app:cardElevation="4dp"
             app:layout_constraintTop_toBottomOf="@id/tv_title"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="8dp" />
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@color/surface"
+                android:paddingStart="16dp"
+                android:paddingEnd="8dp">
+
+                <!-- Search Icon -->
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@android:drawable/ic_menu_search"
+                    android:contentDescription="@string/search_icon"
+                    app:tint="@color/black" />
+
+                <!-- EditText -->
+                <EditText
+                    android:id="@+id/et_search"
+                    android:layout_width="282dp"
+                    android:layout_height="match_parent"
+                    android:autofillHints=""
+                    android:background="@android:color/transparent"
+                    android:hint="@string/search_medications"
+                    android:inputType="text"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:textColor="@color/primary_text_color"
+                    android:textColorHint="@color/secondary_text_color"
+                    android:textSize="16sp" />
+
+                <!-- Clear Button -->
+                <ImageButton
+                    android:id="@+id/clearSearchButton"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@android:drawable/ic_menu_close_clear_cancel"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/clear_search"
+                    android:visibility="gone"
+                    app:tint="@color/gray_dark" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
 
         <!-- ProgressBar -->
         <ProgressBar
@@ -66,7 +109,7 @@
             android:layout_height="wrap_content"
             app:tabMode="fixed"
             app:tabGravity="fill"
-            app:layout_constraintTop_toBottomOf="@id/et_search"
+            app:layout_constraintTop_toBottomOf="@+id/search_container"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginTop="8dp" />

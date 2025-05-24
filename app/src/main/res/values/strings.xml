@@ -230,6 +230,7 @@
     <string name="change_password">Change Password</string>
     <string name="min">Min\n</string>
     <string name="max">Max\n</string>
+    <string name="search_medicine">Search Medicine</string>
 
 
     <string-array name="gender_options">
