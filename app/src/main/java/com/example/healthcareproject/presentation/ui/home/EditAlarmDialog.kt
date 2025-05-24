@@ -20,6 +20,14 @@ class EditAlarmDialog : DialogFragment() {
     private val binding get() = _binding!!
     private val viewModel: ReminderViewModel by viewModels()
 
+    override fun onStart() {
+        super.onStart()
+        dialog?.window?.setLayout(
+            ViewGroup.LayoutParams.MATCH_PARENT, // Set width to match parent
+            ViewGroup.LayoutParams.WRAP_CONTENT // Keep height as wrap content
+        )
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
