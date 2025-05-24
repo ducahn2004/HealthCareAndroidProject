@@ -6,5 +6,5 @@ data class FirebaseEmergencyInfo(
     var emergencyName: String = "",
     var emergencyPhone: String = "",
     var relationship: String = "",
-    var priority: Int
+    var priority: Int = 0
 )

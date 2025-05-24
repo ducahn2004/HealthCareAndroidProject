@@ -1,34 +1,31 @@
 package com.example.healthcareproject.data.worker
 
 import android.content.Context
-import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.example.healthcareproject.domain.repository.AlertRepository
-import com.example.healthcareproject.domain.repository.AppointmentRepository
-import com.example.healthcareproject.domain.repository.EmergencyInfoRepository
-import com.example.healthcareproject.domain.repository.MedicalVisitRepository
-import com.example.healthcareproject.domain.repository.MedicationRepository
-import com.example.healthcareproject.domain.repository.NotificationRepository
-import com.example.healthcareproject.domain.repository.ReminderRepository
-import com.example.healthcareproject.domain.repository.UserRepository
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedInject
+import com.example.healthcareproject.di.RepositoryEntryPoint
+import dagger.hilt.android.EntryPointAccessors
 import timber.log.Timber
 
-@HiltWorker
-class NetworkSyncWorker @AssistedInject constructor(
-    @Assisted context: Context,
-    @Assisted workerParams: WorkerParameters,
-    private val alertRepository: AlertRepository,
-    private val appointmentRepository: AppointmentRepository,
-    private val emergencyInfoRepository: EmergencyInfoRepository,
-    private val medicalVisitRepository: MedicalVisitRepository,
-    private val notificationRepository: NotificationRepository,
-    private val reminderRepository: ReminderRepository,
-    private val medicationRepository: MedicationRepository,
-    private val userRepository: UserRepository
+class NetworkSyncWorker(
+    context: Context,
+    workerParams: WorkerParameters
 ) : CoroutineWorker(context, workerParams) {
+
+    private val entryPoint = EntryPointAccessors.fromApplication(
+        context.applicationContext,
+        RepositoryEntryPoint::class.java
+    )
+
+    private val emergencyInfoRepository = entryPoint.emergencyInfoRepository()
+    private val reminderRepository = entryPoint.reminderRepository()
+    private val notificationRepository = entryPoint.notificationRepository()
+    private val medicalVisitRepository = entryPoint.medicalVisitRepository()
+    private val appointmentRepository = entryPoint.appointmentRepository()
+    private val medicationRepository = entryPoint.medicationRepository()
+    private val alertRepository = entryPoint.alertRepository()
+    private val userRepository = entryPoint.userRepository()
+
     override suspend fun doWork(): Result {
         val userId = userRepository.getCurrentUserId()
         if (userId == null) {

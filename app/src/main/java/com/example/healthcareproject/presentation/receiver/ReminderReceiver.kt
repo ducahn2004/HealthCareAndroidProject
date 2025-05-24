@@ -3,7 +3,7 @@ package com.example.healthcareproject.presentation.receiver
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import com.example.healthcareproject.di.ReceiverEntryPoint
+import com.example.healthcareproject.di.RepositoryEntryPoint
 import com.example.healthcareproject.presentation.util.NotificationUtil
 import com.example.healthcareproject.presentation.util.AlarmManagerUtil
 import com.example.healthcareproject.presentation.util.ReminderTimeUtil
@@ -34,7 +34,7 @@ class ReminderReceiver : BroadcastReceiver() {
         }
         val entryPoint = EntryPointAccessors.fromApplication(
             context.applicationContext,
-            ReceiverEntryPoint::class.java
+            RepositoryEntryPoint::class.java
         )
 
         val reminderRepository = entryPoint.reminderRepository()

@@ -8,4 +8,3 @@ data class FirebaseMeasurement(
     var spO2: Float = 0.0f,
     var dateTime: String = ""
 )
-

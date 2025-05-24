@@ -5,8 +5,7 @@ data class FirebaseAppointment(
     var userId: String = "",
     var visitId: String? = null,
     var doctorName: String = "",
-    var location: String,
+    var location: String = "",
     var appointmentTime: String = "",
     var note: String? = null
 )
-

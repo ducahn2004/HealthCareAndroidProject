@@ -7,5 +7,5 @@ data class FirebaseAlert(
     var emergencyId: String? = null,
     var triggerReason: String = "",
     var contacted: Boolean = false,
-    val timestamp: String
+    val timestamp: String = ""
 )

@@ -125,7 +125,6 @@ dependencies {
     // Dependency Injection (Hilt)
     implementation(libs.hilt.android.core)
     implementation(libs.androidx.hilt.navigation.compose)
-    implementation(libs.androidx.hilt.work)
     ksp(libs.hilt.compiler)
 
     // Kotlin

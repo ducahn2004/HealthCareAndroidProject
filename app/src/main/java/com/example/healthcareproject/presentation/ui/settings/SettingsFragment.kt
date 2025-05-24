@@ -19,6 +19,7 @@ import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
 import androidx.core.content.edit
 import com.example.healthcareproject.presentation.service.ForegroundServiceStarter
+import com.example.healthcareproject.presentation.util.NetworkMonitor
 
 @AndroidEntryPoint
 class SettingsFragment : Fragment() {
@@ -77,6 +78,9 @@ class SettingsFragment : Fragment() {
     private fun performLogout() {
         // Stop service
         ForegroundServiceStarter.stopMeasurementService(requireContext())
+
+        // Stop Monitor
+        NetworkMonitor.stopMonitoring()
 
         // Sign out from Firebase
         FirebaseAuth.getInstance().signOut()

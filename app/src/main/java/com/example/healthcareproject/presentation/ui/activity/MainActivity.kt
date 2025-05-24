@@ -9,10 +9,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
+import androidx.core.content.edit
 import com.example.healthcareproject.R
+import com.example.healthcareproject.data.worker.WorkerScheduler
 import com.example.healthcareproject.databinding.ActivityMainBinding
 import com.example.healthcareproject.presentation.service.ForegroundServiceStarter
 import com.example.healthcareproject.presentation.util.PermissionManager
+import com.example.healthcareproject.presentation.util.NetworkMonitor
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
@@ -53,6 +56,8 @@ class MainActivity : AppCompatActivity() {
         PermissionManager.checkAndRequestExactAlarmPermission(this)
 
         startMonitoringServiceIfLoggedIn()
+
+        NetworkMonitor.startMonitoring()
     }
 
     override fun onSupportNavigateUp(): Boolean {
@@ -92,12 +97,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startMonitoringServiceIfLoggedIn() {
-        val user = FirebaseAuth.getInstance().currentUser
-        if (user != null) {
+        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
+        val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
+        val isServiceStarted = prefs.getBoolean("service_started", false)
+
+        if (currentUserId != null && !isServiceStarted) {
             ForegroundServiceStarter.startMeasurementService(this)
+            WorkerScheduler.scheduleNetworkSyncWorker(this)
+
+            prefs.edit { putBoolean("service_started", true) }
         } else {
-            Timber.tag("MainActivity").d("User not logged in, not starting service.")
+            Timber.tag("MainActivity").d("User not logged in or service already started.")
         }
     }
-
 }

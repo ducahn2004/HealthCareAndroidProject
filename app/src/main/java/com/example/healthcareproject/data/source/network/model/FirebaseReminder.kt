@@ -9,7 +9,7 @@ data class FirebaseReminder(
     var message: String = "",
     var reminderTime: String = "",
     var repeatPattern: RepeatPattern = RepeatPattern.None,
-    var status: Boolean,
+    var status: Boolean = false,
     var createdAt: String = "",
     var startDate: String = "",
     var endDate: String = "",

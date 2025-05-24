@@ -10,4 +10,3 @@ data class FirebaseMedicalVisit(
     var treatment: String = "",
     var createdAt: String = ""
 )
-

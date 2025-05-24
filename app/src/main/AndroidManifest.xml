@@ -37,7 +37,7 @@
         android:enableOnBackInvokedCallback="true"
         tools:targetApi="33">
 
-        <!-- SplashActivity: Launcher activity -->
+        <!-- Activity -->
         <activity
             android:name=".presentation.ui.activity.SplashActivity"
             android:exported="true">
@@ -47,17 +47,14 @@
             </intent-filter>
         </activity>
 
-        <!-- MainActivity -->
         <activity
             android:name=".presentation.ui.activity.MainActivity"
             android:exported="false" />
 
-
-        <!-- AuthActivity -->
         <activity
             android:name=".presentation.ui.activity.AuthActivity"
-            android:exported="true"> <!-- Set exported to true if handling deep links -->
-            <intent-filter>
+            android:exported="true">
+            <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
@@ -121,14 +118,6 @@
             android:permission="android.permission.CALL_PHONE" >
             <intent-filter>
                 <action android:name="ACTION_CALL_ALERT" />
-            </intent-filter>
-        </receiver>
-
-        <receiver android:name=".presentation.receiver.NetworkChangeReceiver"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.net.conn.CONNECTIVITY_CHANGE"
-                    tools:ignore="BatteryLife" />
             </intent-filter>
         </receiver>
 

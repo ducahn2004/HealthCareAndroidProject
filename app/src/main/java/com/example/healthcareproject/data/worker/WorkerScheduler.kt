@@ -6,6 +6,7 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
+import timber.log.Timber
 
 object WorkerScheduler {
     fun scheduleNetworkSyncWorker(context: Context) {
@@ -19,9 +20,11 @@ object WorkerScheduler {
 
         WorkManager.getInstance(context)
             .enqueueUniqueWork(
-                "NetworkDataSync",
+                "NetworkSyncWorker",
                 ExistingWorkPolicy.KEEP,
                 syncWork
             )
+
+        Timber.tag("WorkerScheduler").d("NetworkSyncWorker scheduled with constraints: $constraints")
     }
 }
