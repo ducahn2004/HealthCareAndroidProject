@@ -1,8 +1,10 @@
 package com.example.healthcareproject.data.repository
 
+import androidx.room.withTransaction
 import com.example.healthcareproject.data.mapper.toExternal
 import com.example.healthcareproject.data.mapper.toLocal
 import com.example.healthcareproject.data.mapper.toNetwork
+import com.example.healthcareproject.data.source.local.AppDatabase
 import com.example.healthcareproject.data.source.local.dao.AppointmentDao
 import com.example.healthcareproject.data.source.network.datasource.AppointmentDataSource
 import com.example.healthcareproject.data.source.network.datasource.AuthDataSource
@@ -17,6 +19,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import java.time.LocalDateTime
 import java.util.UUID
 import javax.inject.Inject
@@ -29,6 +32,7 @@ class DefaultAppointmentRepository @Inject constructor(
     private val authDataSource: AuthDataSource,
     @DefaultDispatcher private val dispatcher: CoroutineDispatcher,
     @ApplicationScope private val scope: CoroutineScope,
+    private val appDatabase: AppDatabase
 ) : AppointmentRepository {
 
     private val userId: String
@@ -115,9 +119,11 @@ class DefaultAppointmentRepository @Inject constructor(
 
     override suspend fun refresh() {
         withContext(dispatcher) {
-            saveAppointmentsToNetwork()
-            val remoteAppointments = networkDataSource.loadAppointments(userId)
-            localDataSource.upsertAll(remoteAppointments.toLocal())
+            appDatabase.withTransaction {
+                saveAppointmentsToNetwork()
+                val remoteAppointments = networkDataSource.loadAppointments(userId)
+                localDataSource.upsertAll(remoteAppointments.toLocal())
+            }
         }
     }
 
@@ -134,7 +140,8 @@ class DefaultAppointmentRepository @Inject constructor(
                 }
                 networkDataSource.saveAppointments(networkAppointments)
             } catch (e: Exception) {
-                // Log or handle the exception
+                Timber.tag("DefaultAppointmentRepository")
+                    .e(e, "Failed to save appointments to network")
             }
         }
     }

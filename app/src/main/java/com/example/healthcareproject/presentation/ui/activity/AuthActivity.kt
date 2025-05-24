@@ -17,7 +17,6 @@ class AuthActivity : AppCompatActivity() {
     private lateinit var navController: NavController
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
 
-    // AuthActivity.kt
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_auth)

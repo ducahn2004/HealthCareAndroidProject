@@ -74,6 +74,13 @@ interface AuthDataSource {
      * @return The UID of the current user, or null if no user is signed in.
      */
     fun getCurrentUserId(): String?
+
+    /**
+     * Deletes the user account associated with the given UID.
+     * @param string The UID of the user to delete.
+     * @throws Exception if the operation fails (e.g., user not found, network error).
+     */
+
     suspend fun deleteUser(string: String)
 
     suspend fun linkGoogleCredential(idToken: String, email: String, password: String): Result<Unit>

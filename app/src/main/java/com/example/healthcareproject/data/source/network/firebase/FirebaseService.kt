@@ -11,8 +11,4 @@ object FirebaseService {
     fun getReference(path: String): DatabaseReference {
         return database.getReference(path)
     }
-
-    fun getChildReference(parentPath: String, childPath: String): DatabaseReference {
-        return database.getReference(parentPath).child(childPath)
-    }
 }

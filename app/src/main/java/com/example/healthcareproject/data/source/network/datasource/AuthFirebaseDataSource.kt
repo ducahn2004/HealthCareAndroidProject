@@ -22,7 +22,7 @@ import javax.inject.Singleton
 @Singleton
 class AuthFirebaseDataSource @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
-    private val firebaseDatabase: FirebaseDatabase
+    firebaseDatabase: FirebaseDatabase
 ) : AuthDataSource {
 
     private val codesRef = firebaseDatabase.getReference("verification_codes")

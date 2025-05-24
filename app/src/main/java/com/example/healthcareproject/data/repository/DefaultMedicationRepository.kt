@@ -1,7 +1,9 @@
 package com.example.healthcareproject.data.repository
 
+import androidx.room.withTransaction
 import com.example.healthcareproject.data.mapper.toExternal
 import com.example.healthcareproject.data.mapper.toLocal
+import com.example.healthcareproject.data.source.local.AppDatabase
 import com.example.healthcareproject.data.source.local.dao.MedicalVisitDao
 import com.example.healthcareproject.data.source.local.dao.MedicationDao
 import com.example.healthcareproject.data.source.network.datasource.AuthDataSource
@@ -29,7 +31,8 @@ class DefaultMedicationRepository @Inject constructor(
     private val localDataSource: MedicationDao,
     private val medicalVisitDao: MedicalVisitDao,
     private val authDataSource: AuthDataSource,
-    @DefaultDispatcher private val dispatcher: CoroutineDispatcher
+    @DefaultDispatcher private val dispatcher: CoroutineDispatcher,
+    private val appDatabase: AppDatabase
 ) : MedicationRepository {
 
     private val userId: String
@@ -141,15 +144,10 @@ class DefaultMedicationRepository @Inject constructor(
 
     override suspend fun refresh() {
         withContext(dispatcher) {
-            saveMedicationsToNetwork()
-            val remoteMedications = networkDataSource.loadMedications(userId)
-            remoteMedications.forEach { med ->
-                Timber.d("Firebase medication for refresh: name=${med.name}, id=${med.medicationId}, visitId=${med.visitId}, userId=${med.userId}")
-            }
-            localDataSource.upsertAll(remoteMedications.toLocal())
-            val updatedLocalMedications = localDataSource.getAll()
-            updatedLocalMedications.forEach { med ->
-                Timber.d("Room after refresh: name=${med.name}, id=${med.medicationId}, visitId=${med.visitId}, userId=${med.userId}")
+            appDatabase.withTransaction {
+                saveMedicationsToNetwork()
+                val remoteMedication = networkDataSource.loadMedications(userId)
+                localDataSource.upsertAll(remoteMedication.toLocal())
             }
         }
     }

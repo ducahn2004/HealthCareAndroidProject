@@ -13,7 +13,9 @@ import com.example.healthcareproject.R
 import com.example.healthcareproject.databinding.ActivityMainBinding
 import com.example.healthcareproject.presentation.service.ForegroundServiceStarter
 import com.example.healthcareproject.presentation.util.PermissionManager
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -50,7 +52,7 @@ class MainActivity : AppCompatActivity() {
 
         PermissionManager.checkAndRequestExactAlarmPermission(this)
 
-        ForegroundServiceStarter.startMeasurementService(this)
+        startMonitoringServiceIfLoggedIn()
     }
 
     override fun onSupportNavigateUp(): Boolean {
@@ -88,4 +90,14 @@ class MainActivity : AppCompatActivity() {
             permissionLauncher.launch(permission)
         }
     }
+
+    private fun startMonitoringServiceIfLoggedIn() {
+        val user = FirebaseAuth.getInstance().currentUser
+        if (user != null) {
+            ForegroundServiceStarter.startMeasurementService(this)
+        } else {
+            Timber.tag("MainActivity").d("User not logged in, not starting service.")
+        }
+    }
+
 }

@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import java.time.LocalDateTime
 import java.util.UUID
 import javax.inject.Inject
@@ -72,7 +73,14 @@ class DefaultMeasurementRepository @Inject constructor(
         return networkDataSource.getMeasurementsFirebaseRealtime(userId)
             .map { firebaseMeasurements ->
                 val localMeasurements = firebaseMeasurements.toLocal()
-                localDataSource.upsertAll(localMeasurements)
+                scope.launch {
+                    try {
+                        localDataSource.upsertAll(localMeasurements)
+                    } catch (e: Exception) {
+                        Timber.tag("DefaultMeasurementRepository")
+                            .e(e, "Failed to upsert measurements from Firebase")
+                    }
+                }
                 localMeasurements.toExternal()
             }
     }
@@ -137,7 +145,8 @@ class DefaultMeasurementRepository @Inject constructor(
                 }
                 networkDataSource.saveMeasurements(networkMeasurements)
             } catch (e: Exception) {
-                // Log or handle the exception
+                Timber.tag("DefaultMeasurementRepository")
+                    .e(e, "Failed to save measurements to network")
             }
         }
     }

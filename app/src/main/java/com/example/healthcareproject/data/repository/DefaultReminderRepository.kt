@@ -1,8 +1,10 @@
 package com.example.healthcareproject.data.repository
 
+import androidx.room.withTransaction
 import com.example.healthcareproject.data.mapper.toExternal
 import com.example.healthcareproject.data.mapper.toLocal
 import com.example.healthcareproject.data.mapper.toNetwork
+import com.example.healthcareproject.data.source.local.AppDatabase
 import com.example.healthcareproject.data.source.local.dao.ReminderDao
 import com.example.healthcareproject.data.source.network.datasource.ReminderDataSource
 import com.example.healthcareproject.data.source.network.datasource.AuthDataSource
@@ -18,6 +20,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -32,6 +35,7 @@ class DefaultReminderRepository @Inject constructor(
     private val authDataSource: AuthDataSource,
     @DefaultDispatcher private val dispatcher: CoroutineDispatcher,
     @ApplicationScope private val scope: CoroutineScope,
+    private val appDatabase: AppDatabase
 ) : ReminderRepository {
 
     private val userId: String
@@ -125,9 +129,11 @@ class DefaultReminderRepository @Inject constructor(
 
     override suspend fun refresh() {
         withContext(dispatcher) {
-            saveRemindersToNetwork()
-            val remoteReminders = networkDataSource.loadReminders(userId)
-            localDataSource.upsertAll(remoteReminders.toLocal())
+            appDatabase.withTransaction {
+                saveRemindersToNetwork()
+                val remoteReminders = networkDataSource.loadReminders(userId)
+                localDataSource.upsertAll(remoteReminders.toLocal())
+            }
         }
     }
 
@@ -168,7 +174,8 @@ class DefaultReminderRepository @Inject constructor(
                 }
                 networkDataSource.saveReminders(networkReminders)
             } catch (e: Exception) {
-                // Log or handle the exception
+                Timber.tag("DefaultReminderRepository")
+                    .e(e, "Failed to save reminders to network")
             }
         }
     }
