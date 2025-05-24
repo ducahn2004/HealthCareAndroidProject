@@ -1,8 +1,10 @@
 package com.example.healthcareproject.data.repository
 
+import androidx.room.withTransaction
 import com.example.healthcareproject.data.mapper.toExternal
 import com.example.healthcareproject.data.mapper.toLocal
 import com.example.healthcareproject.data.mapper.toNetwork
+import com.example.healthcareproject.data.source.local.AppDatabase
 import com.example.healthcareproject.data.source.local.dao.NotificationDao
 import com.example.healthcareproject.data.source.network.datasource.AuthDataSource
 import com.example.healthcareproject.data.source.network.datasource.NotificationDataSource
@@ -32,6 +34,7 @@ class DefaultNotificationRepository @Inject constructor(
     private val authDataSource: AuthDataSource,
     @DefaultDispatcher private val dispatcher: CoroutineDispatcher,
     @ApplicationScope private val scope: CoroutineScope,
+    private val appDatabase: AppDatabase
 ) : NotificationRepository {
 
     private val userId: String
@@ -107,9 +110,11 @@ class DefaultNotificationRepository @Inject constructor(
 
     override suspend fun refresh() {
         withContext(dispatcher) {
-            saveNotificationsToNetwork()
-            val remoteNotifications = networkDataSource.loadNotifications(userId)
-            localDataSource.upsertAll(remoteNotifications.toLocal())
+            appDatabase.withTransaction {
+                saveNotificationsToNetwork()
+                val remoteNotifications = networkDataSource.loadNotifications(userId)
+                localDataSource.upsertAll(remoteNotifications.toLocal())
+            }
         }
     }
 

@@ -1,8 +1,10 @@
 package com.example.healthcareproject.data.repository
 
+import androidx.room.withTransaction
 import com.example.healthcareproject.data.mapper.toExternal
 import com.example.healthcareproject.data.mapper.toLocal
 import com.example.healthcareproject.data.mapper.toNetwork
+import com.example.healthcareproject.data.source.local.AppDatabase
 import com.example.healthcareproject.data.source.local.dao.AlertDao
 import com.example.healthcareproject.data.source.network.datasource.AuthDataSource
 import com.example.healthcareproject.data.source.network.datasource.AlertDataSource
@@ -30,6 +32,7 @@ class DefaultAlertRepository @Inject constructor(
     private val authDataSource: AuthDataSource,
     @DefaultDispatcher private val dispatcher: CoroutineDispatcher,
     @ApplicationScope private val scope: CoroutineScope,
+    private val appDatabase: AppDatabase
 ) : AlertRepository {
 
     private val userId: String
@@ -96,9 +99,11 @@ class DefaultAlertRepository @Inject constructor(
 
     override suspend fun refresh() {
         withContext(dispatcher) {
-            saveAlertToNetwork()
-            val remoteAlerts = networkDataSource.loadAlerts(userId)
-            localDataSource.upsertAll(remoteAlerts.toLocal())
+            appDatabase.withTransaction {
+                saveAlertToNetwork()
+                val remoteAlerts = networkDataSource.loadAlerts(userId)
+                localDataSource.upsertAll(remoteAlerts.toLocal())
+            }
         }
     }
 
@@ -151,7 +156,8 @@ class DefaultAlertRepository @Inject constructor(
                 }
                 networkDataSource.saveAlerts(networkAlerts)
             } catch (e: Exception) {
-                // Log or handle the exception
+                Timber.tag("DefaultAlertRepository")
+                    .e(e, "Failed to save alerts to network")
             }
         }
     }

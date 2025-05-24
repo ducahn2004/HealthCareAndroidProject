@@ -17,6 +17,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
+import androidx.core.content.edit
+import com.example.healthcareproject.presentation.service.ForegroundServiceStarter
 
 @AndroidEntryPoint
 class SettingsFragment : Fragment() {
@@ -73,6 +75,9 @@ class SettingsFragment : Fragment() {
     }
 
     private fun performLogout() {
+        // Stop service
+        ForegroundServiceStarter.stopMeasurementService(requireContext())
+
         // Sign out from Firebase
         FirebaseAuth.getInstance().signOut()
 
@@ -86,9 +91,9 @@ class SettingsFragment : Fragment() {
 
         // Clear SharedPreferences
         requireActivity().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
-            .edit()
-            .clear()
-            .apply()
+            .edit {
+                clear()
+            }
 
         val intent = Intent(requireContext(), AuthActivity::class.java).apply {
             putExtra("destination", "loginMethodFragment")

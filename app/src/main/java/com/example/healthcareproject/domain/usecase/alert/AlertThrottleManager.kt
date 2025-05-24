@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.core.content.edit
 
 object AlertThrottleManager {
-    private const val THROTTLE_DURATION_MS = 60 * 1000L
+    private const val THROTTLE_DURATION_MS = 3 * 60 * 1000L
 
     fun shouldTriggerAlert(context: Context): Boolean {
         val prefs = context.getSharedPreferences("alert_prefs", Context.MODE_PRIVATE)

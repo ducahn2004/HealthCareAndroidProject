@@ -1,8 +1,10 @@
 package com.example.healthcareproject.data.repository
 
+import androidx.room.withTransaction
 import com.example.healthcareproject.data.mapper.toExternal
 import com.example.healthcareproject.data.mapper.toLocal
 import com.example.healthcareproject.data.mapper.toNetwork
+import com.example.healthcareproject.data.source.local.AppDatabase
 import com.example.healthcareproject.data.source.local.dao.EmergencyInfoDao
 import com.example.healthcareproject.data.source.network.datasource.AuthDataSource
 import com.example.healthcareproject.data.source.network.datasource.EmergencyInfoDataSource
@@ -30,6 +32,7 @@ class DefaultEmergencyInfoRepository @Inject constructor(
     private val authDataSource: AuthDataSource,
     @DefaultDispatcher private val dispatcher: CoroutineDispatcher,
     @ApplicationScope private val scope: CoroutineScope,
+    private val appDatabase: AppDatabase
 ) : EmergencyInfoRepository {
 
     private val userId: String
@@ -94,9 +97,11 @@ class DefaultEmergencyInfoRepository @Inject constructor(
 
     override suspend fun refresh() {
         withContext(dispatcher) {
-            saveEmergencyInfosToNetwork()
-            val remoteEmergencyInfos = networkDataSource.loadEmergencyInfos(userId)
-            localDataSource.upsertAll(remoteEmergencyInfos.toLocal())
+            appDatabase.withTransaction {
+                saveEmergencyInfosToNetwork()
+                val remoteEmergencyInfos = networkDataSource.loadEmergencyInfos(userId)
+                localDataSource.upsertAll(remoteEmergencyInfos.toLocal())
+            }
         }
     }
 
@@ -167,8 +172,8 @@ class DefaultEmergencyInfoRepository @Inject constructor(
                 }
                 networkDataSource.saveEmergencyInfos(networkEmergencyInfos)
             } catch (e: Exception) {
-                // Log or handle the exception
-                println("Error syncing emergency infos: ${e.message}")
+                Timber.tag("DefaultEmergencyInfoRepository")
+                    .e(e, "Failed to save emergency infos to network")
             }
         }
     }

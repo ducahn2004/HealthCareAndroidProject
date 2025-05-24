@@ -202,7 +202,7 @@ class DefaultUserRepository @Inject constructor(
 
     override suspend fun sendVerificationCode(email: String) = withContext(dispatcher) {
         Timber.d("Sending verification code to: $email")
-        try {2
+        try {
             authDataSource.sendVerificationCode(email)
         } catch (e: Exception) {
             Timber.e(e, "Failed to send verification code to: $email")
