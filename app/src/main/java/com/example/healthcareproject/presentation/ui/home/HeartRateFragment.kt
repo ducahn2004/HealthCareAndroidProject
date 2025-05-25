@@ -35,7 +35,6 @@ class HeartRateFragment : Fragment() {
     private lateinit var tabLayout: TabLayout
     private lateinit var lineChart: LineChart
     private lateinit var tvTitle: TextView
-    private lateinit var tvDate: TextView
     private lateinit var tvHeartRateValue: TextView
     private lateinit var tvBpmLabel: TextView
     private lateinit var tvMinValue: TextView
@@ -59,7 +58,6 @@ class HeartRateFragment : Fragment() {
         tabLayout = view.findViewById(R.id.tab_layout)
         lineChart = view.findViewById(R.id.chart_heart_rate)
         tvTitle = view.findViewById(R.id.tv_title)
-        tvDate = view.findViewById(R.id.tv_date)
         tvHeartRateValue = view.findViewById(R.id.tv_heart_rate_value)
         tvBpmLabel = view.findViewById(R.id.tv_bpm_label)
         tvMinValue = view.findViewById(R.id.tv_min_value)
@@ -193,7 +191,7 @@ class HeartRateFragment : Fragment() {
 
         val textColor = if (isAlert) R.color.alert_text_color else R.color.primary_text_color
         listOf(
-            tvTitle, tvDate, tvHeartRateValue,
+            tvTitle, tvHeartRateValue,
             tvBpmLabel, tvMinValue, tvMaxValue, tvAverageLabel
         ).forEach {
             it.setTextColor(ContextCompat.getColor(requireContext(), textColor))
