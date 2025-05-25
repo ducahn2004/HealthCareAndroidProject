@@ -12,8 +12,10 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.healthcareproject.R
+import com.example.healthcareproject.domain.model.Measurement
 import com.example.healthcareproject.presentation.viewmodel.home.HRViewModel
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
@@ -23,6 +25,8 @@ import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.google.android.material.tabs.TabLayout
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import java.time.ZoneId
 
 @AndroidEntryPoint
@@ -43,7 +47,6 @@ class HeartRateFragment : Fragment() {
     private val timeStamps = mutableListOf<Long>()
     private lateinit var timeFrame: String
 
-    private val maxDataPoints = 100
 
     private val viewModel: HRViewModel by viewModels()
 
@@ -79,27 +82,17 @@ class HeartRateFragment : Fragment() {
     }
 
     private fun observeHeartRate() {
-        viewModel.heartRateHistory.observe(viewLifecycleOwner) { measurements ->
-            if (measurements.isNullOrEmpty()) return@observe
-
-            val lastTimestamp = if (timeStamps.isEmpty()) 0L else timeStamps.last()
-
-            for (m in measurements) {
-                val epochMillis = m.dateTime
-                    .atZone(ZoneId.systemDefault())
-                    .toInstant()
-                    .toEpochMilli()
-
-                if (epochMillis > lastTimestamp) {
-                    if (heartRateData.size >= maxDataPoints) {
-                        heartRateData.removeAt(0)
-                        timeStamps.removeAt(0)
-                    }
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.getHeartRateDataByTimeFrame(timeFrame).collectLatest { measurements: List<Measurement> ->
+                heartRateData.clear()
+                timeStamps.clear()
+                measurements.forEach { m ->
+                    val epochMillis = m.dateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
                     heartRateData.add(m.bpm)
                     timeStamps.add(epochMillis)
                 }
+                updateChartData()
             }
-            updateChartData()
         }
     }
 

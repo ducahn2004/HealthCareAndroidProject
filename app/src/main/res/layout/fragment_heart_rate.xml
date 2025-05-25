@@ -33,17 +33,6 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <!-- Date -->
-    <TextView
-        android:id="@+id/tv_date"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:fontFamily="sans-serif-black"
-        android:text="@string/_29_march"
-        android:textColor="@color/primary_text_color"
-        android:textSize="24sp"
-        app:layout_constraintTop_toBottomOf="@id/tv_title"
-        app:layout_constraintStart_toStartOf="parent" />
 
     <!-- Heart Rate Value -->
     <TextView
@@ -56,7 +45,7 @@
         android:textColor="@color/primary_text_color"
         android:textSize="110sp"
         android:textAlignment="center"
-        app:layout_constraintTop_toBottomOf="@id/tv_date"
+        app:layout_constraintTop_toBottomOf="@id/tv_title"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/iv_heart_icon"
         app:layout_constraintHorizontal_bias="0.0" />

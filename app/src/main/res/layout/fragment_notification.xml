@@ -34,7 +34,7 @@
                 android:textColor="@color/primary_text_color"
                 android:textSize="24sp"
                 android:textStyle="bold"
-                android:layout_gravity="center" />
+                android:layout_gravity="start"/>
         </androidx.appcompat.widget.Toolbar>
 
         <!-- RecyclerView for notifications -->

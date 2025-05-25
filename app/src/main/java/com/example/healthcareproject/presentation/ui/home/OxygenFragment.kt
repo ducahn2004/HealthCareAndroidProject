@@ -12,8 +12,10 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.healthcareproject.R
+import com.example.healthcareproject.domain.model.Measurement
 import com.example.healthcareproject.presentation.viewmodel.home.SpO2ViewModel
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
@@ -23,7 +25,13 @@ import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.google.android.material.tabs.TabLayout
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
+import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 @AndroidEntryPoint
 class OxygenFragment : Fragment() {
@@ -78,35 +86,34 @@ class OxygenFragment : Fragment() {
 
         setupTabLayout()
         setupLineChart()
-        observeSpO2()
 
         timeFrame = "MINUTE"
+
+        observeSpO2()
 
         return view
     }
 
     private fun observeSpO2() {
-        viewModel.spO2History.observe(viewLifecycleOwner) { measurements ->
-            if (measurements.isNullOrEmpty()) return@observe
-
-            val lastTimestamp = timeStamps.lastOrNull() ?: 0L
-
-            for (m in measurements) {
-                val epochMillis = m.dateTime
-                    .atZone(ZoneId.systemDefault())
-                    .toInstant()
-                    .toEpochMilli()
-
-                if (epochMillis > lastTimestamp) {
-                    if (spo2Data.size >= 100) {
-                        spo2Data.removeAt(0)
-                        timeStamps.removeAt(0)
-                    }
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.getSpO2DataByTimeFrame(timeFrame).collectLatest { measurements: List<Measurement> ->
+                spo2Data.clear()
+                timeStamps.clear()
+                if (measurements.isEmpty()) {
+                    tvSpO2Value.text = "0"
+                    tvMinValue.text = "0"
+                    tvMaxValue.text = "0"
+                    tvAverageLabel.text = "Average 0 %"
+                    lineChart.clear()
+                    return@collectLatest
+                }
+                measurements.forEach { m ->
+                    val epochMillis = m.dateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
                     spo2Data.add(m.spO2)
                     timeStamps.add(epochMillis)
                 }
+                updateChartData()
             }
-            updateChartData()
         }
     }
 
@@ -159,7 +166,7 @@ class OxygenFragment : Fragment() {
         }
 
         val labels = timeStamps.map {
-            when (timeFrame) {
+            val label = when (timeFrame) {
                 "MINUTE" -> "${(it / 1000) % 60}s"
                 "HOUR" -> "${(it / 1000 / 60) % 60}m"
                 "DAY" -> "${(it / 1000 / 3600) % 24}h"
@@ -176,6 +183,7 @@ class OxygenFragment : Fragment() {
                 }
                 else -> "${(it / 1000) % 60}s"
             }
+            label
         }
 
         val minValue = spo2Data.minOrNull() ?: 0f
