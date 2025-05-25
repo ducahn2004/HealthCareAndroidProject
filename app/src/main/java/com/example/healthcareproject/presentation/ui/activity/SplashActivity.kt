@@ -5,6 +5,8 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import com.google.firebase.auth.FirebaseAuth
+import androidx.core.content.edit
 
 @SuppressLint("CustomSplashScreen")
 class SplashActivity : AppCompatActivity() {
@@ -17,10 +19,16 @@ class SplashActivity : AppCompatActivity() {
 
         val sharedPreferences = getSharedPreferences("user_prefs", 0)
         val isLoggedIn = sharedPreferences.getBoolean("is_logged_in", false)
-
-        if (isLoggedIn) {
+        val isFirebaseLoggedIn = try {
+            FirebaseAuth.getInstance().currentUser
+        } catch (e: Exception) {
+            null
+        }
+        if (isFirebaseLoggedIn != null) {
+            sharedPreferences.edit() { putBoolean("is_logged_in", true) }
             startActivity(Intent(this, MainActivity::class.java))
         } else {
+            sharedPreferences.edit() { putBoolean("is_logged_in", false) }
             startActivity(Intent(this, AuthActivity::class.java))
         }
         finish()
