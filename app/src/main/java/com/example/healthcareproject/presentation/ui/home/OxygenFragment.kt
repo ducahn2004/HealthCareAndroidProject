@@ -211,7 +211,7 @@ class OxygenFragment : Fragment() {
 
         val textColor = if (isAlert) R.color.alert_text_color else R.color.primary_text_color
         listOf(
-            tvTitle, tvDate, tvSpO2Value,
+            tvTitle, tvSpO2Value,
             tvPercentLabel, tvMinValue, tvMaxValue, tvAverageLabel
         ).forEach {
             it.setTextColor(ContextCompat.getColor(requireContext(), textColor))
