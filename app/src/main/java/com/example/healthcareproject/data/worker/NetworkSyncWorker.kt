@@ -16,7 +16,7 @@ class NetworkSyncWorker(
         context.applicationContext,
         RepositoryEntryPoint::class.java
     )
-
+    private val userRepository = entryPoint.userRepository()
     private val emergencyInfoRepository = entryPoint.emergencyInfoRepository()
     private val reminderRepository = entryPoint.reminderRepository()
     private val notificationRepository = entryPoint.notificationRepository()
@@ -24,7 +24,7 @@ class NetworkSyncWorker(
     private val appointmentRepository = entryPoint.appointmentRepository()
     private val medicationRepository = entryPoint.medicationRepository()
     private val alertRepository = entryPoint.alertRepository()
-    private val userRepository = entryPoint.userRepository()
+
 
     override suspend fun doWork(): Result {
         val userId = userRepository.getCurrentUserId()
@@ -35,6 +35,7 @@ class NetworkSyncWorker(
 
         Timber.tag("NetworkSyncWorker").d("Sync Data Firebase and Room for userId: $userId")
         return try {
+            userRepository.refresh()
             emergencyInfoRepository.refresh()
             alertRepository.refresh()
             medicalVisitRepository.refresh()

@@ -172,7 +172,7 @@
     <string name="arrow_icon">Arrow Right Icon\n</string>
     <string name="loading_medications">Loading medications</string>
     <string name="clear_search">Clear search</string>
-    <string name="search_medications">Search Medications…</string>
+    <string name="search_medications">Search medications…</string>
     <string name="medication_management">Medication</string>
     <string name="medication_filter_tabs">Medication filter tabs</string>
     <string name="add_medication">MEDICATION</string>

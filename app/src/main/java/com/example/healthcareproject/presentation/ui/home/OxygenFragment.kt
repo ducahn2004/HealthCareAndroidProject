@@ -27,11 +27,8 @@ import com.google.android.material.tabs.TabLayout
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import java.time.Instant
-import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.ZoneId
-import java.time.format.DateTimeFormatter
+
 
 @AndroidEntryPoint
 class OxygenFragment : Fragment() {
@@ -94,6 +91,7 @@ class OxygenFragment : Fragment() {
         return view
     }
 
+    @SuppressLint("SetTextI18n")
     private fun observeSpO2() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.getSpO2DataByTimeFrame(timeFrame).collectLatest { measurements: List<Measurement> ->
