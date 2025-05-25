@@ -91,18 +91,23 @@ class SettingsFragment : Fragment() {
             .requestEmail()
             .build()
         val googleSignInClient = GoogleSignIn.getClient(requireActivity(), gso)
-        googleSignInClient.signOut()
+        googleSignInClient.signOut().addOnCompleteListener {
+            // Clear SharedPreferences
+            requireActivity().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+                .edit {
+                    putBoolean("is_logged_in", false)
+                }
+            requireActivity().getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+                .edit {
+                    putBoolean("service_started", false)
+                }
 
-        // Clear SharedPreferences
-        requireActivity().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
-            .edit {
-                clear()
+            // Navigate to AuthActivity
+            val intent = Intent(requireContext(), AuthActivity::class.java).apply {
+                putExtra("destination", "loginMethodFragment")
             }
-
-        val intent = Intent(requireContext(), AuthActivity::class.java).apply {
-            putExtra("destination", "loginMethodFragment")
+            startActivity(intent)
+            requireActivity().finish()
         }
-        startActivity(intent)
-        requireActivity().finish()
     }
 }
