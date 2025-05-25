@@ -10,14 +10,15 @@
     <!-- Header -->
     <TextView
         android:id="@+id/tv_settings_title"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/setting"
-        android:textSize="24sp"
-        android:padding="16dp"
+        android:textColor="@color/primary_text_color"
+        android:textSize="26sp"
+        android:textStyle="bold"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        android:layout_marginBottom="16dp" />
 
     <!-- RecyclerView for settings items -->
     <androidx.recyclerview.widget.RecyclerView

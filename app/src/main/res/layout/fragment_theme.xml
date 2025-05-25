@@ -25,6 +25,7 @@
         android:padding="16dp"
         android:text="@string/select_theme"
         android:textAlignment="viewStart"
+        android:textColor="@color/primary_text_color"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/btn_back"
