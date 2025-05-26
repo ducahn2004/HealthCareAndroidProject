@@ -53,6 +53,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:minHeight="48dp"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                app:boxBackgroundMode="outline"
+                app:boxCornerRadiusTopStart="6dp"
+                app:boxCornerRadiusTopEnd="6dp"
+                app:boxCornerRadiusBottomStart="6dp"
+                app:boxCornerRadiusBottomEnd="6dp"
+                app:boxStrokeColor="@color/primary"
+                app:boxStrokeWidth="1dp"
+                app:boxStrokeWidthFocused="2dp"
                 android:hint="Condition"
                 app:boxStrokeColor="@color/primary_text_color">
 
@@ -70,6 +79,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                app:boxBackgroundMode="outline"
+                app:boxCornerRadiusTopStart="6dp"
+                app:boxCornerRadiusTopEnd="6dp"
+                app:boxCornerRadiusBottomStart="6dp"
+                app:boxCornerRadiusBottomEnd="6dp"
+                app:boxStrokeColor="@color/primary"
+                app:boxStrokeWidth="1dp"
+                app:boxStrokeWidthFocused="2dp"
                 android:hint="Doctor"
                 app:boxStrokeColor="@color/primary_text_color">
 
@@ -88,6 +106,14 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:hint="Facility"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                app:boxBackgroundMode="outline"
+                app:boxCornerRadiusTopStart="6dp"
+                app:boxCornerRadiusTopEnd="6dp"
+                app:boxCornerRadiusBottomStart="6dp"
+                app:boxCornerRadiusBottomEnd="6dp"
+                app:boxStrokeWidth="1dp"
+                app:boxStrokeWidthFocused="2dp"
                 app:boxStrokeColor="@color/primary_text_color">
 
                 <com.google.android.material.textfield.TextInputEditText

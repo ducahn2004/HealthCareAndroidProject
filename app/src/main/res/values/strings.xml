@@ -231,6 +231,9 @@
     <string name="min">Min\n</string>
     <string name="max">Max\n</string>
     <string name="search_medicine">Search Medicine</string>
+    <string name="edit_alarm">Edit Alarm</string>
+    <string name="title">Title</string>
+    <string name="message">Message</string>
 
 
     <string-array name="gender_options">
