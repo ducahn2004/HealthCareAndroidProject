@@ -3,17 +3,22 @@ package com.example.healthcareproject.domain.usecase.measurement
 import android.content.Context
 import android.content.Intent
 import com.example.healthcareproject.domain.model.Measurement
+import com.example.healthcareproject.domain.model.NotificationType
+import com.example.healthcareproject.domain.model.RelatedTable
 import com.example.healthcareproject.domain.repository.AlertRepository
 import com.example.healthcareproject.domain.repository.EmergencyInfoRepository
+import com.example.healthcareproject.domain.repository.NotificationRepository
 import com.example.healthcareproject.domain.usecase.alert.AlertThrottleManager
 import com.example.healthcareproject.presentation.receiver.CallAlertReceiver
 import com.example.healthcareproject.presentation.util.NotificationUtil
 import timber.log.Timber
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 class MeasurementAlertUseCase @Inject constructor(
     private val emergencyRepo: EmergencyInfoRepository,
     private val alertRepository: AlertRepository,
+    private val notificationRepository: NotificationRepository,
     private val hrAnalysisUseCase: HRAnalysisUseCase,
     private val spO2AnalysisUseCase: SpO2AnalysisUseCase
 ) {
@@ -40,10 +45,17 @@ class MeasurementAlertUseCase @Inject constructor(
                 return
             }
 
-            NotificationUtil.showWarningNotification(
-                context,
-                "Measurement Alert",
-                "Abnormal health indicators! Call ${topPriorityEmergency.emergencyName}"
+            val message = "Abnormal health indicators detected! " +
+                    "Call ${topPriorityEmergency.emergencyName} at ${topPriorityEmergency.emergencyPhone}"
+
+            NotificationUtil.showWarningNotification(context, "Measurement Alert", message)
+
+            notificationRepository.createNotification(
+                type = NotificationType.Alert,
+                relatedTable = RelatedTable.Alert,
+                relatedId = measurement.measurementId,
+                message = message,
+                notificationTime = LocalDateTime.now()
             )
 
             val intent = Intent(context, CallAlertReceiver::class.java).apply {

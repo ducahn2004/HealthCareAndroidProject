@@ -7,5 +7,5 @@ import javax.inject.Inject
 class GetMeasurementRealTimeUseCase @Inject constructor(
     private val measurementRepository: MeasurementRepository
 ) {
-    operator fun invoke() = measurementRepository.getMeasurementsRealtime()
+    operator fun invoke() = measurementRepository.getMeasurementsStream()
 }
