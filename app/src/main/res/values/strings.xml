@@ -235,6 +235,9 @@
     <string name="alarm_at_09_42_pm">Alarm at 09:42 PM</string>
     <string name="stop_alarm">Stop Alarm</string>
     <string name="reminder">Reminder</string>
+    <string name="edit_alarm">Edit Alarm</string>
+    <string name="title">Title</string>
+    <string name="message">Message</string>
 
 
     <string-array name="gender_options">
