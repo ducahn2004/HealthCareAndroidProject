@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="0dp"
+    android:padding="16dp"
     android:background="@drawable/notification_background"
     android:layout_gravity="top"
     android:elevation="8dp">
@@ -26,7 +26,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Reminder"
-            android:textSize="14sp"
+            android:textSize="16sp"
             android:textStyle="bold"
             android:textColor="@color/primary_text_color" />
 
@@ -39,7 +39,7 @@
         android:layout_marginTop="4dp"
         android:paddingHorizontal="8dp"
         android:text="Take 1.0 cup of Amoxicillin after meal."
-        android:textSize="12sp"
+        android:textSize="16sp"
         android:textColor="@color/secondary_text_color" />
 
     <Button
@@ -51,7 +51,7 @@
         android:text="STOP ALARM"
         android:textSize="12sp"
         android:textColor="@color/button_text_color"
-        android:background="@drawable/rounded_button"
+        android:background="@drawable/button_background_snooze"
         android:paddingHorizontal="12dp"
         android:paddingVertical="6dp" />
 

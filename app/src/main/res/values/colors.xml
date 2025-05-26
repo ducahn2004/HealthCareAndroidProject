@@ -59,4 +59,5 @@
     <color name="teal_600">#FFBB86FC</color>
 
     <color name="colorAccent">#FF4081</color>
+    <color name="medium_gray">#CCCCCC</color>
 </resources>

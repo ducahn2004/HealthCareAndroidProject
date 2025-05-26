@@ -41,4 +41,10 @@
         android:text="Alarm at 09:42 PM"
         android:textSize="14sp"
         android:textColor="@color/secondary_text_color" />
+
+    <!-- Thêm View để kéo dài xuống dưới -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="16dp" />
+
 </LinearLayout>
