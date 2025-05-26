@@ -69,18 +69,29 @@ class DefaultMeasurementRepository @Inject constructor(
         saveMeasurementsToNetwork()
     }
 
-    override fun getMeasurementsRealtime(): Flow<List<Measurement>> {
+   override fun getMeasurementsRealtime(): Flow<List<Measurement>> {
         return networkDataSource.getMeasurementsFirebaseRealtime(userId)
             .map { firebaseMeasurements ->
+
                 val localMeasurements = firebaseMeasurements.toLocal()
-                scope.launch {
-                    try {
-                        localDataSource.upsertAll(localMeasurements)
-                    } catch (e: Exception) {
-                        Timber.tag("DefaultMeasurementRepository")
-                            .e(e, "Failed to upsert measurements from Firebase")
+
+                val existingIds = withContext(dispatcher) {
+                    localDataSource.getAll().map { it.measurementId }
+                }
+
+                val newMeasurements = localMeasurements.filter { it.measurementId !in existingIds }
+
+                if (newMeasurements.isNotEmpty()) {
+                    scope.launch {
+                        try {
+                            localDataSource.upsertAll(newMeasurements)
+                        } catch (e: Exception) {
+                            Timber.tag("DefaultMeasurementRepository")
+                                .e(e, "Failed to upsert new measurements")
+                        }
                     }
                 }
+
                 localMeasurements.toExternal()
             }
     }

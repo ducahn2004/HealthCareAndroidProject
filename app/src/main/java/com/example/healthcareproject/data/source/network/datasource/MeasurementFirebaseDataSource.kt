@@ -1,10 +1,10 @@
 package com.example.healthcareproject.data.source.network.datasource
 
 import com.example.healthcareproject.data.source.network.model.FirebaseMeasurement
+import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -20,12 +20,29 @@ class MeasurementFirebaseDataSource @Inject constructor(
     override fun getMeasurementsFirebaseRealtime(
         userId: String
     ): Flow<List<FirebaseMeasurement>> = callbackFlow {
-        val listener = object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val measurements = snapshot.children.mapNotNull {
-                    it.getValue(FirebaseMeasurement::class.java)
+        val listener = object : ChildEventListener {
+            override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+                snapshot.getValue(FirebaseMeasurement::class.java)?.let { measurement ->
+                    if (measurement.userId == userId) {
+                        trySend(listOf(measurement)).isSuccess
+                    }
                 }
-                trySend(measurements).isSuccess
+            }
+
+            override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
+                snapshot.getValue(FirebaseMeasurement::class.java)?.let { measurement ->
+                    if (measurement.userId == userId) {
+                        trySend(listOf(measurement)).isSuccess
+                    }
+                }
+            }
+
+            override fun onChildRemoved(snapshot: DataSnapshot) {
+                // Handle removal if necessary, e.g., notify the UI to remove the measurement
+            }
+
+            override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
+                // Handle child moved if necessary, e.g., update the order of measurements
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -33,8 +50,7 @@ class MeasurementFirebaseDataSource @Inject constructor(
             }
         }
 
-        measurementsRef.orderByChild("userId").equalTo(userId)
-            .addValueEventListener(listener)
+        measurementsRef.addChildEventListener(listener)
 
         awaitClose { measurementsRef.removeEventListener(listener) }
     }
