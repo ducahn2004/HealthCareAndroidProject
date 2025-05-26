@@ -231,6 +231,10 @@
     <string name="min">Min\n</string>
     <string name="max">Max\n</string>
     <string name="search_medicine">Search Medicine</string>
+    <string name="application_icon">Application Icon</string>
+    <string name="alarm_at_09_42_pm">Alarm at 09:42 PM</string>
+    <string name="stop_alarm">Stop Alarm</string>
+    <string name="reminder">Reminder</string>
 
 
     <string-array name="gender_options">

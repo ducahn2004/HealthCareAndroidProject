@@ -1,33 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="16dp"
-    android:background="@color/background"
-    android:layout_margin="16dp"
+    android:padding="0dp"
+    android:background="@drawable/notification_background"
+    android:layout_gravity="top"
     android:elevation="8dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="center_vertical">
+        android:gravity="center_vertical"
+        android:paddingHorizontal="8dp">
 
         <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
             android:src="@mipmap/ic_launcher"
-            android:layout_marginEnd="8dp"
-            app:tint="@color/white" />
+            android:layout_marginEnd="8dp" />
 
         <TextView
             android:id="@+id/reminderTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Alarm"
-            android:textSize="16sp"
+            android:text="Reminder"
+            android:textSize="14sp"
             android:textStyle="bold"
             android:textColor="@color/primary_text_color" />
 
@@ -37,22 +36,23 @@
         android:id="@+id/reminderMessage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Alarm at 09:42 PM"
-        android:textSize="14sp"
+        android:layout_marginTop="4dp"
+        android:paddingHorizontal="8dp"
+        android:text="Take 1.0 cup of Amoxicillin after meal."
+        android:textSize="12sp"
         android:textColor="@color/secondary_text_color" />
 
     <Button
         android:id="@+id/btnStopAlarm"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="4dp"
         android:layout_gravity="center"
-        android:text="Stop Alarm"
-        android:textSize="14sp"
+        android:text="STOP ALARM"
+        android:textSize="12sp"
         android:textColor="@color/button_text_color"
         android:background="@drawable/rounded_button"
-        android:paddingHorizontal="16dp"
-        android:paddingVertical="8dp" />
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="6dp" />
 
 </LinearLayout>
