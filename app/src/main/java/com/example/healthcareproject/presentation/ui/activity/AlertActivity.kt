@@ -32,6 +32,7 @@ class AlertActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.alertTitle).text = title
         findViewById<TextView>(R.id.alertMessage).text = message
 
+        // Thực hiện cuộc gọi ngay khi Activity mở
         AlertManagerUtil.makeCall(this, phone)
     }
 }
