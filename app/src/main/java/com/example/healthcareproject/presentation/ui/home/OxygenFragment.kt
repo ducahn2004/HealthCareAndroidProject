@@ -60,7 +60,6 @@ class OxygenFragment : Fragment() {
         tabLayout = view.findViewById(R.id.tab_layout)
         lineChart = view.findViewById(R.id.chart_spo2)
         tvTitle = view.findViewById(R.id.tv_title)
-        tvDate = view.findViewById(R.id.tv_date)
         tvSpO2Value = view.findViewById(R.id.tv_spo2_value)
         tvPercentLabel = view.findViewById(R.id.tv_percent_label)
         tvMinValue = view.findViewById(R.id.tv_min_value)
