@@ -8,12 +8,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.healthcareproject.R
+import com.example.healthcareproject.domain.model.Measurement
 import com.example.healthcareproject.presentation.viewmodel.home.HRViewModel
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
@@ -23,7 +26,12 @@ import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.google.android.material.tabs.TabLayout
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 @AndroidEntryPoint
 class HeartRateFragment : Fragment() {
@@ -31,19 +39,18 @@ class HeartRateFragment : Fragment() {
     private lateinit var tabLayout: TabLayout
     private lateinit var lineChart: LineChart
     private lateinit var tvTitle: TextView
-    private lateinit var tvDate: TextView
     private lateinit var tvHeartRateValue: TextView
     private lateinit var tvBpmLabel: TextView
     private lateinit var tvMinValue: TextView
     private lateinit var tvMaxValue: TextView
     private lateinit var tvAverageLabel: TextView
     private lateinit var ivHeartIcon: ImageView
+    private lateinit var progressBar: ProgressBar
 
     private val heartRateData = mutableListOf<Float>()
     private val timeStamps = mutableListOf<Long>()
-    private lateinit var timeFrame: String
-
-    private val maxDataPoints = 100
+    private var timeFrame: String = "MINUTE"
+    private var dataCollectionJob: Job? = null
 
     private val viewModel: HRViewModel by viewModels()
 
@@ -62,6 +69,7 @@ class HeartRateFragment : Fragment() {
         tvMaxValue = view.findViewById(R.id.tv_max_value)
         tvAverageLabel = view.findViewById(R.id.tv_average_label)
         ivHeartIcon = view.findViewById(R.id.iv_heart_icon)
+        progressBar = view.findViewById(R.id.progress_bar)
 
         view.findViewById<ImageView>(R.id.ic_back_heart_rate_to_home).setOnClickListener {
             findNavController().popBackStack()
@@ -69,36 +77,34 @@ class HeartRateFragment : Fragment() {
 
         setupTabLayout()
         setupLineChart()
-
-        timeFrame = "MINUTE"
-
-        observeHeartRate()
+        startDataCollection()
 
         return view
     }
 
-    private fun observeHeartRate() {
-        viewModel.heartRateHistory.observe(viewLifecycleOwner) { measurements ->
-            if (measurements.isNullOrEmpty()) return@observe
-
-            val lastTimestamp = if (timeStamps.isEmpty()) 0L else timeStamps.last()
-
-            for (m in measurements) {
-                val epochMillis = m.dateTime
-                    .atZone(ZoneId.systemDefault())
-                    .toInstant()
-                    .toEpochMilli()
-
-                if (epochMillis > lastTimestamp) {
-                    if (heartRateData.size >= maxDataPoints) {
-                        heartRateData.removeAt(0)
-                        timeStamps.removeAt(0)
-                    }
+    private fun startDataCollection() {
+        dataCollectionJob?.cancel()
+        dataCollectionJob = viewLifecycleOwner.lifecycleScope.launch {
+            Timber.d("Starting data collection for timeFrame: $timeFrame")
+            progressBar.visibility = View.VISIBLE
+            viewModel.getHeartRateDataByTimeFrame(timeFrame).collect { measurements ->
+                Timber.d("Received measurements count: ${measurements.size}, data: $measurements")
+                heartRateData.clear()
+                timeStamps.clear()
+                if (measurements.isEmpty()) {
+                    Timber.w("No measurements for timeFrame: $timeFrame")
+                    updateChartData()
+                    progressBar.visibility = View.GONE
+                    return@collect
+                }
+                measurements.forEach { m ->
+                    val epochMillis = m.dateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
                     heartRateData.add(m.bpm)
                     timeStamps.add(epochMillis)
                 }
+                updateChartData()
+                progressBar.visibility = View.GONE
             }
-            updateChartData()
         }
     }
 
@@ -112,7 +118,8 @@ class HeartRateFragment : Fragment() {
                     3 -> "WEEK"
                     else -> "MINUTE"
                 }
-                updateChartData()
+                Timber.d("Tab selected, timeFrame: $timeFrame")
+                startDataCollection()
             }
             override fun onTabUnselected(tab: TabLayout.Tab?) {}
             override fun onTabReselected(tab: TabLayout.Tab?) {}
@@ -146,29 +153,35 @@ class HeartRateFragment : Fragment() {
 
     @SuppressLint("SetTextI18n")
     private fun updateChartData() {
+        Timber.d("Updating chart with heartRateData count: ${heartRateData.size}, data: $heartRateData")
+        if (heartRateData.isEmpty()) {
+            tvHeartRateValue.text = "--"
+            tvMinValue.text = "--"
+            tvMaxValue.text = "--"
+            tvAverageLabel.text = "No data available"
+            lineChart.clear()
+            lineChart.invalidate()
+            Timber.w("No data to display in chart")
+            return
+        }
+
         val entries = heartRateData.mapIndexed { index, value ->
             Entry(index.toFloat(), value)
         }
 
+        val formatter = DateTimeFormatter.ofPattern("HH:mm:ss")
+        val dayFormatter = DateTimeFormatter.ofPattern("MM-dd")
         val labels = timeStamps.map {
-            val label = when (timeFrame) {
-                "MINUTE" -> "${(it / 1000) % 60}s"
-                "HOUR" -> "${(it / 1000 / 60) % 60}m"
-                "DAY" -> "${(it / 1000 / 3600) % 24}h"
-                "WEEK" -> {
-                    when ((it / 1000 / 86400).toInt() % 7) {
-                        0 -> "Mon"
-                        1 -> "Tue"
-                        2 -> "Wed"
-                        3 -> "Thu"
-                        4 -> "Fri"
-                        5 -> "Sat"
-                        else -> "Sun"
-                    }
-                }
-                else -> "${(it / 1000) % 60}s"
+            val localDateTime = java.time.Instant.ofEpochMilli(it)
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime()
+            when (timeFrame) {
+                "MINUTE" -> localDateTime.format(formatter)
+                "HOUR" -> localDateTime.format(formatter)
+                "DAY" -> localDateTime.format(dayFormatter)
+                "WEEK" -> localDateTime.format(DateTimeFormatter.ofPattern("EEE"))
+                else -> localDateTime.format(formatter)
             }
-            label
         }
 
         val minValue = heartRateData.minOrNull() ?: 0f
@@ -183,7 +196,7 @@ class HeartRateFragment : Fragment() {
 
         val maxAlertThreshold = 120f
         val minAlertThreshold = 55f
-        val isAlert = heartRateData.any { it > maxAlertThreshold || it < minAlertThreshold}
+        val isAlert = heartRateData.any { it > maxAlertThreshold || it < minAlertThreshold }
 
         val gradientColors = if (isAlert) {
             intArrayOf(
@@ -213,7 +226,6 @@ class HeartRateFragment : Fragment() {
             cubicIntensity = 0.2f
             color = resources.getColor(R.color.chart_line_color, null)
             setDrawCircles(false)
-//            setCircleColor(Color.BLACK)
             lineWidth = 2.5f
             circleRadius = 5f
             setDrawCircleHole(false)
@@ -226,6 +238,13 @@ class HeartRateFragment : Fragment() {
 
         lineChart.xAxis.valueFormatter = IndexAxisValueFormatter(labels)
         lineChart.data = LineData(dataSet)
+        lineChart.notifyDataSetChanged()
         lineChart.invalidate()
+        Timber.d("Chart updated and invalidated")
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        dataCollectionJob?.cancel()
     }
 }
