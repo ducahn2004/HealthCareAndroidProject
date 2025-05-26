@@ -5,6 +5,7 @@ import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.view.Gravity
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.TextView
@@ -21,10 +22,20 @@ class ReminderActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+
         window.apply {
+            clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
             addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-            setShowWhenLocked(true)
-            setTurnScreenOn(true)
+            addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED)
+            addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON)
+            addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
+            setDimAmount(0.3f)
+            setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT)
+            attributes.gravity = Gravity.TOP
+            attributes.width = WindowManager.LayoutParams.MATCH_PARENT
+            setBackgroundDrawableResource(android.R.color.transparent)
+
+            decorView.setPadding(0, 0, 0, 0)
         }
 
         setContentView(R.layout.activity_reminder)
@@ -71,5 +82,16 @@ class ReminderActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         stopAlarmSound()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Đảm bảo cửa sổ có thể tương tác
+        window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        // Không thêm cờ không tương tác khi tạm dừng
     }
 }
