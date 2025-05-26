@@ -23,7 +23,6 @@ import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
-import com.google.android.material.tabs.TabLayout
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -32,7 +31,6 @@ import java.time.ZoneId
 @AndroidEntryPoint
 class HeartRateFragment : Fragment() {
 
-    private lateinit var tabLayout: TabLayout
     private lateinit var lineChart: LineChart
     private lateinit var tvTitle: TextView
     private lateinit var tvHeartRateValue: TextView
@@ -44,8 +42,7 @@ class HeartRateFragment : Fragment() {
 
     private val heartRateData = mutableListOf<Float>()
     private val timeStamps = mutableListOf<Long>()
-    private lateinit var timeFrame: String
-
+    private val timeFrame: String = "MINUTE" // Khung thời gian mặc định
 
     private val viewModel: HRViewModel by viewModels()
 
@@ -55,7 +52,6 @@ class HeartRateFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_heart_rate, container, false)
 
-        tabLayout = view.findViewById(R.id.tab_layout)
         lineChart = view.findViewById(R.id.chart_heart_rate)
         tvTitle = view.findViewById(R.id.tv_title)
         tvHeartRateValue = view.findViewById(R.id.tv_heart_rate_value)
@@ -69,11 +65,7 @@ class HeartRateFragment : Fragment() {
             findNavController().popBackStack()
         }
 
-        setupTabLayout()
         setupLineChart()
-
-        timeFrame = "MINUTE"
-
         observeHeartRate()
 
         return view
@@ -92,23 +84,6 @@ class HeartRateFragment : Fragment() {
                 updateChartData()
             }
         }
-    }
-
-    private fun setupTabLayout() {
-        tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-            override fun onTabSelected(tab: TabLayout.Tab?) {
-                timeFrame = when (tab?.position) {
-                    0 -> "MINUTE"
-                    1 -> "HOUR"
-                    2 -> "DAY"
-                    3 -> "WEEK"
-                    else -> "MINUTE"
-                }
-                updateChartData()
-            }
-            override fun onTabUnselected(tab: TabLayout.Tab?) {}
-            override fun onTabReselected(tab: TabLayout.Tab?) {}
-        })
     }
 
     private fun setupLineChart() {
@@ -175,7 +150,7 @@ class HeartRateFragment : Fragment() {
 
         val maxAlertThreshold = 120f
         val minAlertThreshold = 55f
-        val isAlert = heartRateData.any { it > maxAlertThreshold || it < minAlertThreshold}
+        val isAlert = heartRateData.any { it > maxAlertThreshold || it < minAlertThreshold }
 
         val gradientColors = if (isAlert) {
             intArrayOf(
@@ -205,7 +180,6 @@ class HeartRateFragment : Fragment() {
             cubicIntensity = 0.2f
             color = resources.getColor(R.color.chart_line_color, null)
             setDrawCircles(false)
-//            setCircleColor(Color.BLACK)
             lineWidth = 2.5f
             circleRadius = 5f
             setDrawCircleHole(false)

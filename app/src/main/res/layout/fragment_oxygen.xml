@@ -138,40 +138,6 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <!-- Tab Layout -->
-    <com.google.android.material.tabs.TabLayout
-        android:id="@+id/tab_layout"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:background="@color/tab_background"
-        app:layout_constraintTop_toBottomOf="@id/tv_average_label"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:tabIndicatorColor="@color/tab_text_selected"
-        app:tabSelectedTextColor="@color/tab_text_selected"
-        app:tabTextColor="@color/tab_text_unselected">
-
-        <com.google.android.material.tabs.TabItem
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/minute" />
-
-        <com.google.android.material.tabs.TabItem
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/hour" />
-
-        <com.google.android.material.tabs.TabItem
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/day" />
-
-        <com.google.android.material.tabs.TabItem
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/week" />
-    </com.google.android.material.tabs.TabLayout>
-
 
     <!-- Chart -->
     <com.github.mikephil.charting.charts.LineChart
@@ -180,7 +146,7 @@
         android:layout_height="0dp"
         android:layout_marginTop="12dp"
         android:background="@android:color/transparent"
-        app:layout_constraintTop_toBottomOf="@id/tab_layout"
+        app:layout_constraintTop_toBottomOf="@id/tv_average_label"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />

@@ -23,20 +23,16 @@ import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
-import com.google.android.material.tabs.TabLayout
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.time.ZoneId
 
-
 @AndroidEntryPoint
 class OxygenFragment : Fragment() {
 
-    private lateinit var tabLayout: TabLayout
     private lateinit var lineChart: LineChart
     private lateinit var tvTitle: TextView
-    private lateinit var tvDate: TextView
     private lateinit var tvSpO2Value: TextView
     private lateinit var tvPercentLabel: TextView
     private lateinit var tvMinValue: TextView
@@ -46,8 +42,7 @@ class OxygenFragment : Fragment() {
 
     private val spo2Data = mutableListOf<Float>()
     private val timeStamps = mutableListOf<Long>()
-
-    private lateinit var timeFrame: String
+    private val timeFrame: String = "MINUTE" // Khung thời gian mặc định
 
     private val viewModel: SpO2ViewModel by viewModels()
 
@@ -57,7 +52,6 @@ class OxygenFragment : Fragment() {
     ): View {
         val view = inflater.inflate(R.layout.fragment_oxygen, container, false)
 
-        tabLayout = view.findViewById(R.id.tab_layout)
         lineChart = view.findViewById(R.id.chart_spo2)
         tvTitle = view.findViewById(R.id.tv_title)
         tvSpO2Value = view.findViewById(R.id.tv_spo2_value)
@@ -80,11 +74,7 @@ class OxygenFragment : Fragment() {
             }
         }
 
-        setupTabLayout()
         setupLineChart()
-
-        timeFrame = "MINUTE"
-
         observeSpO2()
 
         return view
@@ -112,23 +102,6 @@ class OxygenFragment : Fragment() {
                 updateChartData()
             }
         }
-    }
-
-    private fun setupTabLayout() {
-        tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-            override fun onTabSelected(tab: TabLayout.Tab?) {
-                timeFrame = when (tab?.position) {
-                    0 -> "MINUTE"
-                    1 -> "HOUR"
-                    2 -> "DAY"
-                    3 -> "WEEK"
-                    else -> "MINUTE"
-                }
-                updateChartData()
-            }
-            override fun onTabUnselected(tab: TabLayout.Tab?) {}
-            override fun onTabReselected(tab: TabLayout.Tab?) {}
-        })
     }
 
     private fun setupLineChart() {
