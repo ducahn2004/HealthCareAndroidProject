@@ -37,7 +37,9 @@
         </action>
         <action
             android:id="@+id/action_registerFragment_to_loginMethodFragment"
-            app:destination="@id/loginMethodFragment" />
+            app:destination="@id/loginMethodFragment"
+            app:popUpTo="@id/loginMethodFragment"
+            app:popUpToInclusive="false" />
     </fragment>
 
     <fragment

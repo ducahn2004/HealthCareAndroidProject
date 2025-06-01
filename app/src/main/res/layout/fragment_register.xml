@@ -27,6 +27,7 @@
                 android:contentDescription="@string/back"
                 android:padding="16dp"
                 android:src="@drawable/ic_back"
+                android:elevation="4dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"/>
 

@@ -167,7 +167,9 @@ class RegisterFragment : Fragment() {
         }
     }
 
+    // Thêm vào RegisterFragment
     override fun onDestroyView() {
+        Timber.d("RegisterFragment onDestroyView called")
         super.onDestroyView()
         _binding = null
     }

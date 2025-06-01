@@ -24,7 +24,7 @@
             android:text="@string/medical_history"
             android:textColor="@color/primary_text_color"
             android:textColorHint="@color/secondary_text_color"
-            android:textSize="24sp"
+            android:textSize="28sp"
             android:textStyle="bold"
             android:padding="16dp"
             app:layout_constraintTop_toTopOf="parent"

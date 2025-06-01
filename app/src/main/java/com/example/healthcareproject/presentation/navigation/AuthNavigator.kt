@@ -2,6 +2,7 @@ package com.example.healthcareproject.presentation.navigation
 
 import androidx.navigation.NavController
 import com.example.healthcareproject.R
+import timber.log.Timber
 
 class AuthNavigator(private val navController: NavController) {
 
@@ -29,8 +30,15 @@ class AuthNavigator(private val navController: NavController) {
         navController.navigate(R.id.action_loginFragment_to_loginMethodFragment)
     }
 
+    // Thêm vào AuthNavigator
     fun fromRegisterToLoginMethod() {
-        navController.navigate(R.id.action_registerFragment_to_loginMethodFragment)
+        Timber.d("Navigating from Register to LoginMethod")
+        try {
+            navController.navigate(R.id.action_registerFragment_to_loginMethodFragment)
+            Timber.d("Navigation successful")
+        } catch (e: Exception) {
+            Timber.e(e, "Navigation failed")
+        }
     }
 
     fun fromGoogleLoginToLoginMethod() {
